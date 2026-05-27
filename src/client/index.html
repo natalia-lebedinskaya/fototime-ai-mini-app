@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Fototime AI</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="brand-row">
+        <div class="brand-badge">FOTOTIME323</div>
+        <div id="eventStatus" class="status-badge">Loading</div>
+      </div>
+
+      <h1>Fototime AI</h1>
+
+      <p>
+        Выберите участника, стиль обработки и загрузите фото.
+        Приложение покажет только стили, доступные для текущего мероприятия.
+      </p>
+    </section>
+
+    <section id="errorState" class="state-card hidden">
+      <h2>Не удалось загрузить мероприятие</h2>
+      <p id="errorText">Попробуйте обновить страницу.</p>
+      <button id="retryButton" class="secondary-button">Повторить</button>
+    </section>
+
+    <section id="content" class="hidden">
+      <section class="card">
+        <div class="section-header">
+          <span class="step">01</span>
+          <div>
+            <h2>Участник</h2>
+            <p id="eventName" class="section-subtitle"></p>
+          </div>
+        </div>
+
+        <div id="participantsGrid" class="chips-grid"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-header">
+          <span class="step">02</span>
+          <div>
+            <h2>Стиль обработки</h2>
+            <p class="section-subtitle">Стили загружаются из конфигурации мероприятия</p>
+          </div>
+        </div>
+
+        <div id="emptyStylesState" class="empty-state hidden">
+          Для выбранного участника пока нет доступных стилей.
+        </div>
+
+        <div id="stylesGrid" class="styles-grid"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-header">
+          <span class="step">03</span>
+          <div>
+            <h2>Фото</h2>
+            <p class="section-subtitle">JPG, JPEG или PNG до 10 MB</p>
+          </div>
+        </div>
+
+        <label class="upload-zone" for="photoInput">
+          <span id="uploadTitle" class="upload-title">Выбрать фото</span>
+          <span class="upload-description">
+            Лучше загрузить портретное фото, где хорошо видно лицо
+          </span>
+        </label>
+
+        <input id="photoInput" class="hidden-input" type="file" accept="image/png, image/jpeg" />
+
+        <button id="generateButton" class="primary-button" disabled>
+          Создать AI-фото
+        </button>
+
+        <p id="message" class="message"></p>
+      </section>
+
+      <section id="resultSection" class="card result-card hidden">
+        <div class="section-header">
+          <span class="step">04</span>
+          <div>
+            <h2>Результат</h2>
+            <p class="section-subtitle">Mock-результат генерации</p>
+          </div>
+        </div>
+
+        <img id="resultImage" class="result-image" src="" alt="AI generation result" />
+
+        <button id="resetButton" class="secondary-button">
+          Создать ещё одно
+        </button>
+      </section>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

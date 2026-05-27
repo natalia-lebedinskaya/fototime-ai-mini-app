@@ -1,0 +1,11 @@
+<svg width="900" height="1200" viewBox="0 0 900 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1200" fill="#090912"/>
+  <circle cx="450" cy="390" r="220" fill="#B8FF1F" opacity="0.18"/>
+  <circle cx="450" cy="390" r="150" fill="#00D7FF" opacity="0.16"/>
+  <rect x="170" y="180" width="560" height="760" rx="42" fill="white" opacity="0.08"/>
+  <rect x="210" y="220" width="480" height="680" rx="34" fill="#151522"/>
+  <circle cx="450" cy="390" r="118" fill="#B8FF1F"/>
+  <rect x="300" y="540" width="300" height="250" rx="150" fill="#B8FF1F"/>
+  <text x="450" y="1010" text-anchor="middle" fill="white" font-family="Arial" font-size="46" font-weight="800">MOCK AI RESULT</text>
+  <text x="450" y="1070" text-anchor="middle" fill="#9CA3AF" font-family="Arial" font-size="28">Fototime AI</text>
+</svg>
