@@ -1,0 +1,29 @@
+{
+  "name": "fototime-ai-mini-app",
+  "version": "1.0.0",
+  "description": "QA-focused Telegram Mini App for AI photo generation.",
+  "main": "src/server/server.js",
+  "scripts": {
+    "dev": "nodemon src/server/server.js",
+    "start": "node src/server/server.js"
+  },
+  "keywords": [
+    "telegram-mini-app",
+    "qa-pet-project",
+    "manual-qa",
+    "ai-photo",
+    "test-strategy",
+    "negative-testing"
+  ],
+  "author": "Natalia Bedareva",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
