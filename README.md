@@ -1,5 +1,11 @@
 # Fototime AI Telegram Mini App
 
+## Live Demo
+
+Production demo is available here:
+
+https://fototime-ai-mini-app.onrender.com
+
 ## Project Overview
 
 Fototime AI is a Telegram Mini App MVP for AI photo generation based on event configuration.
