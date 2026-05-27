@@ -1,0 +1,8 @@
+{
+  "local": {
+    "baseUrl": "http://localhost:3000"
+  },
+  "production": {
+    "baseUrl": "https://fototime-ai-mini-app.onrender.com"
+  }
+}

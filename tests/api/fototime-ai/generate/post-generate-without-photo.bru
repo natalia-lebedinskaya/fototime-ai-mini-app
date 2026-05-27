@@ -1,0 +1,26 @@
+meta {
+  name: POST generate without photo
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/generate
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  participantId: male
+  styleId: ns-astral
+}
+
+tests {
+  test("status code is 400", function() {
+    expect(res.status).to.equal(400);
+  });
+
+  test("photo required error is returned", function() {
+    expect(res.body.code).to.equal("PHOTO_REQUIRED");
+  });
+}
