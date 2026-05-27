@@ -8,7 +8,7 @@ https://fototime-ai-mini-app.onrender.com
 
 ## Application Preview
 
-![Fototime AI application preview](docs:demo-screenshot.png)
+![Fototime AI application preview](docs:demo-screenshot.png) 
 
 
 ## Project Overview
