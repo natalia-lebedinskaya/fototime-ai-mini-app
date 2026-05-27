@@ -24,6 +24,7 @@ const errorText = document.getElementById('errorText');
 const retryButton = document.getElementById('retryButton');
 
 const participantsGrid = document.getElementById('participantsGrid');
+const emptyParticipantsState = document.getElementById('emptyParticipantsState');
 const stylesGrid = document.getElementById('stylesGrid');
 const emptyStylesState = document.getElementById('emptyStylesState');
 
@@ -192,7 +193,7 @@ function showContent() {
 function showError(text) {
   eventStatus.textContent = 'Error';
   eventStatus.className = 'status-badge error';
-  errorText.textContent = text;
+  errorText.textContent = text || 'Не удалось загрузить данные мероприятия. Попробуйте повторить запрос.';
   errorState.classList.remove('hidden');
   content.classList.add('hidden');
 }
@@ -208,6 +209,15 @@ function renderParticipants() {
   participantsGrid.innerHTML = '';
 
   const activeParticipants = state.eventConfig.participants.filter((participant) => participant.isActive);
+  emptyParticipantsState.classList.toggle('hidden', activeParticipants.length > 0);
+
+  if (activeParticipants.length === 0) {
+    state.selectedParticipantId = null;
+    state.selectedStyleId = null;
+    renderStyles();
+    validateForm();
+    return;
+  }
 
   activeParticipants.forEach((participant) => {
     const button = document.createElement('button');
@@ -231,11 +241,19 @@ function renderParticipants() {
 function renderStyles() {
   stylesGrid.innerHTML = '';
 
+  if (!state.selectedParticipantId) {
+    emptyStylesState.classList.remove('hidden');
+    emptyStylesState.textContent = 'Сначала выберите участника мероприятия.';
+    validateForm();
+    return;
+  }
+
   const filteredStyles = state.eventConfig.styles.filter((style) => {
     return style.participantType === state.selectedParticipantId && style.isAvailable;
   });
 
   emptyStylesState.classList.toggle('hidden', filteredStyles.length > 0);
+  emptyStylesState.textContent = 'Для выбранного участника пока нет доступных стилей.';
 
   filteredStyles.forEach((style) => {
     const card = document.createElement('button');

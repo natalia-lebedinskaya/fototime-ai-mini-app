@@ -32,8 +32,8 @@
 
     <section id="errorState" class="state-card hidden">
       <h2>Не удалось загрузить мероприятие</h2>
-      <p id="errorText">Попробуйте обновить страницу.</p>
-      <button id="retryButton" class="secondary-button">Повторить</button>
+      <p id="errorText">Попробуйте повторить загрузку мероприятия.</p>
+      <button id="retryButton" class="secondary-button">Повторить загрузку</button>
     </section>
 
     <section id="content" class="hidden">
@@ -44,6 +44,10 @@
             <h2>Участник</h2>
             <p id="eventName" class="section-subtitle"></p>
           </div>
+        </div>
+
+        <div id="emptyParticipantsState" class="empty-state hidden">
+          Для этого мероприятия пока нет доступных участников.
         </div>
 
         <div id="participantsGrid" class="chips-grid"></div>
