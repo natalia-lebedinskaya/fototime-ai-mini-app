@@ -1,0 +1,25 @@
+meta {
+  name: GET event config
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/event-config
+  body: none
+  auth: none
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("event config contains participants", function() {
+    expect(res.body.participants).to.be.an("array");
+  });
+
+  test("event config contains styles", function() {
+    expect(res.body.styles).to.be.an("array");
+  });
+}
