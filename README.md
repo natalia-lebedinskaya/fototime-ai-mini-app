@@ -189,16 +189,15 @@ Local URL works only after starting the server.
 
 ## Roadmap
 
-Planned improvements:
+Planned improvements are tracked in GitHub Issues:
 
-- add Telegram initData validation on backend;
-- replace mock event config with external API integration;
-- replace mock generation with real generation request;
-- add timeout and retry states;
-- improve empty states;
-- add API checks collection;
-- add deployment environment;
-- update release checklist before production demo.
+- Add Telegram initData validation
+- Add external AI service integration
+- Add generation timeout and retry states
+- Add API test collection
+- Improve empty and error states
+
+These tasks describe the next product and QA iterations after the current MVP mock-flow.
 
 ## Repository Status
 
