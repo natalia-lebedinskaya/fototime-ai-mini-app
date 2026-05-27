@@ -6,6 +6,8 @@ if (tg) {
   tg.enableClosingConfirmation();
 }
 
+const GENERATION_TIMEOUT_MS = 15000;
+
 const state = {
   eventConfig: null,
   selectedParticipantId: null,
@@ -28,6 +30,8 @@ const emptyStylesState = document.getElementById('emptyStylesState');
 const photoInput = document.getElementById('photoInput');
 const uploadTitle = document.getElementById('uploadTitle');
 const generateButton = document.getElementById('generateButton');
+const retryGenerationButton = document.getElementById('retryGenerationButton');
+const generationErrorActions = document.getElementById('generationErrorActions');
 const message = document.getElementById('message');
 
 const resultSection = document.getElementById('resultSection');
@@ -37,6 +41,8 @@ const resetButton = document.getElementById('resetButton');
 document.addEventListener('DOMContentLoaded', init);
 
 retryButton.addEventListener('click', init);
+generateButton.addEventListener('click', runGeneration);
+retryGenerationButton.addEventListener('click', runGeneration);
 
 photoInput.addEventListener('change', (event) => {
   const file = event.target.files[0];
@@ -70,49 +76,6 @@ photoInput.addEventListener('change', (event) => {
   validateForm();
 });
 
-generateButton.addEventListener('click', async () => {
-  if (state.isGenerating) return;
-
-  if (!state.selectedParticipantId || !state.selectedStyleId || !state.selectedPhoto) {
-    showMessage('Выберите участника, стиль и фото', 'error');
-    return;
-  }
-
-  state.isGenerating = true;
-  generateButton.disabled = true;
-  generateButton.textContent = 'Создаём образ...';
-  showMessage('Генерация запущена', 'info');
-
-  const formData = new FormData();
-  formData.append('participantId', state.selectedParticipantId);
-  formData.append('styleId', state.selectedStyleId);
-  formData.append('photo', state.selectedPhoto);
-
-  try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      body: formData
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Ошибка генерации');
-    }
-
-    resultImage.src = data.resultUrl;
-    resultSection.classList.remove('hidden');
-    showMessage('Готово. Изображение создано', 'success');
-    resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } catch (error) {
-    showMessage(error.message || 'Что-то пошло не так. Попробуйте ещё раз', 'error');
-  } finally {
-    state.isGenerating = false;
-    generateButton.textContent = 'Создать AI-фото';
-    validateForm();
-  }
-});
-
 resetButton.addEventListener('click', () => {
   state.selectedStyleId = null;
   state.selectedPhoto = null;
@@ -120,6 +83,7 @@ resetButton.addEventListener('click', () => {
 
   resetPhotoInput();
   resultSection.classList.add('hidden');
+  generationErrorActions.classList.add('hidden');
   resultImage.src = '';
 
   renderStyles();
@@ -150,6 +114,64 @@ async function init() {
     showContent();
   } catch (error) {
     showError(error.message);
+  }
+}
+
+async function runGeneration() {
+  if (state.isGenerating) return;
+
+  if (!state.selectedParticipantId || !state.selectedStyleId || !state.selectedPhoto) {
+    showMessage('Выберите участника, стиль и фото', 'error');
+    return;
+  }
+
+  state.isGenerating = true;
+  generateButton.disabled = true;
+  generateButton.textContent = 'Создаём образ...';
+  generationErrorActions.classList.add('hidden');
+  showMessage('Генерация запущена. Это может занять несколько секунд', 'info');
+
+  const formData = new FormData();
+  formData.append('participantId', state.selectedParticipantId);
+  formData.append('styleId', state.selectedStyleId);
+  formData.append('photo', state.selectedPhoto);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), GENERATION_TIMEOUT_MS);
+
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Ошибка генерации');
+    }
+
+    resultImage.src = data.resultUrl;
+    resultSection.classList.remove('hidden');
+    generationErrorActions.classList.add('hidden');
+    showMessage('Готово. Изображение создано', 'success');
+    resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    const errorMessage = error.name === 'AbortError'
+      ? 'Генерация заняла больше времени, чем ожидалось. Попробуйте повторить запрос.'
+      : error.message || 'Что-то пошло не так. Попробуйте ещё раз';
+
+    generationErrorActions.classList.remove('hidden');
+    showMessage(errorMessage, 'error');
+  } finally {
+    state.isGenerating = false;
+    generateButton.textContent = 'Создать AI-фото';
+    validateForm();
   }
 }
 
@@ -220,11 +242,10 @@ function renderStyles() {
     card.className = getStyleClass(style.id);
     card.dataset.styleId = style.id;
 
-    card.innerHTML = `
-      <img src="${style.previewUrl}" alt="${style.name}" class="style-preview" />
-      <span class="style-name">${style.name}</span>
-      <span class="style-price">${style.price}</span>
-    `;
+    card.innerHTML =
+      '<img src="' + style.previewUrl + '" alt="' + style.name + '" class="style-preview" />' +
+      '<span class="style-name">' + style.name + '</span>' +
+      '<span class="style-price">' + style.price + '</span>';
 
     card.addEventListener('click', () => {
       state.selectedStyleId = style.id;
