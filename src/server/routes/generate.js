@@ -1,6 +1,14 @@
 const express = require('express');
 const uploadMiddleware = require('../middleware/uploadMiddleware');
 const eventConfig = require('../data/eventConfig');
+const { generateMockImage } = require('../services/mockGenerationService');
+const { generateCyberPhotoBoothImage } = require('../services/cyberPhotoBoothService');
+const {
+  createGenerationId,
+  saveOriginalPhoto,
+  saveResultImage,
+  saveGenerationMetadata
+} = require('../services/fileStorageService');
 
 const router = express.Router();
 
@@ -53,15 +61,45 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       });
     }
 
-    res.status(200).json({
-      status: 'success',
-      message: 'Изображение успешно сгенерировано',
-      resultUrl: '/assets/mock-result.svg',
-      request: {
-        eventId: eventConfig.eventId,
-        participantId,
-        styleId,
-        originalFileName: req.file.originalname
+    const generationId = createGenerationId();
+    const originalPhoto = await saveOriginalPhoto(req.file, generationId);
+
+    const generationPayload = {
+      file: req.file,
+      participantId,
+      styleId,
+      originalFileName: req.file.originalname
+    };
+
+    const provider = process.env.GENERATION_PROVIDER || 'mock';
+
+    const generationResult = provider === 'cyberphotobooth'
+      ? await generateCyberPhotoBoothImage(generationPayload)
+      : await generateMockImage(generationPayload);
+
+    const resultImage = await saveResultImage(generationResult.resultUrl, generationId);
+
+    const metadata = {
+      generationId,
+      provider: generationResult.provider,
+      participantId,
+      styleId,
+      originalFileName: req.file.originalname,
+      originalPhoto: originalPhoto.relativePath,
+      resultImage: resultImage?.relativePath || null,
+      jobId: generationResult.request?.jobId || null,
+      createdAt: new Date().toISOString()
+    };
+
+    const metadataFile = await saveGenerationMetadata(metadata, generationId);
+
+    return res.status(200).json({
+      ...generationResult,
+      generationId,
+      storage: {
+        originalPhoto: originalPhoto.relativePath,
+        resultImage: resultImage?.relativePath || null,
+        metadata: metadataFile.relativePath
       }
     });
   } catch (error) {

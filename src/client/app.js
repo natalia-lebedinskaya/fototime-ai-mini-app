@@ -6,7 +6,7 @@ if (tg) {
   tg.enableClosingConfirmation();
 }
 
-const GENERATION_TIMEOUT_MS = 15000;
+const GENERATION_TIMEOUT_MS = 180000;
 
 const state = {
   eventConfig: null,
