@@ -39,12 +39,16 @@ function getBase64FromFile(file) {
   return file.buffer.toString('base64');
 }
 
-async function submitGenerationJob({ file, participantId }) {
+async function submitGenerationJob({ file, participantId, cyberPhotoBoothStyle }) {
   const config = getCyberPhotoBoothConfig();
+
+  const styleConfig = cyberPhotoBoothStyle || {
+    type: 'style',
+    value: String(config.style)
+  };
 
   const body = {
     mode: config.mode,
-    style: String(config.style),
     return_s3_link: false,
     params: {
       Sex: mapParticipantToSex(participantId),
@@ -52,6 +56,26 @@ async function submitGenerationJob({ file, participantId }) {
       Fon: getBase64FromFile(file)
     }
   };
+
+  if (styleConfig.type === 'user_style_id') {
+    body.user_style_id = String(styleConfig.value);
+  } else {
+    body.style = String(styleConfig.value);
+  }
+
+  if (process.env.CYBERPHOTOBOOTH_DRY_RUN === 'true') {
+    return {
+      dryRun: true,
+      requestBody: {
+        ...body,
+        params: {
+          ...body.params,
+          Face: '[base64 omitted]',
+          Fon: '[base64 omitted]'
+        }
+      }
+    };
+  }
 
   const response = await fetch(`${config.apiUrl}/async/submit`, {
     method: 'POST',
@@ -138,14 +162,32 @@ async function waitForGenerationResult(jobId) {
   throw new Error('CyberPhotoBooth generation timeout');
 }
 
-async function generateCyberPhotoBoothImage({ file, participantId, styleId, originalFileName }) {
-  const jobId = await submitGenerationJob({
+async function generateCyberPhotoBoothImage({ file, participantId, styleId, cyberPhotoBoothStyle, originalFileName }) {
+  const job = await submitGenerationJob({
     file,
     participantId,
-    styleId
+    styleId,
+    cyberPhotoBoothStyle
   });
 
-  const result = await waitForGenerationResult(jobId);
+  if (job?.dryRun) {
+    return {
+      status: 'success',
+      message: 'Dry-run: запрос в CyberPhotoBooth не отправлялся',
+      resultUrl: '/assets/mock-result.svg',
+      provider: 'cyberphotobooth-dry-run',
+      request: {
+        participantId,
+        styleId,
+        originalFileName,
+        jobId: null,
+        cyberPhotoBoothStyle,
+        requestBody: job.requestBody
+      }
+    };
+  }
+
+  const result = await waitForGenerationResult(job);
 
   return {
     status: 'success',
@@ -156,7 +198,8 @@ async function generateCyberPhotoBoothImage({ file, participantId, styleId, orig
       participantId,
       styleId,
       originalFileName,
-      jobId
+      jobId: job,
+      cyberPhotoBoothStyle
     }
   };
 }
