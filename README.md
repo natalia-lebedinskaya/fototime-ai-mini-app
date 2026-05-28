@@ -202,3 +202,16 @@ The application is suitable for demonstrating:
 - negative scenario coverage;
 - manual test documentation;
 - structured QA approach to a small product.
+
+## Style Mapping
+
+Frontend style cards are mapped to CyberPhotoBooth style identifiers on the backend.
+API keys and provider configuration are stored only in environment variables.
+
+Current mappings:
+
+- `ns-spring-city` → `1093`
+- `ns-dryad-01` → `1252`
+- `ns-astral` → `1259`
+- `ns-hogwarts-stairs` → `1027`
+- `ns-valentine-01` → `Kaftan` fallback
