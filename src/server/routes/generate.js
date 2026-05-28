@@ -9,6 +9,7 @@ const {
   saveResultImage,
   saveGenerationMetadata
 } = require('../services/fileStorageService');
+const { getCyberPhotoBoothStyleMapping } = require('../services/styleMappingService');
 
 const router = express.Router();
 
@@ -64,10 +65,13 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
     const generationId = createGenerationId();
     const originalPhoto = await saveOriginalPhoto(req.file, generationId);
 
+    const cyberPhotoBoothStyle = getCyberPhotoBoothStyleMapping(styleId);
+
     const generationPayload = {
       file: req.file,
       participantId,
       styleId,
+      cyberPhotoBoothStyle,
       originalFileName: req.file.originalname
     };
 
@@ -88,6 +92,7 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       originalPhoto: originalPhoto.relativePath,
       resultImage: resultImage?.relativePath || null,
       jobId: generationResult.request?.jobId || null,
+      cyberPhotoBoothStyle: generationResult.request?.cyberPhotoBoothStyle || null,
       createdAt: new Date().toISOString()
     };
 
