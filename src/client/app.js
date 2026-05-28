@@ -11,6 +11,10 @@ const GENERATION_TIMEOUT_MS = 180000;
 const HISTORY_STORAGE_KEY = 'fototime-ai-generated-photos';
 
 const state = {
+  cyberStyles: [],
+  stylesCatalogLoaded: false,
+  styleSearchQuery: '',
+  selectedProviders: [],
   eventConfig: null,
   selectedParticipantId: null,
   selectedStyleId: null,
@@ -28,6 +32,8 @@ const retryButton = document.getElementById('retryButton');
 const participantsGrid = document.getElementById('participantsGrid');
 const emptyParticipantsState = document.getElementById('emptyParticipantsState');
 const stylesGrid = document.getElementById('stylesGrid');
+const stylesSearchInput = document.getElementById('stylesSearchInput');
+const stylesProvidersFilters = document.getElementById('stylesProvidersFilters');
 const emptyStylesState = document.getElementById('emptyStylesState');
 
 const photoInput = document.getElementById('photoInput');
@@ -347,6 +353,15 @@ function renderEventConfig() {
   renderParticipants();
   renderStyles();
   validateForm();
+  loadCyberStylesCatalog();
+}
+
+
+if (stylesSearchInput) {
+  stylesSearchInput.addEventListener('input', (event) => {
+    state.styleSearchQuery = event.target.value.trim().toLowerCase();
+    renderStyles();
+  });
 }
 
 function renderParticipants() {
@@ -372,6 +387,12 @@ function renderParticipants() {
     button.addEventListener('click', () => {
       state.selectedParticipantId = participant.id;
       state.selectedStyleId = null;
+      state.selectedProviders = [];
+      state.styleSearchQuery = '';
+
+      if (stylesSearchInput) {
+        stylesSearchInput.value = '';
+      }
 
       renderParticipants();
       renderStyles();
@@ -382,32 +403,238 @@ function renderParticipants() {
   });
 }
 
+
+
+function normalizeCyberStyleForApp(style) {
+  const title = style.displayNameRu || style.displayNameEn || style.name || style.id;
+
+  return {
+    id: String(style.id),
+    name: title,
+    displayNameRu: style.displayNameRu || title,
+    displayNameEn: style.displayNameEn || title,
+    previewUrl: style.previewUrl || null,
+    modes: Array.isArray(style.modes) ? style.modes : [],
+    participantType: state.selectedParticipantId || 'male',
+    isAvailable: true,
+    price: '0.34',
+    source: style.source || 'cyberphotobooth'
+  };
+}
+
+async function loadCyberStylesCatalog() {
+  try {
+    const response = await fetch('/api/styles');
+
+    if (!response.ok) {
+      throw new Error('Не удалось загрузить каталог стилей');
+    }
+
+    const data = await response.json();
+    const styles = Array.isArray(data.styles) ? data.styles : [];
+
+    state.cyberStyles = styles.map(normalizeCyberStyleForApp);
+    state.stylesCatalogLoaded = true;
+
+    renderStyles();
+  } catch (error) {
+    console.warn('CyberPhotoBooth styles catalog was not loaded:', error);
+    state.stylesCatalogLoaded = false;
+  }
+}
+
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function getStyleTitle(style) {
+  return style.displayNameRu || style.displayNameEn || style.name || style.id;
+}
+
+function getStyleProviders(style) {
+  const rawModes = Array.isArray(style.modes) ? style.modes : [];
+
+  const providers = rawModes
+    .map((mode) => {
+      if (typeof mode === 'string') {
+        return mode;
+      }
+
+      return (
+        mode.display_name ||
+        mode.displayName ||
+        mode.name ||
+        mode.provider ||
+        mode.engine ||
+        mode.model ||
+        mode.type ||
+        ''
+      );
+    })
+    .filter(Boolean)
+    .map((item) => String(item).trim());
+
+  return [...new Set(providers)];
+}
+
+function getAvailableProviders(styles) {
+  const providers = styles.flatMap((style) => getStyleProviders(style));
+  return [...new Set(providers)].sort((a, b) => a.localeCompare(b, 'ru'));
+}
+
+function matchesStyleSearch(style, query) {
+  if (!query) {
+    return true;
+  }
+
+  const title = getStyleTitle(style).toLowerCase();
+  const providers = getStyleProviders(style).join(' ').toLowerCase();
+  const haystack = `${title} ${providers}`;
+  return haystack.includes(query);
+}
+
+function matchesProviderFilters(style) {
+  if (!state.selectedProviders.length) {
+    return true;
+  }
+
+  const styleProviders = getStyleProviders(style);
+  return state.selectedProviders.every((provider) => styleProviders.includes(provider));
+}
+
+function renderProviderFilters(styles) {
+  if (!stylesProvidersFilters) {
+    return;
+  }
+
+  const providers = getAvailableProviders(styles);
+
+  stylesProvidersFilters.innerHTML = '';
+
+  if (!providers.length) {
+    stylesProvidersFilters.classList.add('hidden');
+    return;
+  }
+
+  stylesProvidersFilters.classList.remove('hidden');
+
+  providers.forEach((provider) => {
+    const label = document.createElement('label');
+    const isChecked = state.selectedProviders.includes(provider);
+
+    label.className = isChecked
+      ? 'provider-filter active'
+      : 'provider-filter';
+
+    label.innerHTML = `
+      <input
+        type="checkbox"
+        value="${escapeHtml(provider)}"
+        ${isChecked ? 'checked' : ''}
+      />
+      <span>${escapeHtml(provider)}</span>
+    `;
+
+    const checkbox = label.querySelector('input');
+
+    checkbox.addEventListener('change', (event) => {
+      if (event.target.checked) {
+        if (!state.selectedProviders.includes(provider)) {
+          state.selectedProviders = [...state.selectedProviders, provider];
+        }
+      } else {
+        state.selectedProviders = state.selectedProviders.filter(
+          (item) => item !== provider
+        );
+      }
+
+      renderStyles();
+      validateForm();
+    });
+
+    stylesProvidersFilters.appendChild(label);
+  });
+}
+
 function renderStyles() {
   stylesGrid.innerHTML = '';
 
   if (!state.selectedParticipantId) {
     emptyStylesState.classList.remove('hidden');
     emptyStylesState.textContent = 'Сначала выберите участника мероприятия.';
+
+    if (stylesProvidersFilters) {
+      stylesProvidersFilters.classList.add('hidden');
+    }
+
     validateForm();
     return;
   }
 
-  const filteredStyles = state.eventConfig.styles.filter((style) => {
-    return style.participantType === state.selectedParticipantId && style.isAvailable;
+  const sourceStyles = state.cyberStyles.length
+    ? state.cyberStyles.map((style) => ({
+      ...style,
+      participantType: state.selectedParticipantId
+    }))
+    : state.eventConfig.styles;
+
+  const participantStyles = sourceStyles.filter((style) => {
+    if (style.participantType) {
+      return style.participantType === state.selectedParticipantId && style.isAvailable !== false;
+    }
+
+    return style.isAvailable !== false;
   });
 
-  emptyStylesState.classList.toggle('hidden', filteredStyles.length > 0);
-  emptyStylesState.textContent = 'Для выбранного участника пока нет доступных стилей.';
+  renderProviderFilters(participantStyles);
+
+  const filteredStyles = participantStyles.filter((style) => {
+    return (
+      matchesStyleSearch(style, state.styleSearchQuery) &&
+      matchesProviderFilters(style)
+    );
+  });
+
+  if (!participantStyles.length) {
+    emptyStylesState.classList.remove('hidden');
+    emptyStylesState.textContent = 'Для выбранного участника пока нет доступных стилей.';
+  } else if (!filteredStyles.length) {
+    emptyStylesState.classList.remove('hidden');
+    emptyStylesState.textContent = 'По вашему запросу стили не найдены.';
+  } else {
+    emptyStylesState.classList.add('hidden');
+  }
 
   filteredStyles.forEach((style) => {
     const card = document.createElement('button');
     card.className = getStyleClass(style.id);
     card.dataset.styleId = style.id;
 
+    const styleTitle = getStyleTitle(style);
+    const providers = getStyleProviders(style);
+
+    const badgesHtml = providers.length
+      ? `
+        <div class="style-badges">
+          ${providers.map((provider) => `<span class="style-badge">${escapeHtml(provider)}</span>`).join('')}
+        </div>
+      `
+      : '';
+
+    const previewHtml = style.previewUrl
+      ? `<img class="style-preview" src="${escapeHtml(style.previewUrl)}" alt="${escapeHtml(styleTitle)}" loading="lazy" />`
+      : '';
+
     card.innerHTML =
-      '<img src="' + style.previewUrl + '" alt="' + style.name + '" class="style-preview" />' +
-      '<span class="style-name">' + style.name + '</span>' +
-      '<span class="style-price">' + style.price + '</span>';
+      previewHtml +
+      '<span class="style-name">' + escapeHtml(styleTitle) + '</span>' +
+      badgesHtml;
 
     card.addEventListener('click', () => {
       state.selectedStyleId = style.id;
@@ -419,6 +646,7 @@ function renderStyles() {
     stylesGrid.appendChild(card);
   });
 }
+
 
 function getDefaultParticipantId(config) {
   const firstActiveParticipant = config.participants.find((participant) => participant.isActive);

@@ -533,3 +533,418 @@ body::before {
     animation: none;
   }
 }
+
+
+
+
+
+
+/* Чтобы при выборе фильтров визуально не прыгал/не менялся фон секции */
+.providers-filters,
+.provider-filter,
+.provider-filter.active,
+.provider-filter:hover,
+.provider-filter:focus-within {
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.provider-filter {
+  min-height: 46px;
+  padding: 11px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.provider-filter:hover {
+  background: rgba(255, 255, 255, 0.075);
+  border-color: rgba(180, 255, 75, 0.48);
+}
+
+.provider-filter.active {
+  background: rgba(180, 255, 75, 0.14);
+  border-color: rgba(180, 255, 75, 0.72);
+}
+
+/* Увеличиваем чекбоксы */
+.provider-filter input {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  accent-color: #b4ff4b;
+  cursor: pointer;
+}
+
+.provider-filter span {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* Поиск в стиле проекта */
+.styles-toolbar {
+  margin: 18px 0 16px;
+}
+
+.styles-search {
+  width: 100%;
+  min-height: 62px;
+  padding: 0 20px;
+  border-radius: 22px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.16));
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: none;
+}
+
+.styles-search:hover {
+  border-color: rgba(180, 255, 75, 0.45);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.styles-search:focus-within {
+  border-color: rgba(180, 255, 75, 0.85);
+  background: rgba(255, 255, 255, 0.075);
+  box-shadow: 0 0 0 3px rgba(180, 255, 75, 0.1);
+}
+
+.styles-search-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 24px;
+  color: #b4ff4b;
+  font-weight: 900;
+}
+
+.styles-search input {
+  height: 58px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.styles-search input::placeholder {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.58);
+  letter-spacing: -0.01em;
+}
+
+/* На мобильном делаем каталог ниже, но всё равно скроллируемым */
+@media (max-width: 720px) {
+  .styles-grid {
+    max-height: 620px;
+  }
+
+  .styles-search {
+    min-height: 58px;
+    padding: 0 16px;
+  }
+
+  .styles-search input,
+  .styles-search input::placeholder {
+    font-size: 14px;
+  }
+
+  .provider-filter {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  .provider-filter input {
+    width: 19px;
+    height: 19px;
+    min-width: 19px;
+  }
+}
+
+
+/* Styles catalog: horizontal scroll, clean search/filter panel, no price */
+.card:has(#stylesGrid) {
+  overflow: hidden;
+}
+
+.styles-filter-panel {
+  margin: 18px 0 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.045);
+  overflow: hidden;
+}
+
+.styles-filter-panel summary {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  cursor: pointer;
+  list-style: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.styles-filter-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.styles-filter-panel summary::after {
+  content: "Открыть";
+  margin-left: auto;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(180, 255, 75, 0.14);
+  border: 1px solid rgba(180, 255, 75, 0.35);
+  color: #dfffaa;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.styles-filter-panel[open] summary::after {
+  content: "Скрыть";
+}
+
+.styles-toolbar {
+  width: 100%;
+  margin: 0;
+  padding: 0 18px 14px;
+  box-sizing: border-box;
+}
+
+.styles-search {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(180, 255, 75, 0.38);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.styles-search:focus-within {
+  border-color: rgba(180, 255, 75, 0.85);
+  background: rgba(255, 255, 255, 0.075);
+  box-shadow: 0 0 0 3px rgba(180, 255, 75, 0.1);
+}
+
+.styles-search-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #b4ff4b;
+  font-size: 23px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.styles-search input {
+  width: 100%;
+  height: 54px;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.styles-search input::placeholder {
+  color: rgba(255, 255, 255, 0.58);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.providers-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 18px 18px;
+  margin: 0;
+}
+
+.provider-filter {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.055);
+  cursor: pointer;
+  transition: 0.18s ease;
+  user-select: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.provider-filter:hover {
+  border-color: rgba(180, 255, 75, 0.48);
+  background: rgba(255, 255, 255, 0.075);
+}
+
+.provider-filter.active {
+  border-color: rgba(180, 255, 75, 0.72);
+  background: rgba(180, 255, 75, 0.14);
+}
+
+.provider-filter input {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  margin: 0;
+  accent-color: #b4ff4b;
+  cursor: pointer;
+}
+
+.provider-filter span {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Horizontal style carousel */
+.styles-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(210px, 1fr);
+  grid-template-columns: unset;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-height: none;
+  padding: 0 4px 18px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 255, 75, 0.65) rgba(255, 255, 255, 0.08);
+}
+
+.styles-grid::-webkit-scrollbar {
+  height: 10px;
+}
+
+.styles-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+}
+
+.styles-grid::-webkit-scrollbar-thumb {
+  background: rgba(180, 255, 75, 0.65);
+  border-radius: 999px;
+}
+
+.styles-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(180, 255, 75, 0.9);
+}
+
+.style-card {
+  scroll-snap-align: start;
+  min-width: 0;
+}
+
+.style-price {
+  display: none !important;
+}
+
+.style-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.style-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(180, 255, 75, 0.13);
+  border: 1px solid rgba(180, 255, 75, 0.3);
+  color: #dfffaa;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.style-preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+/* Wider screens: around 6 cards visible */
+@media (min-width: 1100px) {
+  .styles-grid {
+    grid-auto-columns: calc((100% - 80px) / 6);
+  }
+}
+
+/* Medium screens: around 3 cards visible */
+@media (min-width: 721px) and (max-width: 1099px) {
+  .styles-grid {
+    grid-auto-columns: calc((100% - 32px) / 3);
+  }
+}
+
+/* Mobile: around 1.35 cards visible, swipe-friendly */
+@media (max-width: 720px) {
+  .styles-filter-panel summary {
+    min-height: 56px;
+    padding: 0 15px;
+    font-size: 15px;
+  }
+
+  .styles-toolbar {
+    padding: 0 14px 14px;
+  }
+
+  .styles-search {
+    min-height: 56px;
+    padding: 0 15px;
+  }
+
+  .styles-search input,
+  .styles-search input::placeholder {
+    font-size: 14px;
+  }
+
+  .providers-filters {
+    padding: 0 14px 16px;
+  }
+
+  .provider-filter {
+    min-height: 46px;
+    padding: 10px 14px;
+  }
+
+  .provider-filter input {
+    width: 21px;
+    height: 21px;
+    min-width: 21px;
+  }
+
+  .styles-grid {
+    grid-auto-columns: 74%;
+    gap: 14px;
+  }
+}
+
