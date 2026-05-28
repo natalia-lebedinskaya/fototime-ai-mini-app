@@ -8,6 +8,8 @@ if (tg) {
 
 const GENERATION_TIMEOUT_MS = 180000;
 
+const HISTORY_STORAGE_KEY = 'fototime-ai-generated-photos';
+
 const state = {
   eventConfig: null,
   selectedParticipantId: null,
@@ -40,6 +42,9 @@ const resultImage = document.getElementById('resultImage');
 const downloadButton = document.getElementById('downloadButton');
 const shareButton = document.getElementById('shareButton');
 const resetButton = document.getElementById('resetButton');
+const historySection = document.getElementById('historySection');
+const historyGrid = document.getElementById('historyGrid');
+const clearHistoryButton = document.getElementById('clearHistoryButton');
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -49,6 +54,7 @@ retryGenerationButton.addEventListener('click', runGeneration);
 
 downloadButton.addEventListener('click', downloadResultImage);
 shareButton.addEventListener('click', shareResultImage);
+clearHistoryButton.addEventListener('click', clearGeneratedHistory);
 
 photoInput.addEventListener('change', (event) => {
   const file = event.target.files[0];
@@ -162,6 +168,17 @@ async function runGeneration() {
 
     resultImage.src = data.resultUrl;
     resultSection.classList.remove('hidden');
+
+    saveGeneratedPhoto({
+      resultUrl: data.resultUrl,
+      participantId: state.selectedParticipantId,
+      styleId: state.selectedStyleId,
+      provider: data.provider,
+      generationId: data.generationId || null
+    });
+
+    renderGeneratedHistory();
+
     generationErrorActions.classList.add('hidden');
     showMessage('Готово. Изображение создано', 'success');
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -181,18 +198,101 @@ async function runGeneration() {
   }
 }
 
+function getGeneratedHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY)) || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveGeneratedPhoto(photo) {
+  if (!photo.resultUrl) {
+    return;
+  }
+
+  const history = getGeneratedHistory();
+
+  const nextHistory = [
+    {
+      id: photo.generationId || String(Date.now()),
+      resultUrl: photo.resultUrl,
+      participantId: photo.participantId,
+      styleId: photo.styleId,
+      provider: photo.provider,
+      createdAt: new Date().toISOString()
+    },
+    ...history
+  ].slice(0, 12);
+
+  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
+}
+
+function formatHistoryDate(dateString) {
+  const date = new Date(dateString);
+
+  return date.toLocaleString('ru-RU', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function renderGeneratedHistory() {
+  const history = getGeneratedHistory();
+
+  historySection.classList.toggle('hidden', history.length === 0);
+  historyGrid.innerHTML = '';
+
+  history.forEach((item) => {
+    const card = document.createElement('article');
+    card.className = 'history-item';
+
+    card.innerHTML = `
+      <img src="${item.resultUrl}" alt="Generated AI result" />
+      <div class="history-item-content">
+        <strong>${item.styleId || 'style not selected'}</strong>
+        <span>${formatHistoryDate(item.createdAt)}</span>
+        <button class="history-download-button" type="button" data-result-url="${item.resultUrl}">
+          Скачать
+        </button>
+      </div>
+    `;
+
+    historyGrid.appendChild(card);
+  });
+
+  historyGrid.querySelectorAll('.history-download-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      const resultUrl = button.dataset.resultUrl;
+      downloadImageByUrl(resultUrl);
+    });
+  });
+}
+
+function clearGeneratedHistory() {
+  localStorage.removeItem(HISTORY_STORAGE_KEY);
+  renderGeneratedHistory();
+  showMessage('История очищена', 'success');
+}
+
+function downloadImageByUrl(url) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `fototime-ai-${Date.now()}.png`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
 function downloadResultImage() {
   if (!resultImage.src) {
     showMessage('Сначала создайте изображение', 'error');
     return;
   }
 
-  const link = document.createElement('a');
-  link.href = resultImage.src;
-  link.download = `fototime-ai-${Date.now()}.png`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  downloadImageByUrl(resultImage.src);
 }
 
 async function shareResultImage() {
