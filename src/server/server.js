@@ -6,6 +6,7 @@ const path = require('path');
 const healthRoute = require('./routes/health');
 const configRoute = require('./routes/config');
 const generateRoute = require('./routes/generate');
+const stylesRoute = require('./routes/styles');
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.static(path.join(__dirname, '../client')));
 app.use('/api/health', healthRoute);
 app.use('/api/event-config', configRoute);
 app.use('/api/generate', generateRoute);
+app.use('/api/styles', stylesRoute);
 
 app.use(errorHandler);
 
