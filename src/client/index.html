@@ -62,6 +62,25 @@
           </div>
         </div>
 
+
+        <details class="styles-filter-panel">
+          <summary>Поиск и фильтрация</summary>
+
+          <div class="styles-toolbar">
+            <label class="styles-search" for="stylesSearchInput">
+              <span class="styles-search-icon">⌕</span>
+              <input
+                id="stylesSearchInput"
+                type="text"
+                placeholder="Поиск по стилю или нейросети..."
+                autocomplete="off"
+              />
+            </label>
+          </div>
+
+          <div id="stylesProvidersFilters" class="providers-filters hidden"></div>
+        </details>
+
         <div id="emptyStylesState" class="empty-state hidden">
           Для выбранного участника пока нет доступных стилей.
         </div>
