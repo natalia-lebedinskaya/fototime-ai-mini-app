@@ -37,6 +37,8 @@ const message = document.getElementById('message');
 
 const resultSection = document.getElementById('resultSection');
 const resultImage = document.getElementById('resultImage');
+const downloadButton = document.getElementById('downloadButton');
+const shareButton = document.getElementById('shareButton');
 const resetButton = document.getElementById('resetButton');
 
 document.addEventListener('DOMContentLoaded', init);
@@ -44,6 +46,9 @@ document.addEventListener('DOMContentLoaded', init);
 retryButton.addEventListener('click', init);
 generateButton.addEventListener('click', runGeneration);
 retryGenerationButton.addEventListener('click', runGeneration);
+
+downloadButton.addEventListener('click', downloadResultImage);
+shareButton.addEventListener('click', shareResultImage);
 
 photoInput.addEventListener('change', (event) => {
   const file = event.target.files[0];
@@ -173,6 +178,45 @@ async function runGeneration() {
     state.isGenerating = false;
     generateButton.textContent = 'Создать AI-фото';
     validateForm();
+  }
+}
+
+function downloadResultImage() {
+  if (!resultImage.src) {
+    showMessage('Сначала создайте изображение', 'error');
+    return;
+  }
+
+  const link = document.createElement('a');
+  link.href = resultImage.src;
+  link.download = `fototime-ai-${Date.now()}.png`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+async function shareResultImage() {
+  const shareData = {
+    title: 'Fototime AI',
+    text: 'Мой AI-образ от FOTOTIME323',
+    url: window.location.href
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch (error) {
+      showMessage('Поделиться не получилось. Можно скачать изображение вручную.', 'error');
+      return;
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    showMessage('Ссылка на приложение скопирована', 'success');
+  } catch (error) {
+    showMessage('Браузер не поддерживает быстрый шаринг', 'error');
   }
 }
 
