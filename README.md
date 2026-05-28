@@ -206,7 +206,8 @@ The application is suitable for demonstrating:
 ## Style Mapping
 
 Frontend style cards are mapped to CyberPhotoBooth style identifiers on the backend.
-API keys and provider configuration are stored only in environment variables.
+
+The frontend sends only internal style IDs. The backend resolves these IDs to CyberPhotoBooth style values before submitting the generation request.
 
 Current mappings:
 
@@ -215,3 +216,5 @@ Current mappings:
 - `ns-astral` → `1259`
 - `ns-hogwarts-stairs` → `1027`
 - `ns-valentine-01` → `Kaftan` fallback
+
+API keys and provider configuration are stored only in environment variables and are not exposed on the frontend.
