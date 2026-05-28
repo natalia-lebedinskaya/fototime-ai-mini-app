@@ -41,30 +41,16 @@ The expected business flow is:
 
 Current MVP uses mock event data and mock generation result.
 
-## Current MVP Scope
+## Current Integration Status
 
-Implemented:
+The application supports two generation providers:
 
-- Express backend;
-- static frontend;
-- event configuration endpoint;
-- participant selection;
-- style filtering by participant type;
-- photo upload validation;
-- mock generation endpoint;
-- mock result screen;
-- basic error handling;
-- QA documentation;
-- smoke and regression checklists.
+- `mock` — local mock generation for development and demo fallback;
+- `cyberphotobooth` — real external AI generation through CyberPhotoBooth API.
 
-Not implemented yet:
+The backend submits a generation request to CyberPhotoBooth, polls generation status and returns the generated image to the frontend.
 
-- real integration with external AI generation service;
-- Telegram initData validation;
-- production deployment;
-- generation history;
-- result delivery to Telegram chat;
-- admin panel for event management.
+Sensitive API credentials are stored only in environment variables and are not committed to the repository.
 
 ## Tech Stack
 
