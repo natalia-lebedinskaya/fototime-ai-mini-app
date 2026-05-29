@@ -13,6 +13,28 @@ const { getCyberPhotoBoothStyleMapping } = require('../services/styleMappingServ
 
 const router = express.Router();
 
+function resolveStyle(styleId, participantId) {
+  const localStyle = eventConfig.styles.find((item) => item.id === styleId);
+
+  if (localStyle) {
+    return {
+      style: localStyle,
+      isExternal: false
+    };
+  }
+
+  return {
+    style: {
+      id: String(styleId),
+      name: String(styleId),
+      participantType: participantId,
+      isAvailable: true,
+      source: 'cyberphotobooth-catalog'
+    },
+    isExternal: true
+  };
+}
+
 router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
   try {
     const { participantId, styleId } = req.body;
@@ -34,12 +56,11 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({
         code: 'PHOTO_REQUIRED',
-        message: 'Не загружено фото'
+        message: 'Фото не загружено'
       });
     }
 
     const participant = eventConfig.participants.find((item) => item.id === participantId);
-    const style = eventConfig.styles.find((item) => item.id === styleId);
 
     if (!participant || !participant.isActive) {
       return res.status(400).json({
@@ -48,6 +69,8 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       });
     }
 
+    const { style, isExternal } = resolveStyle(styleId, participantId);
+
     if (!style || !style.isAvailable) {
       return res.status(400).json({
         code: 'INVALID_STYLE',
@@ -55,7 +78,7 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       });
     }
 
-    if (style.participantType !== participantId) {
+    if (!isExternal && style.participantType !== participantId) {
       return res.status(400).json({
         code: 'STYLE_PARTICIPANT_MISMATCH',
         message: 'Выбранный стиль недоступен для этого участника'
@@ -65,12 +88,17 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
     const generationId = createGenerationId();
     const originalPhoto = await saveOriginalPhoto(req.file, generationId);
 
-    const cyberPhotoBoothStyle = getCyberPhotoBoothStyleMapping(styleId);
+    const cyberPhotoBoothStyle =
+      getCyberPhotoBoothStyleMapping(styleId) || {
+        type: 'style',
+        value: String(styleId)
+      };
 
     const generationPayload = {
       file: req.file,
       participantId,
-      styleId,
+      styleId: String(style.id),
+      styleName: style.name,
       cyberPhotoBoothStyle,
       originalFileName: req.file.originalname
     };
@@ -87,12 +115,13 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       generationId,
       provider: generationResult.provider,
       participantId,
-      styleId,
+      styleId: String(style.id),
+      styleName: style.name,
       originalFileName: req.file.originalname,
       originalPhoto: originalPhoto.relativePath,
       resultImage: resultImage?.relativePath || null,
       jobId: generationResult.request?.jobId || null,
-      cyberPhotoBoothStyle: generationResult.request?.cyberPhotoBoothStyle || null,
+      cyberPhotoBoothStyle: generationResult.request?.cyberPhotoBoothStyle || cyberPhotoBoothStyle,
       createdAt: new Date().toISOString()
     };
 
