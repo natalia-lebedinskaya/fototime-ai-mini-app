@@ -1,24 +1,62 @@
 const express = require('express');
+const eventConfig = require('../data/eventConfig');
 
 const router = express.Router();
 
 const DEFAULT_API_URL = 'https://api.cyberphotobooth.ru/api';
-const STYLES_FETCH_TIMEOUT_MS = 45000;
+const STYLES_FETCH_TIMEOUT_MS = 25000;
 
 function getApiUrl() {
   return process.env.CYBERPHOTOBOOTH_API_URL || DEFAULT_API_URL;
 }
 
+function getModeName(mode) {
+  return mode?.display_name || mode?.displayName || mode?.name || 'AI';
+}
+
 function normalizeStyle(style) {
+  const modes = Array.isArray(style.modes) ? style.modes : [];
+
   return {
     id: String(style.style_id || style.id || style.name),
-    name: style.name,
+    name: style.name || style.display_name_en || style.displayNameEn || String(style.style_id || style.id),
     displayNameRu: style.display_name_ru || style.displayNameRu || style.display_name_en || style.name,
     displayNameEn: style.display_name_en || style.displayNameEn || style.name,
-    previewUrl: style.preview_url || style.preview_url_thumb || style.previewUrl || null,
-    modes: style.modes || [],
+    previewUrl: style.preview_url || style.previewUrl || style.preview_url_thumb || null,
+    modes,
+    modeNames: modes.map(getModeName),
+    participantType: 'male',
+    isAvailable: true,
     source: 'cyberphotobooth'
   };
+}
+
+function normalizeFallbackStyle(style) {
+  const modeName = style.modeName || style.provider || 'AI';
+
+  return {
+    id: String(style.id),
+    name: style.name,
+    displayNameRu: style.name,
+    displayNameEn: style.name,
+    previewUrl: style.previewUrl || null,
+    modes: [
+      {
+        name: modeName,
+        display_name: modeName
+      }
+    ],
+    modeNames: [modeName],
+    participantType: style.participantType || 'male',
+    isAvailable: style.isAvailable !== false,
+    source: 'event-config-fallback'
+  };
+}
+
+function getFallbackStyles() {
+  return (eventConfig.styles || [])
+    .filter((style) => style.isAvailable !== false)
+    .map(normalizeFallbackStyle);
 }
 
 router.get('/', async (req, res) => {
@@ -39,36 +77,34 @@ router.get('/', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({
-        code: 'CYBERPHOTOBOOTH_STYLES_ERROR',
-        message: 'Не удалось получить список стилей',
-        details: data
+      return res.status(200).json({
+        styles: getFallbackStyles(),
+        source: 'event-config-fallback',
+        warning: 'CyberPhotoBooth styles are temporarily unavailable'
       });
     }
 
-    const sourceStyles = Array.isArray(data)
+    const rawStyles = Array.isArray(data)
       ? data
       : Array.isArray(data.styles)
         ? data.styles
         : [];
 
-    const styles = sourceStyles.map(normalizeStyle);
+    const styles = rawStyles.map(normalizeStyle);
 
     return res.status(200).json({
-      styles
+      styles,
+      source: 'cyberphotobooth'
     });
   } catch (error) {
     clearTimeout(timeoutId);
 
     console.error('CyberPhotoBooth styles fetch error:', error);
 
-    const isTimeout = error.name === 'AbortError';
-
-    return res.status(504).json({
-      code: isTimeout ? 'CYBERPHOTOBOOTH_STYLES_TIMEOUT' : 'CYBERPHOTOBOOTH_STYLES_FETCH_ERROR',
-      message: isTimeout
-        ? 'CyberPhotoBooth долго не отвечает. Попробуйте обновить каталог стилей позже.'
-        : 'Не удалось подключиться к CyberPhotoBooth. Попробуйте обновить каталог стилей позже.'
+    return res.status(200).json({
+      styles: getFallbackStyles(),
+      source: 'event-config-fallback',
+      warning: 'CyberPhotoBooth styles are temporarily unavailable'
     });
   }
 });

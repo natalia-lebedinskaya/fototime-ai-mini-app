@@ -14,6 +14,73 @@ const INITIAL_VISIBLE_STYLES = 6;
 let visibleStylesPage = 0;
 let lastStylesRenderKey = '';
 
+const CREDIT_PACKAGES = [
+  {
+    id: 'starter',
+    title: 'Старт',
+    credits: 50,
+    priceRub: 99,
+    description: 'Для первой пробы'
+  },
+  {
+    id: 'event',
+    title: 'Гости',
+    credits: 120,
+    priceRub: 199,
+    description: 'Оптимально для мероприятия'
+  },
+  {
+    id: 'popular',
+    title: 'Популярный',
+    credits: 300,
+    priceRub: 449,
+    description: 'Больше генераций за выгодную цену'
+  },
+  {
+    id: 'max',
+    title: 'Максимум',
+    credits: 700,
+    priceRub: 899,
+    description: 'Для активного использования'
+  }
+];
+
+const DEFAULT_GENERATION_COST = 40;
+
+function getSeasonTheme() {
+  const month = new Date().getMonth() + 1;
+
+  if ([12, 1, 2].includes(month)) {
+    return {
+      name: 'winter',
+      label: 'Зимний сезон',
+      description: 'Мягкое сияние, снежные акценты и праздничное настроение'
+    };
+  }
+
+  if ([3, 4, 5].includes(month)) {
+    return {
+      name: 'spring',
+      label: 'Весенний сезон',
+      description: 'Лёгкие оттенки, свежесть и ощущение обновления'
+    };
+  }
+
+  if ([6, 7, 8].includes(month)) {
+    return {
+      name: 'summer',
+      label: 'Летний сезон',
+      description: 'Тёплое свечение, вечерние события и яркие эмоции'
+    };
+  }
+
+  return {
+    name: 'autumn',
+    label: 'Осенний сезон',
+    description: 'Тёплый свет, уютные события и глубокие оттенки'
+  };
+}
+
 const state = {
   cyberStyles: [],
   stylesCatalogLoaded: false,
@@ -188,6 +255,7 @@ async function runGeneration() {
     });
 
     renderGeneratedHistory();
+applySeasonTheme();
 
     generationErrorActions.classList.add('hidden');
     showMessage('Готово. Изображение создано', 'success');
@@ -759,4 +827,36 @@ function validateForm() {
 function showMessage(text, type) {
   message.textContent = text;
   message.className = `message ${type}`;
+}
+
+
+function applySeasonTheme() {
+  const theme = getSeasonTheme();
+
+  document.body.dataset.season = theme.name;
+
+  const seasonLabel = document.getElementById('seasonLabel');
+  const seasonDescription = document.getElementById('seasonDescription');
+
+  if (seasonLabel) {
+    seasonLabel.textContent = theme.label;
+  }
+
+  if (seasonDescription) {
+    seasonDescription.textContent = theme.description;
+  }
+}
+
+function getStyleDisplayNameById(styleId) {
+  const style = state.eventConfig?.styles?.find((item) => String(item.id) === String(styleId));
+
+  if (!style) {
+    return styleId || 'Стиль';
+  }
+
+  return style.displayNameRu || style.name || style.title || styleId;
+}
+
+function getStyleGenerationCost(style) {
+  return Number(style?.generationCost || DEFAULT_GENERATION_COST);
 }
