@@ -10,6 +10,10 @@ const GENERATION_TIMEOUT_MS = 180000;
 
 const HISTORY_STORAGE_KEY = 'fototime-ai-generated-photos';
 
+const INITIAL_VISIBLE_STYLES = 6;
+let visibleStylesPage = 0;
+let lastStylesRenderKey = '';
+
 const state = {
   cyberStyles: [],
   stylesCatalogLoaded: false,
@@ -601,6 +605,22 @@ function renderStyles() {
     );
   });
 
+  const activeProviders = Array.from(
+    document.querySelectorAll('.provider-filter-checkbox:checked')
+  ).map((input) => input.value);
+
+  const currentRenderKey = [
+    state.selectedParticipantId,
+    state.styleSearchQuery,
+    activeProviders.join('|'),
+    filteredStyles.length
+  ].join('::');
+
+  if (currentRenderKey !== lastStylesRenderKey) {
+    visibleStylesPage = 0;
+    lastStylesRenderKey = currentRenderKey;
+  }
+
   if (!participantStyles.length) {
     emptyStylesState.classList.remove('hidden');
     emptyStylesState.textContent = 'Для выбранного участника пока нет доступных стилей.';
@@ -611,7 +631,14 @@ function renderStyles() {
     emptyStylesState.classList.add('hidden');
   }
 
-  filteredStyles.forEach((style) => {
+  const totalPages = Math.max(1, Math.ceil(filteredStyles.length / INITIAL_VISIBLE_STYLES));
+  visibleStylesPage = Math.min(visibleStylesPage, totalPages - 1);
+
+  const startIndex = visibleStylesPage * INITIAL_VISIBLE_STYLES;
+  const endIndex = startIndex + INITIAL_VISIBLE_STYLES;
+  const visibleStyles = filteredStyles.slice(startIndex, endIndex);
+
+  visibleStyles.forEach((style) => {
     const card = document.createElement('button');
     card.className = getStyleClass(style.id);
     card.dataset.styleId = style.id;
@@ -628,8 +655,8 @@ function renderStyles() {
       : '';
 
     const previewHtml = style.previewUrl
-      ? `<img class="style-preview" src="${escapeHtml(style.previewUrl)}" alt="${escapeHtml(styleTitle)}" loading="lazy" />`
-      : '';
+      ? `<img class="style-preview" src="${escapeHtml(style.previewUrl)}" alt="${escapeHtml(styleTitle)}" loading="lazy" decoding="async" />`
+      : '<div class="style-preview style-preview-empty">FOTOTIME AI</div>';
 
     card.innerHTML =
       previewHtml +
@@ -645,8 +672,54 @@ function renderStyles() {
 
     stylesGrid.appendChild(card);
   });
-}
 
+  const oldPagination = document.getElementById('stylesPagination');
+  if (oldPagination) {
+    oldPagination.remove();
+  }
+
+  if (filteredStyles.length > INITIAL_VISIBLE_STYLES) {
+    const pagination = document.createElement('div');
+    pagination.id = 'stylesPagination';
+    pagination.className = 'styles-pagination';
+
+    const from = startIndex + 1;
+    const to = Math.min(endIndex, filteredStyles.length);
+
+    pagination.innerHTML = `
+      <button class="styles-page-button" type="button" data-page-action="prev" ${visibleStylesPage === 0 ? 'disabled' : ''}>
+        ← Назад
+      </button>
+      <span class="styles-page-counter">${from}–${to} из ${filteredStyles.length}</span>
+      <button class="styles-page-button" type="button" data-page-action="next" ${visibleStylesPage >= totalPages - 1 ? 'disabled' : ''}>
+        Далее →
+      </button>
+    `;
+
+    pagination.querySelectorAll('.styles-page-button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const action = button.dataset.pageAction;
+
+        if (action === 'prev') {
+          visibleStylesPage = Math.max(0, visibleStylesPage - 1);
+        }
+
+        if (action === 'next') {
+          visibleStylesPage = Math.min(totalPages - 1, visibleStylesPage + 1);
+        }
+
+        renderStyles();
+
+        const stylesSection = stylesGrid.closest('.card');
+        if (stylesSection) {
+          stylesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    stylesGrid.insertAdjacentElement('afterend', pagination);
+  }
+}
 
 function getDefaultParticipantId(config) {
   const firstActiveParticipant = config.participants.find((participant) => participant.isActive);
