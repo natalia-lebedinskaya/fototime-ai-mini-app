@@ -37,7 +37,7 @@ function resolveStyle(styleId, participantId) {
 
 router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
   try {
-    const { participantId, styleId } = req.body;
+    const { participantId, styleId, styleTitle, styleProvider } = req.body;
 
     if (!participantId) {
       return res.status(400).json({

@@ -89,6 +89,7 @@ const state = {
   eventConfig: null,
   selectedParticipantId: null,
   selectedStyleId: null,
+  selectedStyle: null,
   selectedPhoto: null,
   isGenerating: false
 };
@@ -167,6 +168,7 @@ photoInput.addEventListener('change', (event) => {
 
 resetButton.addEventListener('click', () => {
   state.selectedStyleId = null;
+  state.selectedStyle = null;
   state.selectedPhoto = null;
   state.isGenerating = false;
 
@@ -223,6 +225,8 @@ async function runGeneration() {
   const formData = new FormData();
   formData.append('participantId', state.selectedParticipantId);
   formData.append('styleId', state.selectedStyleId);
+  formData.append('styleTitle', state.selectedStyle?.title || getStyleTitleById(state.selectedStyleId) || '');
+  formData.append('styleProvider', state.selectedStyle?.providers?.[0] || '');
   formData.append('photo', state.selectedPhoto);
 
   const controller = new AbortController();
@@ -250,6 +254,8 @@ async function runGeneration() {
       resultUrl: data.resultUrl,
       participantId: state.selectedParticipantId,
       styleId: state.selectedStyleId,
+      styleTitle: state.selectedStyle?.title || getStyleTitleById(state.selectedStyleId) || state.selectedStyleId,
+      styleProvider: state.selectedStyle?.providers?.[0] || '',
       provider: data.provider,
       generationId: data.generationId || null
     });
@@ -330,7 +336,7 @@ function renderGeneratedHistory() {
     card.innerHTML = `
       <img src="${item.resultUrl}" alt="Generated AI result" />
       <div class="history-item-content">
-        <strong>${item.styleId || 'style not selected'}</strong>
+        <strong>${getHistoryStyleTitle(item)}</strong>
         <span>${formatHistoryDate(item.createdAt)}</span>
         <button class="history-download-button" type="button" data-result-url="${item.resultUrl}">
           Скачать
@@ -445,6 +451,7 @@ function renderParticipants() {
   if (activeParticipants.length === 0) {
     state.selectedParticipantId = null;
     state.selectedStyleId = null;
+    state.selectedStyle = null;
     renderStyles();
     validateForm();
     return;
@@ -459,6 +466,7 @@ function renderParticipants() {
     button.addEventListener('click', () => {
       state.selectedParticipantId = participant.id;
       state.selectedStyleId = null;
+      state.selectedStyle = null;
       state.selectedProviders = [];
       state.styleSearchQuery = '';
 
@@ -689,6 +697,15 @@ function renderStyles() {
     lastStylesRenderKey = currentRenderKey;
   }
 
+  const selectedStyleStillExists = filteredStyles.some((style) => {
+    return style.id === state.selectedStyleId;
+  });
+
+  if (state.selectedStyleId && !selectedStyleStillExists) {
+    state.selectedStyleId = null;
+    state.selectedStyle = null;
+  }
+
   if (!participantStyles.length) {
     emptyStylesState.classList.remove('hidden');
     emptyStylesState.textContent = 'Для выбранного участника пока нет доступных стилей.';
@@ -733,6 +750,13 @@ function renderStyles() {
 
     card.addEventListener('click', () => {
       state.selectedStyleId = style.id;
+      state.selectedStyle = {
+        id: style.id,
+        title: styleTitle,
+        providers,
+        previewUrl: style.previewUrl || '',
+        raw: style
+      };
 
       renderStyles();
       validateForm();
@@ -787,6 +811,32 @@ function renderStyles() {
 
     stylesGrid.insertAdjacentElement('afterend', pagination);
   }
+}
+
+
+function getStyleTitleById(styleId) {
+  if (!styleId) {
+    return '';
+  }
+
+  const allStyles = [
+    ...(state.cyberStyles || []),
+    ...((state.eventConfig && state.eventConfig.styles) || [])
+  ];
+
+  const style = allStyles.find((item) => String(item.id) === String(styleId));
+
+  return style ? getStyleTitle(style) : '';
+}
+
+function getHistoryStyleTitle(item) {
+  return (
+    item.styleTitle ||
+    item.requestedStyleTitle ||
+    getStyleTitleById(item.styleId) ||
+    item.styleId ||
+    'style not selected'
+  );
 }
 
 function getDefaultParticipantId(config) {
