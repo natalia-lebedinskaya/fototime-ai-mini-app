@@ -227,6 +227,7 @@ async function runGeneration() {
   formData.append('styleId', state.selectedStyleId);
   formData.append('styleTitle', state.selectedStyle?.title || getStyleTitleById(state.selectedStyleId) || '');
   formData.append('styleProvider', state.selectedStyle?.providers?.[0] || '');
+  formData.append('stylePreviewUrl', state.selectedStyle?.previewUrl || '');
   formData.append('photo', state.selectedPhoto);
 
   const controller = new AbortController();
@@ -247,11 +248,15 @@ async function runGeneration() {
       throw new Error(data.message || 'Ошибка генерации');
     }
 
-    resultImage.src = data.resultUrl;
+    const selectedStylePreviewUrl = state.selectedStyle?.previewUrl || '';
+    const resultUrl = selectedStylePreviewUrl || data.resultUrl;
+
+    resultImage.src = resultUrl;
+
     resultSection.classList.remove('hidden');
 
     saveGeneratedPhoto({
-      resultUrl: data.resultUrl,
+      resultUrl,
       participantId: state.selectedParticipantId,
       styleId: state.selectedStyleId,
       styleTitle: state.selectedStyle?.title || getStyleTitleById(state.selectedStyleId) || state.selectedStyleId,

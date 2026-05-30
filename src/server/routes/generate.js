@@ -37,7 +37,7 @@ function resolveStyle(styleId, participantId) {
 
 router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
   try {
-    const { participantId, styleId, styleTitle, styleProvider } = req.body;
+    const { participantId, styleId, styleTitle, styleProvider, stylePreviewUrl } = req.body;
 
     if (!participantId) {
       return res.status(400).json({
@@ -109,26 +109,39 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       ? await generateCyberPhotoBoothImage(generationPayload)
       : await generateMockImage(generationPayload);
 
-    const resultImage = await saveResultImage(generationResult.resultUrl, generationId);
+    const normalizedGenerationResult = provider === 'mock' && stylePreviewUrl
+      ? {
+        ...normalizedGenerationResult,
+        resultUrl: stylePreviewUrl,
+        styleId,
+        styleTitle: styleTitle || styleId,
+        styleProvider: styleProvider || 'mock',
+        requestedStyleId: styleId,
+        requestedStyleTitle: styleTitle || styleId,
+        requestedStyleProvider: styleProvider || 'mock'
+      }
+      : generationResult;
+
+    const resultImage = await saveResultImage(normalizedGenerationResult.resultUrl, generationId);
 
     const metadata = {
       generationId,
-      provider: generationResult.provider,
+      provider: normalizedGenerationResult.provider,
       participantId,
       styleId: String(style.id),
       styleName: style.name,
       originalFileName: req.file.originalname,
       originalPhoto: originalPhoto.relativePath,
       resultImage: resultImage?.relativePath || null,
-      jobId: generationResult.request?.jobId || null,
-      cyberPhotoBoothStyle: generationResult.request?.cyberPhotoBoothStyle || cyberPhotoBoothStyle,
+      jobId: normalizedGenerationResult.request?.jobId || null,
+      cyberPhotoBoothStyle: normalizedGenerationResult.request?.cyberPhotoBoothStyle || cyberPhotoBoothStyle,
       createdAt: new Date().toISOString()
     };
 
     const metadataFile = await saveGenerationMetadata(metadata, generationId);
 
     return res.status(200).json({
-      ...generationResult,
+      ...normalizedGenerationResult,
       generationId,
       storage: {
         originalPhoto: originalPhoto.relativePath,
