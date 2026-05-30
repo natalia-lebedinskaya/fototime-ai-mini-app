@@ -11,7 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./final-ui.css?v=8" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 </head>
 
 <body>
@@ -37,60 +39,80 @@
     </section>
 
     <section id="content" class="hidden">
-      
-      <section id="balanceCard" class="card balance-card">
-        <div class="section-header">
-          <span class="step">FT</span>
-          <div>
-            <h2>Баланс</h2>
-            <p class="section-subtitle">Внутренняя валюта для AI-генераций</p>
+      <section id="balanceCard" class="card balance-card balance-card-final">
+        <div class="balance-topline">
+          <div class="section-header">
+            <span class="step">FT</span>
+            <div>
+              <h2>Баланс</h2>
+              <p class="section-subtitle">Кредиты для AI-генераций</p>
+            </div>
+          </div>
+
+          <div class="balance-pill">
+            <span>Доступно</span>
+            <strong>50</strong>
+            <small>кредитов</small>
           </div>
         </div>
 
-        <div class="balance-summary">
-          <div>
-            <span class="balance-label">Доступно</span>
-            <strong class="balance-value">50 кредитов</strong>
+        <div class="balance-info-grid">
+          <div class="balance-info-card">
+            <span>Стоимость генерации</span>
+            <strong>от 40 кредитов</strong>
           </div>
-          <div>
-            <span class="balance-label">1 генерация</span>
-            <strong class="balance-value">от 40 кредитов</strong>
+
+          <div class="balance-info-card">
+            <span>Оплата</span>
+            <strong>через Telegram</strong>
           </div>
         </div>
 
-        <details class="topup-panel">
-          <summary>Пополнить баланс</summary>
+        <a class="topup-main-button" href="https://t.me/fototime323" target="_blank" rel="noreferrer">
+          <span>
+            <strong>Пополнить баланс</strong>
+            <small>Напишите нам — подтвердим оплату и начислим кредиты</small>
+          </span>
+          <b>→</b>
+        </a>
 
-          <div class="credit-packages">
-            <article class="credit-package">
+        <div class="credit-packages credit-packages-final" aria-label="Пакеты кредитов">
+          <article class="credit-package-final">
+            <div>
               <strong>50 кредитов</strong>
-              <span>99 ₽</span>
               <small>Для первой пробы</small>
-            </article>
+            </div>
+            <span>99 ₽</span>
+          </article>
 
-            <article class="credit-package featured">
+          <article class="credit-package-final featured">
+            <div>
               <strong>120 кредитов</strong>
-              <span>199 ₽</span>
-              <small>Оптимально для мероприятия</small>
-            </article>
+              <small>Оптимально для гостей</small>
+            </div>
+            <span>199 ₽</span>
+          </article>
 
-            <article class="credit-package">
+          <article class="credit-package-final">
+            <div>
               <strong>300 кредитов</strong>
-              <span>449 ₽</span>
-              <small>Больше генераций</small>
-            </article>
+              <small>Для активного мероприятия</small>
+            </div>
+            <span>449 ₽</span>
+          </article>
 
-            <article class="credit-package">
+          <article class="credit-package-final">
+            <div>
               <strong>700 кредитов</strong>
-              <span>899 ₽</span>
-              <small>Для активного использования</small>
-            </article>
-          </div>
+              <small>Максимальный пакет</small>
+            </div>
+            <span>899 ₽</span>
+          </article>
+        </div>
 
-          <p class="payment-note">
-            После выбора пакета напишите нам в Telegram. Мы подтвердим оплату, начислим кредиты и отправим чек от самозанятого.
-          </p>
-        </details>
+        <p class="payment-note-final">
+          После оплаты мы начислим кредиты вручную и отправим чек от самозанятого.
+        </p>
       </section>
 
 <section class="card">
