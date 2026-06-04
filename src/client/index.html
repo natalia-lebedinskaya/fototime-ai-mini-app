@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./styles.css" />
-  <link rel="stylesheet" href="./final-ui.css?v=8" />
+  <link rel="stylesheet" href="./final-ui.css?v=16" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 </head>
@@ -24,7 +24,16 @@
         <div id="eventStatus" class="status-badge">Loading</div>
       </div>
 
-      <h1>Fototime AI</h1>
+      <div class="theme-selector" data-theme-selector>
+        <label for="themeSelect">Сменить тему:</label>
+        <select id="themeSelect" aria-label="Сменить тему приложения">
+          <option value="light">Светлая</option>
+          <option value="dark">Тёмная</option>
+          <option value="retro">Ретро</option>
+        </select>
+      </div>
+
+<h1>Fototime AI</h1>
 
       <p>
         Выберите участника, стиль обработки и загрузите фото.
@@ -253,8 +262,12 @@
         <a href="https://t.me/fototime323" target="_blank" rel="noreferrer">Telegram</a>
         <a href="https://vk.com/fototime323" target="_blank" rel="noreferrer">VK</a>
         <a href="https://fototime323.lpmotortest.com" target="_blank" rel="noreferrer">Сайт</a>
-        <a href="https://t.me/Natalia2uo" target="_blank" rel="noreferrer">Поддержка</a>
-      </div>
+        <a class="support-link" href="https://t.me/Natalia2uo" target="_blank" rel="noreferrer">✦ Поддержка</a>
+</div>
+      <p id="appVersion" class="app-version">
+        Версия приложения загружается...
+      </p>
+
     </section>
   </main>
 

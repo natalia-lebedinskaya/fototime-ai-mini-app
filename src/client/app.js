@@ -325,6 +325,10 @@ async function runGeneration() {
 
     renderGeneratedHistory();
 applySeasonTheme();
+renderAppVersion();
+
+
+
 
     generationErrorActions.classList.add('hidden');
     showMessage('Готово. Изображение создано', 'success');
@@ -975,3 +979,138 @@ function getStyleDisplayNameById(styleId) {
 function getStyleGenerationCost(style) {
   return Number(style?.generationCost || DEFAULT_GENERATION_COST);
 }
+
+
+const UI_THEME_STORAGE_KEY = 'fototime-ui-theme';
+
+function applyUiTheme(themeName) {
+  const themes = ['light', 'dark', 'retro'];
+  const nextTheme = themes.includes(themeName) ? themeName : 'light';
+
+  document.body.dataset.uiTheme = nextTheme;
+
+  const themeSelect = document.getElementById('themeSelect');
+  if (themeSelect) {
+    themeSelect.value = nextTheme;
+  }
+
+  try {
+    localStorage.setItem(UI_THEME_STORAGE_KEY, nextTheme);
+  } catch (error) {
+    console.warn('Cannot save UI theme', error);
+  }
+}
+
+function initUiThemeSelector() {
+  const themeSelect = document.getElementById('themeSelect');
+
+  let savedTheme = 'light';
+
+  try {
+    savedTheme = localStorage.getItem(UI_THEME_STORAGE_KEY) || 'light';
+  } catch (error) {
+    console.warn('Cannot read UI theme', error);
+  }
+
+  applyUiTheme(savedTheme);
+
+  if (!themeSelect) {
+    return;
+  }
+
+  themeSelect.addEventListener('change', (event) => {
+    applyUiTheme(event.target.value);
+  });
+}
+
+
+// FOTOTIME theme selector v14
+const FOTOTIME_THEME_STORAGE_KEY_V14 = 'fototime-selected-theme-v14';
+
+function setFototimeThemeV14(themeName) {
+  const allowedThemes = ['light', 'dark', 'retro'];
+  const theme = allowedThemes.includes(themeName) ? themeName : 'light';
+
+  // One source of truth + compatibility cleanup.
+  document.body.dataset.uiTheme = theme;
+  document.body.dataset.appTheme = theme;
+  document.body.dataset.theme = theme;
+  document.documentElement.dataset.uiTheme = theme;
+
+  const select = document.getElementById('themeSelect');
+  if (select) {
+    select.value = theme;
+  }
+
+  try {
+    localStorage.setItem(FOTOTIME_THEME_STORAGE_KEY_V14, theme);
+    localStorage.setItem('fototime-ui-theme', theme);
+    localStorage.setItem('fototime-app-theme', theme);
+    localStorage.setItem('fototimeTheme', theme);
+  } catch (error) {
+    console.warn('Cannot save selected theme', error);
+  }
+}
+
+function initFototimeThemeSelectorV14() {
+  const select = document.getElementById('themeSelect');
+
+  let savedTheme = 'light';
+
+  try {
+    savedTheme =
+      localStorage.getItem(FOTOTIME_THEME_STORAGE_KEY_V14) ||
+      localStorage.getItem('fototime-ui-theme') ||
+      localStorage.getItem('fototime-app-theme') ||
+      localStorage.getItem('fototimeTheme') ||
+      'light';
+  } catch (error) {
+    console.warn('Cannot read selected theme', error);
+  }
+
+  setFototimeThemeV14(savedTheme);
+
+  if (!select) {
+    return;
+  }
+
+  select.addEventListener('change', (event) => {
+    setFototimeThemeV14(event.target.value);
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFototimeThemeSelectorV14);
+} else {
+  initFototimeThemeSelectorV14();
+}
+
+
+async function renderAppVersion() {
+  const versionElement = document.getElementById('appVersion');
+
+  if (!versionElement) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/version', {
+      headers: {
+        Accept: 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Version request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    versionElement.textContent =
+      `Версия приложения: v${data.version || '0.1.0'} · ${data.commit || 'local'} · ${data.environment || 'development'}`;
+  } catch (error) {
+    versionElement.textContent = 'Версия приложения: local';
+    console.warn('Cannot load app version', error);
+  }
+}
+
