@@ -24,7 +24,22 @@ const STYLE_MAPPING = {
 };
 
 function getCyberPhotoBoothStyleMapping(styleId) {
-  return STYLE_MAPPING[styleId] || {
+  const mappedStyle = STYLE_MAPPING[styleId];
+
+  if (mappedStyle) {
+    return mappedStyle;
+  }
+
+  const normalizedStyleId = String(styleId || '').trim();
+
+  if (/^\d+$/.test(normalizedStyleId)) {
+    return {
+      type: 'style',
+      value: normalizedStyleId
+    };
+  }
+
+  return {
     type: 'style',
     value: DEFAULT_CYBERPHOTOBOOTH_STYLE
   };
