@@ -13,7 +13,7 @@ const { getCyberPhotoBoothStyleMapping } = require('../services/styleMappingServ
 
 const router = express.Router();
 
-function resolveStyle(styleId, participantId) {
+function resolveStyle(styleId, participantId, styleTitle, styleProvider, stylePreviewUrl) {
   const localStyle = eventConfig.styles.find((item) => item.id === styleId);
 
   if (localStyle) {
@@ -26,7 +26,11 @@ function resolveStyle(styleId, participantId) {
   return {
     style: {
       id: String(styleId),
-      name: String(styleId),
+      name: styleTitle || String(styleId),
+      displayNameRu: styleTitle || String(styleId),
+      displayNameEn: styleTitle || String(styleId),
+      previewUrl: stylePreviewUrl || null,
+      modes: styleProvider ? [{ name: styleProvider, display_name: styleProvider }] : [],
       participantType: participantId,
       isAvailable: true,
       source: 'cyberphotobooth-catalog'
@@ -69,7 +73,7 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       });
     }
 
-    const { style, isExternal } = resolveStyle(styleId, participantId);
+    const { style, isExternal } = resolveStyle(styleId, participantId, styleTitle, styleProvider, stylePreviewUrl);
 
     if (!style || !style.isAvailable) {
       return res.status(400).json({
@@ -88,17 +92,16 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
     const generationId = createGenerationId();
     const originalPhoto = await saveOriginalPhoto(req.file, generationId);
 
-    const cyberPhotoBoothStyle =
-      getCyberPhotoBoothStyleMapping(styleId) || {
-        type: 'style',
-        value: String(styleId)
-      };
+    const cyberPhotoBoothStyle = getCyberPhotoBoothStyleMapping(styleId);
 
     const generationPayload = {
       file: req.file,
       participantId,
       styleId: String(style.id),
       styleName: style.name,
+      styleTitle: styleTitle || style.name || String(style.id),
+      styleProvider: styleProvider || null,
+      stylePreviewUrl: stylePreviewUrl || style.previewUrl || null,
       cyberPhotoBoothStyle,
       originalFileName: req.file.originalname
     };
@@ -109,18 +112,17 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       ? await generateCyberPhotoBoothImage(generationPayload)
       : await generateMockImage(generationPayload);
 
-    const normalizedGenerationResult = provider === 'mock' && stylePreviewUrl
-      ? {
-        ...normalizedGenerationResult,
-        resultUrl: stylePreviewUrl,
-        styleId,
-        styleTitle: styleTitle || styleId,
-        styleProvider: styleProvider || 'mock',
-        requestedStyleId: styleId,
-        requestedStyleTitle: styleTitle || styleId,
-        requestedStyleProvider: styleProvider || 'mock'
-      }
-      : generationResult;
+    const normalizedGenerationResult = {
+      ...generationResult,
+      styleId,
+      styleTitle: styleTitle || style.name || styleId,
+      styleProvider: styleProvider || null,
+      stylePreviewUrl: stylePreviewUrl || style.previewUrl || null,
+      requestedStyleId: styleId,
+      requestedStyleTitle: styleTitle || style.name || styleId,
+      requestedStyleProvider: styleProvider || null,
+      requestedStylePreviewUrl: stylePreviewUrl || style.previewUrl || null
+    };
 
     const resultImage = await saveResultImage(normalizedGenerationResult.resultUrl, generationId);
 

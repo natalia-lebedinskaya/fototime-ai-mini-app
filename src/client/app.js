@@ -81,6 +81,66 @@ function getSeasonTheme() {
   };
 }
 
+
+function getSelectedStyleMeta() {
+  const selected = (state.cyberStyles || []).find(
+    (style) => String(style.id) === String(state.selectedStyleId)
+  );
+
+  if (!selected) {
+    return {
+      id: state.selectedStyleId || null,
+      title: null,
+      provider: null,
+      previewUrl: null
+    };
+  }
+
+  return {
+    id: selected.id ?? null,
+    title: selected.title || selected.name || String(selected.id || ''),
+    provider: selected.provider || selected.model || null,
+    previewUrl: selected.previewUrl || selected.imageUrl || selected.coverUrl || null
+  };
+}
+
+function normalizeGeneratedImageUrl(payload) {
+  return (
+    payload?.imageUrl ||
+    payload?.resultUrl ||
+    payload?.downloadUrl ||
+    payload?.image?.url ||
+    payload?.output?.[0] ||
+    payload?.data?.[0]?.url ||
+    null
+  );
+}
+
+function buildHistoryItemFromResult(payload) {
+  const actualImageUrl = normalizeGeneratedImageUrl(payload);
+
+  return {
+    id: payload?.id || String(Date.now()),
+    imageUrl: actualImageUrl,
+    downloadUrl: payload?.downloadUrl || actualImageUrl,
+    styleId: payload?.requestedStyleId || payload?.styleId || null,
+    styleTitle:
+      payload?.requestedStyleTitle ||
+      payload?.styleTitle ||
+      payload?.styleName ||
+      'Без названия',
+    styleProvider:
+      payload?.requestedStyleProvider ||
+      payload?.styleProvider ||
+      null,
+    previewUrl:
+      payload?.requestedStylePreviewUrl ||
+      payload?.stylePreviewUrl ||
+      null,
+    createdAt: payload?.createdAt || new Date().toISOString()
+  };
+}
+
 const state = {
   cyberStyles: [],
   stylesCatalogLoaded: false,
@@ -247,16 +307,14 @@ async function runGeneration() {
     if (!response.ok) {
       throw new Error(data.message || 'Ошибка генерации');
     }
-
-    const selectedStylePreviewUrl = state.selectedStyle?.previewUrl || '';
-    const resultUrl = selectedStylePreviewUrl || data.resultUrl;
+    const resultUrl = data.resultUrl;
 
     resultImage.src = resultUrl;
 
     resultSection.classList.remove('hidden');
 
     saveGeneratedPhoto({
-      resultUrl,
+      resultUrl: data.resultUrl,
       participantId: state.selectedParticipantId,
       styleId: state.selectedStyleId,
       styleTitle: state.selectedStyle?.title || getStyleTitleById(state.selectedStyleId) || state.selectedStyleId,
@@ -308,6 +366,8 @@ function saveGeneratedPhoto(photo) {
       resultUrl: photo.resultUrl,
       participantId: photo.participantId,
       styleId: photo.styleId,
+      styleTitle: photo.styleTitle || photo.styleId,
+      styleProvider: photo.styleProvider || null,
       provider: photo.provider,
       createdAt: new Date().toISOString()
     },
