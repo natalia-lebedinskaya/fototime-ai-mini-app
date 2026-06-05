@@ -1,124 +1,162 @@
 # User Flow
 
-## Основной сценарий
+## Main User Journey
 
-### Step 1. Открытие приложения
+### Step 1. Open Telegram Mini App
 
-Пользователь открывает Telegram Mini App.
+The user launches the application from the Telegram bot.
 
-Ожидаемый результат:
+Expected result:
 
-- приложение открывается;
-- отображается стартовый экран;
-- запускается запрос конфигурации мероприятия.
-
----
-
-### Step 2. Получение конфигурации мероприятия
-
-Frontend отправляет запрос:
-
-`GET /api/event-config`
-
-Ожидаемый результат:
-
-- backend возвращает активное мероприятие;
-- frontend получает список участников;
-- frontend получает список стилей;
-- отображается статус активного мероприятия.
+- Mini App opens successfully;
+- event configuration loading starts automatically;
+- user sees the welcome screen.
 
 ---
 
-### Step 3. Выбор участника
+### Step 2. Load Event Configuration
 
-Пользователь выбирает участника из списка, полученного из конфигурации мероприятия.
+Frontend requests:
 
-Ожидаемый результат:
+GET /api/event-config
 
-- выбранный участник визуально подсвечивается;
-- список стилей обновляется с учётом выбранного участника;
-- ранее выбранный неподходящий стиль сбрасывается.
+Expected result:
 
----
-
-### Step 4. Выбор стиля
-
-Пользователь выбирает стиль обработки из доступных карточек.
-
-Ожидаемый результат:
-
-- отображаются только стили, подходящие выбранному участнику;
-- выбранный стиль визуально подсвечивается;
-- в запросе генерации используется актуальный `styleId`.
+- active event configuration is returned;
+- available participants are loaded;
+- available styles are loaded;
+- participant-style relations are loaded.
 
 ---
 
-### Step 5. Загрузка фото
+### Step 3. Select Participant
 
-Пользователь загружает фото.
+The user selects a participant type.
 
-Ожидаемый результат:
+Examples:
 
-- файл проходит клиентскую валидацию;
-- отображается название выбранного файла;
-- кнопка генерации становится активной, если выбран участник, выбран стиль и загружено валидное фото.
+- Male
+- Female
+- Couple
+- Family
+- Child
 
----
+Expected result:
 
-### Step 6. Запуск генерации
-
-Пользователь нажимает кнопку создания AI-фото.
-
-Frontend отправляет запрос:
-
-`POST /api/generate`
-
-Ожидаемый результат:
-
-- кнопка блокируется;
-- отображается loading-state;
-- повторный клик не создаёт дублирующий запрос;
-- данные отправляются на backend.
+- selected participant is highlighted;
+- style list is filtered accordingly.
 
 ---
 
-### Step 7. Получение mock-результата
+### Step 4. Select Style
 
-Backend возвращает mock-result.
+The user selects an AI style.
 
-Ожидаемый результат:
+Expected result:
 
-- отображается success-message;
-- отображается блок результата;
-- пользователь может сбросить сценарий и создать новое изображение.
+- only compatible styles are displayed;
+- selected style is highlighted;
+- selected style is stored for generation.
 
-## Альтернативные сценарии
+---
 
-### Конфигурация мероприятия не загрузилась
+### Step 5. Upload Photo
 
-Ожидаемый результат:
+The user uploads a photo.
 
-- пользователь видит error-state;
-- доступна кнопка повторной загрузки.
+Supported formats:
 
-### Для участника нет доступных стилей
+- JPG
+- JPEG
+- PNG
 
-Ожидаемый результат:
+Expected result:
 
-- отображается empty-state;
-- генерация недоступна.
+- file validation passes;
+- selected file name is displayed;
+- generation becomes available.
 
-### Пользователь выбрал неверный файл
+---
 
-Ожидаемый результат:
+### Step 6. Start Generation
 
-- файл не принимается;
-- пользователь видит понятное сообщение об ошибке;
-- кнопка генерации остаётся disabled.
+Frontend sends:
 
-### Backend отклонил генерацию
+POST /api/generate
 
-Ожидаемый результат:
+Expected result:
 
-- пользователь видит понятное сообщение;
-- технические детали не отображаются в UI.
+- button becomes disabled;
+- loading state appears;
+- duplicate requests are prevented.
+
+---
+
+### Step 7. Backend Processing
+
+Backend:
+
+- validates request;
+- resolves style mapping;
+- selects generation provider;
+- uploads image;
+- starts generation;
+- polls generation status;
+- receives final image.
+
+Expected result:
+
+- generation completes successfully;
+- metadata is stored.
+
+---
+
+### Step 8. Display Result
+
+Expected result:
+
+- generated image is displayed;
+- success state is shown;
+- user can download image;
+- user can share image;
+- user can start a new generation.
+
+---
+
+### Step 9. History
+
+Expected result:
+
+- generated image is stored in local history;
+- user can review previous generations;
+- history persists between sessions.
+
+## Alternative Flows
+
+### Event Configuration Failed
+
+Expected result:
+
+- error state is shown;
+- retry action is available.
+
+### No Styles Available
+
+Expected result:
+
+- empty state is shown;
+- generation is unavailable.
+
+### Invalid File
+
+Expected result:
+
+- validation error is shown;
+- generation remains disabled.
+
+### Provider Failure
+
+Expected result:
+
+- user sees a friendly error message;
+- technical details remain hidden.
