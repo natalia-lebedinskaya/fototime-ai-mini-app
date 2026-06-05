@@ -1386,3 +1386,25 @@ window.fetch = function patchedFetch(input, init = {}) {
 
   return originalFetch(input, init);
 };
+
+/* SAFE FIX: tab state */
+
+document.addEventListener('click', (event) => {
+  const tab = event.target.closest('[data-tab-target]');
+  if (!tab) return;
+
+  const target = tab.dataset.tabTarget || 'main';
+  document.body.dataset.activeTab = target;
+
+  document.querySelectorAll('.app-tab').forEach((item) => {
+    item.classList.toggle('active', item.dataset.tabTarget === target);
+  });
+
+  document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+    panel.classList.toggle('hidden', panel.dataset.tabPanel !== target);
+  });
+}, true);
+
+window.addEventListener('load', () => {
+  document.body.dataset.activeTab = 'main';
+});

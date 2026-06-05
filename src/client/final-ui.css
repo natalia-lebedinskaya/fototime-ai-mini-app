@@ -1096,3 +1096,56 @@ body[data-theme="dark"] .styles-controls button {
     font-size: 14px !important;
   }
 }
+
+/* SAFE FIX: theme background + tab isolation */
+
+body[data-ui-theme="light"],
+body[data-app-theme="light"],
+body[data-theme="light"] {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 220, 180, 0.35), transparent 35%),
+    linear-gradient(180deg, #fff7ec 0%, #ead9c4 100%) !important;
+  color: #3b2c24 !important;
+}
+
+body[data-ui-theme="retro"],
+body[data-app-theme="retro"],
+body[data-theme="retro"] {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 214, 150, 0.26), transparent 34%),
+    linear-gradient(180deg, #fff3e2 0%, #e8d4bb 100%) !important;
+  color: #3b2c24 !important;
+}
+
+body[data-ui-theme="dark"],
+body[data-app-theme="dark"],
+body[data-theme="dark"] {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(86, 247, 255, 0.14), transparent 32%),
+    linear-gradient(180deg, #091015 0%, #05070a 100%) !important;
+  color: #f6fff7 !important;
+}
+
+body[data-active-tab="main"] #profilePanel,
+body[data-active-tab="main"] #adminPanel,
+body[data-active-tab="profile"] main[data-tab-panel="main"],
+body[data-active-tab="profile"] #adminPanel,
+body[data-active-tab="admin"] main[data-tab-panel="main"],
+body[data-active-tab="admin"] #profilePanel {
+  display: none !important;
+}
+
+#profilePanel .participants-card,
+#profilePanel .styles-card,
+#profilePanel .photo-card,
+#profilePanel .result-card,
+#profilePanel .balance-card,
+#profilePanel .balance-card-final,
+#adminPanel .participants-card,
+#adminPanel .styles-card,
+#adminPanel .photo-card,
+#adminPanel .result-card,
+#adminPanel .balance-card,
+#adminPanel .balance-card-final {
+  display: none !important;
+}
