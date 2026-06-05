@@ -4395,3 +4395,300 @@ window.addEventListener('load', () => {
     }, 300);
   }, true);
 })();
+
+/* EMERGENCY GENERATION FIX: capture before all old handlers */
+
+(function emergencyGenerationFix() {
+  if (window.__emergencyGenerationFixApplied) return;
+  window.__emergencyGenerationFixApplied = true;
+
+  const HISTORY_KEY = 'fototime-ai-generated-photos';
+
+  function $$(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
+
+  function show(text, type = 'info') {
+    if (typeof showMessage === 'function') {
+      showMessage(text, type);
+    } else {
+      alert(text);
+    }
+  }
+
+  function visible(el) {
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }
+
+  function findFile() {
+    const inputs = $$('input[type="file"]');
+
+    for (const input of inputs) {
+      if (input.files && input.files[0]) return input.files[0];
+    }
+
+    if (window.state?.selectedPhoto) return window.state.selectedPhoto;
+
+    return null;
+  }
+
+  function findParticipantId() {
+    if (window.state?.selectedParticipantId) return window.state.selectedParticipantId;
+
+    const selected = $$('button, [data-participant-id], [data-participant], .participant-button, .participant-option')
+      .find((el) => {
+        const cls = el.className || '';
+        const aria = el.getAttribute('aria-pressed') || el.getAttribute('aria-selected');
+        return (
+          String(cls).includes('selected') ||
+          String(cls).includes('active') ||
+          aria === 'true'
+        );
+      });
+
+    const text = (selected?.textContent || '').trim().toLowerCase();
+
+    if (selected?.dataset?.participantId) return selected.dataset.participantId;
+    if (selected?.dataset?.participant) return selected.dataset.participant;
+
+    if (text.includes('муж')) return 'male';
+    if (text.includes('жен')) return 'female';
+    if (text.includes('пар')) return 'couple';
+    if (text.includes('маль')) return 'boy';
+    if (text.includes('дев')) return 'girl';
+    if (text.includes('сем')) return 'family';
+
+    return 'female';
+  }
+
+  function findSelectedStyleCard() {
+    const candidates = $$(
+      '.style-card, [data-style-id], [data-style], [data-id], article, .card'
+    ).filter((el) => {
+      if (!visible(el)) return false;
+
+      const text = (el.textContent || '').trim();
+      if (!text) return false;
+
+      const hasImage = Boolean(el.querySelector('img'));
+      const hasStyleData = Boolean(el.dataset.styleId || el.dataset.style || el.dataset.id);
+      const looksLikeStyle = /SDXL|Nano Banana|FLUX|Замена Головы|Астрал|Хогвартс|Барби|Готика|Кавай|Комикс|Краски/i.test(text);
+
+      return hasImage || hasStyleData || looksLikeStyle;
+    });
+
+    const selected = candidates.find((el) => {
+      const cls = String(el.className || '');
+      const aria = el.getAttribute('aria-selected');
+
+      return (
+        cls.includes('selected') ||
+        cls.includes('active') ||
+        aria === 'true' ||
+        getComputedStyle(el).borderColor.includes('156') ||
+        getComputedStyle(el).outlineStyle !== 'none'
+      );
+    });
+
+    return selected || candidates[0] || null;
+  }
+
+  function findStyle() {
+    if (window.state?.selectedStyleId) {
+      return {
+        id: window.state.selectedStyleId,
+        title: window.state.selectedStyle?.title || window.state.selectedStyleId,
+        provider: window.state.selectedStyle?.provider || window.state.selectedStyle?.providers?.[0] || ''
+      };
+    }
+
+    const card = findSelectedStyleCard();
+
+    if (!card) {
+      return null;
+    }
+
+    const title =
+      card.querySelector('strong, h3, .style-title, .title')?.textContent?.trim() ||
+      card.textContent?.trim()?.split('\n')?.[0]?.trim() ||
+      '';
+
+    const providerText =
+      card.textContent?.match(/SDXL|Nano Banana|FLUX\.?2?|Замена Головы/i)?.[0] ||
+      '';
+
+    const id =
+      card.dataset.styleId ||
+      card.dataset.style ||
+      card.dataset.id ||
+      card.getAttribute('data-ns-id') ||
+      card.getAttribute('data-provider-style-id') ||
+      title;
+
+    if (!id) return null;
+
+    return {
+      id,
+      title: title || id,
+      provider: providerText
+    };
+  }
+
+  function responseImageUrl(data) {
+    return (
+      data.resultUrl ||
+      data.imageUrl ||
+      data.url ||
+      data.image ||
+      data.result?.url ||
+      data.result?.imageUrl ||
+      data.data?.url ||
+      data.data?.imageUrl ||
+      data.output?.url ||
+      data.output?.imageUrl ||
+      (data.storage?.resultImage ? `/${data.storage.resultImage}` : '')
+    );
+  }
+
+  function saveHistory(item) {
+    try {
+      const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      const url = item.resultUrl || item.imageUrl;
+
+      const filtered = list.filter((old) => {
+        return (old.resultUrl || old.imageUrl) !== url;
+      });
+
+      filtered.unshift(item);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered.slice(0, 60)));
+    } catch {}
+  }
+
+  async function logError(error, details) {
+    try {
+      await fetch('/api/generation-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: 'emergencyGenerationFix',
+          message: error?.message || String(error),
+          stack: error?.stack || '',
+          details
+        })
+      });
+    } catch {}
+  }
+
+  async function runGeneration(button) {
+    if (button.dataset.emergencyLoading === 'true') return;
+
+    const photo = findFile();
+    const style = findStyle();
+    const participantId = findParticipantId();
+
+    if (!photo) {
+      show('Загрузите фото.', 'error');
+      return;
+    }
+
+    if (!style?.id) {
+      show('Выберите стиль обработки.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('participantId', participantId);
+    formData.append('styleId', style.id);
+    formData.append('styleTitle', style.title || style.id);
+    formData.append('styleProvider', style.provider || '');
+    formData.append('photo', photo);
+
+    const oldText = button.textContent;
+    button.dataset.emergencyLoading = 'true';
+    button.disabled = true;
+    button.textContent = 'Создаём AI-фото...';
+
+    try {
+      const headers = {};
+
+      if (window.Telegram?.WebApp?.initData) {
+        headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+      }
+
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers,
+        body: formData
+      });
+
+      const raw = await response.text();
+
+      let data = {};
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch {
+        throw new Error(`Сервер вернул не JSON: ${raw.slice(0, 160)}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || `Ошибка генерации HTTP ${response.status}`);
+      }
+
+      const imageUrl = responseImageUrl(data);
+
+      if (!imageUrl) {
+        throw new Error('Генерация завершилась, но сервер не вернул ссылку на изображение.');
+      }
+
+      const resultImage = document.querySelector('#resultImage');
+      const resultSection = document.querySelector('#resultSection');
+
+      if (resultImage) resultImage.src = imageUrl;
+
+      if (resultSection) {
+        resultSection.classList.remove('hidden');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      saveHistory({
+        id: data.generationId || `generation_${Date.now()}`,
+        generationId: data.generationId || `generation_${Date.now()}`,
+        resultUrl: imageUrl,
+        imageUrl,
+        styleTitle: style.title || style.id,
+        styleId: style.id,
+        participantId,
+        createdAt: new Date().toISOString()
+      });
+
+      if (typeof data.balance !== 'undefined') {
+        document.querySelectorAll('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]').forEach((el) => {
+          el.textContent = data.balance;
+        });
+      }
+
+      show('Готово! Фото сохранено в личном кабинете.', 'success');
+    } catch (error) {
+      await logError(error, `participant=${participantId}; style=${style?.id || 'none'}; photo=${photo?.name || 'none'}`);
+      show(error.message || 'Ошибка генерации.', 'error');
+    } finally {
+      button.dataset.emergencyLoading = 'false';
+      button.disabled = false;
+      button.textContent = oldText || 'Создать AI-фото';
+    }
+  }
+
+  window.addEventListener('click', function interceptGenerate(event) {
+    const button = event.target.closest('#generateButton, .generate-button');
+
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    runGeneration(button);
+  }, true);
+})();
