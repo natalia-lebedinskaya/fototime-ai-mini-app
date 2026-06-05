@@ -1114,3 +1114,254 @@ async function renderAppVersion() {
   }
 }
 
+
+/* Clean token/profile/admin UI layer */
+
+const USER_STATE = {
+  me: null,
+  generationCost: 40,
+  adminOverview: null
+};
+
+function getTelegramIdentityHeaders() {
+  const user = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
+
+  return {
+    'x-telegram-user-id': user.id ? String(user.id) : 'local-demo-user',
+    'x-telegram-username': user.username || '',
+    'x-telegram-first-name': user.first_name || '',
+    'x-telegram-last-name': user.last_name || ''
+  };
+}
+
+async function loadCurrentUser() {
+  const response = await fetch('/api/user/me', {
+    headers: getTelegramIdentityHeaders()
+  });
+
+  if (!response.ok) return;
+
+  const data = await response.json();
+
+  USER_STATE.me = data.user;
+  USER_STATE.generationCost = data.generationCost || 40;
+
+  renderBalanceUi();
+  renderAdminVisibility();
+}
+
+function renderBalanceUi() {
+  const balance = USER_STATE.me?.balance ?? 50;
+  const cost = USER_STATE.generationCost ?? 40;
+
+  document.querySelectorAll('#profileBalanceValue').forEach((el) => {
+    el.textContent = balance;
+  });
+
+  document.querySelectorAll('#profileGenerationCost').forEach((el) => {
+    el.textContent = `${cost} токенов`;
+  });
+}
+
+function renderAdminVisibility() {
+  const button = document.getElementById('adminTabButton');
+  if (button) {
+    button.classList.toggle('hidden', !USER_STATE.me?.isAdmin);
+  }
+}
+
+function moveProfileBlocks() {
+  const profilePanel = document.getElementById('profilePanel');
+  if (!profilePanel) return;
+
+  const history = document.getElementById('historySection');
+  const contacts = document.querySelector('.contacts-card');
+
+  if (history && !profilePanel.contains(history)) {
+    profilePanel.appendChild(history);
+  }
+
+  if (contacts && !profilePanel.contains(contacts)) {
+    profilePanel.appendChild(contacts);
+  }
+}
+
+function setActiveTab(target) {
+  document.querySelectorAll('.app-tab').forEach((tab) => {
+    tab.classList.toggle('active', tab.dataset.tabTarget === target);
+  });
+
+  document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+    panel.classList.toggle('hidden', panel.dataset.tabPanel !== target);
+  });
+
+  if (target === 'profile') {
+    moveProfileBlocks();
+    renderGeneratedHistory();
+    renderBalanceUi();
+  }
+
+  if (target === 'admin') {
+    loadAdminOverview().catch((error) => showMessage(error.message, 'error'));
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function initTabs() {
+  document.querySelectorAll('.app-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      setActiveTab(tab.dataset.tabTarget || 'main');
+    });
+  });
+}
+
+const originalInit = init;
+
+init = async function initWithUser() {
+  await loadCurrentUser();
+  await originalInit();
+  moveProfileBlocks();
+  setActiveTab('main');
+};
+
+async function loadAdminOverview() {
+  const response = await fetch('/api/admin/overview', {
+    headers: getTelegramIdentityHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error('Не удалось загрузить админ-консоль');
+  }
+
+  USER_STATE.adminOverview = await response.json();
+  renderAdminConsole();
+}
+
+function renderAdminConsole() {
+  const statsRoot = document.getElementById('adminStats');
+  const usersRoot = document.getElementById('adminUsersList');
+
+  if (!statsRoot || !usersRoot || !USER_STATE.adminOverview) return;
+
+  const { users, stats } = USER_STATE.adminOverview;
+
+  statsRoot.innerHTML = `
+    <div><strong>${stats.totalUsers}</strong><span>пользователей</span></div>
+    <div><strong>${stats.totalGenerations}</strong><span>генераций</span></div>
+    <div><strong>${stats.totalSpentCredits}</strong><span>токенов списано</span></div>
+  `;
+
+  usersRoot.innerHTML = '';
+
+  users.forEach((user) => {
+    const name = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || user.id;
+
+    const card = document.createElement('article');
+    card.className = 'admin-user-card';
+    card.innerHTML = `
+      <div class="admin-user-head">
+        <div>
+          <strong>${escapeHtml(name)}</strong>
+          <small>ID: ${escapeHtml(user.id)}</small>
+        </div>
+        <div class="admin-user-balance">
+          <strong>${Number(user.balance || 0)}</strong>
+          <span>токенов</span>
+        </div>
+      </div>
+
+      <div class="admin-user-actions">
+        <button type="button" data-user-id="${escapeHtml(user.id)}" data-amount="50" data-reason="beta_testing">+50 Бета-тест</button>
+        <button type="button" data-user-id="${escapeHtml(user.id)}" data-amount="120" data-reason="manual_credit">+120</button>
+        <button type="button" data-user-id="${escapeHtml(user.id)}" data-amount="300" data-reason="manual_credit">+300</button>
+        <button type="button" data-user-id="${escapeHtml(user.id)}" data-amount="700" data-reason="manual_credit">+700</button>
+      </div>
+    `;
+
+    usersRoot.appendChild(card);
+  });
+
+  usersRoot.querySelectorAll('[data-user-id]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      await fetch(`/api/admin/users/${encodeURIComponent(button.dataset.userId)}/credits`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getTelegramIdentityHeaders()
+        },
+        body: JSON.stringify({
+          amount: Number(button.dataset.amount),
+          reason: button.dataset.reason,
+          note: button.dataset.reason === 'beta_testing'
+            ? 'Бета-тестирование — бесплатно'
+            : 'Ручное начисление'
+        })
+      });
+
+      await loadAdminOverview();
+      await loadCurrentUser();
+    });
+  });
+}
+
+const originalRunGeneration = runGeneration;
+
+runGeneration = async function runGenerationWithBalance() {
+  const balance = USER_STATE.me?.balance ?? 0;
+  const cost = USER_STATE.generationCost ?? 40;
+
+  if (balance < cost) {
+    showMessage(`Недостаточно токенов. Нужно ${cost}, доступно ${balance}. Пополните баланс в личном кабинете.`, 'error');
+    return;
+  }
+
+  await originalRunGeneration();
+  await loadCurrentUser();
+};
+
+document.addEventListener('DOMContentLoaded', initTabs);
+
+/* Hard UI stabilization after cleanup */
+
+function forceAppTab(target = 'main') {
+  document.body.dataset.activeTab = target;
+
+  document.querySelectorAll('.app-tab').forEach((tab) => {
+    tab.classList.toggle('active', tab.dataset.tabTarget === target);
+  });
+
+  document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+    panel.classList.toggle('hidden', panel.dataset.tabPanel !== target);
+  });
+
+  if (target === 'profile') {
+    moveProfileBlocks();
+    renderGeneratedHistory();
+    renderBalanceUi();
+  }
+
+  if (target === 'admin') {
+    loadAdminOverview().catch((error) => showMessage(error.message, 'error'));
+  }
+}
+
+document.addEventListener('click', (event) => {
+  const tab = event.target.closest('.app-tab');
+
+  if (!tab) return;
+
+  event.preventDefault();
+  forceAppTab(tab.dataset.tabTarget || 'main');
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    forceAppTab('main');
+
+    const filtersPanel = document.querySelector('.styles-filter-panel');
+    if (filtersPanel) {
+      filtersPanel.open = true;
+    }
+  }, 400);
+});

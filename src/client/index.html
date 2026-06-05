@@ -272,5 +272,64 @@
   </main>
 
   <script src="./app.js"></script>
+
+<section id="profilePanel" class="app-panel hidden" data-tab-panel="profile">
+  <section class="card profile-card">
+    <div class="section-header">
+      <span class="step">LK</span>
+      <div>
+        <h2>Личный кабинет</h2>
+        <p class="section-subtitle">Баланс, история генераций и контакты FOTOTIME323.</p>
+      </div>
+    </div>
+
+    <div class="profile-grid">
+      <div class="profile-info-card">
+        <span>Доступно</span>
+        <strong id="profileBalanceValue">50</strong>
+        <small>токенов</small>
+      </div>
+      <div class="profile-info-card">
+        <span>Стоимость генерации</span>
+        <strong id="profileGenerationCost">40 токенов</strong>
+        <small>списание только после успешного результата</small>
+      </div>
+    </div>
+
+    <div class="profile-support-card">
+      <strong>Пополнение через Telegram</strong>
+      <p>Напишите нам — подтвердим оплату, начислим токены вручную и отправим чек от самозанятого.</p>
+      <a class="profile-support-button" href="https://t.me/fototime323" target="_blank" rel="noreferrer">Написать в Telegram</a>
+    </div>
+  </section>
+</section>
+
+<section id="adminPanel" class="app-panel hidden" data-tab-panel="admin">
+  <section class="card admin-card">
+    <div class="section-header">
+      <span class="step">AD</span>
+      <div>
+        <h2>Админ-консоль</h2>
+        <p class="section-subtitle">Пользователи, балансы и ручное начисление токенов.</p>
+      </div>
+    </div>
+
+    <div id="adminStats" class="admin-stats"></div>
+
+    <div class="admin-note">
+      <strong>Бета-тестирование — бесплатно</strong>
+      <p>Можно начислять токены без оплаты и без чека.</p>
+    </div>
+
+    <div id="adminUsersList" class="admin-users-list"></div>
+  </section>
+</section>
+
+<nav class="app-tabs" aria-label="Навигация приложения">
+  <button class="app-tab active" type="button" data-tab-target="main">Главная</button>
+  <button class="app-tab" type="button" data-tab-target="profile">Личный кабинет</button>
+  <button id="adminTabButton" class="app-tab hidden" type="button" data-tab-target="admin">Админ</button>
+</nav>
+
 </body>
 </html>

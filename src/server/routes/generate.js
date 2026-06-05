@@ -10,6 +10,13 @@ const {
   saveGenerationMetadata
 } = require('../services/fileStorageService');
 const { getCyberPhotoBoothStyleMapping } = require('../services/styleMappingService');
+const {
+  DEFAULT_GENERATION_COST,
+  getIdentityFromRequest,
+  getOrCreateUser,
+  requireEnoughCredits,
+  debitCredits
+} = require('../services/userStoreService');
 
 const router = express.Router();
 
@@ -41,6 +48,19 @@ function resolveStyle(styleId, participantId, styleTitle, styleProvider, stylePr
 
 router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
   try {
+    const identity = getIdentityFromRequest(req);
+    const user = getOrCreateUser(identity);
+    const generationCost = DEFAULT_GENERATION_COST;
+
+    if (!requireEnoughCredits(user, generationCost)) {
+      return res.status(402).json({
+        code: 'NOT_ENOUGH_CREDITS',
+        message: `Недостаточно токенов. Нужно ${generationCost}, доступно ${user.balance}. Пополните баланс в личном кабинете.`,
+        balance: user.balance,
+        generationCost
+      });
+    }
+
     const { participantId, styleId, styleTitle, styleProvider, stylePreviewUrl } = req.body;
 
     if (!participantId) {
@@ -112,6 +132,13 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       ? await generateCyberPhotoBoothImage(generationPayload)
       : await generateMockImage(generationPayload);
 
+    const updatedUser = debitCredits(
+      user.id,
+      generationCost,
+      'generation',
+      `Generation ${generationId}`
+    );
+
     const normalizedGenerationResult = {
       ...generationResult,
       styleId,
@@ -128,15 +155,23 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
 
     const metadata = {
       generationId,
+      userId: user.id,
+      telegramUserId: user.telegramUserId,
+      username: user.username || null,
       provider: normalizedGenerationResult.provider,
       participantId,
       styleId: String(style.id),
       styleName: style.name,
+      styleTitle: styleTitle || style.name || styleId,
+      styleProvider: styleProvider || null,
       originalFileName: req.file.originalname,
       originalPhoto: originalPhoto.relativePath,
       resultImage: resultImage?.relativePath || null,
+      resultUrl: resultImage?.relativePath ? `/${resultImage.relativePath}` : normalizedGenerationResult.resultUrl,
       jobId: normalizedGenerationResult.request?.jobId || null,
       cyberPhotoBoothStyle: normalizedGenerationResult.request?.cyberPhotoBoothStyle || cyberPhotoBoothStyle,
+      costCredits: generationCost,
+      balanceAfter: updatedUser.balance,
       createdAt: new Date().toISOString()
     };
 
@@ -145,6 +180,8 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
     return res.status(200).json({
       ...normalizedGenerationResult,
       generationId,
+      balance: updatedUser.balance,
+      generationCost,
       storage: {
         originalPhoto: originalPhoto.relativePath,
         resultImage: resultImage?.relativePath || null,
