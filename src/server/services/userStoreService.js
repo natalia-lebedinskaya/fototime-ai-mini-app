@@ -320,3 +320,61 @@ module.exports.debitCredits = function patchedDebitCredits(userId, amount, reaso
 
   return user;
 };
+
+/* PATCH: richer transactions with before/after balance */
+
+function patchTransactionBalanceFields(userId, amount, transactionId) {
+  const usersStore = getUsersStore();
+  const transactionsStore = getTransactionsStore();
+  const user = usersStore.users.find((item) => String(item.id) === String(userId));
+  const tx = transactionsStore.transactions.find((item) => item.id === transactionId);
+
+  if (!user || !tx) return;
+
+  const after = Number(user.balance || 0);
+  const value = Number(amount || 0);
+
+  tx.balanceAfter = after;
+  tx.balanceBefore = after - value;
+
+  saveTransactionsStore(transactionsStore);
+}
+
+const originalCreditUser = creditUser;
+const originalDebitCredits = debitCredits;
+
+module.exports.creditUser = function patchedCreditUser(userId, amount, reason, note, createdBy) {
+  const beforeUser = getUserById(userId);
+  const before = Number(beforeUser?.balance || 0);
+
+  const user = originalCreditUser(userId, amount, reason, note, createdBy);
+
+  const transactionsStore = getTransactionsStore();
+  const tx = transactionsStore.transactions.find((item) => String(item.userId) === String(userId));
+
+  if (tx) {
+    tx.balanceBefore = before;
+    tx.balanceAfter = Number(user.balance || 0);
+    saveTransactionsStore(transactionsStore);
+  }
+
+  return user;
+};
+
+module.exports.debitCredits = function patchedDebitCredits(userId, amount, reason, note) {
+  const beforeUser = getUserById(userId);
+  const before = Number(beforeUser?.balance || 0);
+
+  const user = originalDebitCredits(userId, amount, reason, note);
+
+  const transactionsStore = getTransactionsStore();
+  const tx = transactionsStore.transactions.find((item) => String(item.userId) === String(userId));
+
+  if (tx) {
+    tx.balanceBefore = before;
+    tx.balanceAfter = Number(user.balance || 0);
+    saveTransactionsStore(transactionsStore);
+  }
+
+  return user;
+};

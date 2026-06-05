@@ -1575,3 +1575,69 @@ body[data-ui-theme="dark"] .admin-user-card {
 .profile-transaction small {
   margin-top: 3px !important;
 }
+
+/* FINAL RELEASE FIX: hide leaked main blocks inside profile/admin */
+
+#profilePanel .balance-card,
+#profilePanel .balance-card-final,
+#profilePanel .participants-card,
+#profilePanel .styles-card,
+#profilePanel .photo-card,
+#profilePanel .result-card,
+#profilePanel #resultSection,
+#profilePanel .result-section,
+#profilePanel .styles-filter-panel,
+#profilePanel .styles-grid,
+#profilePanel .upload-card,
+#profilePanel #generateButton,
+#profilePanel .generation-error-actions,
+#profilePanel [class*="participant"],
+#profilePanel [class*="style"]:not(.profile-transactions-card):not(.history-card-item),
+#profilePanel [class*="upload"],
+#profilePanel [class*="result"] {
+  display: none !important;
+}
+
+#profilePanel .profile-card,
+#profilePanel #profileTransactionsBlock,
+#profilePanel #historySection,
+#profilePanel .history-card,
+#profilePanel .contacts-card {
+  display: block !important;
+}
+
+#adminPanel .balance-card,
+#adminPanel .balance-card-final,
+#adminPanel .participants-card,
+#adminPanel .styles-card,
+#adminPanel .photo-card,
+#adminPanel .result-card,
+#adminPanel #resultSection,
+#adminPanel .result-section,
+#adminPanel .styles-filter-panel,
+#adminPanel .styles-grid,
+#adminPanel .upload-card,
+#adminPanel #generateButton,
+#adminPanel .generation-error-actions,
+#adminPanel [class*="participant"],
+#adminPanel [class*="style"],
+#adminPanel [class*="upload"],
+#adminPanel [class*="result"] {
+  display: none !important;
+}
+
+#adminPanel .admin-card,
+#adminPanel .admin-stats,
+#adminPanel .admin-users-list,
+#adminPanel .admin-user-card,
+#adminPanel .admin-credit-controls {
+  display: block !important;
+}
+
+.admin-credit-controls {
+  display: grid !important;
+}
+
+.profile-transaction small {
+  margin-top: 3px !important;
+}

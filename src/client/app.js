@@ -2518,3 +2518,136 @@ document.addEventListener('click', () => {
     }, 800);
   });
 })();
+
+/* FINAL RELEASE FIX: strict profile/admin isolation + transaction balances */
+
+(function finalReleaseFix() {
+  function moveOnlyAllowedProfileBlocks() {
+    const profilePanel = document.getElementById('profilePanel');
+    if (!profilePanel) return;
+
+    const allowedIds = new Set([
+      'profileTransactionsBlock',
+      'historySection'
+    ]);
+
+    Array.from(profilePanel.children).forEach((child) => {
+      const isBaseProfileCard = child.classList.contains('profile-card');
+      const isContacts = child.classList.contains('contacts-card');
+      const isAllowedId = allowedIds.has(child.id);
+
+      if (!isBaseProfileCard && !isContacts && !isAllowedId) {
+        child.remove();
+      }
+    });
+
+    const history = document.getElementById('historySection');
+    const contacts = document.querySelector('.contacts-card');
+
+    if (history && !profilePanel.contains(history)) {
+      profilePanel.appendChild(history);
+    }
+
+    if (contacts && !profilePanel.contains(contacts)) {
+      profilePanel.appendChild(contacts);
+    }
+  }
+
+  function moveOnlyAllowedAdminBlocks() {
+    const adminPanel = document.getElementById('adminPanel');
+    if (!adminPanel) return;
+
+    Array.from(adminPanel.children).forEach((child) => {
+      if (!child.classList.contains('admin-card')) {
+        child.remove();
+      }
+    });
+  }
+
+  window.renderTransactionsBlock = function renderTransactionsBlockFinal(transactions) {
+    const profilePanel = document.getElementById('profilePanel');
+    if (!profilePanel) return;
+
+    let block = document.getElementById('profileTransactionsBlock');
+
+    if (!block) {
+      block = document.createElement('section');
+      block.id = 'profileTransactionsBlock';
+      block.className = 'profile-transactions-card';
+      block.innerHTML = `
+        <div class="section-header">
+          <span class="step">₽</span>
+          <div>
+            <h2>История баланса</h2>
+            <p class="section-subtitle">Пополнения, списания и остаток после операции.</p>
+          </div>
+        </div>
+        <div id="profileTransactionsList" class="profile-transactions-list"></div>
+      `;
+
+      const history = document.getElementById('historySection');
+      if (history && profilePanel.contains(history)) {
+        profilePanel.insertBefore(block, history);
+      } else {
+        profilePanel.appendChild(block);
+      }
+    }
+
+    const list = document.getElementById('profileTransactionsList');
+    if (!list) return;
+
+    if (!transactions || !transactions.length) {
+      list.innerHTML = '<p class="muted-note">Операций пока нет.</p>';
+      return;
+    }
+
+    list.innerHTML = transactions.slice(0, 12).map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const isCredit = amount > 0;
+      const before = typeof tx.balanceBefore === 'number' ? tx.balanceBefore : '—';
+      const after = typeof tx.balanceAfter === 'number' ? tx.balanceAfter : '—';
+
+      const date = new Date(tx.createdAt).toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      return `
+        <article class="profile-transaction ${isCredit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${isCredit ? 'Пополнение' : 'Списание'}</strong>
+            <span>${escapeHtml(tx.note || tx.reason || 'Операция')}</span>
+            <small>${date}</small>
+            <small>Баланс: ${before} → ${after}</small>
+          </div>
+          <b>${isCredit ? '+' : ''}${amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  };
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target]');
+
+    if (!tab) return;
+
+    setTimeout(() => {
+      if (tab.dataset.tabTarget === 'profile') {
+        moveOnlyAllowedProfileBlocks();
+      }
+
+      if (tab.dataset.tabTarget === 'admin') {
+        moveOnlyAllowedAdminBlocks();
+      }
+    }, 250);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      moveOnlyAllowedProfileBlocks();
+      moveOnlyAllowedAdminBlocks();
+    }, 800);
+  });
+})();
