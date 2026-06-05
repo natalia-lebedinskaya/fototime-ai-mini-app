@@ -7,6 +7,8 @@ const healthRoute = require('./routes/health');
 const configRoute = require('./routes/config');
 const generateRoute = require('./routes/generate');
 const stylesRoute = require('./routes/styles');
+const userRoute = require('./routes/user');
+const adminRoute = require('./routes/admin');
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -35,12 +37,15 @@ app.get('/api/version', (_req, res) => {
   });
 });
 
+app.use('/storage', express.static(path.join(process.cwd(), 'storage')));
 app.use(express.static(path.join(__dirname, '../client')));
 
 app.use('/api/health', healthRoute);
 app.use('/api/event-config', configRoute);
 app.use('/api/generate', generateRoute);
 app.use('/api/styles', stylesRoute);
+app.use('/api/user', userRoute);
+app.use('/api/admin', adminRoute);
 
 app.use(errorHandler);
 
