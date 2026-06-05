@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { getTelegramIdentity } = require('./telegramAuthService');
 
 const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
@@ -51,39 +52,15 @@ function isAdminUser(userId) {
 }
 
 function getIdentityFromRequest(req) {
-  const body = req.body || {};
-  const query = req.query || {};
+  const identity = getTelegramIdentity(req);
 
-  const telegramUserId =
-    req.headers['x-telegram-user-id'] ||
-    body.telegramUserId ||
-    query.telegramUserId ||
-    'local-demo-user';
+  if (!identity) {
+    const error = new Error('Telegram authorization required');
+    error.code = 'TELEGRAM_AUTH_REQUIRED';
+    throw error;
+  }
 
-  const username =
-    req.headers['x-telegram-username'] ||
-    body.telegramUsername ||
-    query.telegramUsername ||
-    null;
-
-  const firstName =
-    req.headers['x-telegram-first-name'] ||
-    body.telegramFirstName ||
-    query.telegramFirstName ||
-    null;
-
-  const lastName =
-    req.headers['x-telegram-last-name'] ||
-    body.telegramLastName ||
-    query.telegramLastName ||
-    null;
-
-  return {
-    telegramUserId: normalizeUserId(telegramUserId),
-    username,
-    firstName,
-    lastName
-  };
+  return identity;
 }
 
 function getUsersStore() {
