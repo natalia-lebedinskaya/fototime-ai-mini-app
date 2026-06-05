@@ -1798,3 +1798,186 @@ body[data-ui-theme="dark"] .ft-transaction {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* PROFILE FINAL: auth, compact history, centered placeholders */
+
+.ft-auth-card,
+.ft-main-auth-hint {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(184,255,31,.14), rgba(86,247,255,.12));
+  color: var(--text);
+}
+
+.ft-main-auth-hint {
+  width: min(100%, 860px);
+  margin: 16px auto 20px;
+}
+
+.ft-user-avatar {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #b8ff1f, #56f7ff);
+  color: #102015;
+  font-weight: 950;
+  box-shadow: 0 0 30px rgba(184,255,31,.38);
+  animation: ftAvatarPulse 4s ease-in-out infinite;
+}
+
+@keyframes ftAvatarPulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 24px rgba(184,255,31,.28);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 0 38px rgba(86,247,255,.34);
+  }
+}
+
+.ft-auth-card strong,
+.ft-auth-card span,
+.ft-auth-card small,
+.ft-main-auth-hint strong,
+.ft-main-auth-hint span {
+  display: block;
+}
+
+.ft-auth-card span,
+.ft-auth-card small,
+.ft-main-auth-hint span {
+  color: var(--muted);
+}
+
+.ft-auth-button,
+.ft-main-auth-hint a,
+.ft-main-auth-hint button {
+  margin-left: auto;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  color: #142014 !important;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.ft-transactions-compact,
+.account-transactions-list.ft-transactions-compact {
+  max-height: 330px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ft-transactions-compact .ft-transaction:nth-child(n+4),
+.ft-transactions-compact .account-transaction:nth-child(n+4) {
+  opacity: .82;
+}
+
+.history-card {
+  margin-top: 18px !important;
+}
+
+.history-list,
+#historyList {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.history-card-item {
+  overflow: hidden !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.48) !important;
+}
+
+body[data-ui-theme="dark"] .history-card-item {
+  background: rgba(255,255,255,.07) !important;
+}
+
+.history-card-item img {
+  width: 100% !important;
+  aspect-ratio: 1 / 1.15 !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.history-card-content {
+  padding: 10px !important;
+}
+
+.clear-history-button {
+  width: 100% !important;
+  min-height: 46px !important;
+  margin-top: 14px !important;
+  border-radius: 16px !important;
+  border: 0 !important;
+  background: rgba(255,255,255,.58) !important;
+  color: var(--text) !important;
+  font: inherit !important;
+  font-weight: 950 !important;
+}
+
+/* Center placeholders / pagination below styles */
+.styles-pagination,
+.styles-footer,
+.styles-controls,
+.styles-empty,
+.empty-state {
+  width: 100% !important;
+  text-align: center !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.styles-pagination,
+.styles-controls,
+.styles-footer {
+  display: flex !important;
+  gap: 8px !important;
+  margin: 14px auto 0 !important;
+}
+
+.styles-empty,
+.empty-state {
+  margin: 16px auto !important;
+}
+
+/* Little glow on selected style */
+.style-card.selected,
+.style-card.active,
+[aria-selected="true"].style-card {
+  box-shadow: 0 0 0 2px rgba(184,255,31,.65), 0 0 28px rgba(184,255,31,.16) !important;
+}
+
+@media (max-width: 720px) {
+  .ft-auth-card,
+  .ft-main-auth-hint {
+    display: grid;
+  }
+
+  .ft-auth-button,
+  .ft-main-auth-hint a,
+  .ft-main-auth-hint button {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .history-list,
+  #historyList {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

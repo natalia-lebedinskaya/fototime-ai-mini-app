@@ -2373,3 +2373,191 @@ window.addEventListener('load', () => {
     switchTab('main');
   });
 })();
+
+/* PROFILE FINAL: history, auth card, compact transactions, centered placeholders */
+
+(function profileFinalFix() {
+  if (window.__profileFinalFixApplied) return;
+  window.__profileFinalFixApplied = true;
+
+  const GENERATION_COST = 40;
+
+  function tgUser() {
+    return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  }
+
+  function isTelegramAuthorized() {
+    return Boolean(tgUser()?.id);
+  }
+
+  function userDisplayName(user = {}) {
+    const tg = tgUser();
+
+    if (tg?.username) return `@${tg.username}`;
+    if (tg?.first_name || tg?.last_name) return [tg.first_name, tg.last_name].filter(Boolean).join(' ');
+    if (user.username) return `@${user.username}`;
+    return [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Гость FOTOTIME323';
+  }
+
+  function userInitials(user = {}) {
+    const name = userDisplayName(user).replace('@', '');
+    return name.slice(0, 2).toUpperCase();
+  }
+
+  function authBlockHtml(user = {}) {
+    const authorized = isTelegramAuthorized();
+
+    return `
+      <section class="ft-auth-card">
+        <div class="ft-user-avatar">${userInitials(user)}</div>
+        <div>
+          <strong>${userDisplayName(user)}</strong>
+          <span>${authorized ? 'Авторизация через Telegram активна' : 'Гостевой просмотр приложения'}</span>
+          <small>${authorized ? 'Бонусные токены начисляются после первой авторизации.' : 'Для генерации фото авторизуйтесь через Telegram — начислим бонус на первые генерации.'}</small>
+        </div>
+        ${authorized ? '' : '<a class="ft-auth-button" href="https://t.me/fototime323Bot" target="_blank" rel="noreferrer">Авторизоваться</a>'}
+      </section>
+    `;
+  }
+
+  function compactTransactions() {
+    document.querySelectorAll('.ft-transactions, .account-transactions-list').forEach((list) => {
+      list.classList.add('ft-transactions-compact');
+    });
+  }
+
+  function restoreHistoryIntoProfile() {
+    const profile = document.getElementById('profilePanel');
+    if (!profile) return;
+
+    let history = document.getElementById('historySection');
+
+    if (!history) {
+      history = document.createElement('section');
+      history.id = 'historySection';
+      history.className = 'card history-card';
+      history.innerHTML = `
+        <div class="section-header">
+          <span class="step">05</span>
+          <div>
+            <h2>Мои сгенерированные фото</h2>
+            <p class="section-subtitle">Последние изображения сохраняются в этом браузере/Telegram WebView.</p>
+          </div>
+        </div>
+        <div id="historyEmptyState" class="empty-state">Пока нет сохранённых генераций.</div>
+        <div id="historyList" class="history-list"></div>
+        <button id="clearHistoryButton" class="clear-history-button hidden" type="button">Очистить историю</button>
+      `;
+    }
+
+    if (!profile.contains(history)) {
+      const contacts = profile.querySelector('.ft-contacts-card, .contacts-card');
+      if (contacts) {
+        profile.insertBefore(history, contacts);
+      } else {
+        profile.appendChild(history);
+      }
+    }
+
+    history.classList.remove('hidden');
+    history.style.display = '';
+
+    if (typeof renderGeneratedHistory === 'function') {
+      renderGeneratedHistory();
+    }
+  }
+
+  function addAuthToProfile() {
+    const profile = document.getElementById('profilePanel');
+    if (!profile || profile.querySelector('.ft-auth-card')) return;
+
+    const dataBalance = document.querySelector('#profileBalanceValue')?.textContent || '0';
+
+    const fakeUser = {
+      balance: Number(dataBalance)
+    };
+
+    const firstCard = profile.querySelector('.ft-profile-card, .account-card, .card');
+    if (firstCard) {
+      firstCard.insertAdjacentHTML('afterbegin', authBlockHtml(fakeUser));
+    }
+  }
+
+  function enhanceMainAuth() {
+    if (document.getElementById('mainAuthHint')) return;
+
+    const balanceCard = document.querySelector('.balance-card, .balance-card-final');
+    if (!balanceCard) return;
+
+    const authorized = isTelegramAuthorized();
+
+    const block = document.createElement('div');
+    block.id = 'mainAuthHint';
+    block.className = 'ft-main-auth-hint';
+    block.innerHTML = `
+      <div class="ft-user-avatar">${authorized ? userInitials() : 'FT'}</div>
+      <div>
+        <strong>${authorized ? 'Telegram авторизация активна' : 'Авторизуйтесь для генерации'}</strong>
+        <span>${authorized ? 'Ваши фото сохраняются в личном кабинете.' : 'Откройте приложение через Telegram — начислим бонусные токены.'}</span>
+      </div>
+      ${authorized ? '<button type="button" data-go-profile>Личный кабинет</button>' : '<a href="https://t.me/fototime323Bot" target="_blank" rel="noreferrer">Авторизоваться</a>'}
+    `;
+
+    balanceCard.insertAdjacentElement('afterend', block);
+
+    block.querySelector('[data-go-profile]')?.addEventListener('click', () => {
+      document.querySelector('[data-tab-target="profile"]')?.click();
+    });
+  }
+
+  function leftGenerationsText() {
+    const balance = Number(document.querySelector('#profileBalanceValue')?.textContent || document.querySelector('.balance-pill strong')?.textContent || 0);
+    const left = Math.floor(balance / GENERATION_COST);
+
+    document.querySelectorAll('.ft-left-generations-text').forEach((el) => {
+      el.textContent = `Осталось примерно на ${left} ${left === 1 ? 'генерацию' : 'генерации'}.`;
+    });
+  }
+
+  const oldFetch = window.fetch;
+
+  window.fetch = async function fetchWithAuthGuard(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (url.includes('/api/generate') && !isTelegramAuthorized() && location.hostname !== 'localhost') {
+      showMessage('Пожалуйста, авторизуйтесь через Telegram. За авторизацию начислим бонусные токены на первые генерации.', 'error');
+      document.getElementById('mainAuthHint')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      return new Response(JSON.stringify({
+        message: 'Telegram authorization required'
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return oldFetch(input, init);
+  };
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target]');
+
+    if (tab?.dataset?.tabTarget === 'profile') {
+      setTimeout(() => {
+        addAuthToProfile();
+        restoreHistoryIntoProfile();
+        compactTransactions();
+        leftGenerationsText();
+      }, 500);
+    }
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      enhanceMainAuth();
+      restoreHistoryIntoProfile();
+      compactTransactions();
+      leftGenerationsText();
+    }, 900);
+  });
+})();
