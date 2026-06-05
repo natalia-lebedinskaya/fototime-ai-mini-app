@@ -2003,3 +2003,373 @@ window.addEventListener('load', () => {
     setTab('main');
   });
 })();
+
+/* POLISH: profile pricing, contacts, admin PIN console */
+
+(function polishAccountAdminUi() {
+  if (window.__polishAccountAdminUiApplied) return;
+  window.__polishAccountAdminUiApplied = true;
+
+  const GENERATION_COST = 40;
+  const ADMIN_PIN = '3230';
+
+  const PACKAGES = [
+    { title: 'Старт', tokens: 50, price: '49 ₽', generations: 1, note: 'Для первой пробы' },
+    { title: 'Гости', tokens: 120, price: '99 ₽', generations: 3, note: 'Для небольшого мероприятия' },
+    { title: 'Популярный', tokens: 300, price: '249 ₽', generations: 7, note: 'Для активного использования' },
+    { title: 'Максимум', tokens: 700, price: '499 ₽', generations: 17, note: 'Для большого события или промо' }
+  ];
+
+  function headers() {
+    const result = {};
+    if (typeof getTelegramIdentityHeaders === 'function') Object.assign(result, getTelegramIdentityHeaders());
+    if (window.Telegram?.WebApp?.initData) result['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+    return result;
+  }
+
+  async function apiMe() {
+    const res = await fetch('/api/user/me', { headers: headers() });
+    return res.ok ? res.json() : null;
+  }
+
+  async function apiAdmin() {
+    const res = await fetch('/api/admin/overview', { headers: headers() });
+    return res.ok ? res.json() : null;
+  }
+
+  function userName(user = {}) {
+    if (user.username) return `@${user.username}`;
+    return [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Гость FOTOTIME323';
+  }
+
+  function initials(user = {}) {
+    const name = user.username || user.firstName || user.id || 'FT';
+    return String(name).slice(0, 2).toUpperCase();
+  }
+
+  function leftGenerations(balance) {
+    return Math.floor(Number(balance || 0) / GENERATION_COST);
+  }
+
+  function setBalanceEverywhere(balance) {
+    document.querySelectorAll('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]').forEach((el) => {
+      el.textContent = Number(balance || 0);
+    });
+  }
+
+  function formatDate(value) {
+    try {
+      return new Date(value).toLocaleString('ru-RU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
+  }
+
+  function normalizeTransactions(transactions = [], currentBalance = 0) {
+    let cursor = Number(currentBalance || 0);
+
+    return transactions.slice(0, 12).map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const after = typeof tx.balanceAfter === 'number' ? tx.balanceAfter : cursor;
+      const before = typeof tx.balanceBefore === 'number' ? tx.balanceBefore : after - amount;
+      cursor = before;
+      return { ...tx, balanceBefore: before, balanceAfter: after };
+    });
+  }
+
+  function packagesHtml() {
+    return PACKAGES.map((p) => `
+      <article class="ft-package-card">
+        <div>
+          <strong>${p.title}</strong>
+          <span>${p.tokens} токенов</span>
+          <small>примерно ${p.generations} ${p.generations === 1 ? 'генерация' : 'генерации'}</small>
+          <em>${p.note}</em>
+        </div>
+        <b>${p.price}</b>
+      </article>
+    `).join('');
+  }
+
+  function transactionsHtml(transactions, balance) {
+    const items = normalizeTransactions(transactions, balance);
+
+    if (!items.length) return '<p class="ft-muted">Операций пока нет.</p>';
+
+    return items.map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const credit = amount > 0;
+      return `
+        <article class="ft-transaction ${credit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${credit ? 'Пополнение' : 'Списание'}</strong>
+            <span>${tx.note || tx.reason || 'Операция по балансу'}</span>
+            <small>${formatDate(tx.createdAt)}</small>
+            <small>Баланс: ${tx.balanceBefore} → ${tx.balanceAfter}</small>
+          </div>
+          <b>${credit ? '+' : ''}${amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function contactsHtml() {
+    return `
+      <section class="card ft-contacts-card">
+        <div class="section-header">
+          <span class="step">FT</span>
+          <div>
+            <h2>FOTOTIME323</h2>
+            <p class="section-subtitle">Фотобудка, нейрофото и интерактивные решения для мероприятий.</p>
+          </div>
+        </div>
+
+        <div class="ft-social-grid">
+          <a href="https://t.me/fototime323" target="_blank" rel="noreferrer">✦ Telegram</a>
+          <a href="https://vk.com/fototime323" target="_blank" rel="noreferrer">✦ VK</a>
+          <a href="https://fototime323.lpmotortest.com" target="_blank" rel="noreferrer">✦ Сайт</a>
+        </div>
+
+        <a class="ft-support-wide" href="https://t.me/fototime323" target="_blank" rel="noreferrer">
+          ✨ Поддержка и пополнение баланса
+        </a>
+      </section>
+    `;
+  }
+
+  async function renderProfile() {
+    const data = await apiMe();
+    const user = data?.user || {};
+    const balance = Number(user.balance || 0);
+    const transactions = data?.transactions || [];
+    const left = leftGenerations(balance);
+
+    setBalanceEverywhere(balance);
+
+    const panel = document.getElementById('profilePanel');
+    if (!panel) return;
+
+    panel.innerHTML = `
+      <section class="card ft-profile-card">
+        <div class="ft-profile-head">
+          <div class="ft-avatar">${initials(user)}</div>
+          <div>
+            <h2>${userName(user)}</h2>
+            <p>Личный кабинет, баланс, генерации и платежи.</p>
+          </div>
+        </div>
+
+        <div class="ft-balance-grid">
+          <article>
+            <span>Доступно</span>
+            <strong id="profileBalanceValue">${balance}</strong>
+            <small>токенов · осталось на ${left} ${left === 1 ? 'генерацию' : 'генерации'}</small>
+            <button type="button" data-refresh-profile>Обновить баланс</button>
+          </article>
+          <article>
+            <span>Стоимость генерации</span>
+            <strong>${GENERATION_COST} токенов</strong>
+            <small>Списание только после успешного результата.</small>
+          </article>
+          <article>
+            <span>Подсказка</span>
+            <strong>${left}</strong>
+            <small>примерно столько фото можно создать сейчас.</small>
+          </article>
+        </div>
+
+        <div class="ft-low-balance-banner">
+          Осталось на ${left} ${left === 1 ? 'генерацию' : 'генерации'}. Удобно пополняйте баланс через нашу поддержку.
+        </div>
+
+        <section class="ft-section">
+          <h3>Пакеты токенов</h3>
+          <p>Оплата через Telegram. После оплаты начисляем токены вручную и отправляем чек самозанятого.</p>
+          <div class="ft-package-grid">${packagesHtml()}</div>
+          <a class="ft-support-wide" href="https://t.me/fototime323" target="_blank" rel="noreferrer">Пополнить через поддержку</a>
+        </section>
+
+        <section class="ft-section">
+          <h3>История баланса</h3>
+          <div class="ft-transactions">${transactionsHtml(transactions, balance)}</div>
+        </section>
+      </section>
+    `;
+
+    const history = document.getElementById('historySection');
+    if (history) panel.appendChild(history);
+
+    panel.insertAdjacentHTML('beforeend', contactsHtml());
+
+    panel.querySelector('[data-refresh-profile]')?.addEventListener('click', renderProfile);
+
+    if (typeof renderGeneratedHistory === 'function') renderGeneratedHistory();
+  }
+
+  function adminLockedHtml() {
+    return `
+      <section class="card ft-admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Доступ по PIN-коду администратора.</p>
+          </div>
+        </div>
+
+        <form id="adminPinForm" class="ft-admin-pin">
+          <label>PIN-код</label>
+          <input id="adminPinInput" type="password" inputmode="numeric" placeholder="Введите PIN" />
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+    `;
+  }
+
+  function adminUsersHtml(users = []) {
+    if (!users.length) return '<p class="ft-muted">Пользователей пока нет.</p>';
+
+    return users.map((u) => {
+      const name = u.username ? `@${u.username}` : [u.firstName, u.lastName].filter(Boolean).join(' ') || u.id;
+      return `
+        <article class="ft-admin-user">
+          <div class="ft-admin-user-head">
+            <div>
+              <strong>${name}</strong>
+              <small>ID: ${u.telegramUserId || u.id}</small>
+              <small>Генераций: ${Number(u.generationsCount || 0)} · списано: ${Number(u.spentCredits || 0)} ток.</small>
+            </div>
+            <div>
+              <b>${Number(u.balance || 0)}</b>
+              <span>токенов</span>
+            </div>
+          </div>
+
+          <div class="ft-admin-actions">
+            <button data-credit-user="${u.id}" data-credit-amount="50" data-credit-reason="beta_testing">+50 Бета</button>
+            <button data-credit-user="${u.id}" data-credit-amount="120" data-credit-reason="manual_credit">+120</button>
+            <button data-credit-user="${u.id}" data-credit-amount="300" data-credit-reason="manual_credit">+300</button>
+            <button data-credit-user="${u.id}" data-credit-amount="700" data-credit-reason="manual_credit">+700</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  async function renderAdmin() {
+    const panel = document.getElementById('adminPanel');
+    if (!panel) return;
+
+    if (localStorage.getItem('ft-admin-pin-ok') !== 'true') {
+      panel.innerHTML = adminLockedHtml();
+      panel.querySelector('#adminPinForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const value = panel.querySelector('#adminPinInput')?.value || '';
+        if (value === ADMIN_PIN) {
+          localStorage.setItem('ft-admin-pin-ok', 'true');
+          renderAdmin();
+        } else {
+          alert('Неверный PIN');
+        }
+      });
+      return;
+    }
+
+    const me = await apiMe();
+    const overview = await apiAdmin();
+
+    if (!overview) {
+      panel.innerHTML = adminLockedHtml();
+      return;
+    }
+
+    const stats = overview.stats || {};
+    const users = overview.users || [];
+    const ownBalance = Number(me?.user?.balance || 0);
+
+    panel.innerHTML = `
+      <section class="card ft-admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Клиенты, балансы, бета-токены и статистика генераций.</p>
+          </div>
+        </div>
+
+        <div class="ft-balance-grid">
+          <article><span>Мой баланс</span><strong>${ownBalance}</strong><small>токенов</small></article>
+          <article><span>Клиентов</span><strong>${Number(stats.totalUsers || 0)}</strong><small>в базе</small></article>
+          <article><span>Генераций</span><strong>${Number(stats.totalGenerations || 0)}</strong><small>всего</small></article>
+          <article><span>Списано</span><strong>${Number(stats.totalSpentCredits || 0)}</strong><small>токенов</small></article>
+        </div>
+
+        <section class="ft-section">
+          <h3>Пользователи и начисление токенов</h3>
+          <p>«+50 Бета» — бесплатное начисление без оплаты и без чека.</p>
+          <div class="ft-admin-users">${adminUsersHtml(users)}</div>
+        </section>
+      </section>
+    `;
+
+    panel.querySelectorAll('[data-credit-user]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        await fetch(`/api/admin/users/${encodeURIComponent(btn.dataset.creditUser)}/credits`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...headers() },
+          body: JSON.stringify({
+            amount: Number(btn.dataset.creditAmount),
+            reason: btn.dataset.creditReason,
+            note: btn.dataset.creditReason === 'beta_testing' ? 'Бета-тестирование — бесплатно' : 'Ручное начисление токенов'
+          })
+        });
+        await renderAdmin();
+      });
+    });
+  }
+
+  function ensurePanels() {
+    const main = document.querySelector('main#content') || document.querySelector('main');
+    if (main) main.dataset.tabPanel = 'main';
+
+    let profile = document.getElementById('profilePanel');
+    if (!profile) {
+      profile = document.createElement('section');
+      profile.id = 'profilePanel';
+      profile.className = 'app-panel hidden';
+      profile.dataset.tabPanel = 'profile';
+      document.body.insertBefore(profile, document.querySelector('.app-tabs'));
+    }
+
+    let admin = document.getElementById('adminPanel');
+    if (!admin) {
+      admin = document.createElement('section');
+      admin.id = 'adminPanel';
+      admin.className = 'app-panel hidden';
+      admin.dataset.tabPanel = 'admin';
+      document.body.insertBefore(admin, document.querySelector('.app-tabs'));
+    }
+  }
+
+  function switchTab(target) {
+    document.body.dataset.activeTab = target;
+    document.querySelectorAll('.app-tab').forEach((t) => t.classList.toggle('active', t.dataset.tabTarget === target));
+    document.querySelectorAll('[data-tab-panel]').forEach((p) => p.classList.toggle('hidden', p.dataset.tabPanel !== target));
+
+    if (target === 'profile') renderProfile();
+    if (target === 'admin') renderAdmin();
+  }
+
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-tab-target]');
+    if (!tab) return;
+    e.preventDefault();
+    switchTab(tab.dataset.tabTarget || 'main');
+  }, true);
+
+  window.addEventListener('load', () => {
+    ensurePanels();
+    switchTab('main');
+  });
+})();

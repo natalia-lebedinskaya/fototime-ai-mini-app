@@ -1511,3 +1511,290 @@ body[data-theme="dark"] .account-transaction {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* POLISH ACCOUNT + ADMIN */
+
+body[data-active-tab="main"] #profilePanel,
+body[data-active-tab="main"] #adminPanel,
+body[data-active-tab="profile"] main[data-tab-panel="main"],
+body[data-active-tab="profile"] #adminPanel,
+body[data-active-tab="admin"] main[data-tab-panel="main"],
+body[data-active-tab="admin"] #profilePanel {
+  display: none !important;
+}
+
+#profilePanel,
+#adminPanel {
+  width: min(100%, 920px);
+  margin: 0 auto;
+  padding: 0 16px 150px;
+}
+
+.ft-profile-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.ft-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #b8ff1f, #56f7ff);
+  color: #102015;
+  font-weight: 950;
+  box-shadow: 0 0 28px rgba(184,255,31,.38);
+  animation: ftFloat 4s ease-in-out infinite;
+}
+
+@keyframes ftFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.ft-profile-head h2,
+.ft-profile-head p {
+  margin: 0;
+}
+
+.ft-profile-head p {
+  color: var(--muted);
+}
+
+.ft-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.ft-balance-grid article,
+.ft-section,
+.ft-contacts-card,
+.ft-admin-user {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255,255,255,.55);
+}
+
+body[data-ui-theme="dark"] .ft-balance-grid article,
+body[data-ui-theme="dark"] .ft-section,
+body[data-ui-theme="dark"] .ft-contacts-card,
+body[data-ui-theme="dark"] .ft-admin-user {
+  background: rgba(255,255,255,.07);
+}
+
+.ft-balance-grid span,
+.ft-balance-grid small,
+.ft-section p,
+.ft-muted {
+  display: block;
+  color: var(--muted) !important;
+}
+
+.ft-balance-grid strong {
+  display: block;
+  margin: 7px 0;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.ft-balance-grid button,
+.ft-admin-pin button {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  color: #142014;
+  font-weight: 950;
+}
+
+.ft-low-balance-banner {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255,243,125,.62), rgba(184,255,31,.42));
+  color: #25311c;
+  font-weight: 900;
+}
+
+.ft-section {
+  margin-top: 16px;
+}
+
+.ft-section h3 {
+  margin: 0 0 8px;
+}
+
+.ft-package-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ft-package-card,
+.ft-transaction {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255,255,255,.5);
+}
+
+body[data-ui-theme="dark"] .ft-package-card,
+body[data-ui-theme="dark"] .ft-transaction {
+  background: rgba(255,255,255,.06);
+}
+
+.ft-package-card strong,
+.ft-package-card span,
+.ft-package-card small,
+.ft-package-card em,
+.ft-transaction strong,
+.ft-transaction span,
+.ft-transaction small {
+  display: block;
+}
+
+.ft-package-card span {
+  margin-top: 4px;
+  font-weight: 950;
+}
+
+.ft-package-card small,
+.ft-package-card em,
+.ft-transaction span,
+.ft-transaction small {
+  color: var(--muted);
+}
+
+.ft-package-card b {
+  color: #65b849;
+  white-space: nowrap;
+}
+
+.ft-support-wide {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 14px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255,243,125,.92), rgba(184,255,31,.9));
+  color: #142014 !important;
+  text-decoration: none;
+  font-weight: 950;
+}
+
+.ft-transactions {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ft-transaction.credit b {
+  color: #65b849;
+}
+
+.ft-transaction.debit b {
+  color: #d4834a;
+}
+
+.ft-social-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.ft-social-grid a {
+  min-height: 46px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text) !important;
+  text-decoration: none;
+  font-weight: 950;
+  background: linear-gradient(135deg, rgba(255,255,255,.6), rgba(184,255,31,.12));
+}
+
+.ft-admin-pin {
+  display: grid;
+  gap: 10px;
+}
+
+.ft-admin-pin input {
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0 14px;
+  font: inherit;
+}
+
+.ft-admin-users {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ft-admin-user-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ft-admin-user-head strong,
+.ft-admin-user-head small,
+.ft-admin-user-head b,
+.ft-admin-user-head span {
+  display: block;
+}
+
+.ft-admin-user-head b {
+  font-size: 28px;
+  color: #65b849;
+}
+
+.ft-admin-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ft-admin-actions button {
+  min-height: 38px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.7);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.ft-admin-actions button:first-child {
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  color: #142014;
+}
+
+@media (max-width: 720px) {
+  .ft-balance-grid,
+  .ft-package-grid,
+  .ft-social-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ft-admin-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
