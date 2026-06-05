@@ -1526,3 +1526,216 @@ window.fetch = function patchedFetch(input, init = {}) {
     setTimeout(cleanCurrentTab, 1600);
   });
 })();
+
+/* HOTFIX: strict tab cleanup and real token balance */
+
+(function strictTabsAndBalanceFix() {
+  if (window.__strictTabsAndBalanceFixApplied) return;
+  window.__strictTabsAndBalanceFixApplied = true;
+
+  let lastKnownBalance = null;
+
+  function $(selector, root = document) {
+    return root.querySelector(selector);
+  }
+
+  function $$(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
+
+  function isVisible(el) {
+    if (!el) return false;
+    return !el.classList.contains('hidden') && getComputedStyle(el).display !== 'none';
+  }
+
+  function authHeaders() {
+    const headers = {};
+
+    if (window.Telegram?.WebApp?.initData) {
+      headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+    }
+
+    return headers;
+  }
+
+  async function fetchRealBalance() {
+    try {
+      const res = await fetch('/api/user/me', { headers: authHeaders() });
+      if (!res.ok) return lastKnownBalance ?? 50;
+
+      const data = await res.json();
+      const balance = Number(data?.user?.balance);
+
+      if (!Number.isNaN(balance)) {
+        lastKnownBalance = balance;
+        updateAllBalanceTexts(balance);
+        return balance;
+      }
+    } catch {}
+
+    return lastKnownBalance ?? 50;
+  }
+
+  function updateAllBalanceTexts(balance) {
+    const values = [
+      '#mainBalanceValue',
+      '#profileBalanceValue',
+      '[data-balance-value]',
+      '.balance-pill strong',
+      '.balance-badge strong'
+    ];
+
+    values.forEach((selector) => {
+      $$(selector).forEach((el) => {
+        el.textContent = String(balance);
+      });
+    });
+
+    // Убираем конфликт терминов: кредиты -> токены
+    $$('body *').forEach((el) => {
+      if (el.children.length) return;
+
+      const text = el.textContent || '';
+      if (text.includes('кредит')) {
+        el.textContent = text
+          .replaceAll('кредитов', 'токенов')
+          .replaceAll('кредита', 'токена')
+          .replaceAll('кредит', 'токен');
+      }
+    });
+  }
+
+  function removeGenerationBlocksFromProfile() {
+    const profile = $('#profilePanel');
+    if (!profile) return;
+
+    $$('.card, section, .ft-section-clean, .styles-section, .photo-section, .participant-section, #resultSection', profile)
+      .forEach((el) => {
+        const text = (el.textContent || '').toLowerCase();
+
+        const shouldRemove =
+          text.includes('участник') ||
+          text.includes('стиль обработки') ||
+          text.includes('поиск и фильтрация') ||
+          text.includes('выберите фото') ||
+          text.includes('jpg, jpeg') ||
+          text.includes('создать ai-фото') ||
+          text.includes('повторить генерацию') ||
+          text.includes('результат') ||
+          el.matches('.styles-section, .photo-section, .participant-section, #resultSection');
+
+        const shouldKeep =
+          text.includes('личный кабинет') ||
+          text.includes('пакеты токенов') ||
+          text.includes('история баланса') ||
+          text.includes('мои сгенерированные фото') ||
+          text.includes('fototime323') ||
+          text.includes('обратная связь');
+
+        if (shouldRemove && !shouldKeep) {
+          el.remove();
+        }
+      });
+  }
+
+  function removeClientBlocksFromAdmin() {
+    const admin = $('#adminPanel');
+    if (!admin) return;
+
+    $$('.card, section, .ft-section-clean, .styles-section, .photo-section, .participant-section, #resultSection', admin)
+      .forEach((el) => {
+        const text = (el.textContent || '').toLowerCase();
+
+        const shouldRemove =
+          text.includes('участник') ||
+          text.includes('стиль обработки') ||
+          text.includes('поиск и фильтрация') ||
+          text.includes('выберите фото') ||
+          text.includes('jpg, jpeg') ||
+          text.includes('создать ai-фото') ||
+          text.includes('повторить генерацию') ||
+          text.includes('пакеты токенов') ||
+          text.includes('мои сгенерированные фото') ||
+          text.includes('обратная связь') ||
+          text.includes('fototime323');
+
+        const shouldKeep =
+          text.includes('дашборд') ||
+          text.includes('админ') ||
+          text.includes('ошибки генераций') ||
+          text.includes('уведомления') ||
+          text.includes('пользователи') ||
+          text.includes('стабильность');
+
+        if (shouldRemove && !shouldKeep) {
+          el.remove();
+        }
+      });
+  }
+
+  async function renderMainTokenReminder() {
+    const mainPanel = $('#mainPanel') || $('main');
+    if (!mainPanel) return;
+
+    $('#ftMainTokenReminder')?.remove();
+
+    const balanceCard =
+      $('.balance-card') ||
+      $('.balance-card-final') ||
+      $('.card');
+
+    if (!balanceCard) return;
+
+    const balance = await fetchRealBalance();
+    const left = Math.floor(balance / 40);
+
+    const reminder = document.createElement('section');
+    reminder.id = 'ftMainTokenReminder';
+    reminder.className = 'card ft-main-token-reminder';
+    reminder.innerHTML = `
+      <div class="ft-reminder-icon">FT</div>
+      <div class="ft-reminder-text">
+        <strong>Продлите токены заранее</strong>
+        <span>У вас ${balance} токенов — примерно на ${left} ${left === 1 ? 'генерацию' : 'генерации'}.</span>
+        <small>Стоимость одной генерации — 40 токенов. Пополнение проходит через Telegram, чек отправляем после оплаты.</small>
+      </div>
+      <a href="https://t.me/fototime323" target="_blank" rel="noreferrer">Пополнить</a>
+    `;
+
+    balanceCard.insertAdjacentElement('afterend', reminder);
+  }
+
+  function cleanupByCurrentPage() {
+    const profile = $('#profilePanel');
+    const admin = $('#adminPanel');
+
+    if (profile && isVisible(profile)) {
+      removeGenerationBlocksFromProfile();
+      $('#ftMainTokenReminder')?.remove();
+    }
+
+    if (admin && isVisible(admin)) {
+      removeClientBlocksFromAdmin();
+      $('#ftMainTokenReminder')?.remove();
+    }
+
+    const mainPanel = $('#mainPanel');
+    if ((mainPanel && isVisible(mainPanel)) || (!profile && !admin)) {
+      renderMainTokenReminder();
+    }
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(cleanupByCurrentPage, 250);
+    setTimeout(cleanupByCurrentPage, 900);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(cleanupByCurrentPage, 700);
+    setTimeout(cleanupByCurrentPage, 1600);
+  });
+
+  setInterval(() => {
+    fetchRealBalance();
+  }, 8000);
+})();

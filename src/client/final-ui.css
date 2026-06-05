@@ -3238,3 +3238,35 @@ body[data-theme="dark"] .ft-main-token-reminder {
     width: 100% !important;
   }
 }
+
+/* HOTFIX: strict profile/admin cleanup */
+
+#profilePanel .participant-section,
+#profilePanel .styles-section,
+#profilePanel .photo-section,
+#profilePanel #resultSection,
+#profilePanel .balance-card,
+#profilePanel .balance-card-final,
+#profilePanel #ftMainTokenReminder,
+#adminPanel .participant-section,
+#adminPanel .styles-section,
+#adminPanel .photo-section,
+#adminPanel #resultSection,
+#adminPanel .balance-card,
+#adminPanel .balance-card-final,
+#adminPanel #ftMainTokenReminder {
+  display: none !important;
+}
+
+.ft-main-token-reminder {
+  margin-top: 14px !important;
+}
+
+.ft-reminder-text span,
+.ft-reminder-text small {
+  word-break: normal !important;
+}
+
+.ft-main-token-reminder a {
+  white-space: nowrap !important;
+}
