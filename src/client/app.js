@@ -4101,3 +4101,297 @@ window.addEventListener('load', () => {
     }, 400);
   }, true);
 })();
+
+/* FINAL HARD FIX: one generation handler, smoother prices, svg dashboard */
+
+(function finalHardFix() {
+  if (window.__finalHardFixApplied) return;
+  window.__finalHardFixApplied = true;
+
+  const HISTORY_KEY = 'fototime-ai-generated-photos';
+
+  function $(s, r = document) { return r.querySelector(s); }
+  function $$(s, r = document) { return Array.from(r.querySelectorAll(s)); }
+
+  function message(text, type = 'info') {
+    if (typeof showMessage === 'function') showMessage(text, type);
+    else alert(text);
+  }
+
+  function headers() {
+    const h = {};
+    if (window.Telegram?.WebApp?.initData) h['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+    return h;
+  }
+
+  function getSelected() {
+    const participant =
+      $('.participant-button.selected') ||
+      $('.participant-option.selected') ||
+      $('[data-participant-id].selected') ||
+      $('[data-participant].selected') ||
+      $('.participant-button.active') ||
+      $('[data-participant-id].active');
+
+    const style =
+      $('.style-card.selected') ||
+      $('[data-style-id].selected') ||
+      $('[data-style].selected') ||
+      $('[aria-selected="true"].style-card') ||
+      $('.style-card.active');
+
+    const fileInput = $('input[type="file"]');
+
+    return {
+      participantId:
+        window.state?.selectedParticipantId ||
+        participant?.dataset?.participantId ||
+        participant?.dataset?.participant ||
+        participant?.getAttribute('data-id') ||
+        participant?.value ||
+        'female',
+
+      styleId:
+        window.state?.selectedStyleId ||
+        style?.dataset?.styleId ||
+        style?.dataset?.style ||
+        style?.getAttribute('data-id') ||
+        null,
+
+      styleTitle:
+        window.state?.selectedStyle?.title ||
+        style?.querySelector('strong, h3, .style-title')?.textContent?.trim() ||
+        style?.textContent?.trim() ||
+        'AI style',
+
+      photo:
+        window.state?.selectedPhoto ||
+        fileInput?.files?.[0] ||
+        null
+    };
+  }
+
+  function resultUrl(data) {
+    return data.resultUrl ||
+      data.imageUrl ||
+      data.url ||
+      data.image ||
+      data.result?.url ||
+      data.result?.imageUrl ||
+      data.data?.url ||
+      data.data?.imageUrl ||
+      (data.storage?.resultImage ? `/${data.storage.resultImage}` : '');
+  }
+
+  function saveHistory(item) {
+    const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    const url = item.resultUrl || item.imageUrl;
+    const clean = list.filter((x) => (x.resultUrl || x.imageUrl) !== url);
+    clean.unshift(item);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(clean.slice(0, 60)));
+  }
+
+  async function logError(error) {
+    try {
+      await fetch('/api/generation-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'finalHardFix', message: error.message || String(error), stack: error.stack || '' })
+      });
+    } catch {}
+  }
+
+  async function generate(button) {
+    if (button.dataset.loading === 'true') return;
+
+    const selected = getSelected();
+
+    if (!selected.styleId || !selected.photo) {
+      message('Выберите стиль и загрузите фото.', 'error');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('participantId', selected.participantId);
+    fd.append('styleId', selected.styleId);
+    fd.append('styleTitle', selected.styleTitle);
+    fd.append('photo', selected.photo);
+
+    const oldText = button.textContent;
+    button.dataset.loading = 'true';
+    button.disabled = true;
+    button.textContent = 'Создаём AI-фото...';
+
+    try {
+      const res = await fetch('/api/generate', { method: 'POST', headers: headers(), body: fd });
+      const text = await res.text();
+
+      let data = {};
+      try { data = text ? JSON.parse(text) : {}; }
+      catch { throw new Error(`Сервер вернул некорректный ответ: ${text.slice(0, 120)}`); }
+
+      if (!res.ok) throw new Error(data.message || data.error || `Ошибка генерации HTTP ${res.status}`);
+
+      const url = resultUrl(data);
+      if (!url) throw new Error('Сервер не вернул ссылку на готовое изображение');
+
+      const img = $('#resultImage');
+      const section = $('#resultSection');
+
+      if (img) img.src = url;
+      if (section) {
+        section.classList.remove('hidden');
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      saveHistory({
+        id: data.generationId || `generation_${Date.now()}`,
+        generationId: data.generationId || `generation_${Date.now()}`,
+        resultUrl: url,
+        imageUrl: url,
+        styleTitle: selected.styleTitle,
+        styleId: selected.styleId,
+        participantId: selected.participantId,
+        createdAt: new Date().toISOString()
+      });
+
+      if (typeof data.balance !== 'undefined') {
+        $$('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]').forEach((el) => {
+          el.textContent = data.balance;
+        });
+      }
+
+      message('Готово! Фото сохранено в личном кабинете.', 'success');
+    } catch (error) {
+      await logError(error);
+      message(error.message || 'Ошибка генерации.', 'error');
+    } finally {
+      button.dataset.loading = 'false';
+      button.disabled = false;
+      button.textContent = oldText || 'Создать AI-фото';
+    }
+  }
+
+  function replaceGenerateButton() {
+    const old = $('#generateButton, .generate-button');
+    if (!old || old.dataset.finalClean === 'true') return;
+
+    const fresh = old.cloneNode(true);
+    fresh.dataset.finalClean = 'true';
+    fresh.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      generate(fresh);
+    });
+
+    old.replaceWith(fresh);
+  }
+
+  function patchPrices() {
+    const packs = [
+      ['Старт', '50 токенов', '39 ₽', '≈ 1 генерация'],
+      ['Гости', '120 токенов', '89 ₽', '≈ 3 генерации'],
+      ['Популярный', '300 токенов', '219 ₽', '≈ 7 генераций'],
+      ['Максимум', '700 токенов', '459 ₽', '≈ 17 генераций']
+    ];
+
+    $$('.ft-package-grid').forEach((grid) => {
+      grid.innerHTML = packs.map(([title, tokens, price, gens]) => `
+        <article class="ft-price-card-soft">
+          <div>
+            <b>${title}</b>
+            <strong>${tokens}</strong>
+            <span>${gens}</span>
+          </div>
+          <em>${price}</em>
+        </article>
+      `).join('');
+    });
+  }
+
+  async function patchAdminChart() {
+    const panel = $('#adminPanel');
+    const pin = localStorage.getItem('ft-admin-pin') || '';
+    if (!panel || !pin) return;
+
+    const oldChart = $('#ftStabilityChart');
+    if (oldChart) oldChart.remove();
+
+    const [overviewRes, errorsRes] = await Promise.all([
+      fetch('/api/admin-pin/overview', { headers: { 'x-admin-pin': pin } }),
+      fetch('/api/generation-logs/admin', { headers: { 'x-admin-pin': pin } })
+    ]);
+
+    const overview = overviewRes.ok ? await overviewRes.json() : { stats: {} };
+    const errors = errorsRes.ok ? await errorsRes.json() : { items: [] };
+
+    const success = Number(overview.stats?.totalGenerations || 0);
+    const failed = Number(errors.items?.length || 0);
+    const total = Math.max(success + failed, 1);
+    const successPercent = Math.round((success / total) * 100);
+    const failedPercent = 100 - successPercent;
+
+    const chart = document.createElement('section');
+    chart.id = 'ftStabilityChart';
+    chart.className = 'ft-section-clean';
+    chart.innerHTML = `
+      <div class="ft-admin-section-head">
+        <h3>График стабильности</h3>
+        <button type="button" data-clear-all-admin>Очистить уведомления</button>
+      </div>
+
+      <div class="ft-svg-chart">
+        <svg viewBox="0 0 320 160" role="img" aria-label="Стабильность генераций">
+          <circle cx="80" cy="80" r="54" class="ft-ring-bg"></circle>
+          <circle cx="80" cy="80" r="54" class="ft-ring-ok" style="stroke-dasharray:${successPercent} 100"></circle>
+          <text x="80" y="75" text-anchor="middle" class="ft-chart-number">${successPercent}%</text>
+          <text x="80" y="96" text-anchor="middle" class="ft-chart-label">stable</text>
+
+          <rect x="170" y="${130 - success * 10}" width="42" height="${Math.max(success * 10, 4)}" rx="8" class="ft-bar-ok"></rect>
+          <rect x="232" y="${130 - failed * 10}" width="42" height="${Math.max(failed * 10, 4)}" rx="8" class="ft-bar-fail"></rect>
+
+          <text x="191" y="148" text-anchor="middle" class="ft-chart-label">ok</text>
+          <text x="253" y="148" text-anchor="middle" class="ft-chart-label">fail</text>
+        </svg>
+
+        <div class="ft-chart-legend">
+          <b>Успешно: ${success}</b>
+          <b>Ошибки: ${failed}</b>
+          <b>Стабильность: ${successPercent}%</b>
+        </div>
+      </div>
+    `;
+
+    panel.querySelector('.ft-admin-clean, .card')?.prepend(chart);
+
+    chart.querySelector('[data-clear-all-admin]')?.addEventListener('click', async () => {
+      await fetch('/api/generation-logs/admin', { method: 'DELETE', headers: { 'x-admin-pin': pin } });
+      await fetch('/api/feedback/admin', { method: 'DELETE', headers: { 'x-admin-pin': pin } });
+      chart.remove();
+      patchAdminChart();
+    });
+  }
+
+  function normalizeSpacing() {
+    $$('.card, .ft-section-clean, .ft-profile-clean, .ft-admin-clean').forEach((el) => {
+      el.classList.add('ft-space-normalized');
+    });
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      replaceGenerateButton();
+      patchPrices();
+      normalizeSpacing();
+    }, 800);
+  });
+
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      replaceGenerateButton();
+      patchPrices();
+      normalizeSpacing();
+      patchAdminChart();
+    }, 300);
+  }, true);
+})();

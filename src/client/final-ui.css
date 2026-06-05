@@ -3011,3 +3011,136 @@ body[data-ui-theme="dark"] .ft-log-row {
     grid-template-columns: 1fr;
   }
 }
+
+/* FINAL HARD FIX UI */
+
+.ft-space-normalized {
+  margin-top: 14px !important;
+  margin-bottom: 0 !important;
+}
+
+.ft-price-card,
+.ft-price-card-soft {
+  position: relative !important;
+  min-height: 86px !important;
+  padding: 12px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  background: rgba(255,255,255,.44) !important;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+
+body[data-ui-theme="dark"] .ft-price-card-soft {
+  background: rgba(255,255,255,.07) !important;
+}
+
+.ft-price-card-soft::before {
+  content: "";
+  position: absolute;
+  inset: auto -20% -65% -20%;
+  height: 90%;
+  background: radial-gradient(circle, rgba(184,255,31,.28), transparent 62%);
+  opacity: 0;
+  transition: opacity .18s ease, transform .18s ease;
+  transform: translateY(14px);
+}
+
+.ft-price-card-soft:hover,
+.ft-price-card-soft:active {
+  transform: translateY(-2px) !important;
+  border-color: rgba(184,255,31,.55) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.08) !important;
+}
+
+.ft-price-card-soft:hover::before,
+.ft-price-card-soft:active::before {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ft-price-card-soft b,
+.ft-price-card-soft strong,
+.ft-price-card-soft span {
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+  line-height: 1.25 !important;
+}
+
+.ft-price-card-soft strong {
+  margin-top: 3px !important;
+}
+
+.ft-price-card-soft span {
+  margin-top: 3px !important;
+  color: var(--muted) !important;
+}
+
+.ft-price-card-soft em {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  z-index: 1 !important;
+  font-style: normal !important;
+  font-weight: 950 !important;
+  color: #5fb94f !important;
+}
+
+.ft-svg-chart {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.ft-svg-chart svg {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 260px !important;
+}
+
+.ft-ring-bg {
+  fill: none;
+  stroke: rgba(120,120,120,.18);
+  stroke-width: 14;
+}
+
+.ft-ring-ok {
+  fill: none;
+  stroke: url(#none);
+  stroke: #9cff1f;
+  stroke-width: 14;
+  stroke-linecap: round;
+  pathLength: 100;
+  transform: rotate(-90deg);
+  transform-origin: 80px 80px;
+}
+
+.ft-bar-ok {
+  fill: #9cff1f;
+}
+
+.ft-bar-fail {
+  fill: #ff8b6b;
+}
+
+.ft-chart-number {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.ft-chart-label {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.card,
+.ft-section-clean {
+  padding: 14px !important;
+}
+
+.card + .card,
+.ft-section-clean + .ft-section-clean {
+  margin-top: 14px !important;
+}
