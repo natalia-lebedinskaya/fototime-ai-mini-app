@@ -3042,3 +3042,214 @@ window.addEventListener('load', () => {
     }, 800);
   });
 })();
+
+/* ADMIN PIN FIX + COMPACT UI FIX */
+
+(function adminPinAndCompactFix() {
+  if (window.__adminPinAndCompactFixApplied) return;
+  window.__adminPinAndCompactFixApplied = true;
+
+  function getAdminPin() {
+    return localStorage.getItem('ft-admin-pin') || '';
+  }
+
+  async function getAdminPinOverview() {
+    const response = await fetch('/api/admin-pin/overview', {
+      headers: {
+        'x-admin-pin': getAdminPin()
+      }
+    });
+
+    if (!response.ok) return null;
+    return response.json();
+  }
+
+  async function creditUserByPin(userId, amount, reason) {
+    const response = await fetch(`/api/admin-pin/users/${encodeURIComponent(userId)}/credits`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-pin': getAdminPin()
+      },
+      body: JSON.stringify({
+        amount,
+        reason,
+        note: reason === 'beta_testing'
+          ? 'Бета-тестирование — бесплатно'
+          : 'Ручное начисление токенов'
+      })
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.message || 'Не удалось начислить токены');
+    }
+  }
+
+  function adminLoginHtml() {
+    return `
+      <section class="card ft-admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Введите PIN администратора.</p>
+          </div>
+        </div>
+
+        <form id="ftAdminPinForm" class="ft-admin-pin">
+          <input type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off" />
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+    `;
+  }
+
+  function renderUsers(users) {
+    if (!users?.length) return '<p class="ft-muted">Пользователей пока нет.</p>';
+
+    return users.map((user) => {
+      const name = user.username ? `@${user.username}` : user.firstName || user.id;
+
+      return `
+        <article class="ft-admin-user">
+          <div class="ft-admin-user-head">
+            <div>
+              <strong>${name}</strong>
+              <small>ID: ${user.telegramUserId || user.id}</small>
+              <small>Генераций: ${user.generationsCount || 0} · списано: ${user.spentCredits || 0} ток.</small>
+            </div>
+            <div>
+              <b>${user.balance || 0}</b>
+              <span>токенов</span>
+            </div>
+          </div>
+
+          <div class="ft-admin-actions">
+            <button data-pin-credit-user="${user.id}" data-pin-credit-amount="50" data-pin-credit-reason="beta_testing">+50 Бета</button>
+            <button data-pin-credit-user="${user.id}" data-pin-credit-amount="120" data-pin-credit-reason="manual_credit">+120</button>
+            <button data-pin-credit-user="${user.id}" data-pin-credit-amount="300" data-pin-credit-reason="manual_credit">+300</button>
+            <button data-pin-credit-user="${user.id}" data-pin-credit-amount="700" data-pin-credit-reason="manual_credit">+700</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  async function renderAdminByPin() {
+    const panel = document.getElementById('adminPanel');
+    if (!panel) return;
+
+    if (!getAdminPin()) {
+      panel.innerHTML = adminLoginHtml();
+      bindPinForm();
+      return;
+    }
+
+    const data = await getAdminPinOverview();
+
+    if (!data) {
+      localStorage.removeItem('ft-admin-pin');
+      panel.innerHTML = adminLoginHtml();
+      bindPinForm();
+      return;
+    }
+
+    const stats = data.stats || {};
+
+    panel.innerHTML = `
+      <section class="card ft-admin-card">
+        <div class="section-header ft-admin-title-row">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Дашборд, клиенты, балансы и ручное начисление.</p>
+          </div>
+          <button type="button" class="ft-dashboard-toggle" data-admin-logout>Выйти</button>
+        </div>
+
+        <div class="ft-admin-dashboard compact">
+          <article><span>Клиентов</span><strong>${stats.totalUsers || 0}</strong><small>в базе</small></article>
+          <article><span>Успешных</span><strong>${stats.totalGenerations || 0}</strong><small>генераций</small></article>
+          <article><span>Списано</span><strong>${stats.totalSpentCredits || 0}</strong><small>токенов</small></article>
+        </div>
+
+        <section class="ft-section">
+          <h3>Пользователи</h3>
+          <div class="ft-admin-users">${renderUsers(data.users || [])}</div>
+        </section>
+      </section>
+    `;
+
+    panel.querySelector('[data-admin-logout]')?.addEventListener('click', () => {
+      localStorage.removeItem('ft-admin-pin');
+      renderAdminByPin();
+    });
+
+    panel.querySelectorAll('[data-pin-credit-user]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+
+        try {
+          await creditUserByPin(
+            button.dataset.pinCreditUser,
+            Number(button.dataset.pinCreditAmount),
+            button.dataset.pinCreditReason
+          );
+
+          await renderAdminByPin();
+        } catch (error) {
+          alert(error.message);
+          button.disabled = false;
+        }
+      });
+    });
+  }
+
+  function bindPinForm() {
+    const form = document.getElementById('ftAdminPinForm');
+    if (!form) return;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const input = form.querySelector('input');
+      const button = form.querySelector('button');
+      const pin = input?.value?.trim();
+
+      button.disabled = true;
+      button.textContent = 'Проверяем...';
+
+      localStorage.setItem('ft-admin-pin', pin);
+
+      const data = await getAdminPinOverview();
+
+      if (!data) {
+        localStorage.removeItem('ft-admin-pin');
+        button.disabled = false;
+        button.textContent = 'Войти';
+        alert('Неверный PIN');
+        return;
+      }
+
+      await renderAdminByPin();
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target="admin"]');
+    if (!tab) return;
+
+    setTimeout(renderAdminByPin, 250);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const adminTab = document.querySelector('[data-tab-target="admin"]');
+      if (adminTab) {
+        adminTab.classList.remove('hidden');
+        adminTab.style.display = '';
+      }
+    }, 500);
+  });
+})();

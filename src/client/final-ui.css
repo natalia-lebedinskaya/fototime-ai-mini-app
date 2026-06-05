@@ -2298,3 +2298,143 @@ body[data-ui-theme="dark"] .ft-failed-row {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* COMPACT FINAL FIX */
+
+body {
+  font-size: 15px !important;
+}
+
+.card {
+  padding: 14px !important;
+  border-radius: 20px !important;
+}
+
+.section-header {
+  gap: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.section-header h2 {
+  font-size: 22px !important;
+  line-height: 1.1 !important;
+}
+
+.section-subtitle,
+.card p,
+.ft-section p,
+.ft-balance-grid small,
+.ft-balance-grid span {
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+}
+
+.ft-profile-card,
+.ft-admin-card,
+.ft-contacts-card,
+.contacts-card {
+  margin-top: 12px !important;
+}
+
+.ft-section,
+.ft-low-balance-banner,
+.ft-guest-note {
+  margin-top: 10px !important;
+}
+
+.ft-balance-grid,
+.ft-package-grid,
+.ft-admin-dashboard,
+.ft-admin-users,
+.ft-social-grid {
+  gap: 8px !important;
+}
+
+.ft-balance-grid article,
+.ft-package-card,
+.ft-transaction,
+.ft-admin-user,
+.ft-admin-dashboard article,
+.ft-section,
+.ft-contacts-card {
+  padding: 10px !important;
+  border-radius: 15px !important;
+}
+
+.ft-balance-grid strong,
+.ft-admin-dashboard strong {
+  font-size: 24px !important;
+  margin: 4px 0 !important;
+}
+
+.ft-package-card strong,
+.ft-transaction strong,
+.ft-admin-user strong {
+  font-size: 15px !important;
+}
+
+.ft-package-card span,
+.ft-package-card small,
+.ft-package-card em,
+.ft-transaction span,
+.ft-transaction small,
+.ft-admin-user small {
+  font-size: 13px !important;
+  line-height: 1.25 !important;
+}
+
+.ft-admin-pin button,
+.ft-auth-button,
+.ft-support-wide,
+.ft-balance-grid button,
+.top-balance-refresh-button {
+  transition: transform .12s ease, opacity .12s ease !important;
+}
+
+.ft-admin-pin button:active,
+.ft-auth-button:active,
+.ft-support-wide:active,
+.ft-balance-grid button:active,
+.top-balance-refresh-button:active {
+  transform: scale(.97) !important;
+  opacity: .82 !important;
+}
+
+.ft-admin-pin input {
+  background: rgba(255,255,255,.88) !important;
+  color: #111 !important;
+}
+
+.app-tabs {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+.app-tab.hidden,
+#adminTabButton.hidden {
+  display: block !important;
+}
+
+@media (max-width: 720px) {
+  body {
+    font-size: 14px !important;
+  }
+
+  .card {
+    padding: 12px !important;
+  }
+
+  .section-header h2 {
+    font-size: 20px !important;
+  }
+
+  .ft-balance-grid,
+  .ft-package-grid,
+  .ft-admin-dashboard,
+  .ft-social-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ft-admin-actions {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}

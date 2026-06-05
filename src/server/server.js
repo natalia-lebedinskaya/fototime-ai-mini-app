@@ -45,6 +45,7 @@ app.use('/api/event-config', configRoute);
 app.use('/api/generate', generateRoute);
 app.use('/api/styles', stylesRoute);
 app.use('/api/user', userRoute);
+app.use('/api/admin-pin', require('./routes/adminPin'));
 app.use('/api/admin', adminRoute);
 
 app.use(errorHandler);
