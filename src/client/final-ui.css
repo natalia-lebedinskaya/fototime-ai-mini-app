@@ -1192,3 +1192,322 @@ body[data-active-tab="admin"] #profilePanel {
   font-weight: 900 !important;
   cursor: pointer !important;
 }
+
+/* ACCOUNT + ADMIN PANELS: stable visual isolation */
+
+body[data-active-tab="main"] #profilePanel,
+body[data-active-tab="main"] #adminPanel,
+body[data-active-tab="profile"] main[data-tab-panel="main"],
+body[data-active-tab="profile"] #adminPanel,
+body[data-active-tab="admin"] main[data-tab-panel="main"],
+body[data-active-tab="admin"] #profilePanel {
+  display: none !important;
+}
+
+#profilePanel,
+#adminPanel {
+  width: min(100%, 920px);
+  margin: 0 auto;
+  padding: 0 16px 150px;
+}
+
+#profilePanel .participants-card,
+#profilePanel .styles-card,
+#profilePanel .photo-card,
+#profilePanel .result-card,
+#profilePanel .balance-card,
+#profilePanel .balance-card-final,
+#profilePanel .styles-filter-panel,
+#profilePanel .styles-grid,
+#profilePanel .upload-card,
+#profilePanel #generateButton,
+#profilePanel .generation-error-actions,
+#profilePanel #resultSection,
+#profilePanel .result-section,
+#adminPanel .participants-card,
+#adminPanel .styles-card,
+#adminPanel .photo-card,
+#adminPanel .result-card,
+#adminPanel .balance-card,
+#adminPanel .balance-card-final,
+#adminPanel .styles-filter-panel,
+#adminPanel .styles-grid,
+#adminPanel .upload-card,
+#adminPanel #generateButton,
+#adminPanel .generation-error-actions,
+#adminPanel #resultSection,
+#adminPanel .result-section {
+  display: none !important;
+}
+
+.account-card {
+  color: var(--text) !important;
+}
+
+.account-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.admin-summary-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.account-balance-card,
+.account-section,
+.admin-client-card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.52);
+  color: var(--text);
+}
+
+body[data-ui-theme="dark"] .account-balance-card,
+body[data-app-theme="dark"] .account-balance-card,
+body[data-theme="dark"] .account-balance-card,
+body[data-ui-theme="dark"] .account-section,
+body[data-app-theme="dark"] .account-section,
+body[data-theme="dark"] .account-section,
+body[data-ui-theme="dark"] .admin-client-card,
+body[data-app-theme="dark"] .admin-client-card,
+body[data-theme="dark"] .admin-client-card {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.account-balance-card span,
+.account-balance-card small,
+.account-section p,
+.admin-client-card small {
+  display: block;
+  color: var(--muted) !important;
+}
+
+.account-balance-card strong {
+  display: block;
+  margin: 7px 0;
+  color: var(--text) !important;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.account-refresh-button {
+  margin-top: 12px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.account-section {
+  margin-top: 16px;
+}
+
+.account-section h3 {
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.account-packages-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.account-package-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+body[data-ui-theme="dark"] .account-package-card,
+body[data-app-theme="dark"] .account-package-card,
+body[data-theme="dark"] .account-package-card {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.account-package-card strong,
+.account-package-card span,
+.account-package-card small {
+  display: block;
+}
+
+.account-package-card span {
+  margin-top: 5px;
+  color: var(--text);
+  font-weight: 950;
+}
+
+.account-package-card small {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.account-package-card b {
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.account-support-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  color: #142014 !important;
+  text-decoration: none;
+  font-weight: 950;
+}
+
+.account-transactions-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.account-transaction {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+body[data-ui-theme="dark"] .account-transaction,
+body[data-app-theme="dark"] .account-transaction,
+body[data-theme="dark"] .account-transaction {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.account-transaction strong,
+.account-transaction span,
+.account-transaction small {
+  display: block;
+}
+
+.account-transaction span,
+.account-transaction small {
+  color: var(--muted);
+}
+
+.account-transaction b {
+  white-space: nowrap;
+  font-size: 18px;
+}
+
+.account-transaction.credit b {
+  color: #65b849;
+}
+
+.account-transaction.debit b {
+  color: #d4834a;
+}
+
+.account-empty {
+  color: var(--muted);
+}
+
+.admin-clients-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.admin-client-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-client-head strong,
+.admin-client-head small,
+.admin-client-balance strong,
+.admin-client-balance span {
+  display: block;
+}
+
+.admin-client-balance {
+  text-align: right;
+}
+
+.admin-client-balance strong {
+  color: var(--accent);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.admin-credit-controls {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.admin-credit-controls button {
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-credit-controls button:first-child {
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  color: #142014;
+}
+
+.app-tab.hidden,
+#adminTabButton.hidden {
+  display: none !important;
+}
+
+.app-tabs:has(#adminTabButton:not(.hidden)) {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+.app-tabs:has(#adminTabButton.hidden) {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+@media (max-width: 720px) {
+  .account-balance-grid,
+  .admin-summary-grid,
+  .account-packages-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-client-head {
+    display: grid;
+  }
+
+  .admin-client-balance {
+    text-align: left;
+  }
+
+  .admin-credit-controls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

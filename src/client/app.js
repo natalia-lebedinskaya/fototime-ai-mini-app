@@ -1539,3 +1539,467 @@ window.addEventListener('load', () => {
     }, 500);
   });
 })();
+
+/* ACCOUNT + ADMIN PANELS: stable rebuild without touching generation */
+
+(function accountAdminPanelsStable() {
+  if (window.__accountAdminPanelsStableApplied) return;
+  window.__accountAdminPanelsStableApplied = true;
+
+  const TOKEN_PACKAGES = [
+    { title: 'Старт', tokens: 50, price: '99 ₽', note: 'Для первой пробы и тестирования.' },
+    { title: 'Гости', tokens: 120, price: '199 ₽', note: 'Для небольшого мероприятия.' },
+    { title: 'Популярный', tokens: 300, price: '449 ₽', note: 'Оптимально для активного использования.' },
+    { title: 'Максимум', tokens: 700, price: '899 ₽', note: 'Для большого события или промо.' }
+  ];
+
+  function getAuthHeaders() {
+    const headers = {};
+
+    if (typeof getTelegramIdentityHeaders === 'function') {
+      Object.assign(headers, getTelegramIdentityHeaders());
+    }
+
+    const initData = window.Telegram?.WebApp?.initData;
+    if (initData) {
+      headers['x-telegram-init-data'] = initData;
+    }
+
+    return headers;
+  }
+
+  async function fetchMe() {
+    const response = await fetch('/api/user/me', {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) return null;
+
+    return response.json();
+  }
+
+  async function fetchAdminOverview() {
+    const response = await fetch('/api/admin/overview', {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) return null;
+
+    return response.json();
+  }
+
+  function formatDate(value) {
+    if (!value) return '';
+
+    try {
+      return new Date(value).toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return String(value);
+    }
+  }
+
+  function updateBalanceText(balance) {
+    const value = Number(balance || 0);
+
+    document.querySelectorAll(
+      '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, #adminOwnBalanceValue, [data-balance-value]'
+    ).forEach((el) => {
+      el.textContent = value;
+    });
+
+    if (window.USER_STATE?.me) {
+      USER_STATE.me.balance = value;
+    }
+  }
+
+  function ensureTabsAndPanels() {
+    let tabs = document.querySelector('.app-tabs');
+
+    if (!tabs) {
+      tabs = document.createElement('nav');
+      tabs.className = 'app-tabs';
+      tabs.setAttribute('aria-label', 'Навигация приложения');
+      document.body.appendChild(tabs);
+    }
+
+    if (!tabs.querySelector('[data-tab-target="main"]')) {
+      tabs.insertAdjacentHTML('beforeend', `
+        <button class="app-tab active" type="button" data-tab-target="main">Главная</button>
+      `);
+    }
+
+    if (!tabs.querySelector('[data-tab-target="profile"]')) {
+      tabs.insertAdjacentHTML('beforeend', `
+        <button class="app-tab" type="button" data-tab-target="profile">Личный кабинет</button>
+      `);
+    }
+
+    if (!tabs.querySelector('[data-tab-target="admin"]')) {
+      tabs.insertAdjacentHTML('beforeend', `
+        <button id="adminTabButton" class="app-tab hidden" type="button" data-tab-target="admin">Админ</button>
+      `);
+    }
+
+    const main = document.querySelector('main#content') || document.querySelector('main');
+
+    if (main) {
+      main.dataset.tabPanel = 'main';
+    }
+
+    let profile = document.getElementById('profilePanel');
+
+    if (!profile) {
+      profile = document.createElement('section');
+      profile.id = 'profilePanel';
+      profile.className = 'app-panel hidden';
+      profile.dataset.tabPanel = 'profile';
+      document.body.insertBefore(profile, tabs);
+    }
+
+    let admin = document.getElementById('adminPanel');
+
+    if (!admin) {
+      admin = document.createElement('section');
+      admin.id = 'adminPanel';
+      admin.className = 'app-panel hidden';
+      admin.dataset.tabPanel = 'admin';
+      document.body.insertBefore(admin, tabs);
+    }
+  }
+
+  function renderPackageCards() {
+    return TOKEN_PACKAGES.map((item) => `
+      <article class="account-package-card">
+        <div>
+          <strong>${item.title}</strong>
+          <span>${item.tokens} токенов</span>
+          <small>${item.note}</small>
+        </div>
+        <b>${item.price}</b>
+      </article>
+    `).join('');
+  }
+
+  function renderTransactions(transactions = []) {
+    if (!transactions.length) {
+      return '<p class="account-empty">Операций пока нет.</p>';
+    }
+
+    return transactions.slice(0, 12).map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const isCredit = amount > 0;
+      const before = typeof tx.balanceBefore === 'number' ? tx.balanceBefore : '—';
+      const after = typeof tx.balanceAfter === 'number' ? tx.balanceAfter : '—';
+
+      return `
+        <article class="account-transaction ${isCredit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${isCredit ? 'Пополнение' : 'Списание'}</strong>
+            <span>${escapeHtml(tx.note || tx.reason || 'Операция по балансу')}</span>
+            <small>${formatDate(tx.createdAt)}</small>
+            <small>Баланс: ${before} → ${after}</small>
+          </div>
+          <b>${isCredit ? '+' : ''}${amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function getHistoryCount() {
+    try {
+      const items = JSON.parse(localStorage.getItem('fototime-ai-generated-photos') || '[]');
+      return Array.isArray(items) ? items.length : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  async function rebuildProfilePanel() {
+    const profile = document.getElementById('profilePanel');
+    if (!profile) return;
+
+    const data = await fetchMe();
+    const user = data?.user || {};
+    const transactions = data?.transactions || [];
+    const generationCost = data?.generationCost || 40;
+    const historyCount = getHistoryCount();
+
+    updateBalanceText(user.balance || 0);
+
+    profile.innerHTML = `
+      <section class="card account-card">
+        <div class="section-header">
+          <span class="step">LK</span>
+          <div>
+            <h2>Личный кабинет</h2>
+            <p class="section-subtitle">Баланс, история генераций, списания, пополнения и контакты.</p>
+          </div>
+        </div>
+
+        <div class="account-balance-grid">
+          <article class="account-balance-card">
+            <span>Доступно</span>
+            <strong id="profileBalanceValue">${Number(user.balance || 0)}</strong>
+            <small>токенов</small>
+            <button type="button" class="account-refresh-button" data-refresh-balance>Обновить баланс</button>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Стоимость генерации</span>
+            <strong>${generationCost} токенов</strong>
+            <small>Списание происходит после успешной генерации.</small>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Мои генерации</span>
+            <strong>${historyCount}</strong>
+            <small>Сохранённых фото в этом браузере/Telegram WebView.</small>
+          </article>
+        </div>
+
+        <section class="account-section">
+          <h3>Пакеты токенов</h3>
+          <p>Оплата принимается через Telegram. После оплаты начисляем токены вручную и отправляем чек самозанятого.</p>
+          <div class="account-packages-grid">
+            ${renderPackageCards()}
+          </div>
+          <a class="account-support-button" href="https://t.me/fototime323" target="_blank" rel="noreferrer">
+            Написать в Telegram для пополнения
+          </a>
+        </section>
+
+        <section class="account-section">
+          <h3>История баланса</h3>
+          <div class="account-transactions-list">
+            ${renderTransactions(transactions)}
+          </div>
+        </section>
+      </section>
+    `;
+
+    const history = document.getElementById('historySection');
+    const contacts = document.querySelector('.contacts-card');
+
+    if (history) {
+      profile.appendChild(history);
+      history.classList.remove('hidden');
+    }
+
+    if (contacts) {
+      profile.appendChild(contacts);
+      contacts.classList.remove('hidden');
+    }
+
+    profile.querySelectorAll('[data-refresh-balance]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        button.textContent = 'Обновляем...';
+        await rebuildProfilePanel();
+        button.disabled = false;
+      });
+    });
+
+    if (typeof renderGeneratedHistory === 'function') {
+      renderGeneratedHistory();
+    }
+  }
+
+  function renderAdminUserCards(users = []) {
+    if (!users.length) {
+      return '<p class="account-empty">Пользователей пока нет.</p>';
+    }
+
+    return users.map((user) => {
+      const name = user.username
+        ? `@${user.username}`
+        : [user.firstName, user.lastName].filter(Boolean).join(' ') || user.telegramUserId || user.id;
+
+      return `
+        <article class="admin-client-card">
+          <div class="admin-client-head">
+            <div>
+              <strong>${escapeHtml(name)}</strong>
+              <small>Telegram ID: ${escapeHtml(user.telegramUserId || user.id)}</small>
+              <small>Генераций: ${Number(user.generationsCount || 0)} · списано: ${Number(user.spentCredits || 0)} ток.</small>
+            </div>
+            <div class="admin-client-balance">
+              <strong>${Number(user.balance || 0)}</strong>
+              <span>токенов</span>
+            </div>
+          </div>
+
+          <div class="admin-credit-controls">
+            <button type="button" data-admin-credit-user="${escapeHtml(user.id)}" data-admin-credit-amount="50" data-admin-credit-reason="beta_testing">+50 Бета</button>
+            <button type="button" data-admin-credit-user="${escapeHtml(user.id)}" data-admin-credit-amount="120" data-admin-credit-reason="manual_credit">+120</button>
+            <button type="button" data-admin-credit-user="${escapeHtml(user.id)}" data-admin-credit-amount="300" data-admin-credit-reason="manual_credit">+300</button>
+            <button type="button" data-admin-credit-user="${escapeHtml(user.id)}" data-admin-credit-amount="700" data-admin-credit-reason="manual_credit">+700</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  async function rebuildAdminPanel() {
+    const admin = document.getElementById('adminPanel');
+    if (!admin) return;
+
+    const me = await fetchMe();
+    const overview = await fetchAdminOverview();
+
+    if (!overview) {
+      admin.innerHTML = `
+        <section class="card account-card">
+          <div class="section-header">
+            <span class="step">AD</span>
+            <div>
+              <h2>Админ-консоль</h2>
+              <p class="section-subtitle">Доступна только администратору.</p>
+            </div>
+          </div>
+          <p class="account-empty">Нет доступа к админ-консоли.</p>
+        </section>
+      `;
+      return;
+    }
+
+    const ownBalance = Number(me?.user?.balance || 0);
+    const stats = overview.stats || {};
+    const users = overview.users || [];
+
+    admin.innerHTML = `
+      <section class="card account-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Клиенты, балансы, бета-токены, ручные начисления и статистика.</p>
+          </div>
+        </div>
+
+        <div class="account-balance-grid admin-summary-grid">
+          <article class="account-balance-card">
+            <span>Мой баланс</span>
+            <strong id="adminOwnBalanceValue">${ownBalance}</strong>
+            <small>токенов</small>
+            <button type="button" class="account-refresh-button" data-admin-refresh>Обновить</button>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Клиентов</span>
+            <strong>${Number(stats.totalUsers || 0)}</strong>
+            <small>в базе приложения</small>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Всего генераций</span>
+            <strong>${Number(stats.totalGenerations || 0)}</strong>
+            <small>по всем клиентам</small>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Списано токенов</span>
+            <strong>${Number(stats.totalSpentCredits || 0)}</strong>
+            <small>по всем генерациям</small>
+          </article>
+        </div>
+
+        <section class="account-section">
+          <h3>Клиенты и начисление токенов</h3>
+          <p>Кнопка «+50 Бета» используется для бесплатного начисления без оплаты и без чека. Остальные начисления — после оплаты и отправки чека.</p>
+          <div id="adminClientsList" class="admin-clients-list">
+            ${renderAdminUserCards(users)}
+          </div>
+        </section>
+      </section>
+    `;
+
+    admin.querySelectorAll('[data-admin-refresh]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        button.textContent = 'Обновляем...';
+        await rebuildAdminPanel();
+      });
+    });
+
+    admin.querySelectorAll('[data-admin-credit-user]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+
+        const userId = button.dataset.adminCreditUser;
+        const amount = Number(button.dataset.adminCreditAmount);
+        const reason = button.dataset.adminCreditReason;
+
+        await fetch(`/api/admin/users/${encodeURIComponent(userId)}/credits`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify({
+            amount,
+            reason,
+            note: reason === 'beta_testing'
+              ? 'Бета-тестирование — бесплатно'
+              : 'Ручное начисление токенов'
+          })
+        });
+
+        await rebuildAdminPanel();
+        await rebuildProfilePanel();
+      });
+    });
+  }
+
+  async function refreshAdminVisibility() {
+    const data = await fetchMe();
+    const isAdmin = Boolean(data?.user?.isAdmin);
+    const adminButton = document.getElementById('adminTabButton');
+
+    if (adminButton) {
+      adminButton.classList.toggle('hidden', !isAdmin);
+    }
+  }
+
+  function setTab(target) {
+    document.body.dataset.activeTab = target;
+
+    document.querySelectorAll('.app-tab').forEach((tab) => {
+      tab.classList.toggle('active', tab.dataset.tabTarget === target);
+    });
+
+    document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+      panel.classList.toggle('hidden', panel.dataset.tabPanel !== target);
+    });
+
+    if (target === 'profile') {
+      rebuildProfilePanel();
+    }
+
+    if (target === 'admin') {
+      rebuildAdminPanel();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('.app-tab, [data-tab-target]');
+    if (!tab?.dataset?.tabTarget) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    setTab(tab.dataset.tabTarget);
+  }, true);
+
+  window.addEventListener('load', async () => {
+    ensureTabsAndPanels();
+    await refreshAdminVisibility();
+    setTab('main');
+  });
+})();
