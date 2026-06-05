@@ -3270,3 +3270,27 @@ body[data-theme="dark"] .ft-main-token-reminder {
 .ft-main-token-reminder a {
   white-space: nowrap !important;
 }
+
+/* HARD TAB PURGE CSS fallback */
+
+#profilePanel [data-hard-purged="true"],
+#adminPanel [data-hard-purged="true"] {
+  display: none !important;
+}
+
+#profilePanel .participant-section,
+#profilePanel .styles-section,
+#profilePanel .photo-section,
+#profilePanel #resultSection,
+#profilePanel [data-section="participants"],
+#profilePanel [data-section="styles"],
+#profilePanel [data-section="photo"],
+#adminPanel .participant-section,
+#adminPanel .styles-section,
+#adminPanel .photo-section,
+#adminPanel #resultSection,
+#adminPanel [data-section="participants"],
+#adminPanel [data-section="styles"],
+#adminPanel [data-section="photo"] {
+  display: none !important;
+}

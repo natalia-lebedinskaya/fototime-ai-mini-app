@@ -1739,3 +1739,105 @@ window.fetch = function patchedFetch(input, init = {}) {
     fetchRealBalance();
   }, 8000);
 })();
+
+/* HARD TAB PURGE: remove wrong blocks from profile/admin by text and structure */
+
+(function hardTabPurge() {
+  if (window.__hardTabPurgeApplied) return;
+  window.__hardTabPurgeApplied = true;
+
+  function all(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
+
+  function textOf(el) {
+    return (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function isVisiblePanel(panel) {
+    if (!panel) return false;
+    return !panel.classList.contains('hidden') && getComputedStyle(panel).display !== 'none';
+  }
+
+  function purgeProfile() {
+    const profile = document.querySelector('#profilePanel');
+    if (!profile || !isVisiblePanel(profile)) return;
+
+    all(':scope > section, :scope > div, .card, .ft-section-clean', profile).forEach((block) => {
+      const text = textOf(block);
+
+      const isWrong =
+        text.includes('участник') ||
+        text.includes('тестовое мероприятие') ||
+        text.includes('стиль обработки') ||
+        text.includes('поиск и фильтрация') ||
+        text.includes('выберите фото') ||
+        text.includes('jpg, jpeg') ||
+        text.includes('создать ai-фото') ||
+        text.includes('повторить генерацию') ||
+        text.includes('active event') ||
+        text.includes('баланс кредиты для ai-генераций');
+
+      if (isWrong) {
+        block.style.display = 'none';
+        block.setAttribute('data-hard-purged', 'true');
+      }
+    });
+  }
+
+  function purgeAdmin() {
+    const admin = document.querySelector('#adminPanel');
+    if (!admin || !isVisiblePanel(admin)) return;
+
+    all(':scope > section, :scope > div, .card, .ft-section-clean', admin).forEach((block) => {
+      const text = textOf(block);
+
+      const isWrong =
+        text.includes('участник') ||
+        text.includes('тестовое мероприятие') ||
+        text.includes('стиль обработки') ||
+        text.includes('поиск и фильтрация') ||
+        text.includes('выберите фото') ||
+        text.includes('jpg, jpeg') ||
+        text.includes('создать ai-фото') ||
+        text.includes('повторить генерацию') ||
+        text.includes('пакеты токенов') ||
+        text.includes('история баланса') ||
+        text.includes('мои сгенерированные фото') ||
+        text.includes('обратная связь') ||
+        text.includes('fototime323');
+
+      const isAdminNeeded =
+        text.includes('дашборд') ||
+        text.includes('админ-консоль') ||
+        text.includes('ошибки генераций') ||
+        text.includes('уведомления') ||
+        text.includes('пользователи') ||
+        text.includes('стабильность');
+
+      if (isWrong && !isAdminNeeded) {
+        block.style.display = 'none';
+        block.setAttribute('data-hard-purged', 'true');
+      }
+    });
+  }
+
+  function purge() {
+    purgeProfile();
+    purgeAdmin();
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(purge, 50);
+    setTimeout(purge, 300);
+    setTimeout(purge, 900);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(purge, 500);
+    setTimeout(purge, 1200);
+    setTimeout(purge, 2500);
+  });
+
+  setInterval(purge, 1500);
+})();
