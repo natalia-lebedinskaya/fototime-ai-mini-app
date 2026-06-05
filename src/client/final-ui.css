@@ -2911,3 +2911,103 @@ body[data-ui-theme="dark"] .ft-log-row {
 .ft-history-card img {
   display: block !important;
 }
+
+/* HOTFIX: prices animation, admin chart, compact package text */
+
+.ft-price-card {
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 92px !important;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease !important;
+}
+
+.ft-price-card::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle, rgba(184,255,31,.35), transparent 55%);
+  opacity: 0;
+  transform: scale(.5);
+  transition: opacity .25s ease, transform .25s ease;
+  pointer-events: none;
+}
+
+.ft-price-card:hover,
+.ft-price-card:active {
+  transform: translateY(-4px) scale(1.015) !important;
+  border-color: rgba(184,255,31,.85) !important;
+  box-shadow: 0 14px 40px rgba(184,255,31,.18) !important;
+}
+
+.ft-price-card:hover::after,
+.ft-price-card:active::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ft-price-card b,
+.ft-price-card strong,
+.ft-price-card span {
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.ft-price-card em {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  z-index: 1 !important;
+  font-style: normal !important;
+  font-weight: 950 !important;
+  color: #5fb94f !important;
+}
+
+.ft-stability-chart {
+  display: grid;
+  gap: 10px;
+}
+
+.ft-chart-bar {
+  display: flex;
+  height: 22px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.28);
+  border: 1px solid var(--border);
+}
+
+.ft-chart-bar span {
+  display: block;
+  background: linear-gradient(135deg, #b8ff1f, #56f7ff);
+}
+
+.ft-chart-bar i {
+  display: block;
+  background: linear-gradient(135deg, #ff6b6b, #ffb86b);
+}
+
+.ft-chart-legend {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.ft-chart-legend b {
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  text-align: center;
+}
+
+[data-clear-all-admin] {
+  background: linear-gradient(135deg, #fff37d, #b8ff1f) !important;
+  color: #142014 !important;
+}
+
+@media (max-width: 720px) {
+  .ft-chart-legend {
+    grid-template-columns: 1fr;
+  }
+}

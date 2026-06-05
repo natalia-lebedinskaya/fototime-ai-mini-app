@@ -3925,3 +3925,179 @@ window.addEventListener('load', () => {
     }, 1000);
   });
 })();
+
+/* HOTFIX: selection fallback, prices, admin chart, clear buttons */
+
+(function finalProductHotfix() {
+  if (window.__finalProductHotfixApplied) return;
+  window.__finalProductHotfixApplied = true;
+
+  const PRICE_PACKAGES = [
+    { title: 'Старт', tokens: 50, price: '39 ₽', gens: 1 },
+    { title: 'Гости', tokens: 120, price: '89 ₽', gens: 3 },
+    { title: 'Популярный', tokens: 300, price: '219 ₽', gens: 7 },
+    { title: 'Максимум', tokens: 700, price: '459 ₽', gens: 17 }
+  ];
+
+  function getSelectedFromDom() {
+    const participant =
+      document.querySelector('.participant-button.selected, .participant-option.selected, [data-participant-id].selected, [data-participant].selected');
+
+    const style =
+      document.querySelector('.style-card.selected, [data-style-id].selected, [data-style].selected, [aria-selected="true"].style-card');
+
+    const fileInput =
+      document.querySelector('input[type="file"][name="photo"], input[type="file"]');
+
+    return {
+      participantId:
+        window.state?.selectedParticipantId ||
+        participant?.dataset?.participantId ||
+        participant?.dataset?.participant ||
+        participant?.value,
+
+      styleId:
+        window.state?.selectedStyleId ||
+        style?.dataset?.styleId ||
+        style?.dataset?.style ||
+        style?.dataset?.id,
+
+      style:
+        window.state?.selectedStyle || {
+          title: style?.querySelector('strong, h3, .style-title')?.textContent?.trim() || style?.textContent?.trim()
+        },
+
+      photo:
+        window.state?.selectedPhoto ||
+        fileInput?.files?.[0] ||
+        null
+    };
+  }
+
+  window.__fototimeGetSelectedGenerationData = getSelectedFromDom;
+
+  document.addEventListener('click', (event) => {
+    const participant = event.target.closest('[data-participant-id], [data-participant], .participant-button, .participant-option');
+    if (participant) {
+      document.querySelectorAll('.participant-button, .participant-option, [data-participant-id], [data-participant]').forEach((el) => el.classList.remove('selected'));
+      participant.classList.add('selected');
+    }
+
+    const style = event.target.closest('.style-card, [data-style-id], [data-style]');
+    if (style) {
+      document.querySelectorAll('.style-card, [data-style-id], [data-style]').forEach((el) => {
+        el.classList.remove('selected');
+        el.removeAttribute('aria-selected');
+      });
+      style.classList.add('selected');
+      style.setAttribute('aria-selected', 'true');
+    }
+  }, true);
+
+  function refreshPackagePrices() {
+    document.querySelectorAll('.ft-package-grid').forEach((grid) => {
+      grid.innerHTML = PRICE_PACKAGES.map((pack) => `
+        <article class="ft-price-card">
+          <div>
+            <b>${pack.title}</b>
+            <strong>${pack.tokens} токенов</strong>
+            <span>≈ ${pack.gens} ${pack.gens === 1 ? 'генерация' : 'генераций'}</span>
+          </div>
+          <em>${pack.price}</em>
+        </article>
+      `).join('');
+    });
+  }
+
+  async function renderAdminChart() {
+    const panel = document.querySelector('#adminPanel');
+    const pin = localStorage.getItem('ft-admin-pin') || '';
+    if (!panel || !pin || document.querySelector('#ftStabilityChart')) return;
+
+    const errorsRes = await fetch('/api/generation-logs/admin', { headers: { 'x-admin-pin': pin } });
+    const overviewRes = await fetch('/api/admin-pin/overview', { headers: { 'x-admin-pin': pin } });
+
+    const errors = errorsRes.ok ? await errorsRes.json() : { items: [] };
+    const overview = overviewRes.ok ? await overviewRes.json() : { stats: {} };
+
+    const success = Number(overview.stats?.totalGenerations || 0);
+    const failed = Number(errors.items?.length || 0);
+    const total = Math.max(success + failed, 1);
+    const successPercent = Math.round((success / total) * 100);
+    const failedPercent = 100 - successPercent;
+
+    const chart = document.createElement('section');
+    chart.id = 'ftStabilityChart';
+    chart.className = 'ft-section-clean';
+    chart.innerHTML = `
+      <div class="ft-admin-section-head">
+        <h3>Стабильность генераций</h3>
+        <button type="button" data-clear-all-admin>Очистить уведомления и ошибки</button>
+      </div>
+
+      <div class="ft-stability-chart">
+        <div class="ft-chart-bar">
+          <span style="width:${successPercent}%"></span>
+          <i style="width:${failedPercent}%"></i>
+        </div>
+        <div class="ft-chart-legend">
+          <b>Успешно: ${success}</b>
+          <b>Ошибки: ${failed}</b>
+          <b>Стабильность: ${successPercent}%</b>
+        </div>
+      </div>
+    `;
+
+    panel.querySelector('.ft-admin-clean, .ft-admin-card, .card')?.prepend(chart);
+
+    chart.querySelector('[data-clear-all-admin]')?.addEventListener('click', async () => {
+      await fetch('/api/generation-logs/admin', { method: 'DELETE', headers: { 'x-admin-pin': pin } });
+      await fetch('/api/feedback/admin', { method: 'DELETE', headers: { 'x-admin-pin': pin } });
+      location.reload();
+    });
+  }
+
+  function patchGenerateStateError() {
+    const oldGetter = window.__fototimeGetSelectedGenerationData;
+
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('#generateButton, .generate-button');
+      if (!button) return;
+
+      const data = oldGetter();
+
+      if (!data.participantId || !data.styleId || !data.photo) {
+        const fileInput = document.querySelector('input[type="file"]');
+
+        if (!data.photo && fileInput?.files?.[0]) {
+          if (window.state) window.state.selectedPhoto = fileInput.files[0];
+        }
+
+        if (!data.participantId) {
+          const firstParticipant = document.querySelector('[data-participant-id], [data-participant], .participant-button, .participant-option');
+          firstParticipant?.click();
+        }
+
+        if (!data.styleId) {
+          const selectedStyle = document.querySelector('.style-card.selected, [data-style-id].selected, [data-style].selected');
+          selectedStyle?.click();
+        }
+      }
+    }, true);
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      refreshPackagePrices();
+      renderAdminChart();
+      patchGenerateStateError();
+    }, 900);
+  });
+
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      refreshPackagePrices();
+      renderAdminChart();
+    }, 400);
+  }, true);
+})();
