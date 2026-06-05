@@ -3253,3 +3253,138 @@ window.addEventListener('load', () => {
     }, 500);
   });
 })();
+
+/* FIX: allow guest generation, soft auth modal, admin pin stability */
+
+(function guestGenerationAndAuthFix() {
+  if (window.__guestGenerationAndAuthFixApplied) return;
+  window.__guestGenerationAndAuthFixApplied = true;
+
+  function removeBadAuthGuardMessages() {
+    document.querySelectorAll('.message, .toast, .generation-message').forEach((el) => {
+      if ((el.textContent || '').includes('авторизуйтесь через Telegram')) {
+        el.remove();
+      }
+    });
+  }
+
+  function showSoftAuthModal() {
+    if (document.getElementById('ftSoftAuthModal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'ftSoftAuthModal';
+    modal.className = 'ft-soft-auth-modal';
+    modal.innerHTML = `
+      <div class="ft-soft-auth-card">
+        <button type="button" class="ft-soft-auth-close" aria-label="Закрыть">×</button>
+        <div class="ft-soft-auth-icon">FT</div>
+        <h3>Авторизация через Telegram</h3>
+        <p>
+          Сейчас можно протестировать генерацию на бесплатных токенах.
+          Авторизация нужна, чтобы закрепить баланс за вами, сохранить историю и получить дополнительные бонусные токены.
+        </p>
+        <a href="https://t.me/fototime323Bot" target="_blank" rel="noreferrer">Открыть бота в Telegram</a>
+        <button type="button" class="ft-soft-auth-secondary">Продолжить тестирование</button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('.ft-soft-auth-close')?.addEventListener('click', () => modal.remove());
+    modal.querySelector('.ft-soft-auth-secondary')?.addEventListener('click', () => modal.remove());
+  }
+
+  function addSoftAuthButton() {
+    if (document.getElementById('ftSoftAuthButton')) return;
+
+    const balanceCard = document.querySelector('.balance-card, .balance-card-final');
+    if (!balanceCard) return;
+
+    const button = document.createElement('button');
+    button.id = 'ftSoftAuthButton';
+    button.type = 'button';
+    button.className = 'ft-soft-auth-button';
+    button.textContent = 'Авторизация и бонусы';
+    button.addEventListener('click', showSoftAuthModal);
+
+    balanceCard.appendChild(button);
+  }
+
+  function forceAdminPinRender() {
+    const adminPanel = document.getElementById('adminPanel');
+    if (!adminPanel) return;
+
+    if (!adminPanel.querySelector('#ftAdminPinForm') && !localStorage.getItem('ft-admin-pin')) {
+      adminPanel.innerHTML = `
+        <section class="card ft-admin-card">
+          <div class="section-header">
+            <span class="step">AD</span>
+            <div>
+              <h2>Админ-консоль</h2>
+              <p class="section-subtitle">Введите PIN администратора.</p>
+            </div>
+          </div>
+
+          <form id="ftAdminPinForm" class="ft-admin-pin">
+            <input type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off" />
+            <button type="submit">Войти</button>
+          </form>
+        </section>
+      `;
+    }
+
+    const form = adminPanel.querySelector('#ftAdminPinForm');
+    if (!form || form.dataset.bound === 'true') return;
+
+    form.dataset.bound = 'true';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const input = form.querySelector('input');
+      const button = form.querySelector('button');
+      const pin = input.value.trim();
+
+      button.disabled = true;
+      button.textContent = 'Проверяем...';
+
+      const response = await fetch('/api/admin-pin/overview', {
+        headers: {
+          'x-admin-pin': pin
+        }
+      });
+
+      if (!response.ok) {
+        button.disabled = false;
+        button.textContent = 'Войти';
+        alert('Неверный PIN');
+        return;
+      }
+
+      localStorage.setItem('ft-admin-pin', pin);
+
+      if (typeof renderAdminFinal === 'function') {
+        renderAdminFinal();
+      } else {
+        location.reload();
+      }
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target="admin"]');
+    if (tab) {
+      setTimeout(forceAdminPinRender, 300);
+    }
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      removeBadAuthGuardMessages();
+      addSoftAuthButton();
+      forceAdminPinRender();
+    }, 800);
+  });
+
+  setInterval(removeBadAuthGuardMessages, 1200);
+})();
