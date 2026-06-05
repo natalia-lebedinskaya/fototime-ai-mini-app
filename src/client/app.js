@@ -3670,3 +3670,258 @@ window.addEventListener('load', () => {
     }, 1000);
   });
 })();
+
+/* HOTFIX: download buttons, single history block, stable generation */
+
+(function hotfixDownloadHistoryGeneration() {
+  if (window.__hotfixDownloadHistoryGenerationApplied) return;
+  window.__hotfixDownloadHistoryGenerationApplied = true;
+
+  const HISTORY_KEY = 'fototime-ai-generated-photos';
+
+  function getHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function saveHistoryUnique(item) {
+    const list = getHistory();
+    const imageUrl = item.resultUrl || item.imageUrl;
+    const id = item.generationId || item.id || imageUrl || `gen_${Date.now()}`;
+
+    const clean = list.filter((old) => {
+      const oldId = old.generationId || old.id || old.resultUrl || old.imageUrl;
+      return oldId !== id && old.resultUrl !== imageUrl && old.imageUrl !== imageUrl;
+    });
+
+    clean.unshift({
+      ...item,
+      id,
+      generationId: id,
+      resultUrl: imageUrl,
+      imageUrl,
+      createdAt: item.createdAt || new Date().toISOString()
+    });
+
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(clean.slice(0, 60)));
+  }
+
+  async function downloadImage(url, filename = 'fototime-ai-photo.jpg') {
+    if (!url) {
+      alert('Нет ссылки на изображение');
+      return;
+    }
+
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  function normalizeDownloadButtons() {
+    document.querySelectorAll('a, button').forEach((el) => {
+      const text = (el.textContent || '').trim().toLowerCase();
+      if (!['скачать', 'сохранить'].includes(text)) return;
+
+      const card = el.closest('.ft-history-card, .history-card-item, .result-card, #resultSection');
+      const img = card?.querySelector('img') || document.querySelector('#resultImage');
+      const url = el.getAttribute('href') || img?.src;
+
+      if (!url) return;
+
+      el.removeAttribute('href');
+      el.setAttribute('type', 'button');
+      el.onclick = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const name = `fototime-ai-${Date.now()}.jpg`;
+        downloadImage(url, name);
+      };
+    });
+  }
+
+  function removeDuplicateHistoryBlocks() {
+    const profile = document.querySelector('#profilePanel');
+    if (!profile) return;
+
+    const blocks = Array.from(profile.querySelectorAll(
+      '#historySection, .history-card, .ft-section-clean, .card'
+    )).filter((el) => /Мои сгенерированные фото|Последние изображения|сохранённых генераций/i.test(el.textContent || ''));
+
+    blocks.forEach((block, index) => {
+      if (index > 0) block.remove();
+    });
+  }
+
+  function resultUrlFrom(data) {
+    return data.resultUrl
+      || data.imageUrl
+      || data.url
+      || data.image
+      || data.result?.url
+      || data.result?.imageUrl
+      || data.data?.url
+      || data.data?.imageUrl
+      || (data.storage?.resultImage ? `/${data.storage.resultImage}` : '');
+  }
+
+  function getAppState() {
+    const s = window.state || {};
+    return {
+      participantId: s.selectedParticipantId,
+      styleId: s.selectedStyleId,
+      style: s.selectedStyle,
+      photo: s.selectedPhoto
+    };
+  }
+
+  async function stableGenerate(event) {
+    const button = event.target.closest('#generateButton, .generate-button');
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (button.dataset.generating === 'true') return;
+
+    const s = getAppState();
+
+    if (!s.participantId || !s.styleId || !s.photo) {
+      if (typeof showMessage === 'function') showMessage('Выберите участника, стиль и фото.', 'error');
+      else alert('Выберите участника, стиль и фото.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('participantId', s.participantId);
+    formData.append('styleId', s.styleId);
+    formData.append('styleTitle', s.style?.title || s.styleId);
+    formData.append('styleProvider', s.style?.provider || s.style?.providers?.[0] || '');
+    formData.append('photo', s.photo);
+
+    const oldText = button.textContent;
+    button.dataset.generating = 'true';
+    button.disabled = true;
+    button.textContent = 'Создаём AI-фото...';
+
+    try {
+      const headers = {};
+      if (window.Telegram?.WebApp?.initData) {
+        headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+      }
+
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers,
+        body: formData
+      });
+
+      const text = await response.text();
+      let data = {};
+
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error(`Некорректный ответ сервера: ${text.slice(0, 140)}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || `Ошибка генерации HTTP ${response.status}`);
+      }
+
+      const imageUrl = resultUrlFrom(data);
+
+      if (!imageUrl) {
+        throw new Error('Сервер не вернул ссылку на готовое изображение');
+      }
+
+      const resultSection = document.querySelector('#resultSection');
+      const resultImage = document.querySelector('#resultImage');
+
+      if (resultImage) resultImage.src = imageUrl;
+      if (resultSection) {
+        resultSection.classList.remove('hidden');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      saveHistoryUnique({
+        generationId: data.generationId || `generation_${Date.now()}`,
+        resultUrl: imageUrl,
+        imageUrl,
+        styleTitle: s.style?.title || s.styleId,
+        styleId: s.styleId,
+        participantId: s.participantId
+      });
+
+      if (typeof data.balance !== 'undefined') {
+        document.querySelectorAll('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]').forEach((el) => {
+          el.textContent = data.balance;
+        });
+      }
+
+      if (typeof renderProfileClean === 'function') {
+        renderProfileClean();
+      }
+
+      setTimeout(() => {
+        removeDuplicateHistoryBlocks();
+        normalizeDownloadButtons();
+      }, 400);
+
+      if (typeof showMessage === 'function') showMessage('Готово! Фото сохранено в личном кабинете.', 'success');
+    } catch (error) {
+      try {
+        await fetch('/api/generation-logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source: 'stableGenerate',
+            message: error.message || String(error),
+            stack: error.stack || '',
+            details: 'hotfix generation handler'
+          })
+        });
+      } catch {}
+
+      if (typeof showMessage === 'function') showMessage(error.message || 'Ошибка генерации.', 'error');
+      else alert(error.message || 'Ошибка генерации.');
+    } finally {
+      button.dataset.generating = 'false';
+      button.disabled = false;
+      button.textContent = oldText || 'Создать AI-фото';
+    }
+  }
+
+  document.addEventListener('click', stableGenerate, true);
+
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      removeDuplicateHistoryBlocks();
+      normalizeDownloadButtons();
+    }, 250);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      removeDuplicateHistoryBlocks();
+      normalizeDownloadButtons();
+    }, 1000);
+  });
+})();

@@ -2885,3 +2885,29 @@ body[data-ui-theme="dark"] .ft-log-row {
     width: 100%;
   }
 }
+
+/* HOTFIX: history/download visual cleanup */
+
+#profilePanel #historySection,
+#profilePanel .history-card {
+  display: none !important;
+}
+
+.ft-history-card a,
+.ft-history-card button,
+.history-card-item a,
+.history-card-item button {
+  cursor: pointer !important;
+}
+
+.ft-history-grid {
+  align-items: start !important;
+}
+
+.ft-history-card {
+  max-width: 100% !important;
+}
+
+.ft-history-card img {
+  display: block !important;
+}
