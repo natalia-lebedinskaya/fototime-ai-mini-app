@@ -3144,3 +3144,97 @@ body[data-ui-theme="dark"] .ft-price-card-soft {
 .ft-section-clean + .ft-section-clean {
   margin-top: 14px !important;
 }
+
+/* UI CLEANUP: token reminder on main only */
+
+.ft-main-token-reminder {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 12px !important;
+  align-items: center !important;
+  margin-top: 14px !important;
+  padding: 14px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(184,255,31,.18), transparent 36%),
+    rgba(255,255,255,.52) !important;
+}
+
+body[data-ui-theme="dark"] .ft-main-token-reminder,
+body[data-theme="dark"] .ft-main-token-reminder {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(184,255,31,.18), transparent 36%),
+    rgba(255,255,255,.07) !important;
+}
+
+.ft-reminder-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 16px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f, #56f7ff) !important;
+  color: #102015 !important;
+  font-weight: 950 !important;
+  box-shadow: 0 12px 28px rgba(184,255,31,.18) !important;
+}
+
+.ft-reminder-text strong,
+.ft-reminder-text span,
+.ft-reminder-text small {
+  display: block !important;
+  line-height: 1.25 !important;
+}
+
+.ft-reminder-text strong {
+  font-size: 16px !important;
+}
+
+.ft-reminder-text span {
+  margin-top: 3px !important;
+  color: var(--text) !important;
+}
+
+.ft-reminder-text small {
+  margin-top: 3px !important;
+  color: var(--muted) !important;
+}
+
+.ft-main-token-reminder a {
+  min-height: 42px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f) !important;
+  color: #102015 !important;
+  text-decoration: none !important;
+  font-weight: 950 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#profilePanel #ftMainTokenReminder,
+#adminPanel #ftMainTokenReminder,
+#profilePanel .ft-main-auth-hint,
+#adminPanel .ft-main-auth-hint,
+#profilePanel .ft-auth-status-card,
+#adminPanel .ft-auth-status-card {
+  display: none !important;
+}
+
+#profilePanel,
+#adminPanel {
+  gap: 14px !important;
+}
+
+@media (max-width: 720px) {
+  .ft-main-token-reminder {
+    grid-template-columns: auto 1fr !important;
+  }
+
+  .ft-main-token-reminder a {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+}

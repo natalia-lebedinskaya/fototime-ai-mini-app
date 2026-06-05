@@ -1386,3 +1386,143 @@ window.fetch = function patchedFetch(input, init = {}) {
 
   return originalFetch(input, init);
 };
+
+/* UI CLEANUP: token reminder only on main, remove extra blocks from profile/admin */
+
+(function tokenReminderPageCleanup() {
+  if (window.__tokenReminderPageCleanupApplied) return;
+  window.__tokenReminderPageCleanupApplied = true;
+
+  function $(selector, root = document) {
+    return root.querySelector(selector);
+  }
+
+  function $$(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
+
+  function getBalanceText() {
+    const selectors = [
+      '#mainBalanceValue',
+      '#profileBalanceValue',
+      '[data-balance-value]',
+      '.balance-pill strong',
+      '.balance-badge strong'
+    ];
+
+    for (const selector of selectors) {
+      const el = $(selector);
+      const value = Number((el?.textContent || '').replace(/\D/g, ''));
+      if (!Number.isNaN(value) && value >= 0) return value;
+    }
+
+    return 50;
+  }
+
+  function addMainTokenReminder() {
+    const mainPanel = $('#mainPanel') || $('main') || document.body;
+
+    if (!mainPanel || $('#ftMainTokenReminder')) return;
+
+    const balanceCard =
+      $('.balance-card') ||
+      $('.balance-card-final') ||
+      $('.card');
+
+    if (!balanceCard) return;
+
+    const balance = getBalanceText();
+    const generationsLeft = Math.floor(balance / 40);
+
+    const reminder = document.createElement('section');
+    reminder.id = 'ftMainTokenReminder';
+    reminder.className = 'card ft-main-token-reminder';
+    reminder.innerHTML = `
+      <div class="ft-reminder-icon">₽</div>
+      <div class="ft-reminder-text">
+        <strong>Токены для генераций</strong>
+        <span>Сейчас доступно ${balance} токенов — примерно на ${generationsLeft} ${generationsLeft === 1 ? 'генерацию' : 'генерации'}.</span>
+        <small>Пополнение проходит через Telegram: мы начислим токены вручную и отправим чек самозанятого.</small>
+      </div>
+      <a href="https://t.me/fototime323" target="_blank" rel="noreferrer">Пополнить</a>
+    `;
+
+    balanceCard.insertAdjacentElement('afterend', reminder);
+  }
+
+  function removeExtraFromProfileAndAdmin() {
+    const profile = $('#profilePanel');
+    const admin = $('#adminPanel');
+
+    if (profile) {
+      $$('.ft-auth-status-card, .ft-main-token-reminder, .ft-main-auth-hint, .ft-soft-auth-button, .balance-card, .balance-card-final, .participant-section, .styles-section, .photo-section, #mainTokenReminder, #ftMainTokenReminder', profile)
+        .forEach((el) => el.remove());
+
+      $$('.card, .ft-section-clean, section', profile).forEach((el) => {
+        const text = (el.textContent || '').toLowerCase();
+
+        const isExtra =
+          text.includes('гостевой режим') ||
+          text.includes('авторизуйтесь для генерации') ||
+          text.includes('как авторизоваться') ||
+          text.includes('стоимость генерации') && text.includes('оплата') && text.includes('главная') ||
+          text.includes('выберите участника') ||
+          text.includes('стиль обработки') && text.includes('поиск и фильтрация') ||
+          text.includes('jpg, jpeg или png');
+
+        if (isExtra && !text.includes('пакеты токенов') && !text.includes('история баланса')) {
+          el.remove();
+        }
+      });
+    }
+
+    if (admin) {
+      $$('.ft-auth-status-card, .ft-main-token-reminder, .ft-main-auth-hint, .ft-soft-auth-button, .balance-card, .balance-card-final, .participant-section, .styles-section, .photo-section, #mainTokenReminder, #ftMainTokenReminder', admin)
+        .forEach((el) => el.remove());
+
+      $$('.card, .ft-section-clean, section', admin).forEach((el) => {
+        const text = (el.textContent || '').toLowerCase();
+
+        const isExtra =
+          text.includes('гостевой режим') ||
+          text.includes('пакеты токенов') ||
+          text.includes('мои сгенерированные фото') ||
+          text.includes('обратная связь') ||
+          text.includes('fototime323') && !text.includes('дашборд') ||
+          text.includes('выберите участника') ||
+          text.includes('стиль обработки') ||
+          text.includes('jpg, jpeg или png');
+
+        if (isExtra) el.remove();
+      });
+    }
+  }
+
+  function cleanCurrentTab() {
+    const activeTab =
+      $('[data-tab-target].active')?.dataset?.tabTarget ||
+      $('[data-tab-target][aria-selected="true"]')?.dataset?.tabTarget ||
+      '';
+
+    if (activeTab === 'profile' || $('#profilePanel:not(.hidden)')) {
+      removeExtraFromProfileAndAdmin();
+    }
+
+    if (activeTab === 'admin' || $('#adminPanel:not(.hidden)')) {
+      removeExtraFromProfileAndAdmin();
+    }
+
+    if (!activeTab || activeTab === 'main' || $('#mainPanel:not(.hidden)')) {
+      addMainTokenReminder();
+    }
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(cleanCurrentTab, 250);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(cleanCurrentTab, 800);
+    setTimeout(cleanCurrentTab, 1600);
+  });
+})();
