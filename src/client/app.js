@@ -3388,3 +3388,285 @@ window.addEventListener('load', () => {
 
   setInterval(removeBadAuthGuardMessages, 1200);
 })();
+
+/* RELEASE STABILIZER: auth status, logout, feedback, admin dashboard, error logs, safer generation */
+
+(function releaseStabilizer() {
+  if (window.__releaseStabilizerApplied) return;
+  window.__releaseStabilizerApplied = true;
+
+  const ADMIN_PIN_KEY = 'ft-admin-pin';
+  const GUEST_LOGOUT_KEY = 'ft-guest-logged-out';
+
+  function tgUser() {
+    return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  }
+
+  function isTelegram() {
+    return Boolean(window.Telegram?.WebApp?.initData);
+  }
+
+  function userName() {
+    const user = tgUser();
+
+    if (user?.username) return `@${user.username}`;
+    if (user?.first_name || user?.last_name) return [user.first_name, user.last_name].filter(Boolean).join(' ');
+    return 'Гостевой пользователь';
+  }
+
+  function userAvatarHtml() {
+    const user = tgUser();
+
+    if (user?.photo_url) {
+      return `<img src="${user.photo_url}" alt="avatar" />`;
+    }
+
+    return userName().replace('@', '').slice(0, 2).toUpperCase();
+  }
+
+  async function logGenerationError(error, source = 'client') {
+    try {
+      await fetch('/api/generation-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source,
+          message: error?.message || String(error),
+          stack: error?.stack || ''
+        })
+      });
+    } catch {}
+  }
+
+  window.addEventListener('error', (event) => {
+    logGenerationError(event.error || event.message, 'window.error');
+  });
+
+  window.addEventListener('unhandledrejection', (event) => {
+    logGenerationError(event.reason || 'Unhandled promise rejection', 'unhandledrejection');
+  });
+
+  function showConfetti() {
+    const box = document.createElement('div');
+    box.className = 'ft-confetti';
+    box.innerHTML = '<i></i><i></i><i></i><i></i><i></i><i></i>';
+    document.body.appendChild(box);
+    setTimeout(() => box.remove(), 1800);
+  }
+
+  function ensureAuthStatus() {
+    if (document.getElementById('ftAuthStatusCard')) return;
+
+    const balanceCard = document.querySelector('.balance-card, .balance-card-final');
+    if (!balanceCard) return;
+
+    const card = document.createElement('section');
+    card.id = 'ftAuthStatusCard';
+    card.className = 'ft-auth-status-card';
+
+    card.innerHTML = `
+      <div class="ft-user-avatar">${userAvatarHtml()}</div>
+      <div>
+        <strong>${isTelegram() ? 'Аккаунт Telegram прикреплён' : 'Гостевой режим'}</strong>
+        <span>${isTelegram() ? `${userName()} · история и баланс сохраняются` : '50 токенов доступны на пробу. Для постоянного баланса откройте приложение через Telegram.'}</span>
+      </div>
+      <button type="button" id="ftAuthActionButton">${isTelegram() ? 'Выйти' : 'Как авторизоваться?'}</button>
+    `;
+
+    balanceCard.insertAdjacentElement('afterend', card);
+
+    document.getElementById('ftAuthActionButton')?.addEventListener('click', () => {
+      if (isTelegram()) {
+        localStorage.setItem(GUEST_LOGOUT_KEY, 'true');
+        localStorage.removeItem('fototime-ai-generated-photos');
+        showMessage('Вы вышли из локального профиля. Чтобы снова прикрепить аккаунт, откройте приложение через Telegram.', 'success');
+        showConfetti();
+        return;
+      }
+
+      showMessage('Откройте это приложение через кнопку в Telegram-боте. После входа мы начислим бонусные токены.', 'info');
+      showConfetti();
+    });
+
+    if (isTelegram()) {
+      setTimeout(() => {
+        showMessage(`Telegram аккаунт прикреплён: ${userName()}`, 'success');
+        showConfetti();
+      }, 700);
+    }
+  }
+
+  function ensureFeedback() {
+    const profile = document.getElementById('profilePanel');
+    if (!profile || document.getElementById('ftFeedbackForm')) return;
+
+    profile.insertAdjacentHTML('beforeend', `
+      <section class="card ft-feedback-card">
+        <div class="section-header">
+          <span class="step">FB</span>
+          <div>
+            <h2>Обратная связь</h2>
+            <p class="section-subtitle">Отзыв, идея улучшения или баг — можно приложить скриншот.</p>
+          </div>
+        </div>
+
+        <form id="ftFeedbackForm" class="ft-feedback-form">
+          <select name="type">
+            <option value="review">Отзыв</option>
+            <option value="improvement">Предложение улучшения</option>
+            <option value="bug">Баг</option>
+          </select>
+          <input name="name" placeholder="Имя или “анонимно”" />
+          <input name="contact" placeholder="Telegram для связи" />
+          <textarea name="message" placeholder="Сообщение" required></textarea>
+          <input name="screenshot" type="file" accept="image/*" />
+          <button type="submit">Отправить</button>
+        </form>
+
+        <button type="button" id="ftTokenRequestButton" class="ft-token-request-button">
+          Запросить токены
+        </button>
+      </section>
+    `);
+
+    const form = document.getElementById('ftFeedbackForm');
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const button = form.querySelector('button');
+      button.disabled = true;
+      button.textContent = 'Отправляем...';
+
+      const fd = new FormData(form);
+      if (!fd.get('name')) fd.set('name', userName());
+
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        body: fd
+      });
+
+      button.disabled = false;
+      button.textContent = 'Отправить';
+
+      if (response.ok) {
+        form.reset();
+        showMessage('Спасибо! Обратная связь отправлена.', 'success');
+        showConfetti();
+      } else {
+        showMessage('Не удалось отправить обратную связь.', 'error');
+      }
+    });
+
+    document.getElementById('ftTokenRequestButton')?.addEventListener('click', async () => {
+      await fetch('/api/feedback/token-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: userName(), contact: userName(), message: 'Клиент запросил токены' })
+      });
+
+      showMessage('Запрос токенов отправлен. Мы свяжемся с вами.', 'success');
+      showConfetti();
+    });
+  }
+
+  async function renderAdminDashboard() {
+    const admin = document.getElementById('adminPanel');
+    const pin = localStorage.getItem(ADMIN_PIN_KEY);
+
+    if (!admin || !pin) return;
+
+    const [overviewRes, errorsRes, feedbackRes] = await Promise.all([
+      fetch('/api/admin-pin/overview', { headers: { 'x-admin-pin': pin } }),
+      fetch('/api/generation-logs/admin', { headers: { 'x-admin-pin': pin } }),
+      fetch('/api/feedback/admin', { headers: { 'x-admin-pin': pin } })
+    ]);
+
+    if (!overviewRes.ok) return;
+
+    const overview = await overviewRes.json();
+    const errors = errorsRes.ok ? await errorsRes.json() : { items: [] };
+    const feedback = feedbackRes.ok ? await feedbackRes.json() : { items: [] };
+
+    let dashboard = document.getElementById('ftRealAdminDashboard');
+
+    if (!dashboard) {
+      dashboard = document.createElement('section');
+      dashboard.id = 'ftRealAdminDashboard';
+      dashboard.className = 'card ft-real-admin-dashboard';
+      admin.prepend(dashboard);
+    }
+
+    const stats = overview.stats || {};
+    const users = overview.users || [];
+
+    dashboard.innerHTML = `
+      <div class="section-header">
+        <span class="step">DB</span>
+        <div>
+          <h2>Дашборд</h2>
+          <p class="section-subtitle">Рабочая статистика генераций, ошибок и обращений.</p>
+        </div>
+      </div>
+
+      <div class="ft-admin-dashboard compact">
+        <article><span>Успешных</span><strong>${stats.totalGenerations || 0}</strong><small>генераций</small></article>
+        <article><span>Ошибок</span><strong>${errors.items?.length || 0}</strong><small>зафиксировано</small></article>
+        <article><span>Клиентов</span><strong>${stats.totalUsers || users.length || 0}</strong><small>в базе</small></article>
+        <article><span>Обращений</span><strong>${feedback.items?.length || 0}</strong><small>feedback/request</small></article>
+      </div>
+
+      <section class="ft-section">
+        <h3>Ошибки генераций</h3>
+        <div class="ft-log-list">
+          ${(errors.items || []).slice(0, 8).map((item) => `
+            <article class="ft-log-row">
+              <strong>${item.message}</strong>
+              <small>${item.source || 'client'} · ${item.createdAt ? new Date(item.createdAt).toLocaleString('ru-RU') : ''}</small>
+            </article>
+          `).join('') || '<p class="ft-muted">Ошибок пока нет.</p>'}
+        </div>
+      </section>
+
+      <section class="ft-section">
+        <h3>Уведомления</h3>
+        <div class="ft-log-list">
+          ${(feedback.items || []).slice(0, 8).map((item) => `
+            <article class="ft-log-row">
+              <strong>${item.type === 'token_request' ? 'Запрос токенов' : 'Обратная связь'}</strong>
+              <span>${item.name || 'Клиент'} ${item.contact ? '· ' + item.contact : ''}</span>
+              <small>${item.message || '—'}</small>
+            </article>
+          `).join('') || '<p class="ft-muted">Уведомлений пока нет.</p>'}
+        </div>
+      </section>
+    `;
+  }
+
+  function fixFooterGap() {
+    const main = document.querySelector('main');
+    if (main) main.classList.add('ft-main-tight');
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target]');
+
+    if (!tab) return;
+
+    setTimeout(() => {
+      if (tab.dataset.tabTarget === 'profile') ensureFeedback();
+      if (tab.dataset.tabTarget === 'admin') renderAdminDashboard();
+      ensureAuthStatus();
+      fixFooterGap();
+    }, 500);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      ensureAuthStatus();
+      ensureFeedback();
+      renderAdminDashboard();
+      fixFooterGap();
+    }, 1000);
+  });
+})();

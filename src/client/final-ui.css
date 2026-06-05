@@ -2670,3 +2670,218 @@ button,
 .ft-section {
   margin-bottom: 0 !important;
 }
+
+/* RELEASE STABILIZER UI */
+
+body[data-ui-theme="light"],
+body[data-theme="light"],
+body[data-app-theme="light"] {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(123, 230, 255, .22), transparent 30%),
+    radial-gradient(circle at 90% 12%, rgba(184,255,31,.16), transparent 24%),
+    linear-gradient(180deg, #f7fbff 0%, #eef5f1 48%, #f8f5ee 100%) !important;
+  color: #1c2a29 !important;
+}
+
+body[data-ui-theme="retro"],
+body[data-theme="retro"],
+body[data-app-theme="retro"] {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 214, 150, .26), transparent 34%),
+    linear-gradient(180deg, #fff3e2 0%, #e8d4bb 100%) !important;
+  color: #3b2c24 !important;
+}
+
+.ft-main-tight {
+  padding-bottom: 28px !important;
+  margin-bottom: 0 !important;
+}
+
+.ft-auth-status-card,
+.ft-feedback-card,
+.ft-real-admin-dashboard,
+.ft-log-row {
+  width: min(100%, 860px);
+  margin: 12px auto 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255,255,255,.52);
+  color: var(--text);
+}
+
+body[data-ui-theme="dark"] .ft-auth-status-card,
+body[data-ui-theme="dark"] .ft-feedback-card,
+body[data-ui-theme="dark"] .ft-real-admin-dashboard,
+body[data-ui-theme="dark"] .ft-log-row {
+  background: rgba(255,255,255,.07);
+}
+
+.ft-auth-status-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.ft-user-avatar {
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  display: grid !important;
+  place-items: center !important;
+  background: linear-gradient(135deg, #b8ff1f, #56f7ff) !important;
+  color: #102015 !important;
+  font-weight: 950 !important;
+  animation: ftAvatarPulse 3.4s ease-in-out infinite !important;
+}
+
+.ft-user-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.ft-auth-status-card strong,
+.ft-auth-status-card span {
+  display: block;
+}
+
+.ft-auth-status-card span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ft-auth-status-card button,
+.ft-feedback-form button,
+.ft-token-request-button {
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f) !important;
+  color: #142014 !important;
+  font: inherit !important;
+  font-weight: 950 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ft-feedback-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ft-feedback-form input,
+.ft-feedback-form select,
+.ft-feedback-form textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(255,255,255,.88);
+  color: #111;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.ft-feedback-form textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.ft-token-request-button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.ft-log-list {
+  display: grid;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.ft-log-row {
+  width: 100%;
+  margin: 0;
+}
+
+.ft-log-row strong,
+.ft-log-row span,
+.ft-log-row small {
+  display: block;
+}
+
+.ft-log-row span,
+.ft-log-row small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ft-confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20000;
+  overflow: hidden;
+}
+
+.ft-confetti i {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 10px;
+  height: 18px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  animation: ftConfetti 1.4s ease-out forwards;
+}
+
+.ft-confetti i:nth-child(2) { left: 42%; animation-delay: .06s; background: #56f7ff; }
+.ft-confetti i:nth-child(3) { left: 58%; animation-delay: .12s; background: #ff9ecb; }
+.ft-confetti i:nth-child(4) { left: 35%; animation-delay: .16s; }
+.ft-confetti i:nth-child(5) { left: 65%; animation-delay: .2s; background: #56f7ff; }
+.ft-confetti i:nth-child(6) { left: 50%; animation-delay: .24s; background: #ff9ecb; }
+
+@keyframes ftConfetti {
+  from { transform: translateY(0) rotate(0); opacity: 1; }
+  to { transform: translateY(420px) rotate(520deg); opacity: 0; }
+}
+
+.card,
+.ft-section,
+.ft-auth-status-card,
+.ft-feedback-card,
+.ft-real-admin-dashboard {
+  margin-top: 12px !important;
+}
+
+.card {
+  padding: 14px !important;
+}
+
+.section-header h2 {
+  font-size: 20px !important;
+}
+
+.section-subtitle,
+.card p,
+.ft-section p {
+  font-size: 13px !important;
+}
+
+@media (max-width: 720px) {
+  .ft-auth-status-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .ft-auth-status-card button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
