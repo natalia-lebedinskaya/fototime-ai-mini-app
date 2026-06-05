@@ -1149,3 +1149,46 @@ body[data-active-tab="admin"] #profilePanel {
 #adminPanel .balance-card-final {
   display: none !important;
 }
+
+/* SAFE UI FIX: topup and balance refresh */
+
+.topup-main-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  text-decoration: none !important;
+}
+
+.topup-main-text,
+.topup-main-text strong,
+.topup-main-text small {
+  display: block !important;
+  color: #06110d !important;
+}
+
+.topup-main-text small {
+  margin-top: 4px !important;
+  font-size: 13px !important;
+  line-height: 1.25 !important;
+  opacity: 0.85 !important;
+}
+
+.topup-main-arrow {
+  color: #06110d !important;
+  font-size: 22px !important;
+  font-weight: 950 !important;
+}
+
+.top-balance-refresh-button {
+  margin-top: 14px !important;
+  min-height: 42px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,.72) !important;
+  color: var(--text) !important;
+  font: inherit !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+}

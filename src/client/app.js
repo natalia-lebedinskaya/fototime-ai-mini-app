@@ -1408,3 +1408,134 @@ document.addEventListener('click', (event) => {
 window.addEventListener('load', () => {
   document.body.dataset.activeTab = 'main';
 });
+
+/* SAFE UI FIX: refresh balance, topup text, readable generation errors */
+
+(function safeUiFix() {
+  if (window.__safeUiFixApplied) return;
+  window.__safeUiFixApplied = true;
+
+  function getAuthHeadersSafe() {
+    const headers = {};
+
+    if (typeof getTelegramIdentityHeaders === 'function') {
+      Object.assign(headers, getTelegramIdentityHeaders());
+    }
+
+    const initData = window.Telegram?.WebApp?.initData;
+    if (initData) {
+      headers['x-telegram-init-data'] = initData;
+    }
+
+    return headers;
+  }
+
+  async function refreshBalanceSafe() {
+    const response = await fetch('/api/user/me', {
+      headers: getAuthHeadersSafe()
+    });
+
+    if (!response.ok) {
+      showMessage('Не удалось обновить баланс', 'error');
+      return;
+    }
+
+    const data = await response.json();
+    const balance = data?.user?.balance ?? 0;
+
+    document.querySelectorAll(
+      '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]'
+    ).forEach((el) => {
+      el.textContent = balance;
+    });
+
+    if (window.USER_STATE?.me) {
+      USER_STATE.me.balance = balance;
+    }
+
+    showMessage(`Баланс обновлён: ${balance} токенов`, 'success');
+  }
+
+  function fixTopupButtonText() {
+    document.querySelectorAll('.topup-main-button').forEach((button) => {
+      button.innerHTML = `
+        <span class="topup-main-text">
+          <strong>Пополнить баланс</strong>
+          <small>Напишите нам в Telegram — подтвердим оплату и начислим токены</small>
+        </span>
+        <span class="topup-main-arrow">→</span>
+      `;
+    });
+  }
+
+  function addRefreshBalanceButton() {
+    if (document.getElementById('topBalanceRefreshButton')) return;
+
+    const balanceCard =
+      document.querySelector('.balance-card') ||
+      document.querySelector('.balance-card-final');
+
+    if (!balanceCard) return;
+
+    const button = document.createElement('button');
+    button.id = 'topBalanceRefreshButton';
+    button.type = 'button';
+    button.className = 'top-balance-refresh-button';
+    button.textContent = 'Обновить баланс';
+
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = 'Обновляем...';
+
+      await refreshBalanceSafe();
+
+      button.disabled = false;
+      button.textContent = 'Обновить баланс';
+    });
+
+    balanceCard.appendChild(button);
+  }
+
+  const originalFetch = window.fetch;
+
+  window.fetch = async function safeFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (url.includes('/api/generate')) {
+      init.headers = {
+        ...(init.headers || {}),
+        ...getAuthHeadersSafe()
+      };
+    }
+
+    const response = await originalFetch(input, init);
+
+    if (url.includes('/api/generate')) {
+      response.clone().json()
+        .then((data) => {
+          if (!response.ok) {
+            console.error('Generation API error:', data);
+            showMessage(data.message || data.error || 'Ошибка генерации на сервере', 'error');
+          }
+
+          if (typeof data.balance !== 'undefined') {
+            document.querySelectorAll(
+              '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]'
+            ).forEach((el) => {
+              el.textContent = data.balance;
+            });
+          }
+        })
+        .catch(() => null);
+    }
+
+    return response;
+  };
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      fixTopupButtonText();
+      addRefreshBalanceButton();
+    }, 500);
+  });
+})();
