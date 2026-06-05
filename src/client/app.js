@@ -2561,3 +2561,80 @@ window.addEventListener('load', () => {
     }, 900);
   });
 })();
+
+/* STABILITY FIX: force admin tab visibility, compact UI, safer Telegram avatar */
+
+(function stabilityFix() {
+  if (window.__stabilityFixApplied) return;
+  window.__stabilityFixApplied = true;
+
+  function getTgUserSafe() {
+    return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  }
+
+  function ensureAdminTabVisible() {
+    const tabs = document.querySelector('.app-tabs');
+    if (!tabs) return;
+
+    let admin = document.getElementById('adminTabButton') || tabs.querySelector('[data-tab-target="admin"]');
+
+    if (!admin) {
+      admin = document.createElement('button');
+      admin.id = 'adminTabButton';
+      admin.className = 'app-tab';
+      admin.type = 'button';
+      admin.dataset.tabTarget = 'admin';
+      admin.textContent = 'Админ';
+      tabs.appendChild(admin);
+    }
+
+    admin.classList.remove('hidden');
+    admin.style.display = '';
+  }
+
+  function applyTelegramAvatar() {
+    const user = getTgUserSafe();
+    const initials = user?.username
+      ? user.username.slice(0, 2).toUpperCase()
+      : user?.first_name
+        ? user.first_name.slice(0, 2).toUpperCase()
+        : 'FT';
+
+    document.querySelectorAll('.ft-user-avatar, .ft-avatar').forEach((avatar) => {
+      if (user?.photo_url) {
+        avatar.innerHTML = `<img src="${user.photo_url}" alt="Telegram avatar" />`;
+        avatar.classList.add('has-photo');
+      } else {
+        avatar.textContent = initials;
+      }
+    });
+  }
+
+  function fixTopupButton() {
+    document.querySelectorAll('.topup-main-button').forEach((button) => {
+      button.innerHTML = `
+        <span class="topup-main-text">
+          <strong>Пополнить баланс</strong>
+          <small>Напишите нам в Telegram — подтвердим оплату и начислим токены</small>
+        </span>
+        <span class="topup-main-arrow">→</span>
+      `;
+    });
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      ensureAdminTabVisible();
+      applyTelegramAvatar();
+      fixTopupButton();
+    }, 700);
+  });
+
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      ensureAdminTabVisible();
+      applyTelegramAvatar();
+      fixTopupButton();
+    }, 200);
+  });
+})();

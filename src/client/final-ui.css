@@ -1981,3 +1981,124 @@ body[data-ui-theme="dark"] .history-card-item {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+/* STABILITY FIX: compact UI, spacing, avatar, admin visibility */
+
+.app-tab.hidden,
+#adminTabButton.hidden {
+  display: block !important;
+}
+
+.app-tabs {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+.card {
+  padding: 18px !important;
+  border-radius: 22px !important;
+}
+
+.section-header {
+  margin-bottom: 12px !important;
+}
+
+.balance-card,
+.balance-card-final,
+.ft-profile-card,
+.ft-admin-card,
+.account-card {
+  max-width: 860px !important;
+}
+
+.ft-balance-grid,
+.account-balance-grid {
+  gap: 10px !important;
+}
+
+.ft-balance-grid article,
+.account-balance-card,
+.ft-section,
+.account-section,
+.ft-contacts-card,
+.contacts-card {
+  padding: 14px !important;
+  border-radius: 18px !important;
+}
+
+.ft-balance-grid strong,
+.account-balance-card strong,
+.balance-pill strong,
+.balance-badge strong {
+  font-size: 28px !important;
+}
+
+.ft-section,
+.account-section,
+.history-card,
+.contacts-card,
+.ft-contacts-card {
+  margin-top: 14px !important;
+}
+
+.ft-package-grid,
+.account-packages-grid {
+  gap: 10px !important;
+}
+
+.ft-package-card,
+.account-package-card,
+.ft-transaction,
+.account-transaction {
+  padding: 12px !important;
+  border-radius: 16px !important;
+}
+
+.ft-user-avatar,
+.ft-avatar {
+  overflow: hidden !important;
+}
+
+.ft-user-avatar img,
+.ft-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.topup-main-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  line-height: 1.2 !important;
+}
+
+.topup-main-text,
+.topup-main-text strong,
+.topup-main-text small {
+  display: block !important;
+  color: #06110d !important;
+}
+
+.topup-main-text small {
+  margin-top: 3px !important;
+  font-size: 13px !important;
+  opacity: .85 !important;
+}
+
+@media (max-width: 720px) {
+  .card {
+    padding: 16px !important;
+  }
+
+  .ft-balance-grid,
+  .account-balance-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ft-package-grid,
+  .account-packages-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
