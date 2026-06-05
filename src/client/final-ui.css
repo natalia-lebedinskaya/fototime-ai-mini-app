@@ -1096,3 +1096,482 @@ body[data-theme="dark"] .styles-controls button {
     font-size: 14px !important;
   }
 }
+
+/* HOTFIX: clean profile and keep only balance/history/contacts */
+
+#profilePanel .profile-packages,
+#profilePanel .profile-package,
+#profilePanel .credit-packages,
+#profilePanel .credit-packages-final,
+#profilePanel .payment-note,
+#profilePanel .payment-note-final,
+#profilePanel .profile-payment-note {
+  display: none !important;
+}
+
+#profilePanel #historySection,
+#profilePanel .history-card,
+#profilePanel .contacts-card {
+  display: block !important;
+}
+
+#profilePanel .contacts-card {
+  margin-top: 24px !important;
+}
+
+#profilePanel .history-card {
+  margin-top: 24px !important;
+}
+
+/* FINAL HOTFIX: home history hint + profile cleanup */
+
+.home-history-hint {
+  width: min(100%, 860px);
+  margin: 16px auto 20px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.58);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--text);
+}
+
+body[data-ui-theme="dark"] .home-history-hint,
+body[data-app-theme="dark"] .home-history-hint,
+body[data-theme="dark"] .home-history-hint {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.home-history-hint strong,
+.home-history-hint span {
+  display: block;
+}
+
+.home-history-hint span {
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.home-history-hint button {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  color: #142014;
+  font: inherit;
+  font-weight: 950;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#profilePanel .profile-packages,
+#profilePanel .profile-package,
+#profilePanel .credit-packages,
+#profilePanel .credit-packages-final,
+#profilePanel .payment-note,
+#profilePanel .payment-note-final,
+#profilePanel .profile-payment-note {
+  display: none !important;
+}
+
+#profilePanel #historySection,
+#profilePanel .history-card,
+#profilePanel .contacts-card {
+  display: block !important;
+}
+
+@media (max-width: 720px) {
+  .home-history-hint {
+    display: grid;
+  }
+
+  .home-history-hint button {
+    width: 100%;
+  }
+}
+
+/* HOTFIX: admin tab, refresh balance, transactions, result hint */
+
+.refresh-balance-button {
+  margin-top: 14px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--text);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+body[data-ui-theme="dark"] .refresh-balance-button,
+body[data-app-theme="dark"] .refresh-balance-button,
+body[data-theme="dark"] .refresh-balance-button {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.profile-transactions-card {
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--card);
+  color: var(--text);
+}
+
+.profile-transactions-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.profile-transaction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+body[data-ui-theme="dark"] .profile-transaction,
+body[data-app-theme="dark"] .profile-transaction,
+body[data-theme="dark"] .profile-transaction {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.profile-transaction strong,
+.profile-transaction span,
+.profile-transaction small {
+  display: block;
+}
+
+.profile-transaction span,
+.profile-transaction small {
+  color: var(--muted);
+}
+
+.profile-transaction b {
+  white-space: nowrap;
+  font-size: 18px;
+}
+
+.profile-transaction.credit b {
+  color: #65b849;
+}
+
+.profile-transaction.debit b {
+  color: #d4834a;
+}
+
+.muted-note {
+  color: var(--muted);
+}
+
+.result-history-hint {
+  margin-top: 16px !important;
+  margin-bottom: 0 !important;
+}
+
+.app-tabs .app-tab.hidden {
+  display: none !important;
+}
+
+.app-tabs:has(#adminTabButton:not(.hidden)) {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+.app-tabs:has(#adminTabButton.hidden) {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+#adminPanel {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 0 16px 140px;
+}
+
+/* CRITICAL STABILIZATION UI */
+
+.topup-main-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  text-decoration: none !important;
+}
+
+.topup-main-button span,
+.topup-main-button strong,
+.topup-main-button small,
+.topup-main-button b {
+  display: block !important;
+  color: #06110d !important;
+}
+
+.topup-main-button small {
+  margin-top: 4px !important;
+  font-size: 13px !important;
+  line-height: 1.25 !important;
+  opacity: 0.86 !important;
+}
+
+.top-balance-refresh-button {
+  margin-top: 14px !important;
+  min-height: 42px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,.72) !important;
+  color: var(--text) !important;
+  font: inherit !important;
+  font-weight: 900 !important;
+}
+
+body[data-active-tab="profile"] [data-tab-panel="main"],
+body[data-active-tab="profile"] [data-tab-panel="admin"],
+body[data-active-tab="admin"] [data-tab-panel="main"],
+body[data-active-tab="admin"] [data-tab-panel="profile"],
+body[data-active-tab="main"] [data-tab-panel="profile"],
+body[data-active-tab="main"] [data-tab-panel="admin"] {
+  display: none !important;
+}
+
+#profilePanel .balance-card,
+#profilePanel .balance-card-final,
+#profilePanel .styles-section,
+#profilePanel .photo-section,
+#profilePanel .result-section,
+#profilePanel #resultSection,
+#profilePanel #content,
+#profilePanel [data-step="styles"],
+#profilePanel [data-step="photo"] {
+  display: none !important;
+}
+
+#adminPanel .balance-card,
+#adminPanel .balance-card-final,
+#adminPanel .styles-section,
+#adminPanel .photo-section,
+#adminPanel .result-section,
+#adminPanel #resultSection,
+#adminPanel #content,
+#adminPanel [data-step="styles"],
+#adminPanel [data-step="photo"] {
+  display: none !important;
+}
+
+.profile-transactions-card {
+  margin-top: 24px !important;
+  padding: 22px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 24px !important;
+  background: var(--card) !important;
+  color: var(--text) !important;
+}
+
+.profile-transactions-list {
+  display: grid !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+}
+
+.profile-transaction {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,.45) !important;
+}
+
+body[data-ui-theme="dark"] .profile-transaction {
+  background: rgba(255,255,255,.07) !important;
+}
+
+.profile-transaction strong,
+.profile-transaction span,
+.profile-transaction small {
+  display: block !important;
+}
+
+.profile-transaction span,
+.profile-transaction small {
+  color: var(--muted) !important;
+}
+
+.profile-transaction b {
+  white-space: nowrap !important;
+  font-size: 18px !important;
+}
+
+.profile-transaction.credit b {
+  color: #65b849 !important;
+}
+
+.profile-transaction.debit b {
+  color: #d4834a !important;
+}
+
+.admin-users-list {
+  display: grid !important;
+  gap: 12px !important;
+  margin-top: 16px !important;
+}
+
+.admin-user-card {
+  padding: 16px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  background: rgba(255,255,255,.45) !important;
+}
+
+body[data-ui-theme="dark"] .admin-user-card {
+  background: rgba(255,255,255,.07) !important;
+}
+
+.admin-user-head {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.admin-user-head strong,
+.admin-user-head small,
+.admin-user-balance strong,
+.admin-user-balance span {
+  display: block !important;
+}
+
+.admin-user-balance {
+  text-align: right !important;
+}
+
+.admin-user-balance strong {
+  font-size: 28px !important;
+  color: var(--accent) !important;
+}
+
+.admin-credit-controls {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 8px !important;
+  margin-top: 14px !important;
+}
+
+.admin-credit-controls button {
+  min-height: 38px !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,.72) !important;
+  color: var(--text) !important;
+  font: inherit !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.admin-credit-controls button:first-child {
+  background: linear-gradient(135deg, #fff37d, #b8ff1f) !important;
+  color: #142014 !important;
+}
+
+.app-tab.hidden {
+  display: none !important;
+}
+
+.app-tabs:has(#adminTabButton:not(.hidden)) {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+.app-tabs:has(#adminTabButton.hidden) {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+@media (max-width: 720px) {
+  .admin-credit-controls {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .admin-user-head {
+    display: grid !important;
+  }
+
+  .admin-user-balance {
+    text-align: left !important;
+  }
+}
+
+/* FINAL RELEASE FIX: hide leaked main blocks inside profile/admin */
+
+#profilePanel .balance-card,
+#profilePanel .balance-card-final,
+#profilePanel .participants-card,
+#profilePanel .styles-card,
+#profilePanel .photo-card,
+#profilePanel .result-card,
+#profilePanel #resultSection,
+#profilePanel .result-section,
+#profilePanel .styles-filter-panel,
+#profilePanel .styles-grid,
+#profilePanel .upload-card,
+#profilePanel #generateButton,
+#profilePanel .generation-error-actions,
+#profilePanel [class*="participant"],
+#profilePanel [class*="style"]:not(.profile-transactions-card):not(.history-card-item),
+#profilePanel [class*="upload"],
+#profilePanel [class*="result"] {
+  display: none !important;
+}
+
+#profilePanel .profile-card,
+#profilePanel #profileTransactionsBlock,
+#profilePanel #historySection,
+#profilePanel .history-card,
+#profilePanel .contacts-card {
+  display: block !important;
+}
+
+#adminPanel .balance-card,
+#adminPanel .balance-card-final,
+#adminPanel .participants-card,
+#adminPanel .styles-card,
+#adminPanel .photo-card,
+#adminPanel .result-card,
+#adminPanel #resultSection,
+#adminPanel .result-section,
+#adminPanel .styles-filter-panel,
+#adminPanel .styles-grid,
+#adminPanel .upload-card,
+#adminPanel #generateButton,
+#adminPanel .generation-error-actions,
+#adminPanel [class*="participant"],
+#adminPanel [class*="style"],
+#adminPanel [class*="upload"],
+#adminPanel [class*="result"] {
+  display: none !important;
+}
+
+#adminPanel .admin-card,
+#adminPanel .admin-stats,
+#adminPanel .admin-users-list,
+#adminPanel .admin-user-card,
+#adminPanel .admin-credit-controls {
+  display: block !important;
+}
+
+.admin-credit-controls {
+  display: grid !important;
+}
+
+.profile-transaction small {
+  margin-top: 3px !important;
+}

@@ -1386,3 +1386,1135 @@ window.fetch = function patchedFetch(input, init = {}) {
 
   return originalFetch(input, init);
 };
+
+/* HOTFIX: save successful generations to history + clean profile */
+
+(function historySaveAndProfileCleanFix() {
+  const HISTORY_KEY = 'fototime-ai-generated-photos';
+
+  function readHistorySafe() {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function writeHistorySafe(items) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, 100)));
+  }
+
+  function saveGenerationToHistoryFromResponse(data) {
+    const resultUrl =
+      data?.resultUrl ||
+      data?.imageUrl ||
+      data?.storage?.resultImage && `/${data.storage.resultImage}`;
+
+    if (!resultUrl) return;
+
+    const item = {
+      id: data.generationId || `${Date.now()}`,
+      generationId: data.generationId || null,
+      resultUrl,
+      styleId: state?.selectedStyleId || data.styleId || null,
+      styleTitle:
+        state?.selectedStyle?.title ||
+        data.styleTitle ||
+        data.requestedStyleTitle ||
+        state?.selectedStyleId ||
+        'AI-фото',
+      styleProvider:
+        state?.selectedStyle?.providers?.[0] ||
+        data.styleProvider ||
+        data.provider ||
+        '',
+      participantId: state?.selectedParticipantId || data.participantId || null,
+      createdAt: new Date().toISOString()
+    };
+
+    const current = readHistorySafe();
+
+    const next = [item, ...current].filter((entry, index, array) => {
+      return array.findIndex((candidate) => {
+        return candidate.resultUrl === entry.resultUrl || candidate.id === entry.id;
+      }) === index;
+    });
+
+    writeHistorySafe(next);
+
+    if (typeof renderGeneratedHistory === 'function') {
+      renderGeneratedHistory();
+    }
+  }
+
+  const originalFetch = window.fetch;
+
+  window.fetch = async function patchedFetchForHistory(input, init = {}) {
+    const response = await originalFetch(input, init);
+
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (url.includes('/api/generate') && response.ok) {
+      response.clone().json()
+        .then(saveGenerationToHistoryFromResponse)
+        .catch(() => null);
+    }
+
+    return response;
+  };
+
+  function cleanProfilePanel() {
+    const profilePanel = document.getElementById('profilePanel');
+    if (!profilePanel) return;
+
+    profilePanel.querySelectorAll(
+      '.profile-packages, .profile-package, .credit-packages, .credit-packages-final, .payment-note, .payment-note-final, .profile-payment-note'
+    ).forEach((element) => {
+      element.remove();
+    });
+
+    const historySection = document.getElementById('historySection');
+    const contactsCard = document.querySelector('.contacts-card');
+
+    if (historySection && !profilePanel.contains(historySection)) {
+      profilePanel.appendChild(historySection);
+    }
+
+    if (contactsCard && !profilePanel.contains(contactsCard)) {
+      profilePanel.appendChild(contactsCard);
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target]');
+
+    if (tab?.dataset?.tabTarget === 'profile') {
+      setTimeout(() => {
+        cleanProfilePanel();
+
+        if (typeof renderGeneratedHistory === 'function') {
+          renderGeneratedHistory();
+        }
+      }, 150);
+    }
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      cleanProfilePanel();
+
+      if (typeof renderGeneratedHistory === 'function') {
+        renderGeneratedHistory();
+      }
+    }, 500);
+  });
+})();
+
+/* HOTFIX: sync balance everywhere */
+
+function syncBalanceEverywhere() {
+  const balance = USER_STATE?.me?.balance ?? 50;
+  const cost = USER_STATE?.generationCost ?? 40;
+
+  document.querySelectorAll('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue').forEach((el) => {
+    el.textContent = balance;
+  });
+
+  document.querySelectorAll('[data-balance-value]').forEach((el) => {
+    el.textContent = balance;
+  });
+
+  document.querySelectorAll('#profileGenerationCost').forEach((el) => {
+    el.textContent = `${cost} токенов`;
+  });
+
+  if (typeof validateForm === 'function') {
+    validateForm();
+  }
+}
+
+const originalLoadCurrentUserSyncBalance = loadCurrentUser;
+
+loadCurrentUser = async function loadCurrentUserAndSyncBalance() {
+  const result = await originalLoadCurrentUserSyncBalance();
+  syncBalanceEverywhere();
+  return result;
+};
+
+window.addEventListener('load', () => {
+  setTimeout(syncBalanceEverywhere, 500);
+});
+
+document.addEventListener('click', () => {
+  setTimeout(syncBalanceEverywhere, 150);
+});
+
+/* FINAL HOTFIX: real balance sync, home history hint, clean profile */
+
+(function finalBalanceProfileHotfix() {
+  async function fetchRealUserState() {
+    const response = await fetch('/api/user/me', {
+      headers: typeof getTelegramIdentityHeaders === 'function'
+        ? getTelegramIdentityHeaders()
+        : {}
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+
+    if (window.USER_STATE) {
+      USER_STATE.me = data.user;
+      USER_STATE.generationCost = data.generationCost || USER_STATE.generationCost || 40;
+    }
+
+    return data;
+  }
+
+  function updateBalanceDom(user, generationCost = 40) {
+    if (!user) return;
+
+    const balance = Number(user.balance ?? 0);
+
+    document.querySelectorAll(
+      '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]'
+    ).forEach((el) => {
+      el.textContent = balance;
+    });
+
+    document.querySelectorAll('#profileGenerationCost').forEach((el) => {
+      el.textContent = `${generationCost} токенов`;
+    });
+  }
+
+  async function refreshBalanceFromServer() {
+    const data = await fetchRealUserState();
+    if (data?.user) {
+      updateBalanceDom(data.user, data.generationCost);
+    }
+  }
+
+  function addHomeHistoryHint() {
+    if (document.getElementById('homeHistoryHint')) return;
+
+    const balanceCard =
+      document.querySelector('.balance-card') ||
+      document.querySelector('.balance-card-final');
+
+    if (!balanceCard) return;
+
+    const hint = document.createElement('div');
+    hint.id = 'homeHistoryHint';
+    hint.className = 'home-history-hint';
+    hint.innerHTML = `
+      <div>
+        <strong>Где найти готовые фото?</strong>
+        <span>После генерации изображения сохраняются в личном кабинете.</span>
+      </div>
+      <button type="button" id="goToProfileFromHome">Открыть личный кабинет</button>
+    `;
+
+    balanceCard.insertAdjacentElement('afterend', hint);
+
+    document.getElementById('goToProfileFromHome')?.addEventListener('click', () => {
+      const profileTab = document.querySelector('[data-tab-target="profile"]');
+      profileTab?.click();
+    });
+  }
+
+  function cleanProfile() {
+    const profilePanel = document.getElementById('profilePanel');
+    if (!profilePanel) return;
+
+    profilePanel.querySelectorAll(
+      '.profile-packages, .profile-package, .credit-packages, .credit-packages-final, .payment-note, .payment-note-final, .profile-payment-note'
+    ).forEach((el) => el.remove());
+
+    const history = document.getElementById('historySection');
+    const contacts = document.querySelector('.contacts-card');
+
+    if (history && !profilePanel.contains(history)) {
+      profilePanel.appendChild(history);
+    }
+
+    if (contacts && !profilePanel.contains(contacts)) {
+      profilePanel.appendChild(contacts);
+    }
+  }
+
+  const originalFetchForBalance = window.fetch;
+
+  window.fetch = async function fetchWithBalanceSync(input, init = {}) {
+    const response = await originalFetchForBalance(input, init);
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (url.includes('/api/generate')) {
+      response.clone().json()
+        .then((data) => {
+          if (typeof data.balance !== 'undefined') {
+            updateBalanceDom({ balance: data.balance }, data.generationCost || 40);
+
+            if (window.USER_STATE?.me) {
+              USER_STATE.me.balance = data.balance;
+            }
+          }
+
+          setTimeout(refreshBalanceFromServer, 500);
+        })
+        .catch(() => {
+          setTimeout(refreshBalanceFromServer, 500);
+        });
+    }
+
+    return response;
+  };
+
+  window.addEventListener('load', () => {
+    setTimeout(async () => {
+      addHomeHistoryHint();
+      cleanProfile();
+      await refreshBalanceFromServer();
+    }, 700);
+  });
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target]');
+
+    if (tab?.dataset?.tabTarget === 'profile') {
+      setTimeout(async () => {
+        cleanProfile();
+        await refreshBalanceFromServer();
+      }, 200);
+    }
+
+    setTimeout(addHomeHistoryHint, 200);
+  });
+})();
+
+/* HOTFIX: prevent double generation, restore admin tab, add transactions and result hint */
+
+(function stableAccountAndGenerationHotfix() {
+  let generationLocked = false;
+
+  async function fetchUserState() {
+    const response = await fetch('/api/user/me', {
+      headers: typeof getTelegramIdentityHeaders === 'function'
+        ? getTelegramIdentityHeaders()
+        : {}
+    });
+
+    if (!response.ok) return null;
+
+    return response.json();
+  }
+
+  function setBalanceValue(balance) {
+    document.querySelectorAll(
+      '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]'
+    ).forEach((el) => {
+      el.textContent = balance;
+    });
+  }
+
+  async function refreshAccountState() {
+    const data = await fetchUserState();
+    if (!data?.user) return;
+
+    if (window.USER_STATE) {
+      USER_STATE.me = data.user;
+      USER_STATE.generationCost = data.generationCost || 40;
+      USER_STATE.transactions = data.transactions || [];
+    }
+
+    setBalanceValue(data.user.balance);
+    renderTransactions(data.transactions || []);
+    restoreAdminTab(data.user.isAdmin);
+
+    return data;
+  }
+
+  function renderTransactions(transactions) {
+    const profilePanel = document.getElementById('profilePanel');
+    if (!profilePanel) return;
+
+    let block = document.getElementById('profileTransactionsBlock');
+
+    if (!block) {
+      block = document.createElement('section');
+      block.id = 'profileTransactionsBlock';
+      block.className = 'profile-transactions-card';
+      block.innerHTML = `
+        <div class="section-header mini">
+          <span class="step">₽</span>
+          <div>
+            <h2>История баланса</h2>
+            <p class="section-subtitle">Приходы, списания и ручные начисления токенов.</p>
+          </div>
+        </div>
+        <div id="profileTransactionsList" class="profile-transactions-list"></div>
+      `;
+
+      const history = document.getElementById('historySection');
+      if (history && profilePanel.contains(history)) {
+        profilePanel.insertBefore(block, history);
+      } else {
+        profilePanel.appendChild(block);
+      }
+    }
+
+    const list = document.getElementById('profileTransactionsList');
+    if (!list) return;
+
+    if (!transactions.length) {
+      list.innerHTML = '<p class="muted-note">Операций пока нет.</p>';
+      return;
+    }
+
+    list.innerHTML = transactions.slice(0, 10).map((tx) => {
+      const isCredit = Number(tx.amount) > 0;
+      const sign = isCredit ? '+' : '';
+      const type = isCredit ? 'Пополнение' : 'Списание';
+      const reason = tx.note || tx.reason || 'Операция по балансу';
+      const date = new Date(tx.createdAt).toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      return `
+        <article class="profile-transaction ${isCredit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${type}</strong>
+            <span>${reason}</span>
+            <small>${date}</small>
+          </div>
+          <b>${sign}${tx.amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function addRefreshBalanceButton() {
+    if (document.getElementById('refreshBalanceButton')) return;
+
+    const balanceCard = document.querySelector('#profilePanel .profile-card') ||
+      document.querySelector('.balance-card') ||
+      document.querySelector('.balance-card-final');
+
+    if (!balanceCard) return;
+
+    const button = document.createElement('button');
+    button.id = 'refreshBalanceButton';
+    button.type = 'button';
+    button.className = 'refresh-balance-button';
+    button.textContent = 'Обновить баланс';
+
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = 'Обновляем...';
+
+      await refreshAccountState();
+
+      button.disabled = false;
+      button.textContent = 'Обновить баланс';
+    });
+
+    balanceCard.appendChild(button);
+  }
+
+  function moveHomeHintToResult() {
+    const hint = document.getElementById('homeHistoryHint');
+    const resultSection = document.getElementById('resultSection');
+
+    if (!resultSection) return;
+
+    if (hint && !resultSection.contains(hint)) {
+      resultSection.appendChild(hint);
+      hint.classList.add('result-history-hint');
+    }
+  }
+
+  function restoreAdminTab(isAdmin) {
+    let tabs = document.querySelector('.app-tabs');
+    if (!tabs) return;
+
+    let adminButton = document.getElementById('adminTabButton');
+
+    if (!adminButton) {
+      adminButton = document.createElement('button');
+      adminButton.id = 'adminTabButton';
+      adminButton.className = 'app-tab';
+      adminButton.type = 'button';
+      adminButton.dataset.tabTarget = 'admin';
+      adminButton.textContent = 'Админ';
+      tabs.appendChild(adminButton);
+
+      adminButton.addEventListener('click', () => {
+        const adminPanel = document.getElementById('adminPanel');
+
+        document.querySelectorAll('.app-tab').forEach((tab) => {
+          tab.classList.toggle('active', tab.dataset.tabTarget === 'admin');
+        });
+
+        document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+          panel.classList.toggle('hidden', panel.dataset.tabPanel !== 'admin');
+        });
+
+        if (typeof loadAdminOverview === 'function') {
+          loadAdminOverview().catch((error) => showMessage(error.message, 'error'));
+        }
+
+        adminPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    adminButton.classList.toggle('hidden', !isAdmin);
+  }
+
+  function ensureAdminPanel() {
+    if (document.getElementById('adminPanel')) return;
+
+    const panel = document.createElement('section');
+    panel.id = 'adminPanel';
+    panel.className = 'app-panel hidden';
+    panel.dataset.tabPanel = 'admin';
+    panel.innerHTML = `
+      <section class="card admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Пользователи, балансы, статистика и ручное начисление токенов.</p>
+          </div>
+        </div>
+
+        <div id="adminStats" class="admin-stats"></div>
+
+        <div class="admin-note">
+          <strong>Бета-тестирование — бесплатно</strong>
+          <p>Можно начислять токены без оплаты и без чека.</p>
+        </div>
+
+        <div id="adminUsersList" class="admin-users-list"></div>
+      </section>
+    `;
+
+    document.body.insertBefore(panel, document.querySelector('.app-tabs'));
+  }
+
+  const originalFetch = window.fetch;
+
+  window.fetch = async function fetchNoDuplicateGenerate(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (url.includes('/api/generate')) {
+      if (generationLocked) {
+        return new Response(JSON.stringify({
+          code: 'GENERATION_ALREADY_RUNNING',
+          message: 'Генерация уже запущена. Подождите результат.'
+        }), {
+          status: 409,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      generationLocked = true;
+    }
+
+    try {
+      const response = await originalFetch(input, init);
+
+      if (url.includes('/api/generate')) {
+        response.clone().json()
+          .then((data) => {
+            if (typeof data.balance !== 'undefined') {
+              setBalanceValue(data.balance);
+            }
+
+            setTimeout(refreshAccountState, 700);
+            setTimeout(moveHomeHintToResult, 500);
+          })
+          .catch(() => {
+            setTimeout(refreshAccountState, 700);
+          });
+      }
+
+      return response;
+    } finally {
+      if (url.includes('/api/generate')) {
+        setTimeout(() => {
+          generationLocked = false;
+        }, 2500);
+      }
+    }
+  };
+
+  document.addEventListener('click', (event) => {
+    const generateClick = event.target.closest('#generateButton, .generate-button');
+
+    if (generateClick && generationLocked) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      showMessage('Генерация уже запущена. Подождите результат.', 'info');
+    }
+
+    const profileTab = event.target.closest('[data-tab-target="profile"]');
+    if (profileTab) {
+      setTimeout(async () => {
+        addRefreshBalanceButton();
+        await refreshAccountState();
+      }, 300);
+    }
+  }, true);
+
+  window.addEventListener('load', async () => {
+    ensureAdminPanel();
+    addRefreshBalanceButton();
+    moveHomeHintToResult();
+    await refreshAccountState();
+  });
+})();
+
+/* CRITICAL STABILIZATION: single generation, real balance, admin console */
+
+(function criticalStabilization() {
+  let singleGenerationLock = false;
+
+  function getHeaders() {
+    if (typeof getTelegramIdentityHeaders === 'function') {
+      return getTelegramIdentityHeaders();
+    }
+
+    return {};
+  }
+
+  async function getMe() {
+    const response = await fetch('/api/user/me', {
+      headers: getHeaders()
+    });
+
+    if (!response.ok) return null;
+
+    return response.json();
+  }
+
+  function setBalance(balance) {
+    const value = Number(balance || 0);
+
+    document.querySelectorAll(
+      '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]'
+    ).forEach((el) => {
+      el.textContent = value;
+    });
+
+    if (window.USER_STATE?.me) {
+      USER_STATE.me.balance = value;
+    }
+  }
+
+  async function refreshBalance() {
+    const data = await getMe();
+
+    if (data?.user) {
+      setBalance(data.user.balance);
+      renderTransactionsBlock(data.transactions || []);
+      ensureAdminTab(data.user.isAdmin);
+    }
+
+    return data;
+  }
+
+  function ensureTopBalanceRefreshButton() {
+    if (document.getElementById('topBalanceRefreshButton')) return;
+
+    const balanceCard =
+      document.querySelector('.balance-card') ||
+      document.querySelector('.balance-card-final');
+
+    if (!balanceCard) return;
+
+    const button = document.createElement('button');
+    button.id = 'topBalanceRefreshButton';
+    button.type = 'button';
+    button.className = 'top-balance-refresh-button';
+    button.textContent = 'Обновить баланс';
+
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = 'Обновляем...';
+      await refreshBalance();
+      button.disabled = false;
+      button.textContent = 'Обновить баланс';
+    });
+
+    balanceCard.appendChild(button);
+  }
+
+  function fixTopupText() {
+    document.querySelectorAll('.topup-main-button').forEach((el) => {
+      el.innerHTML = `
+        <span>
+          <strong>Пополнить баланс</strong>
+          <small>Напишите нам в Telegram — подтвердим оплату и начислим токены</small>
+        </span>
+        <b>→</b>
+      `;
+    });
+  }
+
+  function ensureAdminPanel() {
+    if (document.getElementById('adminPanel')) return;
+
+    const panel = document.createElement('section');
+    panel.id = 'adminPanel';
+    panel.className = 'app-panel hidden';
+    panel.dataset.tabPanel = 'admin';
+
+    panel.innerHTML = `
+      <section class="card admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Пользователи, балансы и ручное начисление токенов.</p>
+          </div>
+        </div>
+
+        <div id="adminStats" class="admin-stats"></div>
+        <div id="adminUsersList" class="admin-users-list"></div>
+      </section>
+    `;
+
+    document.body.insertBefore(panel, document.querySelector('.app-tabs'));
+  }
+
+  function ensureAdminTab(isAdmin) {
+    ensureAdminPanel();
+
+    let tabs = document.querySelector('.app-tabs');
+    if (!tabs) return;
+
+    let button = document.getElementById('adminTabButton');
+
+    if (!button) {
+      button = document.createElement('button');
+      button.id = 'adminTabButton';
+      button.type = 'button';
+      button.className = 'app-tab';
+      button.dataset.tabTarget = 'admin';
+      button.textContent = 'Админ';
+      tabs.appendChild(button);
+    }
+
+    button.classList.toggle('hidden', !isAdmin);
+  }
+
+  async function loadAdminConsole() {
+    const response = await fetch('/api/admin/overview', {
+      headers: getHeaders()
+    });
+
+    if (!response.ok) {
+      showMessage('Админ-консоль доступна только администратору', 'error');
+      return;
+    }
+
+    const data = await response.json();
+    renderAdminConsoleStable(data);
+  }
+
+  function renderAdminConsoleStable(data) {
+    const stats = document.getElementById('adminStats');
+    const list = document.getElementById('adminUsersList');
+
+    if (!stats || !list) return;
+
+    stats.innerHTML = `
+      <div><strong>${data.stats.totalUsers}</strong><span>пользователей</span></div>
+      <div><strong>${data.stats.totalGenerations}</strong><span>генераций</span></div>
+      <div><strong>${data.stats.totalSpentCredits}</strong><span>токенов списано</span></div>
+    `;
+
+    list.innerHTML = '';
+
+    data.users.forEach((user) => {
+      const name = user.username
+        ? `@${user.username}`
+        : [user.firstName, user.lastName].filter(Boolean).join(' ') || user.id;
+
+      const card = document.createElement('article');
+      card.className = 'admin-user-card';
+
+      card.innerHTML = `
+        <div class="admin-user-head">
+          <div>
+            <strong>${escapeHtml(name)}</strong>
+            <small>Telegram ID: ${escapeHtml(user.telegramUserId || user.id)}</small>
+          </div>
+          <div class="admin-user-balance">
+            <strong>${Number(user.balance || 0)}</strong>
+            <span>токенов</span>
+          </div>
+        </div>
+
+        <div class="admin-credit-controls">
+          <button type="button" data-user="${escapeHtml(user.id)}" data-amount="50" data-reason="beta_testing">+50 Бета</button>
+          <button type="button" data-user="${escapeHtml(user.id)}" data-amount="120" data-reason="manual_credit">+120</button>
+          <button type="button" data-user="${escapeHtml(user.id)}" data-amount="300" data-reason="manual_credit">+300</button>
+          <button type="button" data-user="${escapeHtml(user.id)}" data-amount="700" data-reason="manual_credit">+700</button>
+        </div>
+      `;
+
+      list.appendChild(card);
+    });
+
+    list.querySelectorAll('[data-user]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+
+        await fetch(`/api/admin/users/${encodeURIComponent(button.dataset.user)}/credits`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getHeaders()
+          },
+          body: JSON.stringify({
+            amount: Number(button.dataset.amount),
+            reason: button.dataset.reason,
+            note: button.dataset.reason === 'beta_testing'
+              ? 'Бета-тестирование — бесплатно'
+              : 'Ручное начисление токенов'
+          })
+        });
+
+        await loadAdminConsole();
+        await refreshBalance();
+
+        button.disabled = false;
+      });
+    });
+  }
+
+  function renderTransactionsBlock(transactions) {
+    const profilePanel = document.getElementById('profilePanel');
+    if (!profilePanel) return;
+
+    let block = document.getElementById('profileTransactionsBlock');
+
+    if (!block) {
+      block = document.createElement('section');
+      block.id = 'profileTransactionsBlock';
+      block.className = 'profile-transactions-card';
+
+      block.innerHTML = `
+        <div class="section-header">
+          <span class="step">₽</span>
+          <div>
+            <h2>История баланса</h2>
+            <p class="section-subtitle">Пополнения и списания токенов.</p>
+          </div>
+        </div>
+        <div id="profileTransactionsList" class="profile-transactions-list"></div>
+      `;
+
+      const history = document.getElementById('historySection');
+      if (history && profilePanel.contains(history)) {
+        profilePanel.insertBefore(block, history);
+      } else {
+        profilePanel.appendChild(block);
+      }
+    }
+
+    const list = document.getElementById('profileTransactionsList');
+    if (!list) return;
+
+    if (!transactions.length) {
+      list.innerHTML = '<p class="muted-note">Операций пока нет.</p>';
+      return;
+    }
+
+    list.innerHTML = transactions.slice(0, 10).map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const isCredit = amount > 0;
+      const date = new Date(tx.createdAt).toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      return `
+        <article class="profile-transaction ${isCredit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${isCredit ? 'Пополнение' : 'Списание'}</strong>
+            <span>${escapeHtml(tx.note || tx.reason || 'Операция')}</span>
+            <small>${date}</small>
+          </div>
+          <b>${isCredit ? '+' : ''}${amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function setTab(target) {
+    document.body.dataset.activeTab = target;
+
+    document.querySelectorAll('.app-tab').forEach((tab) => {
+      tab.classList.toggle('active', tab.dataset.tabTarget === target);
+    });
+
+    document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+      panel.classList.toggle('hidden', panel.dataset.tabPanel !== target);
+    });
+
+    if (target === 'profile') {
+      refreshBalance();
+    }
+
+    if (target === 'admin') {
+      loadAdminConsole();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function runSingleGeneration() {
+    if (singleGenerationLock) {
+      showMessage('Генерация уже запущена. Подождите результат.', 'info');
+      return;
+    }
+
+    if (!state.selectedParticipantId || !state.selectedStyleId || !state.selectedPhoto) {
+      showMessage('Выберите участника, стиль и фото', 'error');
+      return;
+    }
+
+    singleGenerationLock = true;
+    generateButton.disabled = true;
+    generateButton.textContent = 'Создаём AI-фото...';
+
+    try {
+      const formData = new FormData();
+
+      formData.append('participantId', state.selectedParticipantId);
+      formData.append('styleId', state.selectedStyleId);
+      formData.append('styleTitle', state.selectedStyle?.title || getStyleTitleById(state.selectedStyleId) || '');
+      formData.append('styleProvider', state.selectedStyle?.providers?.[0] || state.selectedStyle?.provider || '');
+      formData.append('stylePreviewUrl', state.selectedStyle?.previewUrl || '');
+      formData.append('photo', state.selectedPhoto);
+
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: formData
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Не удалось создать AI-фото');
+      }
+
+      const resultUrl = data.resultUrl || (data.storage?.resultImage ? `/${data.storage.resultImage}` : null);
+
+      if (resultUrl && resultImage && resultSection) {
+        resultImage.src = resultUrl;
+        resultSection.classList.remove('hidden');
+      }
+
+      if (typeof saveGeneratedPhoto === 'function') {
+        saveGeneratedPhoto({
+          resultUrl,
+          generationId: data.generationId,
+          styleId: state.selectedStyleId,
+          styleTitle: state.selectedStyle?.title || state.selectedStyleId,
+          participantId: state.selectedParticipantId
+        });
+      }
+
+      if (typeof renderGeneratedHistory === 'function') {
+        renderGeneratedHistory();
+      }
+
+      if (typeof data.balance !== 'undefined') {
+        setBalance(data.balance);
+      }
+
+      await refreshBalance();
+
+      showMessage('AI-фото готово и сохранено в личном кабинете.', 'success');
+    } catch (error) {
+      showMessage(error.message || 'Что-то пошло не так. Попробуйте ещё раз', 'error');
+    } finally {
+      singleGenerationLock = false;
+      generateButton.disabled = false;
+      generateButton.textContent = 'Создать AI-фото';
+
+      if (typeof validateForm === 'function') {
+        validateForm();
+      }
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('.app-tab');
+
+    if (tab) {
+      event.preventDefault();
+      event.stopPropagation();
+      setTab(tab.dataset.tabTarget || 'main');
+      return;
+    }
+
+    const generate = event.target.closest('#generateButton, .generate-button');
+
+    if (generate) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      runSingleGeneration();
+    }
+  }, true);
+
+  window.addEventListener('load', async () => {
+    ensureAdminPanel();
+    ensureTopBalanceRefreshButton();
+    fixTopupText();
+    await refreshBalance();
+  });
+})();
+
+/* FINAL RELEASE FIX: strict profile/admin isolation + transaction balances */
+
+(function finalReleaseFix() {
+  function moveOnlyAllowedProfileBlocks() {
+    const profilePanel = document.getElementById('profilePanel');
+    if (!profilePanel) return;
+
+    const allowedIds = new Set([
+      'profileTransactionsBlock',
+      'historySection'
+    ]);
+
+    Array.from(profilePanel.children).forEach((child) => {
+      const isBaseProfileCard = child.classList.contains('profile-card');
+      const isContacts = child.classList.contains('contacts-card');
+      const isAllowedId = allowedIds.has(child.id);
+
+      if (!isBaseProfileCard && !isContacts && !isAllowedId) {
+        child.remove();
+      }
+    });
+
+    const history = document.getElementById('historySection');
+    const contacts = document.querySelector('.contacts-card');
+
+    if (history && !profilePanel.contains(history)) {
+      profilePanel.appendChild(history);
+    }
+
+    if (contacts && !profilePanel.contains(contacts)) {
+      profilePanel.appendChild(contacts);
+    }
+  }
+
+  function moveOnlyAllowedAdminBlocks() {
+    const adminPanel = document.getElementById('adminPanel');
+    if (!adminPanel) return;
+
+    Array.from(adminPanel.children).forEach((child) => {
+      if (!child.classList.contains('admin-card')) {
+        child.remove();
+      }
+    });
+  }
+
+  window.renderTransactionsBlock = function renderTransactionsBlockFinal(transactions) {
+    const profilePanel = document.getElementById('profilePanel');
+    if (!profilePanel) return;
+
+    let block = document.getElementById('profileTransactionsBlock');
+
+    if (!block) {
+      block = document.createElement('section');
+      block.id = 'profileTransactionsBlock';
+      block.className = 'profile-transactions-card';
+      block.innerHTML = `
+        <div class="section-header">
+          <span class="step">₽</span>
+          <div>
+            <h2>История баланса</h2>
+            <p class="section-subtitle">Пополнения, списания и остаток после операции.</p>
+          </div>
+        </div>
+        <div id="profileTransactionsList" class="profile-transactions-list"></div>
+      `;
+
+      const history = document.getElementById('historySection');
+      if (history && profilePanel.contains(history)) {
+        profilePanel.insertBefore(block, history);
+      } else {
+        profilePanel.appendChild(block);
+      }
+    }
+
+    const list = document.getElementById('profileTransactionsList');
+    if (!list) return;
+
+    if (!transactions || !transactions.length) {
+      list.innerHTML = '<p class="muted-note">Операций пока нет.</p>';
+      return;
+    }
+
+    list.innerHTML = transactions.slice(0, 12).map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const isCredit = amount > 0;
+      const before = typeof tx.balanceBefore === 'number' ? tx.balanceBefore : '—';
+      const after = typeof tx.balanceAfter === 'number' ? tx.balanceAfter : '—';
+
+      const date = new Date(tx.createdAt).toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      return `
+        <article class="profile-transaction ${isCredit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${isCredit ? 'Пополнение' : 'Списание'}</strong>
+            <span>${escapeHtml(tx.note || tx.reason || 'Операция')}</span>
+            <small>${date}</small>
+            <small>Баланс: ${before} → ${after}</small>
+          </div>
+          <b>${isCredit ? '+' : ''}${amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  };
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target]');
+
+    if (!tab) return;
+
+    setTimeout(() => {
+      if (tab.dataset.tabTarget === 'profile') {
+        moveOnlyAllowedProfileBlocks();
+      }
+
+      if (tab.dataset.tabTarget === 'admin') {
+        moveOnlyAllowedAdminBlocks();
+      }
+    }, 250);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      moveOnlyAllowedProfileBlocks();
+      moveOnlyAllowedAdminBlocks();
+    }, 800);
+  });
+})();
