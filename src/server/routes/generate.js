@@ -10,6 +10,7 @@ const {
   saveGenerationMetadata
 } = require('../services/fileStorageService');
 const { getCyberPhotoBoothStyleMapping } = require('../services/styleMappingService');
+const { backupGenerationFiles } = require('../services/yandexDiskBackupService');
 const {
   DEFAULT_GENERATION_COST,
   getIdentityFromRequest,
@@ -177,6 +178,23 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
 
     const metadataFile = await saveGenerationMetadata(metadata, generationId);
 
+    let yandexDiskBackup = null;
+
+    try {
+      yandexDiskBackup = await backupGenerationFiles({
+        generationId,
+        originalPhotoPath: originalPhoto.relativePath,
+        resultImagePath: resultImage?.relativePath || null,
+        metadataPath: metadataFile.relativePath
+      });
+    } catch (backupError) {
+      console.error('Yandex Disk backup failed:', backupError);
+      yandexDiskBackup = {
+        uploaded: false,
+        error: backupError.message
+      };
+    }
+
     return res.status(200).json({
       ...normalizedGenerationResult,
       generationId,
@@ -186,6 +204,9 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
         originalPhoto: originalPhoto.relativePath,
         resultImage: resultImage?.relativePath || null,
         metadata: metadataFile.relativePath
+      },
+      backup: {
+        yandexDisk: yandexDiskBackup
       }
     });
   } catch (error) {
