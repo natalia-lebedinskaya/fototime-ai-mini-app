@@ -1365,3 +1365,24 @@ window.addEventListener('load', () => {
     }
   }, 400);
 });
+
+/* Hotfix: send verified Telegram initData to backend */
+
+function getTelegramInitData() {
+  return window.Telegram?.WebApp?.initData || '';
+}
+
+const originalFetch = window.fetch;
+
+window.fetch = function patchedFetch(input, init = {}) {
+  const url = typeof input === 'string' ? input : input?.url || '';
+
+  if (url.startsWith('/api/')) {
+    init.headers = {
+      ...(init.headers || {}),
+      'x-telegram-init-data': getTelegramInitData()
+    };
+  }
+
+  return originalFetch(input, init);
+};
