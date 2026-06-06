@@ -1,0 +1,1334 @@
+/* Clean final UI layer */
+
+[data-tab-panel].hidden,
+.hidden {
+  display: none !important;
+}
+
+body[data-ui-theme="light"],
+body[data-app-theme="light"],
+body[data-theme="light"] {
+  --text: #20342f;
+  --muted: #64756f;
+  --card: rgba(255, 255, 255, 0.76);
+  --border: rgba(54, 70, 64, 0.22);
+  --accent: #8ee85d;
+}
+
+body[data-ui-theme="dark"],
+body[data-app-theme="dark"],
+body[data-theme="dark"] {
+  --text: #f6fff7;
+  --muted: rgba(246, 255, 247, 0.72);
+  --card: rgba(28, 31, 38, 0.9);
+  --border: rgba(255, 255, 255, 0.18);
+  --accent: #b8ff1f;
+  background: radial-gradient(circle at 20% 0%, rgba(86, 247, 255, 0.14), transparent 32%),
+              linear-gradient(180deg, #091015 0%, #05070a 100%) !important;
+}
+
+body[data-ui-theme="retro"],
+body[data-app-theme="retro"],
+body[data-theme="retro"] {
+  --text: #3b2c24;
+  --muted: #77675c;
+  --card: rgba(255, 247, 236, 0.82);
+  --border: rgba(125, 92, 54, 0.22);
+  --accent: #c99b56;
+  background: linear-gradient(180deg, #fff5e7 0%, #ead9c4 100%) !important;
+}
+
+.card,
+.state-card {
+  color: var(--text) !important;
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+}
+
+.section-subtitle,
+.upload-description,
+.message,
+small,
+span {
+  color: inherit;
+}
+
+.styles-filter-panel {
+  margin: 18px 0 !important;
+  padding: 18px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 24px !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+
+body[data-ui-theme="dark"] .styles-filter-panel,
+body[data-app-theme="dark"] .styles-filter-panel,
+body[data-theme="dark"] .styles-filter-panel {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.styles-filter-panel summary {
+  display: block !important;
+  min-height: auto !important;
+  margin-bottom: 14px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--text) !important;
+  font-size: 19px !important;
+  font-weight: 950 !important;
+  list-style: none !important;
+}
+
+.styles-filter-panel summary::after,
+.styles-filter-panel summary::-webkit-details-marker {
+  display: none !important;
+  content: none !important;
+}
+
+.styles-toolbar {
+  padding: 0 !important;
+  margin: 0 0 12px !important;
+}
+
+.styles-search {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 56px !important;
+  display: grid !important;
+  grid-template-columns: 42px 1fr !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  border-radius: 20px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255, 255, 255, 0.74) !important;
+}
+
+body[data-ui-theme="dark"] .styles-search,
+body[data-app-theme="dark"] .styles-search,
+body[data-theme="dark"] .styles-search {
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.styles-search-icon {
+  width: 36px !important;
+  height: 36px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #f6ffb7, #cfff96) !important;
+  color: #22352d !important;
+  font-size: 24px !important;
+}
+
+.styles-search input {
+  height: 54px !important;
+  color: var(--text) !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+.styles-search input::placeholder {
+  color: var(--muted) !important;
+}
+
+#stylesProvidersFilters {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  padding: 0 !important;
+}
+
+#stylesProvidersFilters .provider-filter {
+  min-height: 36px !important;
+  padding: 0 13px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255, 255, 255, 0.68) !important;
+  color: var(--text) !important;
+  font: inherit !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+body[data-ui-theme="dark"] #stylesProvidersFilters .provider-filter,
+body[data-app-theme="dark"] #stylesProvidersFilters .provider-filter,
+body[data-theme="dark"] #stylesProvidersFilters .provider-filter {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+#stylesProvidersFilters .provider-filter.active {
+  background: linear-gradient(135deg, #fff37d, #b8ff1f) !important;
+  color: #142014 !important;
+}
+
+.styles-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  overflow: visible !important;
+}
+
+.style-card {
+  padding: 10px !important;
+  border-radius: 18px !important;
+}
+
+.style-preview {
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 14px !important;
+  object-fit: cover !important;
+}
+
+.profile-panel,
+.app-panel {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 0 16px 96px;
+}
+
+.profile-grid,
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.profile-info-card,
+.profile-support-card,
+.admin-stats div,
+.admin-note,
+.admin-user-card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+body[data-ui-theme="dark"] .profile-info-card,
+body[data-ui-theme="dark"] .profile-support-card,
+body[data-ui-theme="dark"] .admin-stats div,
+body[data-ui-theme="dark"] .admin-note,
+body[data-ui-theme="dark"] .admin-user-card {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.profile-info-card span,
+.profile-info-card small,
+.profile-support-card p {
+  display: block;
+  color: var(--muted) !important;
+}
+
+.profile-info-card strong {
+  display: block;
+  margin: 6px 0;
+  color: var(--text) !important;
+  font-size: 32px;
+}
+
+.profile-support-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #9dff39, #56f7ff);
+  color: #101010 !important;
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.admin-stats {
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 14px;
+}
+
+.admin-stats strong {
+  display: block;
+  color: var(--accent);
+  font-size: 28px;
+}
+
+.admin-stats span {
+  color: var(--muted);
+}
+
+.admin-note {
+  margin-bottom: 14px;
+}
+
+.admin-user-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-user-balance {
+  text-align: right;
+}
+
+.admin-user-balance strong {
+  display: block;
+  color: var(--accent);
+  font-size: 28px;
+}
+
+.admin-user-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.admin-user-actions button {
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.admin-user-actions button:first-child {
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  color: #142014;
+}
+
+.app-tabs {
+  position: sticky;
+  bottom: 14px;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: min(100% - 24px, 560px);
+  margin: 24px auto 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+}
+
+body[data-ui-theme="dark"] .app-tabs,
+body[data-app-theme="dark"] .app-tabs,
+body[data-theme="dark"] .app-tabs {
+  background: rgba(5, 7, 10, 0.84);
+}
+
+.app-tab {
+  min-height: 48px;
+  border: 0;
+  border-radius: 17px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.app-tab.active {
+  background: linear-gradient(135deg, #fff37d, #b8ff1f);
+  color: #142014;
+}
+
+@media (max-width: 720px) {
+  .styles-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .profile-grid,
+  .admin-stats,
+  .admin-user-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .app-tab {
+    font-size: 12px;
+  }
+}
+
+/* Hard visual stabilization v2 */
+
+/* вкладки */
+body[data-active-tab="main"] [data-tab-panel="profile"],
+body[data-active-tab="main"] [data-tab-panel="admin"],
+body[data-active-tab="profile"] [data-tab-panel="main"],
+body[data-active-tab="profile"] [data-tab-panel="admin"],
+body[data-active-tab="admin"] [data-tab-panel="main"],
+body[data-active-tab="admin"] [data-tab-panel="profile"] {
+  display: none !important;
+}
+
+/* главный блок баланса */
+.balance-card,
+.balance-card-final {
+  padding: 26px !important;
+  border-radius: 28px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--card) !important;
+  color: var(--text) !important;
+}
+
+.balance-card .section-header {
+  margin-bottom: 18px !important;
+}
+
+.balance-summary,
+.balance-summary-final {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  margin: 16px 0 !important;
+}
+
+.balance-summary > div,
+.balance-summary-final > div,
+.balance-info-card {
+  padding: 16px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.38) !important;
+}
+
+body[data-ui-theme="dark"] .balance-summary > div,
+body[data-ui-theme="dark"] .balance-summary-final > div,
+body[data-ui-theme="dark"] .balance-info-card {
+  background: rgba(255,255,255,.07) !important;
+}
+
+.balance-label,
+.balance-info-card span {
+  display: block !important;
+  margin-bottom: 6px !important;
+  color: var(--muted) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+.balance-value,
+.balance-info-card strong {
+  display: block !important;
+  color: var(--text) !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+}
+
+.balance-pill,
+.balance-badge {
+  padding: 16px !important;
+  border: 1px solid rgba(184,255,31,.45) !important;
+  border-radius: 22px !important;
+  background: rgba(184,255,31,.11) !important;
+  text-align: center !important;
+}
+
+.balance-pill strong,
+.balance-badge strong {
+  display: block !important;
+  color: var(--accent) !important;
+  font-size: 42px !important;
+  line-height: 1 !important;
+}
+
+.topup-main-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  width: 100% !important;
+  min-height: 70px !important;
+  padding: 16px 22px !important;
+  border-radius: 22px !important;
+  background: linear-gradient(135deg, #b8ff1f, #56f7ff) !important;
+  color: #101810 !important;
+  text-decoration: none !important;
+  font-weight: 950 !important;
+}
+
+.credit-packages,
+.credit-packages-final,
+.payment-note,
+.payment-note-final,
+.credit-package {
+  display: none !important;
+}
+
+/* поиск и фильтры */
+.styles-filter-panel {
+  display: block !important;
+  padding: 18px !important;
+  border-radius: 24px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,.44) !important;
+}
+
+body[data-ui-theme="dark"] .styles-filter-panel {
+  background: rgba(255,255,255,.06) !important;
+}
+
+.styles-filter-panel summary {
+  display: block !important;
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--text) !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+}
+
+.styles-filter-panel summary::before {
+  content: "Поиск и фильтрация";
+}
+
+.styles-filter-panel summary > * {
+  display: none !important;
+}
+
+.styles-filter-panel summary::after {
+  display: none !important;
+}
+
+.styles-search {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 58px !important;
+  display: grid !important;
+  grid-template-columns: 42px 1fr !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  border-radius: 20px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,.74) !important;
+}
+
+body[data-ui-theme="dark"] .styles-search {
+  background: rgba(0,0,0,.22) !important;
+}
+
+.styles-search-icon {
+  width: 38px !important;
+  height: 38px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #f5ff9f, #b8ff1f) !important;
+  color: #1d2d20 !important;
+  font-size: 25px !important;
+}
+
+#stylesProvidersFilters {
+  margin-top: 12px !important;
+}
+
+/* карточки стилей */
+.styles-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.style-card {
+  min-width: 0 !important;
+  padding: 10px !important;
+  border-radius: 18px !important;
+  color: var(--text) !important;
+}
+
+.style-name {
+  color: var(--text) !important;
+  font-size: 15px !important;
+}
+
+.style-preview {
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  border-radius: 14px !important;
+}
+
+/* личный кабинет */
+#profilePanel .history-card,
+#profilePanel .contacts-card {
+  display: block !important;
+  margin-top: 18px !important;
+}
+
+/* админка */
+#adminPanel .admin-card {
+  display: block !important;
+}
+
+#adminPanel .history-card,
+#adminPanel .contacts-card,
+#adminPanel .balance-card {
+  display: none !important;
+}
+
+.admin-stats div,
+.admin-note,
+.admin-user-card {
+  background: rgba(255,255,255,.42) !important;
+  color: var(--text) !important;
+}
+
+body[data-ui-theme="dark"] .admin-stats div,
+body[data-ui-theme="dark"] .admin-note,
+body[data-ui-theme="dark"] .admin-user-card {
+  background: rgba(255,255,255,.08) !important;
+}
+
+/* навигация */
+.app-tabs {
+  position: sticky !important;
+  bottom: 14px !important;
+  z-index: 999 !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  width: min(100% - 24px, 560px) !important;
+  margin: 24px auto 0 !important;
+  padding: 8px !important;
+  border-radius: 24px !important;
+}
+
+.app-tab.hidden {
+  display: none !important;
+}
+
+.app-tab.active {
+  background: linear-gradient(135deg, #fff37d, #b8ff1f) !important;
+  color: #142014 !important;
+}
+
+@media (max-width: 720px) {
+  .balance-summary,
+  .balance-summary-final {
+    grid-template-columns: 1fr !important;
+  }
+
+  .styles-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* FIX: duplicated filter title + contrast + bottom spacing */
+
+.styles-filter-panel summary::before {
+  content: none !important;
+}
+
+.styles-filter-panel summary {
+  font-size: 0 !important;
+}
+
+.styles-filter-panel summary::after {
+  content: "Поиск и фильтрация" !important;
+  display: block !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+  color: var(--text) !important;
+}
+
+.topup-main-button {
+  color: #06110d !important;
+}
+
+.topup-main-button *,
+.topup-main-button strong,
+.topup-main-button span {
+  color: #06110d !important;
+}
+
+body[data-ui-theme="dark"] .card,
+body[data-ui-theme="dark"] .state-card,
+body[data-ui-theme="dark"] .balance-card,
+body[data-ui-theme="dark"] .balance-card-final,
+body[data-ui-theme="dark"] .style-card,
+body[data-ui-theme="dark"] .profile-info-card,
+body[data-ui-theme="dark"] .profile-support-card {
+  background: rgba(28, 31, 38, 0.92) !important;
+  color: #f6fff7 !important;
+}
+
+body[data-ui-theme="dark"] .balance-summary > div,
+body[data-ui-theme="dark"] .balance-summary-final > div,
+body[data-ui-theme="dark"] .balance-info-card {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #f6fff7 !important;
+}
+
+body[data-ui-theme="light"] .card,
+body[data-ui-theme="light"] .state-card,
+body[data-ui-theme="retro"] .card,
+body[data-ui-theme="retro"] .state-card {
+  color: #3b2c24 !important;
+}
+
+#content,
+#profilePanel,
+#adminPanel {
+  padding-bottom: 120px !important;
+}
+
+.styles-grid {
+  margin-bottom: 22px !important;
+}
+
+.app-tabs {
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.16) !important;
+}
+
+.app-tab.hidden {
+  display: none !important;
+}
+
+.app-tabs:has(.app-tab.hidden) {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.balance-card-final,
+.balance-card {
+  overflow: hidden !important;
+}
+
+.balance-pill {
+  margin-bottom: 12px !important;
+}
+
+.balance-summary-final,
+.balance-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 720px) {
+  .balance-summary-final,
+  .balance-summary {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Final polish: clean chips, balance, dark cards, bottom nav safe area */
+
+body {
+  padding-bottom: 140px !important;
+}
+
+/* Balance: softer and cleaner */
+.balance-card,
+.balance-card-final {
+  box-shadow: 0 20px 70px rgba(30, 20, 10, 0.10) !important;
+}
+
+body[data-ui-theme="dark"] .balance-card,
+body[data-app-theme="dark"] .balance-card,
+body[data-theme="dark"] .balance-card,
+body[data-ui-theme="dark"] .balance-card-final,
+body[data-app-theme="dark"] .balance-card-final,
+body[data-theme="dark"] .balance-card-final {
+  background: rgba(21, 25, 31, 0.96) !important;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* make balance area less bulky */
+.balance-pill,
+.balance-badge {
+  padding: 14px !important;
+  min-height: auto !important;
+}
+
+.balance-pill strong,
+.balance-badge strong {
+  font-size: 36px !important;
+}
+
+.balance-summary > div,
+.balance-summary-final > div,
+.balance-info-card {
+  min-height: auto !important;
+  padding: 14px 16px !important;
+}
+
+/* Top-up button readability */
+.topup-main-button {
+  min-height: 58px !important;
+  padding: 14px 18px !important;
+  line-height: 1.15 !important;
+}
+
+.topup-main-button strong,
+.topup-main-button span {
+  color: #06110d !important;
+  text-shadow: none !important;
+}
+
+/* Provider chips: hide native checkbox, keep clean pills */
+#stylesProvidersFilters .provider-filter input,
+.provider-filter input {
+  display: none !important;
+  appearance: none !important;
+}
+
+#stylesProvidersFilters .provider-filter {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  padding: 0 14px !important;
+  line-height: 1 !important;
+}
+
+#stylesProvidersFilters .provider-filter::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+#stylesProvidersFilters .provider-filter.active::before {
+  opacity: 1;
+}
+
+/* Dark theme card tone */
+body[data-ui-theme="dark"] .card,
+body[data-app-theme="dark"] .card,
+body[data-theme="dark"] .card,
+body[data-ui-theme="dark"] .state-card,
+body[data-app-theme="dark"] .state-card,
+body[data-theme="dark"] .state-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025)),
+    rgba(18, 22, 28, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* Dark inner blocks */
+body[data-ui-theme="dark"] .styles-filter-panel,
+body[data-app-theme="dark"] .styles-filter-panel,
+body[data-theme="dark"] .styles-filter-panel,
+body[data-ui-theme="dark"] .profile-info-card,
+body[data-app-theme="dark"] .profile-info-card,
+body[data-theme="dark"] .profile-info-card,
+body[data-ui-theme="dark"] .profile-support-card,
+body[data-app-theme="dark"] .profile-support-card,
+body[data-theme="dark"] .profile-support-card {
+  background: rgba(255, 255, 255, 0.045) !important;
+}
+
+/* Disabled generation button */
+#generateButton:disabled,
+.generate-button:disabled,
+button:disabled {
+  opacity: 0.58 !important;
+  cursor: not-allowed !important;
+  filter: saturate(0.65) !important;
+}
+
+#generateButton:disabled {
+  color: rgba(20, 20, 20, 0.55) !important;
+}
+
+/* Footer contacts spacing */
+.contacts-card {
+  margin-bottom: 28px !important;
+}
+
+/* Bottom nav should not cover content */
+.app-tabs {
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  bottom: max(14px, env(safe-area-inset-bottom)) !important;
+  margin: 0 !important;
+}
+
+/* Make style pagination prettier */
+.styles-pagination,
+.styles-footer,
+.styles-controls {
+  margin-top: 12px !important;
+}
+
+.styles-pagination button,
+.styles-footer button,
+.styles-controls button {
+  min-height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,.74) !important;
+  color: var(--text) !important;
+  font-weight: 800 !important;
+}
+
+body[data-ui-theme="dark"] .styles-pagination button,
+body[data-app-theme="dark"] .styles-pagination button,
+body[data-theme="dark"] .styles-pagination button,
+body[data-ui-theme="dark"] .styles-footer button,
+body[data-app-theme="dark"] .styles-footer button,
+body[data-theme="dark"] .styles-footer button,
+body[data-ui-theme="dark"] .styles-controls button,
+body[data-app-theme="dark"] .styles-controls button,
+body[data-theme="dark"] .styles-controls button {
+  background: rgba(255,255,255,.08) !important;
+}
+
+/* Mobile cards */
+@media (max-width: 720px) {
+  body {
+    padding-bottom: 150px !important;
+  }
+
+  .app-tabs {
+    width: calc(100% - 28px) !important;
+  }
+
+  .styles-grid {
+    gap: 12px !important;
+  }
+
+  .style-card {
+    padding: 8px !important;
+  }
+
+  .style-name {
+    font-size: 14px !important;
+  }
+}
+
+/* Final polish: clean chips, balance, dark cards, bottom nav safe area */
+
+body {
+  padding-bottom: 140px !important;
+}
+
+/* Balance: softer and cleaner */
+.balance-card,
+.balance-card-final {
+  box-shadow: 0 20px 70px rgba(30, 20, 10, 0.10) !important;
+}
+
+body[data-ui-theme="dark"] .balance-card,
+body[data-app-theme="dark"] .balance-card,
+body[data-theme="dark"] .balance-card,
+body[data-ui-theme="dark"] .balance-card-final,
+body[data-app-theme="dark"] .balance-card-final,
+body[data-theme="dark"] .balance-card-final {
+  background: rgba(21, 25, 31, 0.96) !important;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* make balance area less bulky */
+.balance-pill,
+.balance-badge {
+  padding: 14px !important;
+  min-height: auto !important;
+}
+
+.balance-pill strong,
+.balance-badge strong {
+  font-size: 36px !important;
+}
+
+.balance-summary > div,
+.balance-summary-final > div,
+.balance-info-card {
+  min-height: auto !important;
+  padding: 14px 16px !important;
+}
+
+/* Top-up button readability */
+.topup-main-button {
+  min-height: 58px !important;
+  padding: 14px 18px !important;
+  line-height: 1.15 !important;
+}
+
+.topup-main-button strong,
+.topup-main-button span {
+  color: #06110d !important;
+  text-shadow: none !important;
+}
+
+/* Provider chips: hide native checkbox, keep clean pills */
+#stylesProvidersFilters .provider-filter input,
+.provider-filter input {
+  display: none !important;
+  appearance: none !important;
+}
+
+#stylesProvidersFilters .provider-filter {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  padding: 0 14px !important;
+  line-height: 1 !important;
+}
+
+#stylesProvidersFilters .provider-filter::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+#stylesProvidersFilters .provider-filter.active::before {
+  opacity: 1;
+}
+
+/* Dark theme card tone */
+body[data-ui-theme="dark"] .card,
+body[data-app-theme="dark"] .card,
+body[data-theme="dark"] .card,
+body[data-ui-theme="dark"] .state-card,
+body[data-app-theme="dark"] .state-card,
+body[data-theme="dark"] .state-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025)),
+    rgba(18, 22, 28, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* Dark inner blocks */
+body[data-ui-theme="dark"] .styles-filter-panel,
+body[data-app-theme="dark"] .styles-filter-panel,
+body[data-theme="dark"] .styles-filter-panel,
+body[data-ui-theme="dark"] .profile-info-card,
+body[data-app-theme="dark"] .profile-info-card,
+body[data-theme="dark"] .profile-info-card,
+body[data-ui-theme="dark"] .profile-support-card,
+body[data-app-theme="dark"] .profile-support-card,
+body[data-theme="dark"] .profile-support-card {
+  background: rgba(255, 255, 255, 0.045) !important;
+}
+
+/* Disabled generation button */
+#generateButton:disabled,
+.generate-button:disabled,
+button:disabled {
+  opacity: 0.58 !important;
+  cursor: not-allowed !important;
+  filter: saturate(0.65) !important;
+}
+
+#generateButton:disabled {
+  color: rgba(20, 20, 20, 0.55) !important;
+}
+
+/* Footer contacts spacing */
+.contacts-card {
+  margin-bottom: 28px !important;
+}
+
+/* Bottom nav should not cover content */
+.app-tabs {
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  bottom: max(14px, env(safe-area-inset-bottom)) !important;
+  margin: 0 !important;
+}
+
+/* Make style pagination prettier */
+.styles-pagination,
+.styles-footer,
+.styles-controls {
+  margin-top: 12px !important;
+}
+
+.styles-pagination button,
+.styles-footer button,
+.styles-controls button {
+  min-height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,.74) !important;
+  color: var(--text) !important;
+  font-weight: 800 !important;
+}
+
+body[data-ui-theme="dark"] .styles-pagination button,
+body[data-app-theme="dark"] .styles-pagination button,
+body[data-theme="dark"] .styles-pagination button,
+body[data-ui-theme="dark"] .styles-footer button,
+body[data-app-theme="dark"] .styles-footer button,
+body[data-theme="dark"] .styles-footer button,
+body[data-ui-theme="dark"] .styles-controls button,
+body[data-app-theme="dark"] .styles-controls button,
+body[data-theme="dark"] .styles-controls button {
+  background: rgba(255,255,255,.08) !important;
+}
+
+/* Mobile cards */
+@media (max-width: 720px) {
+  body {
+    padding-bottom: 150px !important;
+  }
+
+  .app-tabs {
+    width: calc(100% - 28px) !important;
+  }
+
+  .styles-grid {
+    gap: 12px !important;
+  }
+
+  .style-card {
+    padding: 8px !important;
+  }
+
+  .style-name {
+    font-size: 14px !important;
+  }
+}
+
+/* Emergency UX hotfix: result area, spacing, buttons, footer */
+
+body {
+  padding-bottom: 150px !important;
+}
+
+#content,
+#profilePanel,
+#adminPanel,
+main,
+.app-container {
+  padding-bottom: 150px !important;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.message:empty,
+.error:empty,
+.status:empty {
+  display: none !important;
+}
+
+#resultSection.hidden,
+.result-section.hidden {
+  display: none !important;
+}
+
+.generation-error-actions.hidden,
+#generationErrorActions.hidden {
+  display: none !important;
+}
+
+.generation-error-actions,
+#generationErrorActions {
+  margin-top: 12px !important;
+}
+
+.generation-error-actions:not(.hidden) {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.generation-error-actions button,
+#generationErrorActions button {
+  min-height: 44px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  color: var(--text) !important;
+  font-weight: 900 !important;
+}
+
+/* Hide visible technical load errors */
+body * {
+  overflow-wrap: anywhere;
+}
+
+body *:has(+ .hidden) {
+  margin-bottom: 0 !important;
+}
+
+/* Upload block */
+.upload-zone,
+.photo-upload,
+.file-upload,
+.upload-card label {
+  cursor: pointer !important;
+}
+
+.upload-zone,
+.photo-upload,
+.upload-card {
+  min-height: auto !important;
+}
+
+.upload-description,
+.file-name {
+  color: var(--muted) !important;
+}
+
+#generateButton,
+.generate-button,
+button[type="submit"] {
+  min-height: 58px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(135deg, #c89a4d, #e6c17b) !important;
+  color: #101010 !important;
+  font-weight: 950 !important;
+  opacity: 1 !important;
+}
+
+#generateButton:disabled,
+.generate-button:disabled,
+button[type="submit"]:disabled {
+  background: rgba(200, 154, 77, 0.38) !important;
+  color: rgba(30, 30, 30, 0.52) !important;
+  opacity: 1 !important;
+}
+
+/* Reduce huge footer gap */
+.contacts-card,
+.footer-card,
+.support-card {
+  margin-top: 28px !important;
+  margin-bottom: 32px !important;
+}
+
+.card + .contacts-card,
+.card + .footer-card {
+  margin-top: 28px !important;
+}
+
+/* Style cards should not be hidden by fixed menu */
+.styles-grid,
+.style-list,
+.styles-section {
+  padding-bottom: 24px !important;
+}
+
+.app-tabs {
+  position: fixed !important;
+  bottom: max(14px, env(safe-area-inset-bottom)) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+}
+
+/* Dark theme button contrast */
+body[data-ui-theme="dark"] #generateButton,
+body[data-app-theme="dark"] #generateButton,
+body[data-theme="dark"] #generateButton,
+body[data-ui-theme="dark"] .generate-button,
+body[data-app-theme="dark"] .generate-button,
+body[data-theme="dark"] .generate-button {
+  background: linear-gradient(135deg, #b8ff1f, #56f7ff) !important;
+  color: #071008 !important;
+}
+
+body[data-ui-theme="dark"] #generateButton:disabled,
+body[data-app-theme="dark"] #generateButton:disabled,
+body[data-theme="dark"] #generateButton:disabled,
+body[data-ui-theme="dark"] .generate-button:disabled,
+body[data-app-theme="dark"] .generate-button:disabled,
+body[data-theme="dark"] .generate-button:disabled {
+  background: rgba(184, 255, 31, 0.28) !important;
+  color: rgba(255, 255, 255, 0.52) !important;
+}
+
+/* CRITICAL HOTFIX: real theme backgrounds + clean history */
+
+html[data-ui-theme="light"],
+body[data-ui-theme="light"],
+html[data-app-theme="light"],
+body[data-app-theme="light"],
+html[data-theme="light"],
+body[data-theme="light"] {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 218, 182, 0.35), transparent 34%),
+    radial-gradient(circle at 90% 15%, rgba(214, 255, 200, 0.35), transparent 32%),
+    linear-gradient(180deg, #fff8ee 0%, #efe0cf 100%) !important;
+  color: #3b2c24 !important;
+}
+
+html[data-ui-theme="retro"],
+body[data-ui-theme="retro"],
+html[data-app-theme="retro"],
+body[data-app-theme="retro"],
+html[data-theme="retro"],
+body[data-theme="retro"] {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 214, 150, 0.26), transparent 34%),
+    linear-gradient(180deg, #fff3e2 0%, #e8d4bb 100%) !important;
+  color: #3b2c24 !important;
+}
+
+html[data-ui-theme="dark"],
+body[data-ui-theme="dark"],
+html[data-app-theme="dark"],
+body[data-app-theme="dark"],
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(86, 247, 255, 0.14), transparent 32%),
+    linear-gradient(180deg, #091015 0%, #05070a 100%) !important;
+  color: #f6fff7 !important;
+}
+
+body[data-ui-theme="light"] .card,
+body[data-app-theme="light"] .card,
+body[data-theme="light"] .card,
+body[data-ui-theme="retro"] .card,
+body[data-app-theme="retro"] .card,
+body[data-theme="retro"] .card {
+  background: rgba(255, 247, 236, 0.88) !important;
+  color: #3b2c24 !important;
+  border-color: rgba(125, 92, 54, 0.22) !important;
+}
+
+body[data-ui-theme="dark"] .card,
+body[data-app-theme="dark"] .card,
+body[data-theme="dark"] .card {
+  background: rgba(18, 22, 28, 0.96) !important;
+  color: #f6fff7 !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+.history-card-item img {
+  background: rgba(255, 255, 255, 0.08) !important;
+  object-fit: cover !important;
+}
+
+.history-card-item img[src*="preview"],
+.history-card-item img[src*="style"],
+.history-card-item img[src*="cover"],
+.history-card-item img[src*="catalog"],
+.history-card-item img[src*="public-styles"],
+.history-card-item img[src*="assets/styles"] {
+  display: none !important;
+}
+
+.message.error,
+#errorMessage,
+.generation-message.error {
+  color: #ff4d7d !important;
+  font-weight: 800 !important;
+}
+
+#generateButton:not(:disabled),
+.generate-button:not(:disabled) {
+  background: linear-gradient(135deg, #b8ff1f, #56f7ff) !important;
+  color: #071008 !important;
+}
