@@ -3373,3 +3373,272 @@ a {
   0%, 100% { transform: translateY(0) rotate(-4deg); }
   50% { transform: translateY(-10px) rotate(4deg); }
 }
+
+/* FINAL UI STABILIZER */
+
+:root {
+  --ft-gap: 16px;
+  --ft-radius: 22px;
+}
+
+.card,
+.ft-section-clean,
+.ft-profile-clean,
+.ft-admin-shell,
+.ft-mini-help {
+  margin-top: var(--ft-gap) !important;
+  margin-bottom: 0 !important;
+  padding: 16px !important;
+  border-radius: var(--ft-radius) !important;
+}
+
+body[data-ft-tab="main"] [data-ft-page="profile"],
+body[data-ft-tab="main"] [data-ft-page="admin"],
+body[data-ft-tab="profile"] [data-ft-page="main"],
+body[data-ft-tab="profile"] [data-ft-page="admin"],
+body[data-ft-tab="admin"] [data-ft-page="main"],
+body[data-ft-tab="admin"] [data-ft-page="profile"] {
+  display: none !important;
+}
+
+.ft-mini-help {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 12px !important;
+  align-items: center !important;
+  border: 1px solid var(--border) !important;
+  background: radial-gradient(circle at 0 0, rgba(184,255,31,.20), transparent 42%), var(--card) !important;
+}
+
+.ft-mini-help-icon,
+.ft-avatar-orbit {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 18px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: linear-gradient(135deg, #91ff75, #5df3ff) !important;
+  color: #102015 !important;
+  font-weight: 950 !important;
+}
+
+.ft-mini-help b,
+.ft-mini-help span,
+.ft-profile-hero b,
+.ft-profile-hero span {
+  display: block !important;
+  line-height: 1.25 !important;
+}
+
+.ft-mini-help button,
+.ft-profile-hero button,
+.ft-admin-pin-card button,
+.ft-admin-users button {
+  min-height: 42px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f) !important;
+  color: #102015 !important;
+  font-weight: 950 !important;
+  padding: 0 16px !important;
+  cursor: pointer !important;
+}
+
+.ft-profile-hero {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 14px !important;
+  align-items: center !important;
+  margin-bottom: var(--ft-gap) !important;
+  padding: 16px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--ft-radius) !important;
+  background: radial-gradient(circle at 0 0, rgba(93,243,255,.16), transparent 44%), var(--card) !important;
+}
+
+.ft-avatar-orbit {
+  position: relative !important;
+  animation: ftAvatarFloat 3.6s ease-in-out infinite !important;
+  box-shadow: 0 0 0 0 rgba(184,255,31,.25) !important;
+}
+
+.ft-avatar-orbit::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 22px;
+  border: 1px solid rgba(184,255,31,.55);
+  animation: ftAvatarPulse 2.6s ease-in-out infinite;
+}
+
+.ft-avatar-orbit img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 18px !important;
+}
+
+@keyframes ftAvatarFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+
+@keyframes ftAvatarPulse {
+  0%, 100% { transform: scale(.96); opacity: .45; }
+  50% { transform: scale(1.08); opacity: .9; }
+}
+
+.ft-admin-shell {
+  border: 1px solid var(--border) !important;
+  background: var(--card) !important;
+}
+
+.ft-admin-head {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  align-items: center !important;
+  margin-bottom: var(--ft-gap) !important;
+}
+
+.ft-admin-head b,
+.ft-admin-head span {
+  display: block !important;
+}
+
+.ft-admin-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 12px !important;
+}
+
+.ft-admin-grid div,
+.ft-admin-chart-card,
+.ft-admin-users,
+.ft-admin-pin-card {
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  padding: 14px !important;
+  background: rgba(255,255,255,.42) !important;
+}
+
+body[data-ui-theme="dark"] .ft-admin-grid div,
+body[data-ui-theme="dark"] .ft-admin-chart-card,
+body[data-ui-theme="dark"] .ft-admin-users,
+body[data-ui-theme="dark"] .ft-admin-pin-card {
+  background: rgba(255,255,255,.06) !important;
+}
+
+.ft-admin-grid span,
+.ft-admin-grid b {
+  display: block !important;
+}
+
+.ft-admin-grid b {
+  font-size: 28px !important;
+}
+
+.ft-admin-chart {
+  height: 120px !important;
+  display: flex !important;
+  gap: 16px !important;
+  align-items: end !important;
+  padding: 14px !important;
+}
+
+.ft-admin-chart span,
+.ft-admin-chart i {
+  width: 54px !important;
+  border-radius: 14px 14px 6px 6px !important;
+  display: block !important;
+}
+
+.ft-admin-chart span {
+  background: linear-gradient(180deg, #b8ff1f, #56f7ff) !important;
+}
+
+.ft-admin-chart i {
+  background: linear-gradient(180deg, #ffb86b, #ff5b7c) !important;
+}
+
+.ft-admin-users {
+  margin-top: var(--ft-gap) !important;
+}
+
+.ft-admin-users article {
+  display: grid !important;
+  grid-template-columns: 1fr auto auto auto !important;
+  gap: 10px !important;
+  align-items: center !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  padding: 12px !important;
+  margin-top: 10px !important;
+}
+
+.ft-admin-pin-card {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.ft-admin-pin-card input {
+  min-height: 44px !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--border) !important;
+  padding: 0 12px !important;
+  font: inherit !important;
+}
+
+.ft-loader-line {
+  padding: 16px !important;
+  border-radius: 16px !important;
+  background: rgba(184,255,31,.14) !important;
+  font-weight: 900 !important;
+}
+
+.bottom-nav,
+.tab-bar,
+nav {
+  gap: 8px !important;
+  padding: 10px !important;
+  border-radius: 24px !important;
+}
+
+.bottom-nav button,
+.tab-bar button,
+nav [data-tab-target] {
+  min-height: 48px !important;
+  padding: 0 18px !important;
+  border-radius: 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.card:hover,
+.ft-section-clean:hover,
+.ft-mini-help:hover,
+.ft-admin-shell:hover {
+  transform: translateY(-1px) !important;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --ft-gap: 12px;
+  }
+
+  .ft-mini-help,
+  .ft-profile-hero,
+  .ft-admin-users article {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ft-admin-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ft-mini-help button,
+  .ft-profile-hero button {
+    width: 100% !important;
+  }
+}

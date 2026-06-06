@@ -2160,3 +2160,393 @@ window.addEventListener('load', () => {
     document.body.appendChild(spark);
   }
 });
+
+/* FINAL UI STABILIZER: clean tabs, admin pin, profile avatar, spacing, support */
+
+(function finalUiStabilizer() {
+  if (window.__finalUiStabilizerApplied) return;
+  window.__finalUiStabilizerApplied = true;
+
+  const SUPPORT_URL = 'https://t.me/fototime23_Bot';
+  const ADMIN_PIN_KEY = 'ft-admin-pin';
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+  function cleanText(el) {
+    return (el?.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function setSupportLinks() {
+    $$('a, button').forEach((el) => {
+      const text = cleanText(el);
+      const href = el.getAttribute?.('href') || '';
+
+      if (
+        text.includes('поддерж') ||
+        text.includes('пополн') ||
+        text.includes('telegram') ||
+        href.includes('fototime')
+      ) {
+        if (el.tagName === 'A') {
+          el.href = SUPPORT_URL;
+          el.target = '_blank';
+          el.rel = 'noreferrer';
+        } else if (text.includes('поддерж') || text.includes('пополн')) {
+          el.onclick = () => window.open(SUPPORT_URL, '_blank', 'noopener,noreferrer');
+        }
+      }
+    });
+  }
+
+  function markSections() {
+    $$('.card, section, .ft-section-clean, .ft-profile-clean, .ft-admin-clean').forEach((el) => {
+      const text = cleanText(el);
+
+      if (
+        text.includes('личный кабинет') ||
+        text.includes('пакеты токенов') ||
+        text.includes('история баланса') ||
+        text.includes('мои сгенерированные фото') ||
+        text.includes('обратная связь') ||
+        (text.includes('fototime323') && text.includes('поддержка'))
+      ) {
+        el.dataset.ftPage = 'profile';
+      }
+
+      if (
+        text.includes('админ-консоль') ||
+        text.includes('дашборд') ||
+        text.includes('ошибки генераций') ||
+        text.includes('уведомления') ||
+        text.includes('пользователи') ||
+        text.includes('бета-тестирование')
+      ) {
+        el.dataset.ftPage = 'admin';
+      }
+
+      if (
+        text.includes('участник') ||
+        text.includes('стиль обработки') ||
+        text.includes('фото jpg') ||
+        text.includes('создать ai-фото') ||
+        text.includes('результат') ||
+        text.includes('баланс кредиты')
+      ) {
+        el.dataset.ftPage = 'main';
+      }
+    });
+
+    $('#profilePanel')?.setAttribute('data-ft-page', 'profile');
+    $('#adminPanel')?.setAttribute('data-ft-page', 'admin');
+  }
+
+  function setTab(tab) {
+    document.body.dataset.ftTab = tab;
+    localStorage.setItem('ft-active-tab', tab);
+
+    $$('[data-tab-target], button, a').forEach((btn) => {
+      const text = cleanText(btn);
+      const target = btn.dataset?.tabTarget;
+
+      const isActive =
+        target === tab ||
+        (tab === 'main' && text === 'главная') ||
+        (tab === 'profile' && text === 'личный кабинет') ||
+        (tab === 'admin' && text === 'админ');
+
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    applyVisibility();
+  }
+
+  function applyVisibility() {
+    markSections();
+
+    const tab = document.body.dataset.ftTab || 'main';
+
+    $$('[data-ft-page]').forEach((el) => {
+      const page = el.dataset.ftPage;
+      el.style.display = page === tab ? '' : 'none';
+    });
+
+    if (tab === 'profile') renderProfilePolish();
+    if (tab === 'admin') renderAdminGate();
+
+    setSupportLinks();
+    removeRandomErrors();
+  }
+
+  function removeRandomErrors() {
+    $$('body *').forEach((el) => {
+      if (el.children.length) return;
+      const text = cleanText(el);
+      if (
+        text.includes('не удалось загрузить админ') ||
+        text.includes('load failed') ||
+        text.includes('type error')
+      ) {
+        el.remove();
+      }
+    });
+  }
+
+  function renderWhereToFindBlock() {
+    if ($('#ftWherePhotos')) return;
+
+    const result = $('#resultSection');
+    if (!result) return;
+
+    const block = document.createElement('section');
+    block.id = 'ftWherePhotos';
+    block.className = 'ft-mini-help';
+    block.innerHTML = `
+      <div class="ft-mini-help-icon">LK</div>
+      <div>
+        <b>Где найти готовые фото?</b>
+        <span>Все созданные изображения сохраняются в личном кабинете.</span>
+      </div>
+      <button type="button" data-go-profile>Открыть ЛК</button>
+    `;
+
+    result.insertAdjacentElement('afterend', block);
+
+    block.querySelector('[data-go-profile]').onclick = () => setTab('profile');
+  }
+
+  function renderProfilePolish() {
+    const profile =
+      $('[data-ft-page="profile"]') ||
+      $('#profilePanel');
+
+    if (!profile) return;
+
+    if (!$('#ftProfileHero')) {
+      const username =
+        window.Telegram?.WebApp?.initDataUnsafe?.user?.username ||
+        $('.ft-user-name')?.textContent ||
+        'Гость FOTOTIME323';
+
+      const photo =
+        window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url || '';
+
+      const hero = document.createElement('section');
+      hero.id = 'ftProfileHero';
+      hero.className = 'ft-profile-hero';
+      hero.innerHTML = `
+        <div class="ft-avatar-orbit">
+          ${photo ? `<img src="${photo}" alt="">` : `<span>${String(username).slice(0,2).toUpperCase()}</span>`}
+        </div>
+        <div>
+          <b>@${username}</b>
+          <span>Личный кабинет, баланс, история генераций и поддержка.</span>
+        </div>
+        <button type="button" data-open-support>Поддержка</button>
+      `;
+
+      profile.prepend(hero);
+      hero.querySelector('[data-open-support]').onclick = () => window.open(SUPPORT_URL, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  async function getAdminOverview(pin) {
+    const res = await fetch('/api/admin-pin/overview', {
+      headers: { 'x-admin-pin': pin }
+    });
+    if (!res.ok) throw new Error('Неверный PIN или нет доступа');
+    return res.json();
+  }
+
+  function renderAdminGate() {
+    const admin =
+      $('#adminPanel') ||
+      $('[data-ft-page="admin"]');
+
+    if (!admin) return;
+
+    admin.dataset.ftPage = 'admin';
+    admin.innerHTML = `
+      <section class="ft-admin-shell">
+        <div class="ft-admin-head">
+          <div>
+            <b>Админ-консоль</b>
+            <span>Дашборд, пользователи, ошибки и ручное начисление токенов.</span>
+          </div>
+          <button type="button" data-admin-logout>Выйти</button>
+        </div>
+
+        <div id="ftAdminContent"></div>
+      </section>
+    `;
+
+    admin.querySelector('[data-admin-logout]').onclick = () => {
+      localStorage.removeItem(ADMIN_PIN_KEY);
+      renderAdminGate();
+    };
+
+    const savedPin = localStorage.getItem(ADMIN_PIN_KEY);
+
+    if (!savedPin) {
+      renderPinForm();
+      return;
+    }
+
+    renderAdminDashboard(savedPin);
+  }
+
+  function renderPinForm() {
+    const root = $('#ftAdminContent');
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="ft-admin-pin-card">
+        <b>Введите PIN администратора</b>
+        <span>Без PIN админ-панель не отображается.</span>
+        <input type="password" inputmode="numeric" placeholder="PIN" id="ftAdminPinInput">
+        <button type="button" id="ftAdminPinSubmit">Войти</button>
+        <small id="ftAdminPinError"></small>
+      </div>
+    `;
+
+    $('#ftAdminPinSubmit').onclick = async () => {
+      const pin = $('#ftAdminPinInput').value.trim();
+      try {
+        await getAdminOverview(pin);
+        localStorage.setItem(ADMIN_PIN_KEY, pin);
+        renderAdminDashboard(pin);
+      } catch (e) {
+        $('#ftAdminPinError').textContent = e.message || 'Не удалось войти';
+      }
+    };
+  }
+
+  async function renderAdminDashboard(pin) {
+    const root = $('#ftAdminContent');
+    if (!root) return;
+
+    root.innerHTML = `<div class="ft-loader-line">Загружаем админ-данные...</div>`;
+
+    try {
+      const data = await getAdminOverview(pin);
+      const stats = data.stats || {};
+      const users = data.users || data.items || [];
+
+      root.innerHTML = `
+        <section class="ft-admin-grid">
+          <div><span>Клиентов</span><b>${stats.totalUsers || users.length || 0}</b></div>
+          <div><span>Успешных</span><b>${stats.totalGenerations || 0}</b></div>
+          <div><span>Списано</span><b>${stats.totalSpentCredits || 0}</b></div>
+        </section>
+
+        <section class="ft-admin-chart-card">
+          <b>Стабильность</b>
+          <div class="ft-admin-chart">
+            <span style="height:${Math.max(8, Number(stats.totalGenerations || 0) * 8)}px"></span>
+            <i style="height:${Math.max(8, Number(stats.totalErrors || 0) * 8)}px"></i>
+          </div>
+          <small>Зелёный — успешные генерации, оранжевый — ошибки.</small>
+        </section>
+
+        <section class="ft-admin-users">
+          <b>Пользователи</b>
+          ${
+            users.length
+              ? users.map((u) => `
+                <article>
+                  <div>
+                    <strong>@${u.username || u.telegramUserId || u.id || 'user'}</strong>
+                    <span>ID: ${u.id || u.telegramUserId || '—'}</span>
+                    <small>Генераций: ${u.generationsCount || 0} · списано: ${u.spentCredits || 0}</small>
+                  </div>
+                  <b>${u.balance || 0} ток.</b>
+                  <button type="button" data-credit-user="${u.id || u.telegramUserId}" data-amount="50">+50 Бета</button>
+                  <button type="button" data-credit-user="${u.id || u.telegramUserId}" data-amount="120">+120</button>
+                </article>
+              `).join('')
+              : `<div class="ft-empty">Пользователей пока нет.</div>`
+          }
+        </section>
+      `;
+
+      $$('[data-credit-user]', root).forEach((btn) => {
+        btn.onclick = async () => {
+          const userId = btn.dataset.creditUser;
+          const amount = Number(btn.dataset.amount || 0);
+
+          await fetch('/api/admin-pin/credit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-pin': pin
+            },
+            body: JSON.stringify({
+              userId,
+              amount,
+              reason: amount === 50 ? 'beta_testing' : 'manual_credit',
+              note: amount === 50 ? 'Бета-тестирование — бесплатно' : 'Ручное начисление'
+            })
+          });
+
+          renderAdminDashboard(pin);
+        };
+      });
+    } catch (e) {
+      root.innerHTML = `
+        <div class="ft-admin-pin-card">
+          <b>Нет доступа к админ-консоли</b>
+          <span>${e.message || 'Проверьте PIN'}</span>
+          <button type="button" id="ftAdminRetryPin">Ввести PIN заново</button>
+        </div>
+      `;
+
+      $('#ftAdminRetryPin').onclick = () => {
+        localStorage.removeItem(ADMIN_PIN_KEY);
+        renderPinForm();
+      };
+    }
+  }
+
+  function initNavigation() {
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-tab-target], button, a');
+      if (!btn) return;
+
+      const text = cleanText(btn);
+      const target = btn.dataset?.tabTarget;
+
+      if (target === 'main' || text === 'главная') {
+        e.preventDefault();
+        setTab('main');
+      }
+
+      if (target === 'profile' || text === 'личный кабинет') {
+        e.preventDefault();
+        setTab('profile');
+      }
+
+      if (target === 'admin' || text === 'админ') {
+        e.preventDefault();
+        setTab('admin');
+      }
+    }, true);
+  }
+
+  function init() {
+    initNavigation();
+    renderWhereToFindBlock();
+
+    const savedTab = localStorage.getItem('ft-active-tab') || 'main';
+    setTab(savedTab);
+
+    setTimeout(applyVisibility, 500);
+    setTimeout(applyVisibility, 1500);
+  }
+
+  window.addEventListener('load', init);
+  setInterval(() => {
+    renderWhereToFindBlock();
+    applyVisibility();
+  }, 2500);
+})();
