@@ -3294,3 +3294,82 @@ body[data-theme="dark"] .ft-main-token-reminder {
 #adminPanel [data-section="photo"] {
   display: none !important;
 }
+
+/* FINAL FIX UI */
+
+.ft-result-fallback {
+  margin-top: 12px !important;
+  padding: 14px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(184,255,31,.14) !important;
+  font-weight: 800 !important;
+}
+
+.ft-result-fallback a {
+  display: inline-flex !important;
+  margin-left: 8px !important;
+  color: inherit !important;
+  text-decoration: underline !important;
+}
+
+body[data-ft-tab="main"] #profilePanel,
+body[data-ft-tab="main"] #adminPanel,
+body[data-ft-tab="profile"] #adminPanel,
+body[data-ft-tab="admin"] #profilePanel {
+  display: none !important;
+}
+
+.card,
+.ft-section-clean,
+.style-card,
+button,
+a {
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease,
+    background .18s ease !important;
+}
+
+.style-card:hover,
+.style-card:active {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,.10) !important;
+}
+
+#generateButton:not(:disabled),
+.generate-button:not(:disabled) {
+  animation: ftReadyGlow 2.4s ease-in-out infinite !important;
+}
+
+@keyframes ftReadyGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(184,255,31,0);
+  }
+  50% {
+    box-shadow: 0 0 26px rgba(184,255,31,.28);
+  }
+}
+
+.ft-floating-spark {
+  position: fixed;
+  right: 18px;
+  bottom: 92px;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fff37d, #b8ff1f, #56f7ff);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+  color: #102015;
+  font-weight: 950;
+  animation: ftSparkFloat 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ftSparkFloat {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-10px) rotate(4deg); }
+}

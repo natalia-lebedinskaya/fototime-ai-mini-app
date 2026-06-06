@@ -1841,3 +1841,322 @@ window.fetch = function patchedFetch(input, init = {}) {
 
   setInterval(purge, 1500);
 })();
+
+/* FINAL FIX: result image proxy, strict tabs, support link, save history */
+
+(function finalFixLoadTabsSupport() {
+  if (window.__finalFixLoadTabsSupportApplied) return;
+  window.__finalFixLoadTabsSupportApplied = true;
+
+  const SUPPORT_URL = 'https://t.me/fototime23_Bot';
+  const HISTORY_KEY = 'fototime-ai-generated-photos';
+
+  function q(s, r = document) { return r.querySelector(s); }
+  function qa(s, r = document) { return Array.from(r.querySelectorAll(s)); }
+
+  function msg(text, type = 'info') {
+    if (typeof showMessage === 'function') showMessage(text, type);
+    else alert(text);
+  }
+
+  function proxyImage(url) {
+    if (!url) return '';
+    if (url.startsWith('/')) return url;
+    if (/^https?:\/\//i.test(url)) return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+    return url;
+  }
+
+  function rawImageUrl(data) {
+    return data.resultUrl
+      || data.imageUrl
+      || data.url
+      || data.image
+      || data.result?.url
+      || data.result?.imageUrl
+      || data.data?.url
+      || data.data?.imageUrl
+      || data.output?.url
+      || data.output?.imageUrl
+      || (data.storage?.resultImage ? `/${data.storage.resultImage}` : '');
+  }
+
+  function saveHistory(item) {
+    try {
+      const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      const raw = item.rawUrl || item.resultUrl || item.imageUrl;
+      const clean = list.filter((x) => (x.rawUrl || x.resultUrl || x.imageUrl) !== raw);
+      clean.unshift(item);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(clean.slice(0, 60)));
+    } catch {}
+  }
+
+  function selectedStyle() {
+    const card =
+      q('.style-card.selected') ||
+      q('[data-style-id].selected') ||
+      q('[data-style].selected') ||
+      q('[aria-selected="true"]');
+
+    if (!card) return null;
+
+    const title =
+      card.querySelector('strong, h3, .style-title, .title')?.textContent?.trim()
+      || (card.textContent || '').trim().split('\n')[0];
+
+    return {
+      id: card.dataset.styleId || card.dataset.style || card.dataset.id || title,
+      title
+    };
+  }
+
+  function selectedPhoto() {
+    return window.ftSelectedPhoto || window.state?.selectedPhoto || q('input[type="file"]')?.files?.[0] || null;
+  }
+
+  function selectedParticipant() {
+    const btn = q('.participant-button.selected, .participant-option.selected, [data-participant-id].selected');
+    const text = (btn?.textContent || '').toLowerCase();
+
+    if (btn?.dataset?.participantId) return btn.dataset.participantId;
+    if (text.includes('муж')) return 'male';
+    if (text.includes('пар')) return 'couple';
+    if (text.includes('маль')) return 'boy';
+    if (text.includes('дев')) return 'girl';
+    if (text.includes('сем')) return 'family';
+    return 'female';
+  }
+
+  async function generate(button) {
+    const style = selectedStyle();
+    const photo = selectedPhoto();
+
+    if (!style?.id) return msg('Выберите стиль обработки.', 'error');
+    if (!photo) return msg('Загрузите фото.', 'error');
+
+    const fd = new FormData();
+    fd.append('participantId', selectedParticipant());
+    fd.append('styleId', style.id);
+    fd.append('styleTitle', style.title || style.id);
+    fd.append('photo', photo);
+
+    const old = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Создаём AI-фото...';
+
+    try {
+      const headers = {};
+      if (window.Telegram?.WebApp?.initData) headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+
+      const res = await fetch('/api/generate', { method: 'POST', headers, body: fd });
+      const raw = await res.text();
+      const data = raw ? JSON.parse(raw) : {};
+
+      if (!res.ok) throw new Error(data.message || data.error || `Ошибка HTTP ${res.status}`);
+
+      const rawUrl = rawImageUrl(data);
+      if (!rawUrl) throw new Error('Сервер не вернул ссылку на готовое фото.');
+
+      const safeUrl = proxyImage(rawUrl);
+
+      saveHistory({
+        id: data.generationId || `generation_${Date.now()}`,
+        generationId: data.generationId || `generation_${Date.now()}`,
+        rawUrl,
+        resultUrl: safeUrl,
+        imageUrl: safeUrl,
+        styleTitle: style.title || style.id,
+        styleId: style.id,
+        participantId: selectedParticipant(),
+        createdAt: new Date().toISOString()
+      });
+
+      const img = q('#resultImage');
+      const result = q('#resultSection');
+
+      if (img) {
+        img.onerror = () => {
+          img.onerror = null;
+          img.style.display = 'none';
+          result?.insertAdjacentHTML('beforeend', `
+            <div class="ft-result-fallback">
+              Фото создано и сохранено в личном кабинете.
+              <a href="${safeUrl}" target="_blank" rel="noreferrer">Открыть фото</a>
+            </div>
+          `);
+        };
+
+        img.style.display = '';
+        img.src = safeUrl;
+      }
+
+      if (result) {
+        result.classList.remove('hidden');
+        result.style.display = '';
+        result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      msg('Готово! Фото сохранено в личном кабинете.', 'success');
+      setTimeout(cleanTabs, 300);
+    } catch (error) {
+      msg(error.message || 'Ошибка генерации.', 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = old || 'Создать AI-фото';
+    }
+  }
+
+  function rewriteSupportLinks() {
+    qa('a[href*="t.me"], a[href*="telegram"], button').forEach((el) => {
+      const text = (el.textContent || '').toLowerCase();
+      const href = el.getAttribute?.('href') || '';
+
+      if (text.includes('поддерж') || text.includes('telegram') || text.includes('пополн')) {
+        if (el.tagName === 'A') {
+          el.href = SUPPORT_URL;
+          el.target = '_blank';
+          el.rel = 'noreferrer';
+        }
+      }
+
+      if (href.includes('fototime323')) {
+        el.href = SUPPORT_URL;
+      }
+    });
+  }
+
+  function currentTab() {
+    if (document.body.dataset.ftTab) return document.body.dataset.ftTab;
+
+    const active = q('[data-tab-target].active, [data-tab-target][aria-selected="true"]');
+    return active?.dataset?.tabTarget || 'main';
+  }
+
+  function cleanTabs() {
+    const tab = currentTab();
+    const profile = q('#profilePanel');
+    const admin = q('#adminPanel');
+
+    if (profile) profile.style.display = tab === 'profile' ? '' : 'none';
+    if (admin) admin.style.display = tab === 'admin' ? '' : 'none';
+
+    if (tab === 'profile' && profile) {
+      qa('.card, section, .ft-section-clean, div', profile).forEach((el) => {
+        const text = (el.textContent || '').toLowerCase();
+
+        const wrong =
+          text.includes('участник') ||
+          text.includes('стиль обработки') ||
+          text.includes('поиск и фильтрация') ||
+          text.includes('выбрать фото') ||
+          text.includes('jpg, jpeg') ||
+          text.includes('создать ai-фото') ||
+          text.includes('повторить генерацию');
+
+        const keep =
+          text.includes('личный кабинет') ||
+          text.includes('пакеты токенов') ||
+          text.includes('история баланса') ||
+          text.includes('мои сгенерированные фото') ||
+          text.includes('fototime323') ||
+          text.includes('обратная связь');
+
+        if (wrong && !keep) el.style.display = 'none';
+      });
+    }
+
+    if (tab === 'admin' && admin) {
+      qa('.card, section, .ft-section-clean, div', admin).forEach((el) => {
+        const text = (el.textContent || '').toLowerCase();
+
+        const wrong =
+          text.includes('участник') ||
+          text.includes('стиль обработки') ||
+          text.includes('поиск и фильтрация') ||
+          text.includes('выбрать фото') ||
+          text.includes('jpg, jpeg') ||
+          text.includes('создать ai-фото') ||
+          text.includes('пакеты токенов') ||
+          text.includes('мои сгенерированные фото') ||
+          text.includes('обратная связь') ||
+          text.includes('fototime323');
+
+        const keep =
+          text.includes('дашборд') ||
+          text.includes('админ') ||
+          text.includes('ошибки') ||
+          text.includes('уведомления') ||
+          text.includes('пользователи') ||
+          text.includes('стабильность');
+
+        if (wrong && !keep) el.style.display = 'none';
+      });
+    }
+
+    rewriteSupportLinks();
+  }
+
+  document.addEventListener('click', (event) => {
+    const tabBtn = event.target.closest('[data-tab-target], button, a');
+    const text = (tabBtn?.textContent || '').trim().toLowerCase();
+
+    if (text === 'главная' || tabBtn?.dataset?.tabTarget === 'main') {
+      document.body.dataset.ftTab = 'main';
+      setTimeout(cleanTabs, 50);
+    }
+
+    if (text === 'личный кабинет' || tabBtn?.dataset?.tabTarget === 'profile') {
+      document.body.dataset.ftTab = 'profile';
+      setTimeout(cleanTabs, 50);
+      setTimeout(cleanTabs, 400);
+    }
+
+    if (text === 'админ' || tabBtn?.dataset?.tabTarget === 'admin') {
+      document.body.dataset.ftTab = 'admin';
+      setTimeout(cleanTabs, 50);
+      setTimeout(cleanTabs, 400);
+    }
+
+    const style = event.target.closest('.style-card, [data-style-id], [data-style]');
+    if (style) {
+      qa('.style-card, [data-style-id], [data-style]').forEach((el) => {
+        el.classList.remove('selected');
+        el.removeAttribute('aria-selected');
+      });
+      style.classList.add('selected');
+      style.setAttribute('aria-selected', 'true');
+    }
+
+    const btn = event.target.closest('#generateButton, .generate-button');
+    if (btn) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      generate(btn);
+    }
+  }, true);
+
+  document.addEventListener('change', (event) => {
+    const input = event.target.closest('input[type="file"]');
+    if (!input?.files?.[0]) return;
+
+    window.ftSelectedPhoto = input.files[0];
+    if (window.state) window.state.selectedPhoto = input.files[0];
+  }, true);
+
+  window.addEventListener('load', () => {
+    rewriteSupportLinks();
+    setTimeout(cleanTabs, 700);
+    setTimeout(cleanTabs, 1800);
+  });
+
+  setInterval(cleanTabs, 2000);
+})();
+
+window.addEventListener('load', () => {
+  if (!document.querySelector('.ft-floating-spark')) {
+    const spark = document.createElement('div');
+    spark.className = 'ft-floating-spark';
+    spark.textContent = 'AI';
+    document.body.appendChild(spark);
+  }
+});
