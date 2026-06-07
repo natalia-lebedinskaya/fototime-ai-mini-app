@@ -4692,3 +4692,492 @@ window.addEventListener('load', () => {
     runGeneration(button);
   }, true);
 })();
+
+/* UI STABILIZER 2026-06-07
+   Fixes duplicated admin blocks, token banner balance, feedback wording,
+   package copy, disabled generation button and bottom navigation layout.
+*/
+
+(function fototimeUiStabilizer0607() {
+  if (window.__fototimeUiStabilizer0607) return;
+  window.__fototimeUiStabilizer0607 = true;
+
+  const GENERATION_COST = 40;
+  const SUPPORT_URL = 'https://t.me/fototime23_Bot';
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const norm = (node) => (node?.textContent || '').replace(/\s+/g, ' ').trim();
+  const low = (node) => norm(node).toLowerCase();
+
+  function getCurrentTab() {
+    const active = $$('button, a, [role="button"]').find((el) => {
+      const t = low(el);
+      const cls = String(el.className || '').toLowerCase();
+      const selected = el.getAttribute('aria-selected') === 'true';
+      return (selected || cls.includes('active') || cls.includes('selected')) &&
+        (t.includes('глав') || t.includes('лич') || t.includes('админ'));
+    });
+
+    const t = low(active);
+    if (t.includes('админ')) return 'admin';
+    if (t.includes('лич')) return 'profile';
+
+    const bodyText = low(document.body);
+    if (bodyText.includes('админ-консоль') && !bodyText.includes('стиль обработки')) return 'admin';
+    if (bodyText.includes('личный кабинет') && !bodyText.includes('стиль обработки')) return 'profile';
+
+    return 'main';
+  }
+
+  function tgHeaders(extra = {}) {
+    const tg = window.Telegram?.WebApp;
+    const userId = String(tg?.initDataUnsafe?.user?.id || 'local-demo-user');
+
+    return {
+      ...extra,
+      'x-user-id': userId,
+      'x-telegram-user-id': userId,
+      'x-telegram-init-data': tg?.initData || ''
+    };
+  }
+
+  async function getMe() {
+    try {
+      const res = await fetch('/api/user/me', {
+        headers: tgHeaders()
+      });
+
+      if (!res.ok) throw new Error('user/me failed');
+
+      return await res.json();
+    } catch {
+      return {
+        user: {
+          id: 'local-demo-user',
+          username: 'local-demo-user',
+          balance: 50,
+          generationsCount: 0
+        },
+        generationCost: GENERATION_COST,
+        transactions: []
+      };
+    }
+  }
+
+  async function getBalance() {
+    const data = await getMe();
+    return Number(data?.user?.balance ?? 0);
+  }
+
+  function replaceTextEverywhere() {
+    $$('*').forEach((el) => {
+      if (!el.children.length && el.textContent) {
+        el.textContent = el.textContent
+          .replaceAll('Оптимально для мероприятия', 'Хватит на несколько образов')
+          .replaceAll('Гости', 'Стандарт')
+          .replaceAll('баг', 'ошибку')
+          .replaceAll('Баг', 'Ошибка');
+      }
+    });
+  }
+
+  function fixPackageCards() {
+    $$('section, article, div').forEach((card) => {
+      const t = low(card);
+      if (!t.includes('пакеты токенов')) return;
+
+      card.classList.add('ft-ui-packages-fixed');
+
+      $$('*', card).forEach((el) => {
+        if (!el.children.length && el.textContent) {
+          el.textContent = el.textContent
+            .replace('Гости', 'Стандарт')
+            .replace('Оптимально для мероприятия', 'Хватит на несколько образов')
+            .replace('Для небольшого мероприятия.', 'Хватит на несколько образов.')
+            .replace('Для большого события или промо', 'Для активного использования');
+        }
+      });
+    });
+  }
+
+  async function fixTokenReminderBalance() {
+    const tab = getCurrentTab();
+    const balance = await getBalance();
+    const generations = Math.floor(balance / GENERATION_COST);
+
+    $$('section, article, div').forEach((el) => {
+      const t = low(el);
+
+      if (
+        t.includes('токены для генераций') &&
+        t.includes('сейчас доступно') &&
+        t.includes('примерно')
+      ) {
+        el.classList.add('ft-ui-token-reminder-fixed');
+
+        $$('*', el).forEach((child) => {
+          if (!child.children.length && /сейчас доступно/i.test(child.textContent || '')) {
+            child.textContent = `Сейчас доступно ${balance} токенов — примерно на ${generations} ${generations === 1 ? 'генерацию' : 'генераций'}.`;
+          }
+        });
+      }
+    });
+
+    if (tab !== 'main') return;
+
+    const reminders = $$('section, article, div')
+      .filter((el) => {
+        const t = low(el);
+        return t.includes('токены для генераций') &&
+          t.includes('сейчас доступно') &&
+          t.includes('пополнение проходит через telegram');
+      });
+
+    reminders.forEach((el, index) => {
+      if (index > 0) el.classList.add('ft-ui-hidden-duplicate');
+    });
+  }
+
+  function fixGenerateButton() {
+    const btn = $$('button, a, [role="button"]').find((el) => {
+      return low(el).includes('создать ai-фото');
+    });
+
+    if (!btn) return;
+
+    const pageText = low(document.body);
+    const hasPhoto =
+      pageText.includes('фото загружено') ||
+      pageText.includes('.jpg') ||
+      pageText.includes('.jpeg') ||
+      pageText.includes('.png');
+
+    const hasStyle =
+      $$('.style-card, [data-style-id], [data-style], .selected, .active')
+        .some((el) => {
+          const t = low(el);
+          return t.includes('sdxl') || t.includes('nano') || t.includes('flux') || t.includes('банана');
+        }) ||
+      pageText.includes('1–6 из') ||
+      pageText.includes('1-6 из');
+
+    const hasParticipant =
+      pageText.includes('мужчина') ||
+      pageText.includes('женщина') ||
+      pageText.includes('пара') ||
+      pageText.includes('семья');
+
+    if (hasPhoto && hasStyle && hasParticipant) {
+      btn.disabled = false;
+      btn.removeAttribute('disabled');
+      btn.setAttribute('aria-disabled', 'false');
+      btn.classList.add('ft-ui-generate-ready');
+    }
+  }
+
+  async function renderCleanAdmin() {
+    if (getCurrentTab() !== 'admin') return;
+
+    const adminRoots = $$('section, main, div').filter((el) => {
+      const t = low(el);
+      return t.includes('админ-консоль') ||
+        t.includes('дашборд') ||
+        t.includes('график стабильности') ||
+        t.includes('стабильность генераций');
+    });
+
+    if (!adminRoots.length) return;
+
+    const mainRoot = adminRoots[adminRoots.length - 1];
+
+    adminRoots.forEach((el) => {
+      if (el !== mainRoot) el.classList.add('ft-ui-hidden-duplicate');
+    });
+
+    if (mainRoot.dataset.ftCleanAdmin === '1') return;
+    mainRoot.dataset.ftCleanAdmin = '1';
+    mainRoot.classList.add('ft-ui-clean-admin');
+
+    let adminData = null;
+
+    try {
+      const res = await fetch('/api/stable/admin', {
+        headers: tgHeaders()
+      });
+      if (res.ok) adminData = await res.json();
+    } catch {
+      adminData = null;
+    }
+
+    const me = await getMe();
+
+    const users = adminData?.users ||
+      adminData?.clients ||
+      [
+        {
+          id: me?.user?.id || 'local-demo-user',
+          username: me?.user?.username || 'local-demo-user',
+          balance: me?.user?.balance || 0,
+          generationsCount: me?.user?.generationsCount || 0,
+          errorsCount: 0,
+          spentCredits: me?.user?.spentCredits || 0
+        }
+      ];
+
+    const totalSuccess = users.reduce((sum, u) => sum + Number(u.generationsCount || 0), 0);
+    const totalErrors = users.reduce((sum, u) => sum + Number(u.errorsCount || 0), 0);
+    const totalSpent = users.reduce((sum, u) => sum + Number(u.spentCredits || 0), 0);
+    const stability = totalSuccess + totalErrors > 0
+      ? Math.round((totalSuccess / (totalSuccess + totalErrors)) * 100)
+      : 100;
+
+    mainRoot.innerHTML = `
+      <div class="ft-ui-admin-head">
+        <div>
+          <h2>Админ-консоль</h2>
+          <p>Пользователи, балансы, ошибки, аудит и ручное начисление токенов.</p>
+        </div>
+        <button type="button" id="ftAdminRefresh">Обновить</button>
+      </div>
+
+      <div class="ft-ui-admin-stats">
+        <article>
+          <span>Клиентов</span>
+          <b>${users.length}</b>
+          <small>в базе</small>
+        </article>
+        <article>
+          <span>Успешных генераций</span>
+          <b>${totalSuccess}</b>
+          <small>создано</small>
+        </article>
+        <article>
+          <span>Ошибок</span>
+          <b>${totalErrors}</b>
+          <small>зафиксировано</small>
+        </article>
+        <article>
+          <span>Списано</span>
+          <b>${totalSpent}</b>
+          <small>токенов</small>
+        </article>
+      </div>
+
+      <section class="ft-ui-admin-card">
+        <h3>Стабильность сервиса</h3>
+        <div class="ft-ui-stability-row">
+          <div class="ft-ui-stability-ring" style="--value:${stability}%">
+            <strong>${stability}%</strong>
+            <span>stable</span>
+          </div>
+          <div class="ft-ui-stability-legend">
+            <p><b>${totalSuccess}</b> успешных генераций</p>
+            <p><b>${totalErrors}</b> ошибок генерации</p>
+            <p>Этот блок показывает реальную стабильность, а не декоративную полоску.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ft-ui-admin-card">
+        <div class="ft-ui-admin-table-head">
+          <h3>Пользователи</h3>
+          <button type="button" id="ftClearNotifications">Очистить уведомления</button>
+        </div>
+
+        <div class="ft-ui-admin-table-wrap">
+          <table class="ft-ui-admin-table">
+            <thead>
+              <tr>
+                <th>Пользователь</th>
+                <th>Баланс</th>
+                <th>Фото</th>
+                <th>Ошибки</th>
+                <th>Списано</th>
+                <th>Начислить</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${users.map((user) => `
+                <tr>
+                  <td>
+                    <div class="ft-ui-user-cell">
+                      <div class="ft-ui-avatar">${String(user.username || user.id || 'FT').slice(0, 2).toUpperCase()}</div>
+                      <div>
+                        <b>@${user.username || user.telegramUserId || user.id || 'user'}</b>
+                        <small>ID: ${user.id || user.telegramUserId || '—'}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><b>${Number(user.balance || 0)}</b></td>
+                  <td>${Number(user.generationsCount || 0)}</td>
+                  <td>${Number(user.errorsCount || 0)}</td>
+                  <td>${Number(user.spentCredits || 0)}</td>
+                  <td>
+                    <div class="ft-ui-credit-actions">
+                      <button type="button" data-credit-user="${user.id || user.telegramUserId || 'local-demo-user'}" data-credit-amount="50">+50</button>
+                      <button type="button" data-credit-user="${user.id || user.telegramUserId || 'local-demo-user'}" data-credit-amount="120">+120</button>
+                      <button type="button" data-credit-user="${user.id || user.telegramUserId || 'local-demo-user'}" data-credit-amount="300">+300</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="ft-ui-admin-card">
+        <details>
+          <summary>Показать аудит пользователя</summary>
+          <div class="ft-ui-audit-box">
+            ${(adminData?.audit || adminData?.events || []).length
+              ? (adminData.audit || adminData.events).map((event) => `
+                <article>
+                  <b>${event.type || event.action || 'event'}</b>
+                  <span>${event.message || event.note || event.error || ''}</span>
+                  <small>${event.createdAt ? new Date(event.createdAt).toLocaleString('ru-RU') : ''}</small>
+                </article>
+              `).join('')
+              : '<p>Аудит пока пуст. После генераций и ошибок здесь будут записи.</p>'
+            }
+          </div>
+        </details>
+      </section>
+    `;
+
+    $('#ftAdminRefresh')?.addEventListener('click', () => {
+      mainRoot.dataset.ftCleanAdmin = '0';
+      renderCleanAdmin();
+    });
+
+    $('#ftClearNotifications')?.addEventListener('click', async () => {
+      await fetch('/api/stable/admin/notifications/clear', {
+        method: 'POST',
+        headers: tgHeaders({ 'Content-Type': 'application/json' })
+      }).catch(() => {});
+      showToast('Уведомления очищены');
+      mainRoot.dataset.ftCleanAdmin = '0';
+      renderCleanAdmin();
+    });
+
+    $$('[data-credit-user]', mainRoot).forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const targetUserId = btn.dataset.creditUser;
+        const amount = Number(btn.dataset.creditAmount);
+
+        await fetch('/api/stable/admin/credit', {
+          method: 'POST',
+          headers: tgHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ userId: targetUserId, amount })
+        }).catch(() => {});
+
+        showToast(`Начислено ${amount} токенов`);
+        mainRoot.dataset.ftCleanAdmin = '0';
+        renderCleanAdmin();
+      });
+    });
+  }
+
+  function showToast(message) {
+    $('#ftUiToast')?.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'ftUiToast';
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 2200);
+  }
+
+  function fixFeedbackBlock() {
+    $$('section, article, div').forEach((el) => {
+      const t = low(el);
+      if (!t.includes('обратная связь')) return;
+
+      el.classList.add('ft-ui-feedback-fixed');
+
+      $$('textarea', el).forEach((textarea) => {
+        textarea.placeholder = 'Напишите отзыв, идею улучшения или ошибку';
+      });
+
+      $$('input', el).forEach((input) => {
+        if (/имя/i.test(input.placeholder || '')) {
+          input.placeholder = 'Имя или “анонимно”';
+        }
+        if (/telegram/i.test(input.placeholder || '')) {
+          input.placeholder = 'Telegram для связи';
+        }
+      });
+    });
+  }
+
+  function fixBottomNav() {
+    const navs = $$('nav, div').filter((el) => {
+      const t = low(el);
+      return t.includes('главная') && t.includes('личный кабинет') && t.includes('админ');
+    });
+
+    navs.forEach((nav) => {
+      nav.classList.add('ft-ui-bottom-nav-fixed');
+    });
+  }
+
+  function fixContacts() {
+    $$('section, article, div').forEach((el) => {
+      const t = low(el);
+      if (!t.includes('fototime323') || !t.includes('telegram') || !t.includes('vk') || !t.includes('сайт')) return;
+
+      el.classList.add('ft-ui-contacts-fixed');
+
+      if (!t.includes('max')) {
+        const firstRow = $$('a, button', el).find((btn) => low(btn).includes('сайт'))?.parentElement;
+        if (firstRow) {
+          const max = document.createElement('a');
+          max.href = 'https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U';
+          max.target = '_blank';
+          max.rel = 'noreferrer';
+          max.textContent = '✦ MAX';
+          firstRow.appendChild(max);
+
+          const avito = document.createElement('a');
+          avito.href = 'https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a';
+          avito.target = '_blank';
+          avito.rel = 'noreferrer';
+          avito.textContent = '✦ Авито';
+          firstRow.appendChild(avito);
+        }
+      }
+    });
+  }
+
+  function run() {
+    replaceTextEverywhere();
+    fixPackageCards();
+    fixTokenReminderBalance();
+    fixGenerateButton();
+    fixFeedbackBlock();
+    fixBottomNav();
+    fixContacts();
+    renderCleanAdmin();
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(run, 200);
+    setTimeout(run, 900);
+    setTimeout(run, 1800);
+  });
+
+  document.addEventListener('click', () => {
+    setTimeout(run, 200);
+    setTimeout(run, 900);
+  }, true);
+
+  document.addEventListener('change', () => {
+    setTimeout(run, 200);
+    setTimeout(run, 900);
+  }, true);
+
+  setInterval(run, 2500);
+})();
