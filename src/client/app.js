@@ -2011,7 +2011,7 @@ window.addEventListener('load', () => {
   window.__polishAccountAdminUiApplied = true;
 
   const GENERATION_COST = 40;
-  const ADMIN_PIN = '3230';
+  const ADMIN_PIN = '3465';
 
   const PACKAGES = [
     { title: 'Старт', tokens: 50, price: '49 ₽', generations: 1, note: 'Для первой пробы' },
@@ -2529,7 +2529,7 @@ window.addEventListener('load', () => {
       document.getElementById('mainAuthHint')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       return new Response(JSON.stringify({
-        message: 'Telegram authorization required'
+        message: 'Для генерации с компьютера включите ALLOW_LOCAL_AUTH=true или откройте приложение через Telegram'
       }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' }
@@ -4847,4 +4847,45 @@ window.addEventListener('load', () => {
   }, true);
 
   setInterval(run, 2000);
+})();
+
+
+/* FT_DESKTOP_HEADERS_PATCH_20260607 */
+(function ftDesktopHeadersPatch20260607() {
+  if (window.__ftDesktopHeadersPatch20260607) return;
+  window.__ftDesktopHeadersPatch20260607 = true;
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = function ftPatchedFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+    const isApi = url.includes('/api/');
+
+    if (!isApi) {
+      return nativeFetch(input, init);
+    }
+
+    const headers = new Headers(init.headers || {});
+
+    if (!headers.has('x-user-id')) {
+      headers.set('x-user-id', 'local-demo-user');
+    }
+
+    if (!headers.has('x-telegram-user-id')) {
+      headers.set('x-telegram-user-id', 'local-demo-user');
+    }
+
+    if (!headers.has('x-admin-pin')) {
+      const savedPin =
+        localStorage.getItem('ft-admin-pin-value') ||
+        localStorage.getItem('ft_admin_pin') ||
+        '3465';
+      headers.set('x-admin-pin', savedPin);
+    }
+
+    return nativeFetch(input, {
+      ...init,
+      headers
+    });
+  };
 })();

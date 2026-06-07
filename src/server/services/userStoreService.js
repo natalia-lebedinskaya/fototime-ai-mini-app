@@ -47,14 +47,40 @@ function getAdminIds() {
     .filter(Boolean);
 }
 
+function ftAllowLocalAuth() {
+  return String(process.env.ALLOW_LOCAL_AUTH || '').toLowerCase() === 'true';
+}
+
+function ftLocalIdentityFromRequest(req) {
+  const userId = req?.headers?.['x-user-id']
+    || req?.headers?.['x-telegram-user-id']
+    || req?.body?.userId
+    || req?.body?.telegramUserId
+    || req?.query?.userId;
+
+  if (!ftAllowLocalAuth()) return null;
+  if (!userId) return null;
+
+  return String(userId);
+}
+
+/* FT_LOCAL_AUTH_PATCH_20260607 */
 function isAdminUser(userId) {
   return getAdminIds().includes(String(userId));
+  if (ftAllowLocalAuth() && String(userId) === 'local-demo-user') {
+    return true;
+  }
 }
 
 function getIdentityFromRequest(req) {
   const identity = getTelegramIdentity(req);
 
   if (!identity) {
+    const localIdentity = ftLocalIdentityFromRequest(req);
+    if (localIdentity) {
+      return localIdentity;
+    }
+
     const error = new Error('Telegram authorization required');
     error.code = 'TELEGRAM_AUTH_REQUIRED';
     throw error;
