@@ -3642,3 +3642,44 @@ nav [data-tab-target] {
     width: 100% !important;
   }
 }
+
+/* SAFE FIX 2026-06-07 */
+
+.ft-safe-primary-button,
+button.ft-safe-primary-button,
+a.ft-safe-primary-button {
+  background: linear-gradient(135deg, #fff56a 0%, #b8ff1f 48%, #59f4ff 100%) !important;
+  color: #102015 !important;
+  border: 0 !important;
+  box-shadow: 0 10px 24px rgba(184, 255, 31, .18) !important;
+  font-weight: 900 !important;
+}
+
+.ft-safe-primary-button:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.03) !important;
+}
+
+.ft-safe-create-ready {
+  opacity: 1 !important;
+  cursor: pointer !important;
+  filter: none !important;
+}
+
+.ft-safe-admin-visible {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+button:disabled.ft-safe-create-ready,
+[aria-disabled="false"].ft-safe-create-ready {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+@media (max-width: 720px) {
+  .ft-safe-primary-button {
+    min-height: 42px !important;
+  }
+}

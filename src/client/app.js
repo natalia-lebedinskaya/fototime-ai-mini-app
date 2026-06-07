@@ -4692,3 +4692,159 @@ window.addEventListener('load', () => {
     runGeneration(button);
   }, true);
 })();
+
+/* SAFE FIX 2026-06-07: desktop demo auth + admin load + green buttons */
+
+(function fototimeSafeFix0607() {
+  if (window.__fototimeSafeFix0607) return;
+  window.__fototimeSafeFix0607 = true;
+
+  const tg = window.Telegram?.WebApp;
+
+  function getDemoUserId() {
+    return String(tg?.initDataUnsafe?.user?.id || 'local-demo-user');
+  }
+
+  function patchFetchForDesktopDemo() {
+    if (window.__fototimeFetchPatched) return;
+    window.__fototimeFetchPatched = true;
+
+    const originalFetch = window.fetch.bind(window);
+
+    window.fetch = function patchedFetch(input, init = {}) {
+      const url = typeof input === 'string' ? input : input?.url || '';
+
+      const shouldPatch =
+        url.includes('/api/generate') ||
+        url.includes('/api/user') ||
+        url.includes('/api/admin') ||
+        url.includes('/api/stable');
+
+      if (!shouldPatch) {
+        return originalFetch(input, init);
+      }
+
+      const headers = new Headers(init.headers || {});
+
+      if (!headers.has('x-user-id')) {
+        headers.set('x-user-id', getDemoUserId());
+      }
+
+      if (!headers.has('x-telegram-user-id')) {
+        headers.set('x-telegram-user-id', getDemoUserId());
+      }
+
+      if (!headers.has('x-telegram-init-data')) {
+        headers.set('x-telegram-init-data', tg?.initData || '');
+      }
+
+      return originalFetch(input, {
+        ...init,
+        headers
+      });
+    };
+  }
+
+  function restoreGreenButtons() {
+    const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+
+    buttons.forEach((button) => {
+      const text = (button.textContent || '').toLowerCase();
+
+      const isPrimary =
+        text.includes('создать ai-фото') ||
+        text.includes('пополнить') ||
+        text.includes('обновить') ||
+        text.includes('авториз') ||
+        text.includes('отправить') ||
+        text.includes('запросить токены') ||
+        text.includes('+50') ||
+        text.includes('+120') ||
+        text.includes('+300') ||
+        text.includes('+700');
+
+      if (isPrimary) {
+        button.classList.add('ft-safe-primary-button');
+      }
+    });
+  }
+
+  function preventAdminBlank() {
+    const currentText = document.body.innerText.toLowerCase();
+
+    if (!currentText.includes('админ')) return;
+
+    const adminBlocks = Array.from(document.querySelectorAll('section, main, div'))
+      .filter((el) => (el.textContent || '').toLowerCase().includes('админ-консоль'));
+
+    adminBlocks.forEach((block) => {
+      block.classList.add('ft-safe-admin-visible');
+      block.style.display = '';
+      block.style.visibility = '';
+      block.style.opacity = '';
+      block.style.height = '';
+      block.style.overflow = '';
+    });
+  }
+
+  function fixGenerationButtonState() {
+    const createButton = Array.from(document.querySelectorAll('button, a, [role="button"]'))
+      .find((el) => (el.textContent || '').toLowerCase().includes('создать ai-фото'));
+
+    if (!createButton) return;
+
+    const pageText = document.body.innerText.toLowerCase();
+
+    const hasPhoto =
+      pageText.includes('фото загружено') ||
+      pageText.includes('.jpg') ||
+      pageText.includes('.jpeg') ||
+      pageText.includes('.png');
+
+    const hasParticipant =
+      document.querySelector('[data-participant].active, [data-participant].selected') ||
+      pageText.includes('мужчина') ||
+      pageText.includes('женщина') ||
+      pageText.includes('пара') ||
+      pageText.includes('семья');
+
+    const hasStyle =
+      document.querySelector('[data-style-id].active, [data-style-id].selected, .style-card.active, .style-card.selected') ||
+      pageText.includes('sdxl') ||
+      pageText.includes('nano banana') ||
+      pageText.includes('flux');
+
+    if (hasPhoto && hasParticipant && hasStyle) {
+      createButton.disabled = false;
+      createButton.removeAttribute('disabled');
+      createButton.setAttribute('aria-disabled', 'false');
+      createButton.classList.add('ft-safe-primary-button');
+      createButton.classList.add('ft-safe-create-ready');
+    }
+  }
+
+  function run() {
+    patchFetchForDesktopDemo();
+    restoreGreenButtons();
+    preventAdminBlank();
+    fixGenerationButtonState();
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(run, 100);
+    setTimeout(run, 700);
+    setTimeout(run, 1500);
+  });
+
+  document.addEventListener('click', () => {
+    setTimeout(run, 100);
+    setTimeout(run, 700);
+  }, true);
+
+  document.addEventListener('change', () => {
+    setTimeout(run, 100);
+    setTimeout(run, 700);
+  }, true);
+
+  setInterval(run, 2000);
+})();
