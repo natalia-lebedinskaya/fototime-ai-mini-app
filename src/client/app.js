@@ -2011,7 +2011,7 @@ window.addEventListener('load', () => {
   window.__polishAccountAdminUiApplied = true;
 
   const GENERATION_COST = 40;
-  const ADMIN_PIN = '3465';
+  const ADMIN_PIN = localStorage.getItem('ft-admin-pin-value') || '3465';
 
   const PACKAGES = [
     { title: 'Старт', tokens: 50, price: '49 ₽', generations: 1, note: 'Для первой пробы' },
@@ -4881,6 +4881,57 @@ window.addEventListener('load', () => {
         localStorage.getItem('ft_admin_pin') ||
         '3465';
       headers.set('x-admin-pin', savedPin);
+    }
+
+    return nativeFetch(input, {
+      ...init,
+      headers
+    });
+  };
+})();
+
+
+/* FT_PIN_STORAGE_PATCH_20260607 */
+(function ftPinStoragePatch20260607() {
+  if (window.__ftPinStoragePatch20260607) return;
+  window.__ftPinStoragePatch20260607 = true;
+
+  document.addEventListener('submit', function(event) {
+    const form = event.target;
+    if (!form || form.id !== 'adminPinForm') return;
+
+    const input = form.querySelector('#adminPinInput');
+    const value = String(input?.value || '').trim();
+
+    if (value) {
+      localStorage.setItem('ft-admin-pin-value', value);
+      localStorage.setItem('ft_admin_pin', value);
+    }
+  }, true);
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = function ftPinFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+    const headers = new Headers(init.headers || {});
+
+    if (url.includes('/api/')) {
+      const pin =
+        localStorage.getItem('ft-admin-pin-value') ||
+        localStorage.getItem('ft_admin_pin') ||
+        '3465';
+
+      if (!headers.has('x-admin-pin')) {
+        headers.set('x-admin-pin', pin);
+      }
+
+      if (!headers.has('x-user-id')) {
+        headers.set('x-user-id', 'local-demo-user');
+      }
+
+      if (!headers.has('x-telegram-user-id')) {
+        headers.set('x-telegram-user-id', 'local-demo-user');
+      }
     }
 
     return nativeFetch(input, {

@@ -1,4 +1,4 @@
-const fs = require('fs');
+/* FT_LOCAL_DEMO_ADMIN_PATCH_20260607 */\n/* FT_LOCAL_AUTH_DIRECT_PATCH_20260607 */\nconst fs = require('fs');
 const path = require('path');
 const { getTelegramIdentity } = require('./telegramAuthService');
 
@@ -66,6 +66,13 @@ function ftLocalIdentityFromRequest(req) {
 
 /* FT_LOCAL_AUTH_PATCH_20260607 */
 function isAdminUser(userId) {
+  if (
+    String(process.env.ALLOW_LOCAL_AUTH || '').toLowerCase() === 'true' &&
+    String(userId) === 'local-demo-user'
+  ) {
+    return true;
+  }
+
   return getAdminIds().includes(String(userId));
   if (ftAllowLocalAuth() && String(userId) === 'local-demo-user') {
     return true;
@@ -79,6 +86,18 @@ function getIdentityFromRequest(req) {
     const localIdentity = ftLocalIdentityFromRequest(req);
     if (localIdentity) {
       return localIdentity;
+    }
+
+    const allowLocalAuth = String(process.env.ALLOW_LOCAL_AUTH || '').toLowerCase() === 'true';
+    const localUserId =
+      req?.headers?.['x-user-id'] ||
+      req?.headers?.['x-telegram-user-id'] ||
+      req?.body?.userId ||
+      req?.body?.telegramUserId ||
+      req?.query?.userId;
+
+    if (allowLocalAuth && localUserId) {
+      return String(localUserId);
     }
 
     const error = new Error('Telegram authorization required');
