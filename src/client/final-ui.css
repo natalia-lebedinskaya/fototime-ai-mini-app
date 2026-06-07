@@ -3683,3 +3683,178 @@ button:disabled.ft-safe-create-ready,
     min-height: 42px !important;
   }
 }
+
+
+/* FT_UI_RESCUE_20260607_V2 */
+
+:root {
+  --ft-gap-8: 8px;
+  --ft-gap-12: 12px;
+  --ft-gap-16: 16px;
+  --ft-gap-20: 20px;
+  --ft-radius: 18px;
+  --ft-radius-lg: 22px;
+  --ft-border: rgba(255,255,255,.18);
+  --ft-border-soft: rgba(255,255,255,.12);
+}
+
+.ft-page-block,
+.ft-unified-card {
+  box-sizing: border-box !important;
+}
+
+.ft-page-block {
+  width: min(100%, 920px) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: 16px !important;
+}
+
+.ft-unified-card {
+  border-radius: 20px !important;
+}
+
+.ft-button-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+}
+
+.ft-btn-center {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+  gap: 8px !important;
+  padding: 12px 16px !important;
+  min-height: 46px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--ft-border) !important;
+  text-decoration: none !important;
+  font-weight: 800 !important;
+}
+
+.ft-btn-primary {
+  background: linear-gradient(135deg, #f2ef75 0%, #b8ff26 45%, #6debe8 100%) !important;
+  color: #0c1617 !important;
+  border: 0 !important;
+  box-shadow: 0 8px 24px rgba(184,255,38,.16) !important;
+}
+
+.ft-btn-secondary {
+  background: linear-gradient(135deg, rgba(222,255,110,.95) 0%, rgba(176,255,208,.95) 100%) !important;
+  color: #162014 !important;
+  border: 0 !important;
+}
+
+.ft-btn-outline {
+  background: rgba(255,255,255,.06) !important;
+  color: #f7f7f7 !important;
+  border: 1px solid rgba(255,255,255,.20) !important;
+}
+
+.ft-btn-auth {
+  background: linear-gradient(135deg, #eff566 0%, #75ff37 55%, #7ae7ea 100%) !important;
+  color: #111b13 !important;
+  border: 0 !important;
+}
+
+.ft-btn-social {
+  background: linear-gradient(135deg, rgba(255,255,255,.10) 0%, rgba(194,255,109,.18) 100%) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  min-width: 140px !important;
+  flex: 1 1 140px !important;
+}
+
+.ft-btn-nav {
+  background: rgba(255,255,255,.10) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.24) !important;
+  min-width: 120px !important;
+}
+
+.ft-btn-small {
+  background: linear-gradient(135deg, #f0f36c 0%, #ceff4b 100%) !important;
+  color: #0e150f !important;
+  border: 0 !important;
+  min-width: 88px !important;
+  min-height: 40px !important;
+  padding: 10px 14px !important;
+}
+
+.ft-social-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+}
+
+.ft-social-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.ft-theme-box {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 12px !important;
+  background: rgba(255,255,255,.07) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.ft-theme-select {
+  min-height: 38px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  padding: 8px 12px !important;
+  font-weight: 700 !important;
+}
+
+.ft-rescue-soft-error {
+  color: #ff8da2 !important;
+  font-weight: 700 !important;
+}
+
+section, article, .card, .ft-clean-card, .ft-stable-card, .panel {
+  margin-bottom: 16px !important;
+}
+
+button, a, [role="button"] {
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease !important;
+}
+
+button:hover, a:hover, [role="button"]:hover {
+  transform: translateY(-1px) !important;
+}
+
+@media (max-width: 768px) {
+  .ft-page-block {
+    width: calc(100vw - 20px) !important;
+  }
+
+  .ft-btn-social,
+  .ft-btn-nav,
+  .ft-btn-primary,
+  .ft-btn-secondary,
+  .ft-btn-auth,
+  .ft-btn-outline {
+    width: 100% !important;
+  }
+
+  .ft-button-row,
+  .ft-social-row {
+    flex-direction: column !important;
+  }
+}
