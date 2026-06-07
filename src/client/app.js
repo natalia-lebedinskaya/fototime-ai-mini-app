@@ -1387,486 +1387,2389 @@ window.fetch = function patchedFetch(input, init = {}) {
   return originalFetch(input, init);
 };
 
-/* UI CLEANUP: token reminder only on main, remove extra blocks from profile/admin */
+/* SAFE FIX: tab state */
 
-(function tokenReminderPageCleanup() {
-  if (window.__tokenReminderPageCleanupApplied) return;
-  window.__tokenReminderPageCleanupApplied = true;
+document.addEventListener('click', (event) => {
+  const tab = event.target.closest('[data-tab-target]');
+  if (!tab) return;
 
-  function $(selector, root = document) {
-    return root.querySelector(selector);
-  }
+  const target = tab.dataset.tabTarget || 'main';
+  document.body.dataset.activeTab = target;
 
-  function $$(selector, root = document) {
-    return Array.from(root.querySelectorAll(selector));
-  }
-
-  function getBalanceText() {
-    const selectors = [
-      '#mainBalanceValue',
-      '#profileBalanceValue',
-      '[data-balance-value]',
-      '.balance-pill strong',
-      '.balance-badge strong'
-    ];
-
-    for (const selector of selectors) {
-      const el = $(selector);
-      const value = Number((el?.textContent || '').replace(/\D/g, ''));
-      if (!Number.isNaN(value) && value >= 0) return value;
-    }
-
-    return 50;
-  }
-
-  function addMainTokenReminder() {
-    const mainPanel = $('#mainPanel') || $('main') || document.body;
-
-    if (!mainPanel || $('#ftMainTokenReminder')) return;
-
-    const balanceCard =
-      $('.balance-card') ||
-      $('.balance-card-final') ||
-      $('.card');
-
-    if (!balanceCard) return;
-
-    const balance = getBalanceText();
-    const generationsLeft = Math.floor(balance / 40);
-
-    const reminder = document.createElement('section');
-    reminder.id = 'ftMainTokenReminder';
-    reminder.className = 'card ft-main-token-reminder';
-    reminder.innerHTML = `
-      <div class="ft-reminder-icon">₽</div>
-      <div class="ft-reminder-text">
-        <strong>Токены для генераций</strong>
-        <span>Сейчас доступно ${balance} токенов — примерно на ${generationsLeft} ${generationsLeft === 1 ? 'генерацию' : 'генерации'}.</span>
-        <small>Пополнение проходит через Telegram: мы начислим токены вручную и отправим чек самозанятого.</small>
-      </div>
-      <a href="https://t.me/fototime323" target="_blank" rel="noreferrer">Пополнить</a>
-    `;
-
-    balanceCard.insertAdjacentElement('afterend', reminder);
-  }
-
-  function removeExtraFromProfileAndAdmin() {
-    const profile = $('#profilePanel');
-    const admin = $('#adminPanel');
-
-    if (profile) {
-      $$('.ft-auth-status-card, .ft-main-token-reminder, .ft-main-auth-hint, .ft-soft-auth-button, .balance-card, .balance-card-final, .participant-section, .styles-section, .photo-section, #mainTokenReminder, #ftMainTokenReminder', profile)
-        .forEach((el) => el.remove());
-
-      $$('.card, .ft-section-clean, section', profile).forEach((el) => {
-        const text = (el.textContent || '').toLowerCase();
-
-        const isExtra =
-          text.includes('гостевой режим') ||
-          text.includes('авторизуйтесь для генерации') ||
-          text.includes('как авторизоваться') ||
-          text.includes('стоимость генерации') && text.includes('оплата') && text.includes('главная') ||
-          text.includes('выберите участника') ||
-          text.includes('стиль обработки') && text.includes('поиск и фильтрация') ||
-          text.includes('jpg, jpeg или png');
-
-        if (isExtra && !text.includes('пакеты токенов') && !text.includes('история баланса')) {
-          el.remove();
-        }
-      });
-    }
-
-    if (admin) {
-      $$('.ft-auth-status-card, .ft-main-token-reminder, .ft-main-auth-hint, .ft-soft-auth-button, .balance-card, .balance-card-final, .participant-section, .styles-section, .photo-section, #mainTokenReminder, #ftMainTokenReminder', admin)
-        .forEach((el) => el.remove());
-
-      $$('.card, .ft-section-clean, section', admin).forEach((el) => {
-        const text = (el.textContent || '').toLowerCase();
-
-        const isExtra =
-          text.includes('гостевой режим') ||
-          text.includes('пакеты токенов') ||
-          text.includes('мои сгенерированные фото') ||
-          text.includes('обратная связь') ||
-          text.includes('fototime323') && !text.includes('дашборд') ||
-          text.includes('выберите участника') ||
-          text.includes('стиль обработки') ||
-          text.includes('jpg, jpeg или png');
-
-        if (isExtra) el.remove();
-      });
-    }
-  }
-
-  function cleanCurrentTab() {
-    const activeTab =
-      $('[data-tab-target].active')?.dataset?.tabTarget ||
-      $('[data-tab-target][aria-selected="true"]')?.dataset?.tabTarget ||
-      '';
-
-    if (activeTab === 'profile' || $('#profilePanel:not(.hidden)')) {
-      removeExtraFromProfileAndAdmin();
-    }
-
-    if (activeTab === 'admin' || $('#adminPanel:not(.hidden)')) {
-      removeExtraFromProfileAndAdmin();
-    }
-
-    if (!activeTab || activeTab === 'main' || $('#mainPanel:not(.hidden)')) {
-      addMainTokenReminder();
-    }
-  }
-
-  document.addEventListener('click', () => {
-    setTimeout(cleanCurrentTab, 250);
-  }, true);
-
-  window.addEventListener('load', () => {
-    setTimeout(cleanCurrentTab, 800);
-    setTimeout(cleanCurrentTab, 1600);
+  document.querySelectorAll('.app-tab').forEach((item) => {
+    item.classList.toggle('active', item.dataset.tabTarget === target);
   });
-})();
 
-/* HOTFIX: strict tab cleanup and real token balance */
+  document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+    panel.classList.toggle('hidden', panel.dataset.tabPanel !== target);
+  });
+}, true);
 
-(function strictTabsAndBalanceFix() {
-  if (window.__strictTabsAndBalanceFixApplied) return;
-  window.__strictTabsAndBalanceFixApplied = true;
+window.addEventListener('load', () => {
+  document.body.dataset.activeTab = 'main';
+});
 
-  let lastKnownBalance = null;
+/* SAFE UI FIX: refresh balance, topup text, readable generation errors */
 
-  function $(selector, root = document) {
-    return root.querySelector(selector);
-  }
+(function safeUiFix() {
+  if (window.__safeUiFixApplied) return;
+  window.__safeUiFixApplied = true;
 
-  function $$(selector, root = document) {
-    return Array.from(root.querySelectorAll(selector));
-  }
-
-  function isVisible(el) {
-    if (!el) return false;
-    return !el.classList.contains('hidden') && getComputedStyle(el).display !== 'none';
-  }
-
-  function authHeaders() {
+  function getAuthHeadersSafe() {
     const headers = {};
 
-    if (window.Telegram?.WebApp?.initData) {
-      headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+    if (typeof getTelegramIdentityHeaders === 'function') {
+      Object.assign(headers, getTelegramIdentityHeaders());
+    }
+
+    const initData = window.Telegram?.WebApp?.initData;
+    if (initData) {
+      headers['x-telegram-init-data'] = initData;
     }
 
     return headers;
   }
 
-  async function fetchRealBalance() {
-    try {
-      const res = await fetch('/api/user/me', { headers: authHeaders() });
-      if (!res.ok) return lastKnownBalance ?? 50;
-
-      const data = await res.json();
-      const balance = Number(data?.user?.balance);
-
-      if (!Number.isNaN(balance)) {
-        lastKnownBalance = balance;
-        updateAllBalanceTexts(balance);
-        return balance;
-      }
-    } catch {}
-
-    return lastKnownBalance ?? 50;
-  }
-
-  function updateAllBalanceTexts(balance) {
-    const values = [
-      '#mainBalanceValue',
-      '#profileBalanceValue',
-      '[data-balance-value]',
-      '.balance-pill strong',
-      '.balance-badge strong'
-    ];
-
-    values.forEach((selector) => {
-      $$(selector).forEach((el) => {
-        el.textContent = String(balance);
-      });
+  async function refreshBalanceSafe() {
+    const response = await fetch('/api/user/me', {
+      headers: getAuthHeadersSafe()
     });
 
-    // Убираем конфликт терминов: кредиты -> токены
-    $$('body *').forEach((el) => {
-      if (el.children.length) return;
+    if (!response.ok) {
+      showMessage('Не удалось обновить баланс', 'error');
+      return;
+    }
 
-      const text = el.textContent || '';
-      if (text.includes('кредит')) {
-        el.textContent = text
-          .replaceAll('кредитов', 'токенов')
-          .replaceAll('кредита', 'токена')
-          .replaceAll('кредит', 'токен');
-      }
+    const data = await response.json();
+    const balance = data?.user?.balance ?? 0;
+
+    document.querySelectorAll(
+      '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]'
+    ).forEach((el) => {
+      el.textContent = balance;
+    });
+
+    if (window.USER_STATE?.me) {
+      USER_STATE.me.balance = balance;
+    }
+
+    showMessage(`Баланс обновлён: ${balance} токенов`, 'success');
+  }
+
+  function fixTopupButtonText() {
+    document.querySelectorAll('.topup-main-button').forEach((button) => {
+      button.innerHTML = `
+        <span class="topup-main-text">
+          <strong>Пополнить баланс</strong>
+          <small>Напишите нам в Telegram — подтвердим оплату и начислим токены</small>
+        </span>
+        <span class="topup-main-arrow">→</span>
+      `;
     });
   }
 
-  function removeGenerationBlocksFromProfile() {
-    const profile = $('#profilePanel');
-    if (!profile) return;
-
-    $$('.card, section, .ft-section-clean, .styles-section, .photo-section, .participant-section, #resultSection', profile)
-      .forEach((el) => {
-        const text = (el.textContent || '').toLowerCase();
-
-        const shouldRemove =
-          text.includes('участник') ||
-          text.includes('стиль обработки') ||
-          text.includes('поиск и фильтрация') ||
-          text.includes('выберите фото') ||
-          text.includes('jpg, jpeg') ||
-          text.includes('создать ai-фото') ||
-          text.includes('повторить генерацию') ||
-          text.includes('результат') ||
-          el.matches('.styles-section, .photo-section, .participant-section, #resultSection');
-
-        const shouldKeep =
-          text.includes('личный кабинет') ||
-          text.includes('пакеты токенов') ||
-          text.includes('история баланса') ||
-          text.includes('мои сгенерированные фото') ||
-          text.includes('fototime323') ||
-          text.includes('обратная связь');
-
-        if (shouldRemove && !shouldKeep) {
-          el.remove();
-        }
-      });
-  }
-
-  function removeClientBlocksFromAdmin() {
-    const admin = $('#adminPanel');
-    if (!admin) return;
-
-    $$('.card, section, .ft-section-clean, .styles-section, .photo-section, .participant-section, #resultSection', admin)
-      .forEach((el) => {
-        const text = (el.textContent || '').toLowerCase();
-
-        const shouldRemove =
-          text.includes('участник') ||
-          text.includes('стиль обработки') ||
-          text.includes('поиск и фильтрация') ||
-          text.includes('выберите фото') ||
-          text.includes('jpg, jpeg') ||
-          text.includes('создать ai-фото') ||
-          text.includes('повторить генерацию') ||
-          text.includes('пакеты токенов') ||
-          text.includes('мои сгенерированные фото') ||
-          text.includes('обратная связь') ||
-          text.includes('fototime323');
-
-        const shouldKeep =
-          text.includes('дашборд') ||
-          text.includes('админ') ||
-          text.includes('ошибки генераций') ||
-          text.includes('уведомления') ||
-          text.includes('пользователи') ||
-          text.includes('стабильность');
-
-        if (shouldRemove && !shouldKeep) {
-          el.remove();
-        }
-      });
-  }
-
-  async function renderMainTokenReminder() {
-    const mainPanel = $('#mainPanel') || $('main');
-    if (!mainPanel) return;
-
-    $('#ftMainTokenReminder')?.remove();
+  function addRefreshBalanceButton() {
+    if (document.getElementById('topBalanceRefreshButton')) return;
 
     const balanceCard =
-      $('.balance-card') ||
-      $('.balance-card-final') ||
-      $('.card');
+      document.querySelector('.balance-card') ||
+      document.querySelector('.balance-card-final');
 
     if (!balanceCard) return;
 
-    const balance = await fetchRealBalance();
-    const left = Math.floor(balance / 40);
+    const button = document.createElement('button');
+    button.id = 'topBalanceRefreshButton';
+    button.type = 'button';
+    button.className = 'top-balance-refresh-button';
+    button.textContent = 'Обновить баланс';
 
-    const reminder = document.createElement('section');
-    reminder.id = 'ftMainTokenReminder';
-    reminder.className = 'card ft-main-token-reminder';
-    reminder.innerHTML = `
-      <div class="ft-reminder-icon">FT</div>
-      <div class="ft-reminder-text">
-        <strong>Продлите токены заранее</strong>
-        <span>У вас ${balance} токенов — примерно на ${left} ${left === 1 ? 'генерацию' : 'генерации'}.</span>
-        <small>Стоимость одной генерации — 40 токенов. Пополнение проходит через Telegram, чек отправляем после оплаты.</small>
-      </div>
-      <a href="https://t.me/fototime323" target="_blank" rel="noreferrer">Пополнить</a>
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = 'Обновляем...';
+
+      await refreshBalanceSafe();
+
+      button.disabled = false;
+      button.textContent = 'Обновить баланс';
+    });
+
+    balanceCard.appendChild(button);
+  }
+
+  const originalFetch = window.fetch;
+
+  window.fetch = async function safeFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (url.includes('/api/generate')) {
+      init.headers = {
+        ...(init.headers || {}),
+        ...getAuthHeadersSafe()
+      };
+    }
+
+    const response = await originalFetch(input, init);
+
+    if (url.includes('/api/generate')) {
+      response.clone().json()
+        .then((data) => {
+          if (!response.ok) {
+            console.error('Generation API error:', data);
+            showMessage(data.message || data.error || 'Ошибка генерации на сервере', 'error');
+          }
+
+          if (typeof data.balance !== 'undefined') {
+            document.querySelectorAll(
+              '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]'
+            ).forEach((el) => {
+              el.textContent = data.balance;
+            });
+          }
+        })
+        .catch(() => null);
+    }
+
+    return response;
+  };
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      fixTopupButtonText();
+      addRefreshBalanceButton();
+    }, 500);
+  });
+})();
+
+/* ACCOUNT + ADMIN PANELS: stable rebuild without touching generation */
+
+(function accountAdminPanelsStable() {
+  if (window.__accountAdminPanelsStableApplied) return;
+  window.__accountAdminPanelsStableApplied = true;
+
+  const TOKEN_PACKAGES = [
+    { title: 'Старт', tokens: 50, price: '99 ₽', note: 'Для первой пробы и тестирования.' },
+    { title: 'Гости', tokens: 120, price: '199 ₽', note: 'Для небольшого мероприятия.' },
+    { title: 'Популярный', tokens: 300, price: '449 ₽', note: 'Оптимально для активного использования.' },
+    { title: 'Максимум', tokens: 700, price: '899 ₽', note: 'Для большого события или промо.' }
+  ];
+
+  function getAuthHeaders() {
+    const headers = {};
+
+    if (typeof getTelegramIdentityHeaders === 'function') {
+      Object.assign(headers, getTelegramIdentityHeaders());
+    }
+
+    const initData = window.Telegram?.WebApp?.initData;
+    if (initData) {
+      headers['x-telegram-init-data'] = initData;
+    }
+
+    return headers;
+  }
+
+  async function fetchMe() {
+    const response = await fetch('/api/user/me', {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) return null;
+
+    return response.json();
+  }
+
+  async function fetchAdminOverview() {
+    const response = await fetch('/api/admin/overview', {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) return null;
+
+    return response.json();
+  }
+
+  function formatDate(value) {
+    if (!value) return '';
+
+    try {
+      return new Date(value).toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return String(value);
+    }
+  }
+
+  function updateBalanceText(balance) {
+    const value = Number(balance || 0);
+
+    document.querySelectorAll(
+      '.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, #adminOwnBalanceValue, [data-balance-value]'
+    ).forEach((el) => {
+      el.textContent = value;
+    });
+
+    if (window.USER_STATE?.me) {
+      USER_STATE.me.balance = value;
+    }
+  }
+
+  function ensureTabsAndPanels() {
+    let tabs = document.querySelector('.app-tabs');
+
+    if (!tabs) {
+      tabs = document.createElement('nav');
+      tabs.className = 'app-tabs';
+      tabs.setAttribute('aria-label', 'Навигация приложения');
+      document.body.appendChild(tabs);
+    }
+
+    if (!tabs.querySelector('[data-tab-target="main"]')) {
+      tabs.insertAdjacentHTML('beforeend', `
+        <button class="app-tab active" type="button" data-tab-target="main">Главная</button>
+      `);
+    }
+
+    if (!tabs.querySelector('[data-tab-target="profile"]')) {
+      tabs.insertAdjacentHTML('beforeend', `
+        <button class="app-tab" type="button" data-tab-target="profile">Личный кабинет</button>
+      `);
+    }
+
+    if (!tabs.querySelector('[data-tab-target="admin"]')) {
+      tabs.insertAdjacentHTML('beforeend', `
+        <button id="adminTabButton" class="app-tab hidden" type="button" data-tab-target="admin">Админ</button>
+      `);
+    }
+
+    const main = document.querySelector('main#content') || document.querySelector('main');
+
+    if (main) {
+      main.dataset.tabPanel = 'main';
+    }
+
+    let profile = document.getElementById('profilePanel');
+
+    if (!profile) {
+      profile = document.createElement('section');
+      profile.id = 'profilePanel';
+      profile.className = 'app-panel hidden';
+      profile.dataset.tabPanel = 'profile';
+      document.body.insertBefore(profile, tabs);
+    }
+
+    let admin = document.getElementById('adminPanel');
+
+    if (!admin) {
+      admin = document.createElement('section');
+      admin.id = 'adminPanel';
+      admin.className = 'app-panel hidden';
+      admin.dataset.tabPanel = 'admin';
+      document.body.insertBefore(admin, tabs);
+    }
+  }
+
+  function renderPackageCards() {
+    return TOKEN_PACKAGES.map((item) => `
+      <article class="account-package-card">
+        <div>
+          <strong>${item.title}</strong>
+          <span>${item.tokens} токенов</span>
+          <small>${item.note}</small>
+        </div>
+        <b>${item.price}</b>
+      </article>
+    `).join('');
+  }
+
+  function renderTransactions(transactions = []) {
+    if (!transactions.length) {
+      return '<p class="account-empty">Операций пока нет.</p>';
+    }
+
+    return transactions.slice(0, 12).map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const isCredit = amount > 0;
+      const before = typeof tx.balanceBefore === 'number' ? tx.balanceBefore : '—';
+      const after = typeof tx.balanceAfter === 'number' ? tx.balanceAfter : '—';
+
+      return `
+        <article class="account-transaction ${isCredit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${isCredit ? 'Пополнение' : 'Списание'}</strong>
+            <span>${escapeHtml(tx.note || tx.reason || 'Операция по балансу')}</span>
+            <small>${formatDate(tx.createdAt)}</small>
+            <small>Баланс: ${before} → ${after}</small>
+          </div>
+          <b>${isCredit ? '+' : ''}${amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function getHistoryCount() {
+    try {
+      const items = JSON.parse(localStorage.getItem('fototime-ai-generated-photos') || '[]');
+      return Array.isArray(items) ? items.length : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  async function rebuildProfilePanel() {
+    const profile = document.getElementById('profilePanel');
+    if (!profile) return;
+
+    const data = await fetchMe();
+    const user = data?.user || {};
+    const transactions = data?.transactions || [];
+    const generationCost = data?.generationCost || 40;
+    const historyCount = getHistoryCount();
+
+    updateBalanceText(user.balance || 0);
+
+    profile.innerHTML = `
+      <section class="card account-card">
+        <div class="section-header">
+          <span class="step">LK</span>
+          <div>
+            <h2>Личный кабинет</h2>
+            <p class="section-subtitle">Баланс, история генераций, списания, пополнения и контакты.</p>
+          </div>
+        </div>
+
+        <div class="account-balance-grid">
+          <article class="account-balance-card">
+            <span>Доступно</span>
+            <strong id="profileBalanceValue">${Number(user.balance || 0)}</strong>
+            <small>токенов</small>
+            <button type="button" class="account-refresh-button" data-refresh-balance>Обновить баланс</button>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Стоимость генерации</span>
+            <strong>${generationCost} токенов</strong>
+            <small>Списание происходит после успешной генерации.</small>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Мои генерации</span>
+            <strong>${historyCount}</strong>
+            <small>Сохранённых фото в этом браузере/Telegram WebView.</small>
+          </article>
+        </div>
+
+        <section class="account-section">
+          <h3>Пакеты токенов</h3>
+          <p>Оплата принимается через Telegram. После оплаты начисляем токены вручную и отправляем чек самозанятого.</p>
+          <div class="account-packages-grid">
+            ${renderPackageCards()}
+          </div>
+          <a class="account-support-button" href="https://t.me/fototime323" target="_blank" rel="noreferrer">
+            Написать в Telegram для пополнения
+          </a>
+        </section>
+
+        <section class="account-section">
+          <h3>История баланса</h3>
+          <div class="account-transactions-list">
+            ${renderTransactions(transactions)}
+          </div>
+        </section>
+      </section>
     `;
 
-    balanceCard.insertAdjacentElement('afterend', reminder);
+    const history = document.getElementById('historySection');
+    const contacts = document.querySelector('.contacts-card');
+
+    if (history) {
+      profile.appendChild(history);
+      history.classList.remove('hidden');
+    }
+
+    if (contacts) {
+      profile.appendChild(contacts);
+      contacts.classList.remove('hidden');
+    }
+
+    profile.querySelectorAll('[data-refresh-balance]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        button.textContent = 'Обновляем...';
+        await rebuildProfilePanel();
+        button.disabled = false;
+      });
+    });
+
+    if (typeof renderGeneratedHistory === 'function') {
+      renderGeneratedHistory();
+    }
   }
 
-  function cleanupByCurrentPage() {
-    const profile = $('#profilePanel');
-    const admin = $('#adminPanel');
-
-    if (profile && isVisible(profile)) {
-      removeGenerationBlocksFromProfile();
-      $('#ftMainTokenReminder')?.remove();
+  function renderAdminUserCards(users = []) {
+    if (!users.length) {
+      return '<p class="account-empty">Пользователей пока нет.</p>';
     }
 
-    if (admin && isVisible(admin)) {
-      removeClientBlocksFromAdmin();
-      $('#ftMainTokenReminder')?.remove();
+    return users.map((user) => {
+      const name = user.username
+        ? `@${user.username}`
+        : [user.firstName, user.lastName].filter(Boolean).join(' ') || user.telegramUserId || user.id;
+
+      return `
+        <article class="admin-client-card">
+          <div class="admin-client-head">
+            <div>
+              <strong>${escapeHtml(name)}</strong>
+              <small>Telegram ID: ${escapeHtml(user.telegramUserId || user.id)}</small>
+              <small>Генераций: ${Number(user.generationsCount || 0)} · списано: ${Number(user.spentCredits || 0)} ток.</small>
+            </div>
+            <div class="admin-client-balance">
+              <strong>${Number(user.balance || 0)}</strong>
+              <span>токенов</span>
+            </div>
+          </div>
+
+          <div class="admin-credit-controls">
+            <button type="button" data-admin-credit-user="${escapeHtml(user.id)}" data-admin-credit-amount="50" data-admin-credit-reason="beta_testing">+50 Бета</button>
+            <button type="button" data-admin-credit-user="${escapeHtml(user.id)}" data-admin-credit-amount="120" data-admin-credit-reason="manual_credit">+120</button>
+            <button type="button" data-admin-credit-user="${escapeHtml(user.id)}" data-admin-credit-amount="300" data-admin-credit-reason="manual_credit">+300</button>
+            <button type="button" data-admin-credit-user="${escapeHtml(user.id)}" data-admin-credit-amount="700" data-admin-credit-reason="manual_credit">+700</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  async function rebuildAdminPanel() {
+    const admin = document.getElementById('adminPanel');
+    if (!admin) return;
+
+    const me = await fetchMe();
+    const overview = await fetchAdminOverview();
+
+    if (!overview) {
+      admin.innerHTML = `
+        <section class="card account-card">
+          <div class="section-header">
+            <span class="step">AD</span>
+            <div>
+              <h2>Админ-консоль</h2>
+              <p class="section-subtitle">Доступна только администратору.</p>
+            </div>
+          </div>
+          <p class="account-empty">Нет доступа к админ-консоли.</p>
+        </section>
+      `;
+      return;
     }
 
-    const mainPanel = $('#mainPanel');
-    if ((mainPanel && isVisible(mainPanel)) || (!profile && !admin)) {
-      renderMainTokenReminder();
+    const ownBalance = Number(me?.user?.balance || 0);
+    const stats = overview.stats || {};
+    const users = overview.users || [];
+
+    admin.innerHTML = `
+      <section class="card account-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Клиенты, балансы, бета-токены, ручные начисления и статистика.</p>
+          </div>
+        </div>
+
+        <div class="account-balance-grid admin-summary-grid">
+          <article class="account-balance-card">
+            <span>Мой баланс</span>
+            <strong id="adminOwnBalanceValue">${ownBalance}</strong>
+            <small>токенов</small>
+            <button type="button" class="account-refresh-button" data-admin-refresh>Обновить</button>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Клиентов</span>
+            <strong>${Number(stats.totalUsers || 0)}</strong>
+            <small>в базе приложения</small>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Всего генераций</span>
+            <strong>${Number(stats.totalGenerations || 0)}</strong>
+            <small>по всем клиентам</small>
+          </article>
+
+          <article class="account-balance-card">
+            <span>Списано токенов</span>
+            <strong>${Number(stats.totalSpentCredits || 0)}</strong>
+            <small>по всем генерациям</small>
+          </article>
+        </div>
+
+        <section class="account-section">
+          <h3>Клиенты и начисление токенов</h3>
+          <p>Кнопка «+50 Бета» используется для бесплатного начисления без оплаты и без чека. Остальные начисления — после оплаты и отправки чека.</p>
+          <div id="adminClientsList" class="admin-clients-list">
+            ${renderAdminUserCards(users)}
+          </div>
+        </section>
+      </section>
+    `;
+
+    admin.querySelectorAll('[data-admin-refresh]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        button.textContent = 'Обновляем...';
+        await rebuildAdminPanel();
+      });
+    });
+
+    admin.querySelectorAll('[data-admin-credit-user]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+
+        const userId = button.dataset.adminCreditUser;
+        const amount = Number(button.dataset.adminCreditAmount);
+        const reason = button.dataset.adminCreditReason;
+
+        await fetch(`/api/admin/users/${encodeURIComponent(userId)}/credits`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify({
+            amount,
+            reason,
+            note: reason === 'beta_testing'
+              ? 'Бета-тестирование — бесплатно'
+              : 'Ручное начисление токенов'
+          })
+        });
+
+        await rebuildAdminPanel();
+        await rebuildProfilePanel();
+      });
+    });
+  }
+
+  async function refreshAdminVisibility() {
+    const data = await fetchMe();
+    const isAdmin = Boolean(data?.user?.isAdmin);
+    const adminButton = document.getElementById('adminTabButton');
+
+    if (adminButton) {
+      adminButton.classList.toggle('hidden', !isAdmin);
     }
   }
 
-  document.addEventListener('click', () => {
-    setTimeout(cleanupByCurrentPage, 250);
-    setTimeout(cleanupByCurrentPage, 900);
+  function setTab(target) {
+    document.body.dataset.activeTab = target;
+
+    document.querySelectorAll('.app-tab').forEach((tab) => {
+      tab.classList.toggle('active', tab.dataset.tabTarget === target);
+    });
+
+    document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+      panel.classList.toggle('hidden', panel.dataset.tabPanel !== target);
+    });
+
+    if (target === 'profile') {
+      rebuildProfilePanel();
+    }
+
+    if (target === 'admin') {
+      rebuildAdminPanel();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('.app-tab, [data-tab-target]');
+    if (!tab?.dataset?.tabTarget) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    setTab(tab.dataset.tabTarget);
+  }, true);
+
+  window.addEventListener('load', async () => {
+    ensureTabsAndPanels();
+    await refreshAdminVisibility();
+    setTab('main');
+  });
+})();
+
+/* POLISH: profile pricing, contacts, admin PIN console */
+
+(function polishAccountAdminUi() {
+  if (window.__polishAccountAdminUiApplied) return;
+  window.__polishAccountAdminUiApplied = true;
+
+  const GENERATION_COST = 40;
+  const ADMIN_PIN = '3230';
+
+  const PACKAGES = [
+    { title: 'Старт', tokens: 50, price: '49 ₽', generations: 1, note: 'Для первой пробы' },
+    { title: 'Гости', tokens: 120, price: '99 ₽', generations: 3, note: 'Для небольшого мероприятия' },
+    { title: 'Популярный', tokens: 300, price: '249 ₽', generations: 7, note: 'Для активного использования' },
+    { title: 'Максимум', tokens: 700, price: '499 ₽', generations: 17, note: 'Для большого события или промо' }
+  ];
+
+  function headers() {
+    const result = {};
+    if (typeof getTelegramIdentityHeaders === 'function') Object.assign(result, getTelegramIdentityHeaders());
+    if (window.Telegram?.WebApp?.initData) result['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+    return result;
+  }
+
+  async function apiMe() {
+    const res = await fetch('/api/user/me', { headers: headers() });
+    return res.ok ? res.json() : null;
+  }
+
+  async function apiAdmin() {
+    const res = await fetch('/api/admin/overview', { headers: headers() });
+    return res.ok ? res.json() : null;
+  }
+
+  function userName(user = {}) {
+    if (user.username) return `@${user.username}`;
+    return [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Гость FOTOTIME323';
+  }
+
+  function initials(user = {}) {
+    const name = user.username || user.firstName || user.id || 'FT';
+    return String(name).slice(0, 2).toUpperCase();
+  }
+
+  function leftGenerations(balance) {
+    return Math.floor(Number(balance || 0) / GENERATION_COST);
+  }
+
+  function setBalanceEverywhere(balance) {
+    document.querySelectorAll('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]').forEach((el) => {
+      el.textContent = Number(balance || 0);
+    });
+  }
+
+  function formatDate(value) {
+    try {
+      return new Date(value).toLocaleString('ru-RU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
+  }
+
+  function normalizeTransactions(transactions = [], currentBalance = 0) {
+    let cursor = Number(currentBalance || 0);
+
+    return transactions.slice(0, 12).map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const after = typeof tx.balanceAfter === 'number' ? tx.balanceAfter : cursor;
+      const before = typeof tx.balanceBefore === 'number' ? tx.balanceBefore : after - amount;
+      cursor = before;
+      return { ...tx, balanceBefore: before, balanceAfter: after };
+    });
+  }
+
+  function packagesHtml() {
+    return PACKAGES.map((p) => `
+      <article class="ft-package-card">
+        <div>
+          <strong>${p.title}</strong>
+          <span>${p.tokens} токенов</span>
+          <small>примерно ${p.generations} ${p.generations === 1 ? 'генерация' : 'генерации'}</small>
+          <em>${p.note}</em>
+        </div>
+        <b>${p.price}</b>
+      </article>
+    `).join('');
+  }
+
+  function transactionsHtml(transactions, balance) {
+    const items = normalizeTransactions(transactions, balance);
+
+    if (!items.length) return '<p class="ft-muted">Операций пока нет.</p>';
+
+    return items.map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const credit = amount > 0;
+      return `
+        <article class="ft-transaction ${credit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${credit ? 'Пополнение' : 'Списание'}</strong>
+            <span>${tx.note || tx.reason || 'Операция по балансу'}</span>
+            <small>${formatDate(tx.createdAt)}</small>
+            <small>Баланс: ${tx.balanceBefore} → ${tx.balanceAfter}</small>
+          </div>
+          <b>${credit ? '+' : ''}${amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function contactsHtml() {
+    return `
+      <section class="card ft-contacts-card">
+        <div class="section-header">
+          <span class="step">FT</span>
+          <div>
+            <h2>FOTOTIME323</h2>
+            <p class="section-subtitle">Фотобудка, нейрофото и интерактивные решения для мероприятий.</p>
+          </div>
+        </div>
+
+        <div class="ft-social-grid">
+          <a href="https://t.me/fototime323" target="_blank" rel="noreferrer">✦ Telegram</a>
+          <a href="https://vk.com/fototime323" target="_blank" rel="noreferrer">✦ VK</a>
+          <a href="https://fototime323.lpmotortest.com" target="_blank" rel="noreferrer">✦ Сайт</a>
+        </div>
+
+        <a class="ft-support-wide" href="https://t.me/fototime323" target="_blank" rel="noreferrer">
+          ✨ Поддержка и пополнение баланса
+        </a>
+      </section>
+    `;
+  }
+
+  async function renderProfile() {
+    const data = await apiMe();
+    const user = data?.user || {};
+    const balance = Number(user.balance || 0);
+    const transactions = data?.transactions || [];
+    const left = leftGenerations(balance);
+
+    setBalanceEverywhere(balance);
+
+    const panel = document.getElementById('profilePanel');
+    if (!panel) return;
+
+    panel.innerHTML = `
+      <section class="card ft-profile-card">
+        <div class="ft-profile-head">
+          <div class="ft-avatar">${initials(user)}</div>
+          <div>
+            <h2>${userName(user)}</h2>
+            <p>Личный кабинет, баланс, генерации и платежи.</p>
+          </div>
+        </div>
+
+        <div class="ft-balance-grid">
+          <article>
+            <span>Доступно</span>
+            <strong id="profileBalanceValue">${balance}</strong>
+            <small>токенов · осталось на ${left} ${left === 1 ? 'генерацию' : 'генерации'}</small>
+            <button type="button" data-refresh-profile>Обновить баланс</button>
+          </article>
+          <article>
+            <span>Стоимость генерации</span>
+            <strong>${GENERATION_COST} токенов</strong>
+            <small>Списание только после успешного результата.</small>
+          </article>
+          <article>
+            <span>Подсказка</span>
+            <strong>${left}</strong>
+            <small>примерно столько фото можно создать сейчас.</small>
+          </article>
+        </div>
+
+        <div class="ft-low-balance-banner">
+          Осталось на ${left} ${left === 1 ? 'генерацию' : 'генерации'}. Удобно пополняйте баланс через нашу поддержку.
+        </div>
+
+        <section class="ft-section">
+          <h3>Пакеты токенов</h3>
+          <p>Оплата через Telegram. После оплаты начисляем токены вручную и отправляем чек самозанятого.</p>
+          <div class="ft-package-grid">${packagesHtml()}</div>
+          <a class="ft-support-wide" href="https://t.me/fototime323" target="_blank" rel="noreferrer">Пополнить через поддержку</a>
+        </section>
+
+        <section class="ft-section">
+          <h3>История баланса</h3>
+          <div class="ft-transactions">${transactionsHtml(transactions, balance)}</div>
+        </section>
+      </section>
+    `;
+
+    const history = document.getElementById('historySection');
+    if (history) panel.appendChild(history);
+
+    panel.insertAdjacentHTML('beforeend', contactsHtml());
+
+    panel.querySelector('[data-refresh-profile]')?.addEventListener('click', renderProfile);
+
+    if (typeof renderGeneratedHistory === 'function') renderGeneratedHistory();
+  }
+
+  function adminLockedHtml() {
+    return `
+      <section class="card ft-admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Доступ по PIN-коду администратора.</p>
+          </div>
+        </div>
+
+        <form id="adminPinForm" class="ft-admin-pin">
+          <label>PIN-код</label>
+          <input id="adminPinInput" type="password" inputmode="numeric" placeholder="Введите PIN" />
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+    `;
+  }
+
+  function adminUsersHtml(users = []) {
+    if (!users.length) return '<p class="ft-muted">Пользователей пока нет.</p>';
+
+    return users.map((u) => {
+      const name = u.username ? `@${u.username}` : [u.firstName, u.lastName].filter(Boolean).join(' ') || u.id;
+      return `
+        <article class="ft-admin-user">
+          <div class="ft-admin-user-head">
+            <div>
+              <strong>${name}</strong>
+              <small>ID: ${u.telegramUserId || u.id}</small>
+              <small>Генераций: ${Number(u.generationsCount || 0)} · списано: ${Number(u.spentCredits || 0)} ток.</small>
+            </div>
+            <div>
+              <b>${Number(u.balance || 0)}</b>
+              <span>токенов</span>
+            </div>
+          </div>
+
+          <div class="ft-admin-actions">
+            <button data-credit-user="${u.id}" data-credit-amount="50" data-credit-reason="beta_testing">+50 Бета</button>
+            <button data-credit-user="${u.id}" data-credit-amount="120" data-credit-reason="manual_credit">+120</button>
+            <button data-credit-user="${u.id}" data-credit-amount="300" data-credit-reason="manual_credit">+300</button>
+            <button data-credit-user="${u.id}" data-credit-amount="700" data-credit-reason="manual_credit">+700</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  async function renderAdmin() {
+    const panel = document.getElementById('adminPanel');
+    if (!panel) return;
+
+    if (localStorage.getItem('ft-admin-pin-ok') !== 'true') {
+      panel.innerHTML = adminLockedHtml();
+      panel.querySelector('#adminPinForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const value = panel.querySelector('#adminPinInput')?.value || '';
+        if (value === ADMIN_PIN) {
+          localStorage.setItem('ft-admin-pin-ok', 'true');
+          renderAdmin();
+        } else {
+          alert('Неверный PIN');
+        }
+      });
+      return;
+    }
+
+    const me = await apiMe();
+    const overview = await apiAdmin();
+
+    if (!overview) {
+      panel.innerHTML = adminLockedHtml();
+      return;
+    }
+
+    const stats = overview.stats || {};
+    const users = overview.users || [];
+    const ownBalance = Number(me?.user?.balance || 0);
+
+    panel.innerHTML = `
+      <section class="card ft-admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Клиенты, балансы, бета-токены и статистика генераций.</p>
+          </div>
+        </div>
+
+        <div class="ft-balance-grid">
+          <article><span>Мой баланс</span><strong>${ownBalance}</strong><small>токенов</small></article>
+          <article><span>Клиентов</span><strong>${Number(stats.totalUsers || 0)}</strong><small>в базе</small></article>
+          <article><span>Генераций</span><strong>${Number(stats.totalGenerations || 0)}</strong><small>всего</small></article>
+          <article><span>Списано</span><strong>${Number(stats.totalSpentCredits || 0)}</strong><small>токенов</small></article>
+        </div>
+
+        <section class="ft-section">
+          <h3>Пользователи и начисление токенов</h3>
+          <p>«+50 Бета» — бесплатное начисление без оплаты и без чека.</p>
+          <div class="ft-admin-users">${adminUsersHtml(users)}</div>
+        </section>
+      </section>
+    `;
+
+    panel.querySelectorAll('[data-credit-user]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        await fetch(`/api/admin/users/${encodeURIComponent(btn.dataset.creditUser)}/credits`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...headers() },
+          body: JSON.stringify({
+            amount: Number(btn.dataset.creditAmount),
+            reason: btn.dataset.creditReason,
+            note: btn.dataset.creditReason === 'beta_testing' ? 'Бета-тестирование — бесплатно' : 'Ручное начисление токенов'
+          })
+        });
+        await renderAdmin();
+      });
+    });
+  }
+
+  function ensurePanels() {
+    const main = document.querySelector('main#content') || document.querySelector('main');
+    if (main) main.dataset.tabPanel = 'main';
+
+    let profile = document.getElementById('profilePanel');
+    if (!profile) {
+      profile = document.createElement('section');
+      profile.id = 'profilePanel';
+      profile.className = 'app-panel hidden';
+      profile.dataset.tabPanel = 'profile';
+      document.body.insertBefore(profile, document.querySelector('.app-tabs'));
+    }
+
+    let admin = document.getElementById('adminPanel');
+    if (!admin) {
+      admin = document.createElement('section');
+      admin.id = 'adminPanel';
+      admin.className = 'app-panel hidden';
+      admin.dataset.tabPanel = 'admin';
+      document.body.insertBefore(admin, document.querySelector('.app-tabs'));
+    }
+  }
+
+  function switchTab(target) {
+    document.body.dataset.activeTab = target;
+    document.querySelectorAll('.app-tab').forEach((t) => t.classList.toggle('active', t.dataset.tabTarget === target));
+    document.querySelectorAll('[data-tab-panel]').forEach((p) => p.classList.toggle('hidden', p.dataset.tabPanel !== target));
+
+    if (target === 'profile') renderProfile();
+    if (target === 'admin') renderAdmin();
+  }
+
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-tab-target]');
+    if (!tab) return;
+    e.preventDefault();
+    switchTab(tab.dataset.tabTarget || 'main');
   }, true);
 
   window.addEventListener('load', () => {
-    setTimeout(cleanupByCurrentPage, 700);
-    setTimeout(cleanupByCurrentPage, 1600);
+    ensurePanels();
+    switchTab('main');
   });
-
-  setInterval(() => {
-    fetchRealBalance();
-  }, 8000);
 })();
 
-/* HARD TAB PURGE: remove wrong blocks from profile/admin by text and structure */
+/* PROFILE FINAL: history, auth card, compact transactions, centered placeholders */
 
-(function hardTabPurge() {
-  if (window.__hardTabPurgeApplied) return;
-  window.__hardTabPurgeApplied = true;
+(function profileFinalFix() {
+  if (window.__profileFinalFixApplied) return;
+  window.__profileFinalFixApplied = true;
 
-  function all(selector, root = document) {
-    return Array.from(root.querySelectorAll(selector));
+  const GENERATION_COST = 40;
+
+  function tgUser() {
+    return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
   }
 
-  function textOf(el) {
-    return (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  function isTelegramAuthorized() {
+    return Boolean(tgUser()?.id);
   }
 
-  function isVisiblePanel(panel) {
-    if (!panel) return false;
-    return !panel.classList.contains('hidden') && getComputedStyle(panel).display !== 'none';
+  function userDisplayName(user = {}) {
+    const tg = tgUser();
+
+    if (tg?.username) return `@${tg.username}`;
+    if (tg?.first_name || tg?.last_name) return [tg.first_name, tg.last_name].filter(Boolean).join(' ');
+    if (user.username) return `@${user.username}`;
+    return [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Гость FOTOTIME323';
   }
 
-  function purgeProfile() {
-    const profile = document.querySelector('#profilePanel');
-    if (!profile || !isVisiblePanel(profile)) return;
+  function userInitials(user = {}) {
+    const name = userDisplayName(user).replace('@', '');
+    return name.slice(0, 2).toUpperCase();
+  }
 
-    all(':scope > section, :scope > div, .card, .ft-section-clean', profile).forEach((block) => {
-      const text = textOf(block);
+  function authBlockHtml(user = {}) {
+    const authorized = isTelegramAuthorized();
 
-      const isWrong =
-        text.includes('участник') ||
-        text.includes('тестовое мероприятие') ||
-        text.includes('стиль обработки') ||
-        text.includes('поиск и фильтрация') ||
-        text.includes('выберите фото') ||
-        text.includes('jpg, jpeg') ||
-        text.includes('создать ai-фото') ||
-        text.includes('повторить генерацию') ||
-        text.includes('active event') ||
-        text.includes('баланс кредиты для ai-генераций');
+    return `
+      <section class="ft-auth-card">
+        <div class="ft-user-avatar">${userInitials(user)}</div>
+        <div>
+          <strong>${userDisplayName(user)}</strong>
+          <span>${authorized ? 'Авторизация через Telegram активна' : 'Гостевой просмотр приложения'}</span>
+          <small>${authorized ? 'Бонусные токены начисляются после первой авторизации.' : 'Для генерации фото авторизуйтесь через Telegram — начислим бонус на первые генерации.'}</small>
+        </div>
+        ${authorized ? '' : '<a class="ft-auth-button" href="https://t.me/fototime323Bot" target="_blank" rel="noreferrer">Авторизоваться</a>'}
+      </section>
+    `;
+  }
 
-      if (isWrong) {
-        block.style.display = 'none';
-        block.setAttribute('data-hard-purged', 'true');
+  function compactTransactions() {
+    document.querySelectorAll('.ft-transactions, .account-transactions-list').forEach((list) => {
+      list.classList.add('ft-transactions-compact');
+    });
+  }
+
+  function restoreHistoryIntoProfile() {
+    const profile = document.getElementById('profilePanel');
+    if (!profile) return;
+
+    let history = document.getElementById('historySection');
+
+    if (!history) {
+      history = document.createElement('section');
+      history.id = 'historySection';
+      history.className = 'card history-card';
+      history.innerHTML = `
+        <div class="section-header">
+          <span class="step">05</span>
+          <div>
+            <h2>Мои сгенерированные фото</h2>
+            <p class="section-subtitle">Последние изображения сохраняются в этом браузере/Telegram WebView.</p>
+          </div>
+        </div>
+        <div id="historyEmptyState" class="empty-state">Пока нет сохранённых генераций.</div>
+        <div id="historyList" class="history-list"></div>
+        <button id="clearHistoryButton" class="clear-history-button hidden" type="button">Очистить историю</button>
+      `;
+    }
+
+    if (!profile.contains(history)) {
+      const contacts = profile.querySelector('.ft-contacts-card, .contacts-card');
+      if (contacts) {
+        profile.insertBefore(history, contacts);
+      } else {
+        profile.appendChild(history);
+      }
+    }
+
+    history.classList.remove('hidden');
+    history.style.display = '';
+
+    if (typeof renderGeneratedHistory === 'function') {
+      renderGeneratedHistory();
+    }
+  }
+
+  function addAuthToProfile() {
+    const profile = document.getElementById('profilePanel');
+    if (!profile || profile.querySelector('.ft-auth-card')) return;
+
+    const dataBalance = document.querySelector('#profileBalanceValue')?.textContent || '0';
+
+    const fakeUser = {
+      balance: Number(dataBalance)
+    };
+
+    const firstCard = profile.querySelector('.ft-profile-card, .account-card, .card');
+    if (firstCard) {
+      firstCard.insertAdjacentHTML('afterbegin', authBlockHtml(fakeUser));
+    }
+  }
+
+  function enhanceMainAuth() {
+    if (document.getElementById('mainAuthHint')) return;
+
+    const balanceCard = document.querySelector('.balance-card, .balance-card-final');
+    if (!balanceCard) return;
+
+    const authorized = isTelegramAuthorized();
+
+    const block = document.createElement('div');
+    block.id = 'mainAuthHint';
+    block.className = 'ft-main-auth-hint';
+    block.innerHTML = `
+      <div class="ft-user-avatar">${authorized ? userInitials() : 'FT'}</div>
+      <div>
+        <strong>${authorized ? 'Telegram авторизация активна' : 'Авторизуйтесь для генерации'}</strong>
+        <span>${authorized ? 'Ваши фото сохраняются в личном кабинете.' : 'Откройте приложение через Telegram — начислим бонусные токены.'}</span>
+      </div>
+      ${authorized ? '<button type="button" data-go-profile>Личный кабинет</button>' : '<a href="https://t.me/fototime323Bot" target="_blank" rel="noreferrer">Авторизоваться</a>'}
+    `;
+
+    balanceCard.insertAdjacentElement('afterend', block);
+
+    block.querySelector('[data-go-profile]')?.addEventListener('click', () => {
+      document.querySelector('[data-tab-target="profile"]')?.click();
+    });
+  }
+
+  function leftGenerationsText() {
+    const balance = Number(document.querySelector('#profileBalanceValue')?.textContent || document.querySelector('.balance-pill strong')?.textContent || 0);
+    const left = Math.floor(balance / GENERATION_COST);
+
+    document.querySelectorAll('.ft-left-generations-text').forEach((el) => {
+      el.textContent = `Осталось примерно на ${left} ${left === 1 ? 'генерацию' : 'генерации'}.`;
+    });
+  }
+
+  const oldFetch = window.fetch;
+
+  window.fetch = async function fetchWithAuthGuard(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (url.includes('/api/generate') && !isTelegramAuthorized() && location.hostname !== 'localhost') {
+      showMessage('Пожалуйста, авторизуйтесь через Telegram. За авторизацию начислим бонусные токены на первые генерации.', 'error');
+      document.getElementById('mainAuthHint')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      return new Response(JSON.stringify({
+        message: 'Telegram authorization required'
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return oldFetch(input, init);
+  };
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target]');
+
+    if (tab?.dataset?.tabTarget === 'profile') {
+      setTimeout(() => {
+        addAuthToProfile();
+        restoreHistoryIntoProfile();
+        compactTransactions();
+        leftGenerationsText();
+      }, 500);
+    }
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      enhanceMainAuth();
+      restoreHistoryIntoProfile();
+      compactTransactions();
+      leftGenerationsText();
+    }, 900);
+  });
+})();
+
+/* STABILITY FIX: force admin tab visibility, compact UI, safer Telegram avatar */
+
+(function stabilityFix() {
+  if (window.__stabilityFixApplied) return;
+  window.__stabilityFixApplied = true;
+
+  function getTgUserSafe() {
+    return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  }
+
+  function ensureAdminTabVisible() {
+    const tabs = document.querySelector('.app-tabs');
+    if (!tabs) return;
+
+    let admin = document.getElementById('adminTabButton') || tabs.querySelector('[data-tab-target="admin"]');
+
+    if (!admin) {
+      admin = document.createElement('button');
+      admin.id = 'adminTabButton';
+      admin.className = 'app-tab';
+      admin.type = 'button';
+      admin.dataset.tabTarget = 'admin';
+      admin.textContent = 'Админ';
+      tabs.appendChild(admin);
+    }
+
+    admin.classList.remove('hidden');
+    admin.style.display = '';
+  }
+
+  function applyTelegramAvatar() {
+    const user = getTgUserSafe();
+    const initials = user?.username
+      ? user.username.slice(0, 2).toUpperCase()
+      : user?.first_name
+        ? user.first_name.slice(0, 2).toUpperCase()
+        : 'FT';
+
+    document.querySelectorAll('.ft-user-avatar, .ft-avatar').forEach((avatar) => {
+      if (user?.photo_url) {
+        avatar.innerHTML = `<img src="${user.photo_url}" alt="Telegram avatar" />`;
+        avatar.classList.add('has-photo');
+      } else {
+        avatar.textContent = initials;
       }
     });
   }
 
-  function purgeAdmin() {
-    const admin = document.querySelector('#adminPanel');
-    if (!admin || !isVisiblePanel(admin)) return;
+  function fixTopupButton() {
+    document.querySelectorAll('.topup-main-button').forEach((button) => {
+      button.innerHTML = `
+        <span class="topup-main-text">
+          <strong>Пополнить баланс</strong>
+          <small>Напишите нам в Telegram — подтвердим оплату и начислим токены</small>
+        </span>
+        <span class="topup-main-arrow">→</span>
+      `;
+    });
+  }
 
-    all(':scope > section, :scope > div, .card, .ft-section-clean', admin).forEach((block) => {
-      const text = textOf(block);
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      ensureAdminTabVisible();
+      applyTelegramAvatar();
+      fixTopupButton();
+    }, 700);
+  });
 
-      const isWrong =
-        text.includes('участник') ||
-        text.includes('тестовое мероприятие') ||
-        text.includes('стиль обработки') ||
-        text.includes('поиск и фильтрация') ||
-        text.includes('выберите фото') ||
-        text.includes('jpg, jpeg') ||
-        text.includes('создать ai-фото') ||
-        text.includes('повторить генерацию') ||
-        text.includes('пакеты токенов') ||
-        text.includes('история баланса') ||
-        text.includes('мои сгенерированные фото') ||
-        text.includes('обратная связь') ||
-        text.includes('fototime323');
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      ensureAdminTabVisible();
+      applyTelegramAvatar();
+      fixTopupButton();
+    }, 200);
+  });
+})();
 
-      const isAdminNeeded =
-        text.includes('дашборд') ||
-        text.includes('админ-консоль') ||
-        text.includes('ошибки генераций') ||
-        text.includes('уведомления') ||
-        text.includes('пользователи') ||
-        text.includes('стабильность');
+/* UX FINAL FIX: admin pin, dashboard, profile-only contacts, compact layout, scroll hint */
 
-      if (isWrong && !isAdminNeeded) {
-        block.style.display = 'none';
-        block.setAttribute('data-hard-purged', 'true');
+(function uxFinalFix() {
+  if (window.__uxFinalFixApplied) return;
+  window.__uxFinalFixApplied = true;
+
+  const ADMIN_PINS = ['3465', '3230'];
+  const GENERATION_COST = 40;
+
+  function h() {
+    const headers = {};
+    if (typeof getTelegramIdentityHeaders === 'function') Object.assign(headers, getTelegramIdentityHeaders());
+    if (window.Telegram?.WebApp?.initData) headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+    return headers;
+  }
+
+  async function getMe() {
+    const r = await fetch('/api/user/me', { headers: h() });
+    return r.ok ? r.json() : null;
+  }
+
+  async function getAdmin() {
+    const r = await fetch('/api/admin/overview', { headers: h() });
+    return r.ok ? r.json() : null;
+  }
+
+  function getTgUser() {
+    return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  }
+
+  function isAuth() {
+    return Boolean(getTgUser()?.id);
+  }
+
+  function getGeneratedHistory() {
+    try {
+      return JSON.parse(localStorage.getItem('fototime-ai-generated-photos') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function getFailedGenerations() {
+    try {
+      return JSON.parse(localStorage.getItem('fototime-ai-failed-generations') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function saveFailedGeneration(error) {
+    const items = getFailedGenerations();
+    items.unshift({
+      message: error?.message || String(error || 'Unknown generation error'),
+      createdAt: new Date().toISOString()
+    });
+    localStorage.setItem('fototime-ai-failed-generations', JSON.stringify(items.slice(0, 50)));
+  }
+
+  const originalFetch = window.fetch;
+  window.fetch = async function trackedFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+    try {
+      const response = await originalFetch(input, init);
+
+      if (url.includes('/api/generate') && !response.ok) {
+        response.clone().json()
+          .then((data) => saveFailedGeneration(data?.message || data?.error || `HTTP ${response.status}`))
+          .catch(() => saveFailedGeneration(`HTTP ${response.status}`));
+      }
+
+      return response;
+    } catch (error) {
+      if (url.includes('/api/generate')) saveFailedGeneration(error);
+      throw error;
+    }
+  };
+
+  function packageHtml() {
+    const packs = [
+      ['Старт', 50, '49 ₽', 1, 'Для первой пробы'],
+      ['Гости', 120, '99 ₽', 3, 'Для небольшого мероприятия'],
+      ['Популярный', 300, '249 ₽', 7, 'Для активного использования'],
+      ['Максимум', 700, '499 ₽', 17, 'Для большого события или промо']
+    ];
+
+    return packs.map(([title, tokens, price, gens, note]) => `
+      <article class="ft-package-card">
+        <div>
+          <strong>${title}</strong>
+          <span>${tokens} токенов</span>
+          <small>примерно ${gens} ${gens === 1 ? 'генерация' : 'генераций'}</small>
+          <em>${note}</em>
+        </div>
+        <b>${price}</b>
+      </article>
+    `).join('');
+  }
+
+  function txHtml(transactions = [], balance = 0) {
+    if (!transactions.length) {
+      return '<p class="ft-muted">Операций пока нет.</p>';
+    }
+
+    let cursor = Number(balance || 0);
+
+    return transactions.slice(0, 20).map((tx) => {
+      const amount = Number(tx.amount || 0);
+      const after = typeof tx.balanceAfter === 'number' ? tx.balanceAfter : cursor;
+      const before = typeof tx.balanceBefore === 'number' ? tx.balanceBefore : after - amount;
+      cursor = before;
+
+      const credit = amount > 0;
+      const date = tx.createdAt
+        ? new Date(tx.createdAt).toLocaleString('ru-RU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+        : '';
+
+      return `
+        <article class="ft-transaction ${credit ? 'credit' : 'debit'}">
+          <div>
+            <strong>${credit ? 'Пополнение' : 'Списание'}</strong>
+            <span>${tx.note || tx.reason || 'Операция'}</span>
+            <small>${date}</small>
+            <small>Баланс: ${before} → ${after}</small>
+          </div>
+          <b>${credit ? '+' : ''}${amount} ток.</b>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function historyHtml() {
+    const items = getGeneratedHistory();
+
+    if (!items.length) {
+      return '<p class="ft-muted">Пока нет сохранённых генераций.</p>';
+    }
+
+    return items.slice(0, 12).map((item) => `
+      <article class="history-card-item">
+        <img src="${item.resultUrl || item.imageUrl}" alt="AI photo" loading="lazy" />
+        <div class="history-card-content">
+          <strong>${item.styleTitle || item.styleId || 'AI-фото'}</strong>
+          <span>${item.createdAt ? new Date(item.createdAt).toLocaleString('ru-RU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</span>
+          <button type="button" onclick="window.open('${item.resultUrl || item.imageUrl}', '_blank')">Скачать</button>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  function contactsHtml() {
+    return `
+      <section class="card ft-contacts-card">
+        <div class="section-header">
+          <span class="step">FT</span>
+          <div>
+            <h2>FOTOTIME323</h2>
+            <p class="section-subtitle">Фотобудка, нейрофото и интерактивные решения для мероприятий.</p>
+          </div>
+        </div>
+        <div class="ft-social-grid">
+          <a href="https://t.me/fototime323" target="_blank" rel="noreferrer">✦ Telegram</a>
+          <a href="https://vk.com/fototime323" target="_blank" rel="noreferrer">✦ VK</a>
+          <a href="https://fototime323.lpmotortest.com" target="_blank" rel="noreferrer">✦ Сайт</a>
+        </div>
+        <a class="ft-support-wide" href="https://t.me/fototime323" target="_blank" rel="noreferrer">✨ Поддержка и пополнение баланса</a>
+      </section>
+    `;
+  }
+
+  function removeMainContacts() {
+    const activeTab = document.body.dataset.activeTab || 'main';
+    document.querySelectorAll('main .contacts-card, main .ft-contacts-card').forEach((el) => {
+      if (activeTab === 'main') el.remove();
+    });
+  }
+
+  async function renderProfileFinal() {
+    const panel = document.getElementById('profilePanel');
+    if (!panel) return;
+
+    const data = await getMe();
+    const user = data?.user || {};
+    const balance = Number(user.balance || 0);
+    const left = Math.floor(balance / GENERATION_COST);
+    const tg = getTgUser();
+
+    const name = tg?.username ? `@${tg.username}` : (tg?.first_name || user.username || 'Гость FOTOTIME323');
+    const initials = String(name).replace('@', '').slice(0, 2).toUpperCase();
+
+    panel.innerHTML = `
+      <section class="card ft-profile-card">
+        <div class="ft-profile-head">
+          <div class="ft-user-avatar">${tg?.photo_url ? `<img src="${tg.photo_url}" alt="avatar" />` : initials}</div>
+          <div>
+            <h2>${name}</h2>
+            <p>${isAuth() ? 'Авторизация через Telegram активна.' : 'Гостевой режим: 50 токенов только на пробу.'}</p>
+          </div>
+          ${isAuth() ? '' : '<a class="ft-auth-button" href="https://t.me/fototime323Bot" target="_blank" rel="noreferrer">Авторизоваться</a>'}
+        </div>
+
+        <div class="ft-guest-note">
+          50 токенов в гостевом режиме — это пробный баланс. Зарегистрируйтесь через Telegram и получите ещё 50 бонусных токенов.
+        </div>
+
+        <div class="ft-balance-grid">
+          <article><span>Доступно</span><strong>${balance}</strong><small>осталось примерно на ${left} ${left === 1 ? 'генерацию' : 'генерации'}</small><button type="button" data-refresh-profile>Обновить</button></article>
+          <article><span>Стоимость генерации</span><strong>${GENERATION_COST} токенов</strong><small>Списание после успешного результата.</small></article>
+          <article><span>Мои генерации</span><strong>${getGeneratedHistory().length}</strong><small>сохранённых фото</small></article>
+        </div>
+
+        <div class="ft-low-balance-banner">Осталось на ${left} ${left === 1 ? 'генерацию' : 'генерации'}. Удобно оплачивайте генерации через нашу поддержку.</div>
+
+        <section class="ft-section">
+          <h3>Пакеты токенов</h3>
+          <p>Оплата через Telegram. После оплаты начисляем токены вручную и отправляем чек самозанятого.</p>
+          <div class="ft-package-grid">${packageHtml()}</div>
+          <a class="ft-support-wide" href="https://t.me/fototime323" target="_blank" rel="noreferrer">Пополнить через поддержку</a>
+        </section>
+
+        <section class="ft-section">
+          <h3>История баланса</h3>
+          <div class="ft-transactions ft-transactions-compact">${txHtml(data?.transactions || [], balance)}</div>
+        </section>
+
+        <section class="ft-section">
+          <h3>Мои сгенерированные фото</h3>
+          <div class="history-list">${historyHtml()}</div>
+          <button class="clear-history-button" type="button" data-clear-history>Очистить историю</button>
+        </section>
+      </section>
+
+      ${contactsHtml()}
+    `;
+
+    panel.querySelector('[data-refresh-profile]')?.addEventListener('click', renderProfileFinal);
+    panel.querySelector('[data-clear-history]')?.addEventListener('click', () => {
+      localStorage.setItem('fototime-ai-generated-photos', '[]');
+      renderProfileFinal();
+    });
+  }
+
+  function adminLoginHtml() {
+    return `
+      <section class="card ft-admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Введите PIN администратора.</p>
+          </div>
+        </div>
+        <form class="ft-admin-pin" id="ftAdminPinForm">
+          <input type="password" inputmode="numeric" placeholder="PIN-код" />
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+    `;
+  }
+
+  function failedHtml() {
+    const failed = getFailedGenerations();
+
+    if (!failed.length) return '<p class="ft-muted">Ошибок генерации пока нет.</p>';
+
+    return failed.slice(0, 10).map((item) => `
+      <article class="ft-failed-row">
+        <strong>${item.message}</strong>
+        <small>${item.createdAt ? new Date(item.createdAt).toLocaleString('ru-RU') : ''}</small>
+      </article>
+    `).join('');
+  }
+
+  async function renderAdminFinal() {
+    const panel = document.getElementById('adminPanel');
+    if (!panel) return;
+
+    if (localStorage.getItem('ft-admin-pin-ok') !== 'true') {
+      panel.innerHTML = adminLoginHtml();
+      panel.querySelector('#ftAdminPinForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pin = panel.querySelector('input')?.value || '';
+        if (ADMIN_PINS.includes(pin)) {
+          localStorage.setItem('ft-admin-pin-ok', 'true');
+          renderAdminFinal();
+        } else {
+          alert('Неверный код');
+        }
+      });
+      return;
+    }
+
+    const overview = await getAdmin();
+    const me = await getMe();
+    const failed = getFailedGenerations();
+
+    const stats = overview?.stats || {};
+    const users = overview?.users || [];
+
+    panel.innerHTML = `
+      <section class="card ft-admin-card">
+        <div class="section-header ft-admin-title-row">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Дашборд, клиенты, начисления и ошибки генераций.</p>
+          </div>
+          <button class="ft-dashboard-toggle" type="button" data-toggle-dashboard>Расширенная версия</button>
+        </div>
+
+        <div class="ft-admin-dashboard compact" id="ftAdminDashboard">
+          <article><span>Мой баланс</span><strong>${Number(me?.user?.balance || 0)}</strong><small>токенов</small></article>
+          <article><span>Успешных</span><strong>${Number(stats.totalGenerations || getGeneratedHistory().length || 0)}</strong><small>генераций</small></article>
+          <article><span>Упавших</span><strong>${failed.length}</strong><small>ошибок</small></article>
+          <article><span>Клиентов</span><strong>${Number(stats.totalUsers || users.length || 0)}</strong><small>в базе</small></article>
+        </div>
+
+        <section class="ft-section">
+          <h3>Ошибки генераций</h3>
+          <div class="ft-failed-list">${failedHtml()}</div>
+        </section>
+
+        <section class="ft-section">
+          <h3>Клиенты и начисление токенов</h3>
+          <div class="ft-admin-users">
+            ${users.map((u) => `
+              <article class="ft-admin-user">
+                <div class="ft-admin-user-head">
+                  <div>
+                    <strong>${u.username ? '@' + u.username : (u.firstName || u.id)}</strong>
+                    <small>ID: ${u.telegramUserId || u.id}</small>
+                    <small>Генераций: ${Number(u.generationsCount || 0)} · списано: ${Number(u.spentCredits || 0)} ток.</small>
+                  </div>
+                  <div><b>${Number(u.balance || 0)}</b><span>токенов</span></div>
+                </div>
+                <div class="ft-admin-actions">
+                  <button data-credit-user="${u.id}" data-credit-amount="50" data-credit-reason="beta_testing">+50 Бета</button>
+                  <button data-credit-user="${u.id}" data-credit-amount="120" data-credit-reason="manual_credit">+120</button>
+                  <button data-credit-user="${u.id}" data-credit-amount="300" data-credit-reason="manual_credit">+300</button>
+                  <button data-credit-user="${u.id}" data-credit-amount="700" data-credit-reason="manual_credit">+700</button>
+                </div>
+              </article>
+            `).join('') || '<p class="ft-muted">Пользователей пока нет.</p>'}
+          </div>
+        </section>
+      </section>
+    `;
+
+    panel.querySelector('[data-toggle-dashboard]')?.addEventListener('click', (e) => {
+      const dashboard = panel.querySelector('#ftAdminDashboard');
+      dashboard.classList.toggle('compact');
+      e.target.textContent = dashboard.classList.contains('compact') ? 'Расширенная версия' : 'Компактно';
+    });
+
+    panel.querySelectorAll('[data-credit-user]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        await fetch(`/api/admin/users/${encodeURIComponent(btn.dataset.creditUser)}/credits`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...h() },
+          body: JSON.stringify({
+            amount: Number(btn.dataset.creditAmount),
+            reason: btn.dataset.creditReason,
+            note: btn.dataset.creditReason === 'beta_testing' ? 'Бета-тестирование — бесплатно' : 'Ручное начисление токенов'
+          })
+        });
+        await renderAdminFinal();
+      });
+    });
+  }
+
+  function scrollHint() {
+    if (document.getElementById('ftScrollHint')) return;
+    const el = document.createElement('button');
+    el.id = 'ftScrollHint';
+    el.type = 'button';
+    el.textContent = '⌄';
+    el.addEventListener('click', () => window.scrollBy({ top: window.innerHeight * 0.75, behavior: 'smooth' }));
+    document.body.appendChild(el);
+
+    window.addEventListener('scroll', () => {
+      el.classList.toggle('hidden', window.scrollY > 280);
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-tab-target]');
+    if (!tab) return;
+
+    setTimeout(() => {
+      removeMainContacts();
+      if (tab.dataset.tabTarget === 'profile') renderProfileFinal();
+      if (tab.dataset.tabTarget === 'admin') renderAdminFinal();
+    }, 200);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      removeMainContacts();
+      scrollHint();
+    }, 800);
+  });
+})();
+
+/* ADMIN PIN FIX + COMPACT UI FIX */
+
+(function adminPinAndCompactFix() {
+  if (window.__adminPinAndCompactFixApplied) return;
+  window.__adminPinAndCompactFixApplied = true;
+
+  function getAdminPin() {
+    return localStorage.getItem('ft-admin-pin') || '';
+  }
+
+  async function getAdminPinOverview() {
+    const response = await fetch('/api/admin-pin/overview', {
+      headers: {
+        'x-admin-pin': getAdminPin()
+      }
+    });
+
+    if (!response.ok) return null;
+    return response.json();
+  }
+
+  async function creditUserByPin(userId, amount, reason) {
+    const response = await fetch(`/api/admin-pin/users/${encodeURIComponent(userId)}/credits`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-pin': getAdminPin()
+      },
+      body: JSON.stringify({
+        amount,
+        reason,
+        note: reason === 'beta_testing'
+          ? 'Бета-тестирование — бесплатно'
+          : 'Ручное начисление токенов'
+      })
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.message || 'Не удалось начислить токены');
+    }
+  }
+
+  function adminLoginHtml() {
+    return `
+      <section class="card ft-admin-card">
+        <div class="section-header">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Введите PIN администратора.</p>
+          </div>
+        </div>
+
+        <form id="ftAdminPinForm" class="ft-admin-pin">
+          <input type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off" />
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+    `;
+  }
+
+  function renderUsers(users) {
+    if (!users?.length) return '<p class="ft-muted">Пользователей пока нет.</p>';
+
+    return users.map((user) => {
+      const name = user.username ? `@${user.username}` : user.firstName || user.id;
+
+      return `
+        <article class="ft-admin-user">
+          <div class="ft-admin-user-head">
+            <div>
+              <strong>${name}</strong>
+              <small>ID: ${user.telegramUserId || user.id}</small>
+              <small>Генераций: ${user.generationsCount || 0} · списано: ${user.spentCredits || 0} ток.</small>
+            </div>
+            <div>
+              <b>${user.balance || 0}</b>
+              <span>токенов</span>
+            </div>
+          </div>
+
+          <div class="ft-admin-actions">
+            <button data-pin-credit-user="${user.id}" data-pin-credit-amount="50" data-pin-credit-reason="beta_testing">+50 Бета</button>
+            <button data-pin-credit-user="${user.id}" data-pin-credit-amount="120" data-pin-credit-reason="manual_credit">+120</button>
+            <button data-pin-credit-user="${user.id}" data-pin-credit-amount="300" data-pin-credit-reason="manual_credit">+300</button>
+            <button data-pin-credit-user="${user.id}" data-pin-credit-amount="700" data-pin-credit-reason="manual_credit">+700</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  async function renderAdminByPin() {
+    const panel = document.getElementById('adminPanel');
+    if (!panel) return;
+
+    if (!getAdminPin()) {
+      panel.innerHTML = adminLoginHtml();
+      bindPinForm();
+      return;
+    }
+
+    const data = await getAdminPinOverview();
+
+    if (!data) {
+      localStorage.removeItem('ft-admin-pin');
+      panel.innerHTML = adminLoginHtml();
+      bindPinForm();
+      return;
+    }
+
+    const stats = data.stats || {};
+
+    panel.innerHTML = `
+      <section class="card ft-admin-card">
+        <div class="section-header ft-admin-title-row">
+          <span class="step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Дашборд, клиенты, балансы и ручное начисление.</p>
+          </div>
+          <button type="button" class="ft-dashboard-toggle" data-admin-logout>Выйти</button>
+        </div>
+
+        <div class="ft-admin-dashboard compact">
+          <article><span>Клиентов</span><strong>${stats.totalUsers || 0}</strong><small>в базе</small></article>
+          <article><span>Успешных</span><strong>${stats.totalGenerations || 0}</strong><small>генераций</small></article>
+          <article><span>Списано</span><strong>${stats.totalSpentCredits || 0}</strong><small>токенов</small></article>
+        </div>
+
+        <section class="ft-section">
+          <h3>Пользователи</h3>
+          <div class="ft-admin-users">${renderUsers(data.users || [])}</div>
+        </section>
+      </section>
+    `;
+
+    panel.querySelector('[data-admin-logout]')?.addEventListener('click', () => {
+      localStorage.removeItem('ft-admin-pin');
+      renderAdminByPin();
+    });
+
+    panel.querySelectorAll('[data-pin-credit-user]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+
+        try {
+          await creditUserByPin(
+            button.dataset.pinCreditUser,
+            Number(button.dataset.pinCreditAmount),
+            button.dataset.pinCreditReason
+          );
+
+          await renderAdminByPin();
+        } catch (error) {
+          alert(error.message);
+          button.disabled = false;
+        }
+      });
+    });
+  }
+
+  function bindPinForm() {
+    const form = document.getElementById('ftAdminPinForm');
+    if (!form) return;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const input = form.querySelector('input');
+      const button = form.querySelector('button');
+      const pin = input?.value?.trim();
+
+      button.disabled = true;
+      button.textContent = 'Проверяем...';
+
+      localStorage.setItem('ft-admin-pin', pin);
+
+      const data = await getAdminPinOverview();
+
+      if (!data) {
+        localStorage.removeItem('ft-admin-pin');
+        button.disabled = false;
+        button.textContent = 'Войти';
+        alert('Неверный PIN');
+        return;
+      }
+
+      await renderAdminByPin();
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target="admin"]');
+    if (!tab) return;
+
+    setTimeout(renderAdminByPin, 250);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const adminTab = document.querySelector('[data-tab-target="admin"]');
+      if (adminTab) {
+        adminTab.classList.remove('hidden');
+        adminTab.style.display = '';
+      }
+    }, 500);
+  });
+})();
+
+/* FIX: allow guest generation, soft auth modal, admin pin stability */
+
+(function guestGenerationAndAuthFix() {
+  if (window.__guestGenerationAndAuthFixApplied) return;
+  window.__guestGenerationAndAuthFixApplied = true;
+
+  function removeBadAuthGuardMessages() {
+    document.querySelectorAll('.message, .toast, .generation-message').forEach((el) => {
+      if ((el.textContent || '').includes('авторизуйтесь через Telegram')) {
+        el.remove();
       }
     });
   }
 
-  function purge() {
-    purgeProfile();
-    purgeAdmin();
+  function showSoftAuthModal() {
+    if (document.getElementById('ftSoftAuthModal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'ftSoftAuthModal';
+    modal.className = 'ft-soft-auth-modal';
+    modal.innerHTML = `
+      <div class="ft-soft-auth-card">
+        <button type="button" class="ft-soft-auth-close" aria-label="Закрыть">×</button>
+        <div class="ft-soft-auth-icon">FT</div>
+        <h3>Авторизация через Telegram</h3>
+        <p>
+          Сейчас можно протестировать генерацию на бесплатных токенах.
+          Авторизация нужна, чтобы закрепить баланс за вами, сохранить историю и получить дополнительные бонусные токены.
+        </p>
+        <a href="https://t.me/fototime323Bot" target="_blank" rel="noreferrer">Открыть бота в Telegram</a>
+        <button type="button" class="ft-soft-auth-secondary">Продолжить тестирование</button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('.ft-soft-auth-close')?.addEventListener('click', () => modal.remove());
+    modal.querySelector('.ft-soft-auth-secondary')?.addEventListener('click', () => modal.remove());
   }
 
-  document.addEventListener('click', () => {
-    setTimeout(purge, 50);
-    setTimeout(purge, 300);
-    setTimeout(purge, 900);
+  function addSoftAuthButton() {
+    if (document.getElementById('ftSoftAuthButton')) return;
+
+    const balanceCard = document.querySelector('.balance-card, .balance-card-final');
+    if (!balanceCard) return;
+
+    const button = document.createElement('button');
+    button.id = 'ftSoftAuthButton';
+    button.type = 'button';
+    button.className = 'ft-soft-auth-button';
+    button.textContent = 'Авторизация и бонусы';
+    button.addEventListener('click', showSoftAuthModal);
+
+    balanceCard.appendChild(button);
+  }
+
+  function forceAdminPinRender() {
+    const adminPanel = document.getElementById('adminPanel');
+    if (!adminPanel) return;
+
+    if (!adminPanel.querySelector('#ftAdminPinForm') && !localStorage.getItem('ft-admin-pin')) {
+      adminPanel.innerHTML = `
+        <section class="card ft-admin-card">
+          <div class="section-header">
+            <span class="step">AD</span>
+            <div>
+              <h2>Админ-консоль</h2>
+              <p class="section-subtitle">Введите PIN администратора.</p>
+            </div>
+          </div>
+
+          <form id="ftAdminPinForm" class="ft-admin-pin">
+            <input type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off" />
+            <button type="submit">Войти</button>
+          </form>
+        </section>
+      `;
+    }
+
+    const form = adminPanel.querySelector('#ftAdminPinForm');
+    if (!form || form.dataset.bound === 'true') return;
+
+    form.dataset.bound = 'true';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const input = form.querySelector('input');
+      const button = form.querySelector('button');
+      const pin = input.value.trim();
+
+      button.disabled = true;
+      button.textContent = 'Проверяем...';
+
+      const response = await fetch('/api/admin-pin/overview', {
+        headers: {
+          'x-admin-pin': pin
+        }
+      });
+
+      if (!response.ok) {
+        button.disabled = false;
+        button.textContent = 'Войти';
+        alert('Неверный PIN');
+        return;
+      }
+
+      localStorage.setItem('ft-admin-pin', pin);
+
+      if (typeof renderAdminFinal === 'function') {
+        renderAdminFinal();
+      } else {
+        location.reload();
+      }
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target="admin"]');
+    if (tab) {
+      setTimeout(forceAdminPinRender, 300);
+    }
   }, true);
 
   window.addEventListener('load', () => {
-    setTimeout(purge, 500);
-    setTimeout(purge, 1200);
-    setTimeout(purge, 2500);
+    setTimeout(() => {
+      removeBadAuthGuardMessages();
+      addSoftAuthButton();
+      forceAdminPinRender();
+    }, 800);
   });
 
-  setInterval(purge, 1500);
+  setInterval(removeBadAuthGuardMessages, 1200);
 })();
 
-/* FINAL FIX: result image proxy, strict tabs, support link, save history */
+/* RELEASE STABILIZER: auth status, logout, feedback, admin dashboard, error logs, safer generation */
 
-(function finalFixLoadTabsSupport() {
-  if (window.__finalFixLoadTabsSupportApplied) return;
-  window.__finalFixLoadTabsSupportApplied = true;
+(function releaseStabilizer() {
+  if (window.__releaseStabilizerApplied) return;
+  window.__releaseStabilizerApplied = true;
 
-  const SUPPORT_URL = 'https://t.me/fototime23_Bot';
+  const ADMIN_PIN_KEY = 'ft-admin-pin';
+  const GUEST_LOGOUT_KEY = 'ft-guest-logged-out';
+
+  function tgUser() {
+    return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  }
+
+  function isTelegram() {
+    return Boolean(window.Telegram?.WebApp?.initData);
+  }
+
+  function userName() {
+    const user = tgUser();
+
+    if (user?.username) return `@${user.username}`;
+    if (user?.first_name || user?.last_name) return [user.first_name, user.last_name].filter(Boolean).join(' ');
+    return 'Гостевой пользователь';
+  }
+
+  function userAvatarHtml() {
+    const user = tgUser();
+
+    if (user?.photo_url) {
+      return `<img src="${user.photo_url}" alt="avatar" />`;
+    }
+
+    return userName().replace('@', '').slice(0, 2).toUpperCase();
+  }
+
+  async function logGenerationError(error, source = 'client') {
+    try {
+      await fetch('/api/generation-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source,
+          message: error?.message || String(error),
+          stack: error?.stack || ''
+        })
+      });
+    } catch {}
+  }
+
+  window.addEventListener('error', (event) => {
+    logGenerationError(event.error || event.message, 'window.error');
+  });
+
+  window.addEventListener('unhandledrejection', (event) => {
+    logGenerationError(event.reason || 'Unhandled promise rejection', 'unhandledrejection');
+  });
+
+  function showConfetti() {
+    const box = document.createElement('div');
+    box.className = 'ft-confetti';
+    box.innerHTML = '<i></i><i></i><i></i><i></i><i></i><i></i>';
+    document.body.appendChild(box);
+    setTimeout(() => box.remove(), 1800);
+  }
+
+  function ensureAuthStatus() {
+    if (document.getElementById('ftAuthStatusCard')) return;
+
+    const balanceCard = document.querySelector('.balance-card, .balance-card-final');
+    if (!balanceCard) return;
+
+    const card = document.createElement('section');
+    card.id = 'ftAuthStatusCard';
+    card.className = 'ft-auth-status-card';
+
+    card.innerHTML = `
+      <div class="ft-user-avatar">${userAvatarHtml()}</div>
+      <div>
+        <strong>${isTelegram() ? 'Аккаунт Telegram прикреплён' : 'Гостевой режим'}</strong>
+        <span>${isTelegram() ? `${userName()} · история и баланс сохраняются` : '50 токенов доступны на пробу. Для постоянного баланса откройте приложение через Telegram.'}</span>
+      </div>
+      <button type="button" id="ftAuthActionButton">${isTelegram() ? 'Выйти' : 'Как авторизоваться?'}</button>
+    `;
+
+    balanceCard.insertAdjacentElement('afterend', card);
+
+    document.getElementById('ftAuthActionButton')?.addEventListener('click', () => {
+      if (isTelegram()) {
+        localStorage.setItem(GUEST_LOGOUT_KEY, 'true');
+        localStorage.removeItem('fototime-ai-generated-photos');
+        showMessage('Вы вышли из локального профиля. Чтобы снова прикрепить аккаунт, откройте приложение через Telegram.', 'success');
+        showConfetti();
+        return;
+      }
+
+      showMessage('Откройте это приложение через кнопку в Telegram-боте. После входа мы начислим бонусные токены.', 'info');
+      showConfetti();
+    });
+
+    if (isTelegram()) {
+      setTimeout(() => {
+        showMessage(`Telegram аккаунт прикреплён: ${userName()}`, 'success');
+        showConfetti();
+      }, 700);
+    }
+  }
+
+  function ensureFeedback() {
+    const profile = document.getElementById('profilePanel');
+    if (!profile || document.getElementById('ftFeedbackForm')) return;
+
+    profile.insertAdjacentHTML('beforeend', `
+      <section class="card ft-feedback-card">
+        <div class="section-header">
+          <span class="step">FB</span>
+          <div>
+            <h2>Обратная связь</h2>
+            <p class="section-subtitle">Отзыв, идея улучшения или баг — можно приложить скриншот.</p>
+          </div>
+        </div>
+
+        <form id="ftFeedbackForm" class="ft-feedback-form">
+          <select name="type">
+            <option value="review">Отзыв</option>
+            <option value="improvement">Предложение улучшения</option>
+            <option value="bug">Баг</option>
+          </select>
+          <input name="name" placeholder="Имя или “анонимно”" />
+          <input name="contact" placeholder="Telegram для связи" />
+          <textarea name="message" placeholder="Сообщение" required></textarea>
+          <input name="screenshot" type="file" accept="image/*" />
+          <button type="submit">Отправить</button>
+        </form>
+
+        <button type="button" id="ftTokenRequestButton" class="ft-token-request-button">
+          Запросить токены
+        </button>
+      </section>
+    `);
+
+    const form = document.getElementById('ftFeedbackForm');
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const button = form.querySelector('button');
+      button.disabled = true;
+      button.textContent = 'Отправляем...';
+
+      const fd = new FormData(form);
+      if (!fd.get('name')) fd.set('name', userName());
+
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        body: fd
+      });
+
+      button.disabled = false;
+      button.textContent = 'Отправить';
+
+      if (response.ok) {
+        form.reset();
+        showMessage('Спасибо! Обратная связь отправлена.', 'success');
+        showConfetti();
+      } else {
+        showMessage('Не удалось отправить обратную связь.', 'error');
+      }
+    });
+
+    document.getElementById('ftTokenRequestButton')?.addEventListener('click', async () => {
+      await fetch('/api/feedback/token-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: userName(), contact: userName(), message: 'Клиент запросил токены' })
+      });
+
+      showMessage('Запрос токенов отправлен. Мы свяжемся с вами.', 'success');
+      showConfetti();
+    });
+  }
+
+  async function renderAdminDashboard() {
+    const admin = document.getElementById('adminPanel');
+    const pin = localStorage.getItem(ADMIN_PIN_KEY);
+
+    if (!admin || !pin) return;
+
+    const [overviewRes, errorsRes, feedbackRes] = await Promise.all([
+      fetch('/api/admin-pin/overview', { headers: { 'x-admin-pin': pin } }),
+      fetch('/api/generation-logs/admin', { headers: { 'x-admin-pin': pin } }),
+      fetch('/api/feedback/admin', { headers: { 'x-admin-pin': pin } })
+    ]);
+
+    if (!overviewRes.ok) return;
+
+    const overview = await overviewRes.json();
+    const errors = errorsRes.ok ? await errorsRes.json() : { items: [] };
+    const feedback = feedbackRes.ok ? await feedbackRes.json() : { items: [] };
+
+    let dashboard = document.getElementById('ftRealAdminDashboard');
+
+    if (!dashboard) {
+      dashboard = document.createElement('section');
+      dashboard.id = 'ftRealAdminDashboard';
+      dashboard.className = 'card ft-real-admin-dashboard';
+      admin.prepend(dashboard);
+    }
+
+    const stats = overview.stats || {};
+    const users = overview.users || [];
+
+    dashboard.innerHTML = `
+      <div class="section-header">
+        <span class="step">DB</span>
+        <div>
+          <h2>Дашборд</h2>
+          <p class="section-subtitle">Рабочая статистика генераций, ошибок и обращений.</p>
+        </div>
+      </div>
+
+      <div class="ft-admin-dashboard compact">
+        <article><span>Успешных</span><strong>${stats.totalGenerations || 0}</strong><small>генераций</small></article>
+        <article><span>Ошибок</span><strong>${errors.items?.length || 0}</strong><small>зафиксировано</small></article>
+        <article><span>Клиентов</span><strong>${stats.totalUsers || users.length || 0}</strong><small>в базе</small></article>
+        <article><span>Обращений</span><strong>${feedback.items?.length || 0}</strong><small>feedback/request</small></article>
+      </div>
+
+      <section class="ft-section">
+        <h3>Ошибки генераций</h3>
+        <div class="ft-log-list">
+          ${(errors.items || []).slice(0, 8).map((item) => `
+            <article class="ft-log-row">
+              <strong>${item.message}</strong>
+              <small>${item.source || 'client'} · ${item.createdAt ? new Date(item.createdAt).toLocaleString('ru-RU') : ''}</small>
+            </article>
+          `).join('') || '<p class="ft-muted">Ошибок пока нет.</p>'}
+        </div>
+      </section>
+
+      <section class="ft-section">
+        <h3>Уведомления</h3>
+        <div class="ft-log-list">
+          ${(feedback.items || []).slice(0, 8).map((item) => `
+            <article class="ft-log-row">
+              <strong>${item.type === 'token_request' ? 'Запрос токенов' : 'Обратная связь'}</strong>
+              <span>${item.name || 'Клиент'} ${item.contact ? '· ' + item.contact : ''}</span>
+              <small>${item.message || '—'}</small>
+            </article>
+          `).join('') || '<p class="ft-muted">Уведомлений пока нет.</p>'}
+        </div>
+      </section>
+    `;
+  }
+
+  function fixFooterGap() {
+    const main = document.querySelector('main');
+    if (main) main.classList.add('ft-main-tight');
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-tab-target]');
+
+    if (!tab) return;
+
+    setTimeout(() => {
+      if (tab.dataset.tabTarget === 'profile') ensureFeedback();
+      if (tab.dataset.tabTarget === 'admin') renderAdminDashboard();
+      ensureAuthStatus();
+      fixFooterGap();
+    }, 500);
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      ensureAuthStatus();
+      ensureFeedback();
+      renderAdminDashboard();
+      fixFooterGap();
+    }, 1000);
+  });
+})();
+
+/* HOTFIX: download buttons, single history block, stable generation */
+
+(function hotfixDownloadHistoryGeneration() {
+  if (window.__hotfixDownloadHistoryGenerationApplied) return;
+  window.__hotfixDownloadHistoryGenerationApplied = true;
+
   const HISTORY_KEY = 'fototime-ai-generated-photos';
 
-  function q(s, r = document) { return r.querySelector(s); }
-  function qa(s, r = document) { return Array.from(r.querySelectorAll(s)); }
-
-  function msg(text, type = 'info') {
-    if (typeof showMessage === 'function') showMessage(text, type);
-    else alert(text);
+  function getHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    } catch {
+      return [];
+    }
   }
 
-  function proxyImage(url) {
-    if (!url) return '';
-    if (url.startsWith('/')) return url;
-    if (/^https?:\/\//i.test(url)) return `/api/image-proxy?url=${encodeURIComponent(url)}`;
-    return url;
+  function saveHistoryUnique(item) {
+    const list = getHistory();
+    const imageUrl = item.resultUrl || item.imageUrl;
+    const id = item.generationId || item.id || imageUrl || `gen_${Date.now()}`;
+
+    const clean = list.filter((old) => {
+      const oldId = old.generationId || old.id || old.resultUrl || old.imageUrl;
+      return oldId !== id && old.resultUrl !== imageUrl && old.imageUrl !== imageUrl;
+    });
+
+    clean.unshift({
+      ...item,
+      id,
+      generationId: id,
+      resultUrl: imageUrl,
+      imageUrl,
+      createdAt: item.createdAt || new Date().toISOString()
+    });
+
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(clean.slice(0, 60)));
   }
 
-  function rawImageUrl(data) {
+  async function downloadImage(url, filename = 'fototime-ai-photo.jpg') {
+    if (!url) {
+      alert('Нет ссылки на изображение');
+      return;
+    }
+
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  function normalizeDownloadButtons() {
+    document.querySelectorAll('a, button').forEach((el) => {
+      const text = (el.textContent || '').trim().toLowerCase();
+      if (!['скачать', 'сохранить'].includes(text)) return;
+
+      const card = el.closest('.ft-history-card, .history-card-item, .result-card, #resultSection');
+      const img = card?.querySelector('img') || document.querySelector('#resultImage');
+      const url = el.getAttribute('href') || img?.src;
+
+      if (!url) return;
+
+      el.removeAttribute('href');
+      el.setAttribute('type', 'button');
+      el.onclick = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const name = `fototime-ai-${Date.now()}.jpg`;
+        downloadImage(url, name);
+      };
+    });
+  }
+
+  function removeDuplicateHistoryBlocks() {
+    const profile = document.querySelector('#profilePanel');
+    if (!profile) return;
+
+    const blocks = Array.from(profile.querySelectorAll(
+      '#historySection, .history-card, .ft-section-clean, .card'
+    )).filter((el) => /Мои сгенерированные фото|Последние изображения|сохранённых генераций/i.test(el.textContent || ''));
+
+    blocks.forEach((block, index) => {
+      if (index > 0) block.remove();
+    });
+  }
+
+  function resultUrlFrom(data) {
     return data.resultUrl
       || data.imageUrl
       || data.url
@@ -1875,678 +3778,917 @@ window.fetch = function patchedFetch(input, init = {}) {
       || data.result?.imageUrl
       || data.data?.url
       || data.data?.imageUrl
-      || data.output?.url
-      || data.output?.imageUrl
       || (data.storage?.resultImage ? `/${data.storage.resultImage}` : '');
   }
 
-  function saveHistory(item) {
-    try {
-      const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-      const raw = item.rawUrl || item.resultUrl || item.imageUrl;
-      const clean = list.filter((x) => (x.rawUrl || x.resultUrl || x.imageUrl) !== raw);
-      clean.unshift(item);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(clean.slice(0, 60)));
-    } catch {}
-  }
-
-  function selectedStyle() {
-    const card =
-      q('.style-card.selected') ||
-      q('[data-style-id].selected') ||
-      q('[data-style].selected') ||
-      q('[aria-selected="true"]');
-
-    if (!card) return null;
-
-    const title =
-      card.querySelector('strong, h3, .style-title, .title')?.textContent?.trim()
-      || (card.textContent || '').trim().split('\n')[0];
-
+  function getAppState() {
+    const s = window.state || {};
     return {
-      id: card.dataset.styleId || card.dataset.style || card.dataset.id || title,
-      title
+      participantId: s.selectedParticipantId,
+      styleId: s.selectedStyleId,
+      style: s.selectedStyle,
+      photo: s.selectedPhoto
     };
   }
 
-  function selectedPhoto() {
-    return window.ftSelectedPhoto || window.state?.selectedPhoto || q('input[type="file"]')?.files?.[0] || null;
-  }
+  async function stableGenerate(event) {
+    const button = event.target.closest('#generateButton, .generate-button');
+    if (!button) return;
 
-  function selectedParticipant() {
-    const btn = q('.participant-button.selected, .participant-option.selected, [data-participant-id].selected');
-    const text = (btn?.textContent || '').toLowerCase();
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
 
-    if (btn?.dataset?.participantId) return btn.dataset.participantId;
-    if (text.includes('муж')) return 'male';
-    if (text.includes('пар')) return 'couple';
-    if (text.includes('маль')) return 'boy';
-    if (text.includes('дев')) return 'girl';
-    if (text.includes('сем')) return 'family';
-    return 'female';
-  }
+    if (button.dataset.generating === 'true') return;
 
-  async function generate(button) {
-    const style = selectedStyle();
-    const photo = selectedPhoto();
+    const s = getAppState();
 
-    if (!style?.id) return msg('Выберите стиль обработки.', 'error');
-    if (!photo) return msg('Загрузите фото.', 'error');
+    if (!s.participantId || !s.styleId || !s.photo) {
+      if (typeof showMessage === 'function') showMessage('Выберите участника, стиль и фото.', 'error');
+      else alert('Выберите участника, стиль и фото.');
+      return;
+    }
 
-    const fd = new FormData();
-    fd.append('participantId', selectedParticipant());
-    fd.append('styleId', style.id);
-    fd.append('styleTitle', style.title || style.id);
-    fd.append('photo', photo);
+    const formData = new FormData();
+    formData.append('participantId', s.participantId);
+    formData.append('styleId', s.styleId);
+    formData.append('styleTitle', s.style?.title || s.styleId);
+    formData.append('styleProvider', s.style?.provider || s.style?.providers?.[0] || '');
+    formData.append('photo', s.photo);
 
-    const old = button.textContent;
+    const oldText = button.textContent;
+    button.dataset.generating = 'true';
     button.disabled = true;
     button.textContent = 'Создаём AI-фото...';
 
     try {
       const headers = {};
-      if (window.Telegram?.WebApp?.initData) headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+      if (window.Telegram?.WebApp?.initData) {
+        headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+      }
 
-      const res = await fetch('/api/generate', { method: 'POST', headers, body: fd });
-      const raw = await res.text();
-      const data = raw ? JSON.parse(raw) : {};
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers,
+        body: formData
+      });
 
-      if (!res.ok) throw new Error(data.message || data.error || `Ошибка HTTP ${res.status}`);
+      const text = await response.text();
+      let data = {};
 
-      const rawUrl = rawImageUrl(data);
-      if (!rawUrl) throw new Error('Сервер не вернул ссылку на готовое фото.');
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error(`Некорректный ответ сервера: ${text.slice(0, 140)}`);
+      }
 
-      const safeUrl = proxyImage(rawUrl);
+      if (!response.ok) {
+        throw new Error(data.message || data.error || `Ошибка генерации HTTP ${response.status}`);
+      }
 
-      saveHistory({
-        id: data.generationId || `generation_${Date.now()}`,
+      const imageUrl = resultUrlFrom(data);
+
+      if (!imageUrl) {
+        throw new Error('Сервер не вернул ссылку на готовое изображение');
+      }
+
+      const resultSection = document.querySelector('#resultSection');
+      const resultImage = document.querySelector('#resultImage');
+
+      if (resultImage) resultImage.src = imageUrl;
+      if (resultSection) {
+        resultSection.classList.remove('hidden');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      saveHistoryUnique({
         generationId: data.generationId || `generation_${Date.now()}`,
-        rawUrl,
-        resultUrl: safeUrl,
-        imageUrl: safeUrl,
-        styleTitle: style.title || style.id,
-        styleId: style.id,
-        participantId: selectedParticipant(),
-        createdAt: new Date().toISOString()
+        resultUrl: imageUrl,
+        imageUrl,
+        styleTitle: s.style?.title || s.styleId,
+        styleId: s.styleId,
+        participantId: s.participantId
       });
 
-      const img = q('#resultImage');
-      const result = q('#resultSection');
-
-      if (img) {
-        img.onerror = () => {
-          img.onerror = null;
-          img.style.display = 'none';
-          result?.insertAdjacentHTML('beforeend', `
-            <div class="ft-result-fallback">
-              Фото создано и сохранено в личном кабинете.
-              <a href="${safeUrl}" target="_blank" rel="noreferrer">Открыть фото</a>
-            </div>
-          `);
-        };
-
-        img.style.display = '';
-        img.src = safeUrl;
+      if (typeof data.balance !== 'undefined') {
+        document.querySelectorAll('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]').forEach((el) => {
+          el.textContent = data.balance;
+        });
       }
 
-      if (result) {
-        result.classList.remove('hidden');
-        result.style.display = '';
-        result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (typeof renderProfileClean === 'function') {
+        renderProfileClean();
       }
 
-      msg('Готово! Фото сохранено в личном кабинете.', 'success');
-      setTimeout(cleanTabs, 300);
+      setTimeout(() => {
+        removeDuplicateHistoryBlocks();
+        normalizeDownloadButtons();
+      }, 400);
+
+      if (typeof showMessage === 'function') showMessage('Готово! Фото сохранено в личном кабинете.', 'success');
     } catch (error) {
-      msg(error.message || 'Ошибка генерации.', 'error');
+      try {
+        await fetch('/api/generation-logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source: 'stableGenerate',
+            message: error.message || String(error),
+            stack: error.stack || '',
+            details: 'hotfix generation handler'
+          })
+        });
+      } catch {}
+
+      if (typeof showMessage === 'function') showMessage(error.message || 'Ошибка генерации.', 'error');
+      else alert(error.message || 'Ошибка генерации.');
     } finally {
+      button.dataset.generating = 'false';
       button.disabled = false;
-      button.textContent = old || 'Создать AI-фото';
+      button.textContent = oldText || 'Создать AI-фото';
     }
   }
 
-  function rewriteSupportLinks() {
-    qa('a[href*="t.me"], a[href*="telegram"], button').forEach((el) => {
-      const text = (el.textContent || '').toLowerCase();
-      const href = el.getAttribute?.('href') || '';
+  document.addEventListener('click', stableGenerate, true);
 
-      if (text.includes('поддерж') || text.includes('telegram') || text.includes('пополн')) {
-        if (el.tagName === 'A') {
-          el.href = SUPPORT_URL;
-          el.target = '_blank';
-          el.rel = 'noreferrer';
-        }
-      }
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      removeDuplicateHistoryBlocks();
+      normalizeDownloadButtons();
+    }, 250);
+  }, true);
 
-      if (href.includes('fototime323')) {
-        el.href = SUPPORT_URL;
-      }
-    });
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      removeDuplicateHistoryBlocks();
+      normalizeDownloadButtons();
+    }, 1000);
+  });
+})();
+
+/* HOTFIX: selection fallback, prices, admin chart, clear buttons */
+
+(function finalProductHotfix() {
+  if (window.__finalProductHotfixApplied) return;
+  window.__finalProductHotfixApplied = true;
+
+  const PRICE_PACKAGES = [
+    { title: 'Старт', tokens: 50, price: '39 ₽', gens: 1 },
+    { title: 'Гости', tokens: 120, price: '89 ₽', gens: 3 },
+    { title: 'Популярный', tokens: 300, price: '219 ₽', gens: 7 },
+    { title: 'Максимум', tokens: 700, price: '459 ₽', gens: 17 }
+  ];
+
+  function getSelectedFromDom() {
+    const participant =
+      document.querySelector('.participant-button.selected, .participant-option.selected, [data-participant-id].selected, [data-participant].selected');
+
+    const style =
+      document.querySelector('.style-card.selected, [data-style-id].selected, [data-style].selected, [aria-selected="true"].style-card');
+
+    const fileInput =
+      document.querySelector('input[type="file"][name="photo"], input[type="file"]');
+
+    return {
+      participantId:
+        window.state?.selectedParticipantId ||
+        participant?.dataset?.participantId ||
+        participant?.dataset?.participant ||
+        participant?.value,
+
+      styleId:
+        window.state?.selectedStyleId ||
+        style?.dataset?.styleId ||
+        style?.dataset?.style ||
+        style?.dataset?.id,
+
+      style:
+        window.state?.selectedStyle || {
+          title: style?.querySelector('strong, h3, .style-title')?.textContent?.trim() || style?.textContent?.trim()
+        },
+
+      photo:
+        window.state?.selectedPhoto ||
+        fileInput?.files?.[0] ||
+        null
+    };
   }
 
-  function currentTab() {
-    if (document.body.dataset.ftTab) return document.body.dataset.ftTab;
-
-    const active = q('[data-tab-target].active, [data-tab-target][aria-selected="true"]');
-    return active?.dataset?.tabTarget || 'main';
-  }
-
-  function cleanTabs() {
-    const tab = currentTab();
-    const profile = q('#profilePanel');
-    const admin = q('#adminPanel');
-
-    if (profile) profile.style.display = tab === 'profile' ? '' : 'none';
-    if (admin) admin.style.display = tab === 'admin' ? '' : 'none';
-
-    if (tab === 'profile' && profile) {
-      qa('.card, section, .ft-section-clean, div', profile).forEach((el) => {
-        const text = (el.textContent || '').toLowerCase();
-
-        const wrong =
-          text.includes('участник') ||
-          text.includes('стиль обработки') ||
-          text.includes('поиск и фильтрация') ||
-          text.includes('выбрать фото') ||
-          text.includes('jpg, jpeg') ||
-          text.includes('создать ai-фото') ||
-          text.includes('повторить генерацию');
-
-        const keep =
-          text.includes('личный кабинет') ||
-          text.includes('пакеты токенов') ||
-          text.includes('история баланса') ||
-          text.includes('мои сгенерированные фото') ||
-          text.includes('fototime323') ||
-          text.includes('обратная связь');
-
-        if (wrong && !keep) el.style.display = 'none';
-      });
-    }
-
-    if (tab === 'admin' && admin) {
-      qa('.card, section, .ft-section-clean, div', admin).forEach((el) => {
-        const text = (el.textContent || '').toLowerCase();
-
-        const wrong =
-          text.includes('участник') ||
-          text.includes('стиль обработки') ||
-          text.includes('поиск и фильтрация') ||
-          text.includes('выбрать фото') ||
-          text.includes('jpg, jpeg') ||
-          text.includes('создать ai-фото') ||
-          text.includes('пакеты токенов') ||
-          text.includes('мои сгенерированные фото') ||
-          text.includes('обратная связь') ||
-          text.includes('fototime323');
-
-        const keep =
-          text.includes('дашборд') ||
-          text.includes('админ') ||
-          text.includes('ошибки') ||
-          text.includes('уведомления') ||
-          text.includes('пользователи') ||
-          text.includes('стабильность');
-
-        if (wrong && !keep) el.style.display = 'none';
-      });
-    }
-
-    rewriteSupportLinks();
-  }
+  window.__fototimeGetSelectedGenerationData = getSelectedFromDom;
 
   document.addEventListener('click', (event) => {
-    const tabBtn = event.target.closest('[data-tab-target], button, a');
-    const text = (tabBtn?.textContent || '').trim().toLowerCase();
-
-    if (text === 'главная' || tabBtn?.dataset?.tabTarget === 'main') {
-      document.body.dataset.ftTab = 'main';
-      setTimeout(cleanTabs, 50);
-    }
-
-    if (text === 'личный кабинет' || tabBtn?.dataset?.tabTarget === 'profile') {
-      document.body.dataset.ftTab = 'profile';
-      setTimeout(cleanTabs, 50);
-      setTimeout(cleanTabs, 400);
-    }
-
-    if (text === 'админ' || tabBtn?.dataset?.tabTarget === 'admin') {
-      document.body.dataset.ftTab = 'admin';
-      setTimeout(cleanTabs, 50);
-      setTimeout(cleanTabs, 400);
+    const participant = event.target.closest('[data-participant-id], [data-participant], .participant-button, .participant-option');
+    if (participant) {
+      document.querySelectorAll('.participant-button, .participant-option, [data-participant-id], [data-participant]').forEach((el) => el.classList.remove('selected'));
+      participant.classList.add('selected');
     }
 
     const style = event.target.closest('.style-card, [data-style-id], [data-style]');
     if (style) {
-      qa('.style-card, [data-style-id], [data-style]').forEach((el) => {
+      document.querySelectorAll('.style-card, [data-style-id], [data-style]').forEach((el) => {
         el.classList.remove('selected');
         el.removeAttribute('aria-selected');
       });
       style.classList.add('selected');
       style.setAttribute('aria-selected', 'true');
     }
-
-    const btn = event.target.closest('#generateButton, .generate-button');
-    if (btn) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      generate(btn);
-    }
   }, true);
 
-  document.addEventListener('change', (event) => {
-    const input = event.target.closest('input[type="file"]');
-    if (!input?.files?.[0]) return;
-
-    window.ftSelectedPhoto = input.files[0];
-    if (window.state) window.state.selectedPhoto = input.files[0];
-  }, true);
-
-  window.addEventListener('load', () => {
-    rewriteSupportLinks();
-    setTimeout(cleanTabs, 700);
-    setTimeout(cleanTabs, 1800);
-  });
-
-  setInterval(cleanTabs, 2000);
-})();
-
-window.addEventListener('load', () => {
-  if (!document.querySelector('.ft-floating-spark')) {
-    const spark = document.createElement('div');
-    spark.className = 'ft-floating-spark';
-    spark.textContent = 'AI';
-    document.body.appendChild(spark);
-  }
-});
-
-/* FINAL UI STABILIZER: clean tabs, admin pin, profile avatar, spacing, support */
-
-(function finalUiStabilizer() {
-  if (window.__finalUiStabilizerApplied) return;
-  window.__finalUiStabilizerApplied = true;
-
-  const SUPPORT_URL = 'https://t.me/fototime23_Bot';
-  const ADMIN_PIN_KEY = 'ft-admin-pin';
-
-  const $ = (s, r = document) => r.querySelector(s);
-  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-
-  function cleanText(el) {
-    return (el?.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
-  }
-
-  function setSupportLinks() {
-    $$('a, button').forEach((el) => {
-      const text = cleanText(el);
-      const href = el.getAttribute?.('href') || '';
-
-      if (
-        text.includes('поддерж') ||
-        text.includes('пополн') ||
-        text.includes('telegram') ||
-        href.includes('fototime')
-      ) {
-        if (el.tagName === 'A') {
-          el.href = SUPPORT_URL;
-          el.target = '_blank';
-          el.rel = 'noreferrer';
-        } else if (text.includes('поддерж') || text.includes('пополн')) {
-          el.onclick = () => window.open(SUPPORT_URL, '_blank', 'noopener,noreferrer');
-        }
-      }
-    });
-  }
-
-  function markSections() {
-    $$('.card, section, .ft-section-clean, .ft-profile-clean, .ft-admin-clean').forEach((el) => {
-      const text = cleanText(el);
-
-      if (
-        text.includes('личный кабинет') ||
-        text.includes('пакеты токенов') ||
-        text.includes('история баланса') ||
-        text.includes('мои сгенерированные фото') ||
-        text.includes('обратная связь') ||
-        (text.includes('fototime323') && text.includes('поддержка'))
-      ) {
-        el.dataset.ftPage = 'profile';
-      }
-
-      if (
-        text.includes('админ-консоль') ||
-        text.includes('дашборд') ||
-        text.includes('ошибки генераций') ||
-        text.includes('уведомления') ||
-        text.includes('пользователи') ||
-        text.includes('бета-тестирование')
-      ) {
-        el.dataset.ftPage = 'admin';
-      }
-
-      if (
-        text.includes('участник') ||
-        text.includes('стиль обработки') ||
-        text.includes('фото jpg') ||
-        text.includes('создать ai-фото') ||
-        text.includes('результат') ||
-        text.includes('баланс кредиты')
-      ) {
-        el.dataset.ftPage = 'main';
-      }
-    });
-
-    $('#profilePanel')?.setAttribute('data-ft-page', 'profile');
-    $('#adminPanel')?.setAttribute('data-ft-page', 'admin');
-  }
-
-  function setTab(tab) {
-    document.body.dataset.ftTab = tab;
-    localStorage.setItem('ft-active-tab', tab);
-
-    $$('[data-tab-target], button, a').forEach((btn) => {
-      const text = cleanText(btn);
-      const target = btn.dataset?.tabTarget;
-
-      const isActive =
-        target === tab ||
-        (tab === 'main' && text === 'главная') ||
-        (tab === 'profile' && text === 'личный кабинет') ||
-        (tab === 'admin' && text === 'админ');
-
-      btn.classList.toggle('active', isActive);
-      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    });
-
-    applyVisibility();
-  }
-
-  function applyVisibility() {
-    markSections();
-
-    const tab = document.body.dataset.ftTab || 'main';
-
-    $$('[data-ft-page]').forEach((el) => {
-      const page = el.dataset.ftPage;
-      el.style.display = page === tab ? '' : 'none';
-    });
-
-    if (tab === 'profile') renderProfilePolish();
-    if (tab === 'admin') renderAdminGate();
-
-    setSupportLinks();
-    removeRandomErrors();
-  }
-
-  function removeRandomErrors() {
-    $$('body *').forEach((el) => {
-      if (el.children.length) return;
-      const text = cleanText(el);
-      if (
-        text.includes('не удалось загрузить админ') ||
-        text.includes('load failed') ||
-        text.includes('type error')
-      ) {
-        el.remove();
-      }
-    });
-  }
-
-  function renderWhereToFindBlock() {
-    if ($('#ftWherePhotos')) return;
-
-    const result = $('#resultSection');
-    if (!result) return;
-
-    const block = document.createElement('section');
-    block.id = 'ftWherePhotos';
-    block.className = 'ft-mini-help';
-    block.innerHTML = `
-      <div class="ft-mini-help-icon">LK</div>
-      <div>
-        <b>Где найти готовые фото?</b>
-        <span>Все созданные изображения сохраняются в личном кабинете.</span>
-      </div>
-      <button type="button" data-go-profile>Открыть ЛК</button>
-    `;
-
-    result.insertAdjacentElement('afterend', block);
-
-    block.querySelector('[data-go-profile]').onclick = () => setTab('profile');
-  }
-
-  function renderProfilePolish() {
-    const profile =
-      $('[data-ft-page="profile"]') ||
-      $('#profilePanel');
-
-    if (!profile) return;
-
-    if (!$('#ftProfileHero')) {
-      const username =
-        window.Telegram?.WebApp?.initDataUnsafe?.user?.username ||
-        $('.ft-user-name')?.textContent ||
-        'Гость FOTOTIME323';
-
-      const photo =
-        window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url || '';
-
-      const hero = document.createElement('section');
-      hero.id = 'ftProfileHero';
-      hero.className = 'ft-profile-hero';
-      hero.innerHTML = `
-        <div class="ft-avatar-orbit">
-          ${photo ? `<img src="${photo}" alt="">` : `<span>${String(username).slice(0,2).toUpperCase()}</span>`}
-        </div>
-        <div>
-          <b>@${username}</b>
-          <span>Личный кабинет, баланс, история генераций и поддержка.</span>
-        </div>
-        <button type="button" data-open-support>Поддержка</button>
-      `;
-
-      profile.prepend(hero);
-      hero.querySelector('[data-open-support]').onclick = () => window.open(SUPPORT_URL, '_blank', 'noopener,noreferrer');
-    }
-  }
-
-  async function getAdminOverview(pin) {
-    const res = await fetch('/api/admin-pin/overview', {
-      headers: { 'x-admin-pin': pin }
-    });
-    if (!res.ok) throw new Error('Неверный PIN или нет доступа');
-    return res.json();
-  }
-
-  function renderAdminGate() {
-    const admin =
-      $('#adminPanel') ||
-      $('[data-ft-page="admin"]');
-
-    if (!admin) return;
-
-    admin.dataset.ftPage = 'admin';
-    admin.innerHTML = `
-      <section class="ft-admin-shell">
-        <div class="ft-admin-head">
+  function refreshPackagePrices() {
+    document.querySelectorAll('.ft-package-grid').forEach((grid) => {
+      grid.innerHTML = PRICE_PACKAGES.map((pack) => `
+        <article class="ft-price-card">
           <div>
-            <b>Админ-консоль</b>
-            <span>Дашборд, пользователи, ошибки и ручное начисление токенов.</span>
+            <b>${pack.title}</b>
+            <strong>${pack.tokens} токенов</strong>
+            <span>≈ ${pack.gens} ${pack.gens === 1 ? 'генерация' : 'генераций'}</span>
           </div>
-          <button type="button" data-admin-logout>Выйти</button>
-        </div>
-
-        <div id="ftAdminContent"></div>
-      </section>
-    `;
-
-    admin.querySelector('[data-admin-logout]').onclick = () => {
-      localStorage.removeItem(ADMIN_PIN_KEY);
-      renderAdminGate();
-    };
-
-    const savedPin = localStorage.getItem(ADMIN_PIN_KEY);
-
-    if (!savedPin) {
-      renderPinForm();
-      return;
-    }
-
-    renderAdminDashboard(savedPin);
+          <em>${pack.price}</em>
+        </article>
+      `).join('');
+    });
   }
 
-  function renderPinForm() {
-    const root = $('#ftAdminContent');
-    if (!root) return;
+  async function renderAdminChart() {
+    const panel = document.querySelector('#adminPanel');
+    const pin = localStorage.getItem('ft-admin-pin') || '';
+    if (!panel || !pin || document.querySelector('#ftStabilityChart')) return;
 
-    root.innerHTML = `
-      <div class="ft-admin-pin-card">
-        <b>Введите PIN администратора</b>
-        <span>Без PIN админ-панель не отображается.</span>
-        <input type="password" inputmode="numeric" placeholder="PIN" id="ftAdminPinInput">
-        <button type="button" id="ftAdminPinSubmit">Войти</button>
-        <small id="ftAdminPinError"></small>
+    const errorsRes = await fetch('/api/generation-logs/admin', { headers: { 'x-admin-pin': pin } });
+    const overviewRes = await fetch('/api/admin-pin/overview', { headers: { 'x-admin-pin': pin } });
+
+    const errors = errorsRes.ok ? await errorsRes.json() : { items: [] };
+    const overview = overviewRes.ok ? await overviewRes.json() : { stats: {} };
+
+    const success = Number(overview.stats?.totalGenerations || 0);
+    const failed = Number(errors.items?.length || 0);
+    const total = Math.max(success + failed, 1);
+    const successPercent = Math.round((success / total) * 100);
+    const failedPercent = 100 - successPercent;
+
+    const chart = document.createElement('section');
+    chart.id = 'ftStabilityChart';
+    chart.className = 'ft-section-clean';
+    chart.innerHTML = `
+      <div class="ft-admin-section-head">
+        <h3>Стабильность генераций</h3>
+        <button type="button" data-clear-all-admin>Очистить уведомления и ошибки</button>
+      </div>
+
+      <div class="ft-stability-chart">
+        <div class="ft-chart-bar">
+          <span style="width:${successPercent}%"></span>
+          <i style="width:${failedPercent}%"></i>
+        </div>
+        <div class="ft-chart-legend">
+          <b>Успешно: ${success}</b>
+          <b>Ошибки: ${failed}</b>
+          <b>Стабильность: ${successPercent}%</b>
+        </div>
       </div>
     `;
 
-    $('#ftAdminPinSubmit').onclick = async () => {
-      const pin = $('#ftAdminPinInput').value.trim();
-      try {
-        await getAdminOverview(pin);
-        localStorage.setItem(ADMIN_PIN_KEY, pin);
-        renderAdminDashboard(pin);
-      } catch (e) {
-        $('#ftAdminPinError').textContent = e.message || 'Не удалось войти';
-      }
-    };
+    panel.querySelector('.ft-admin-clean, .ft-admin-card, .card')?.prepend(chart);
+
+    chart.querySelector('[data-clear-all-admin]')?.addEventListener('click', async () => {
+      await fetch('/api/generation-logs/admin', { method: 'DELETE', headers: { 'x-admin-pin': pin } });
+      await fetch('/api/feedback/admin', { method: 'DELETE', headers: { 'x-admin-pin': pin } });
+      location.reload();
+    });
   }
 
-  async function renderAdminDashboard(pin) {
-    const root = $('#ftAdminContent');
-    if (!root) return;
+  function patchGenerateStateError() {
+    const oldGetter = window.__fototimeGetSelectedGenerationData;
 
-    root.innerHTML = `<div class="ft-loader-line">Загружаем админ-данные...</div>`;
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('#generateButton, .generate-button');
+      if (!button) return;
 
-    try {
-      const data = await getAdminOverview(pin);
-      const stats = data.stats || {};
-      const users = data.users || data.items || [];
+      const data = oldGetter();
 
-      root.innerHTML = `
-        <section class="ft-admin-grid">
-          <div><span>Клиентов</span><b>${stats.totalUsers || users.length || 0}</b></div>
-          <div><span>Успешных</span><b>${stats.totalGenerations || 0}</b></div>
-          <div><span>Списано</span><b>${stats.totalSpentCredits || 0}</b></div>
-        </section>
+      if (!data.participantId || !data.styleId || !data.photo) {
+        const fileInput = document.querySelector('input[type="file"]');
 
-        <section class="ft-admin-chart-card">
-          <b>Стабильность</b>
-          <div class="ft-admin-chart">
-            <span style="height:${Math.max(8, Number(stats.totalGenerations || 0) * 8)}px"></span>
-            <i style="height:${Math.max(8, Number(stats.totalErrors || 0) * 8)}px"></i>
-          </div>
-          <small>Зелёный — успешные генерации, оранжевый — ошибки.</small>
-        </section>
+        if (!data.photo && fileInput?.files?.[0]) {
+          if (window.state) window.state.selectedPhoto = fileInput.files[0];
+        }
 
-        <section class="ft-admin-users">
-          <b>Пользователи</b>
-          ${
-            users.length
-              ? users.map((u) => `
-                <article>
-                  <div>
-                    <strong>@${u.username || u.telegramUserId || u.id || 'user'}</strong>
-                    <span>ID: ${u.id || u.telegramUserId || '—'}</span>
-                    <small>Генераций: ${u.generationsCount || 0} · списано: ${u.spentCredits || 0}</small>
-                  </div>
-                  <b>${u.balance || 0} ток.</b>
-                  <button type="button" data-credit-user="${u.id || u.telegramUserId}" data-amount="50">+50 Бета</button>
-                  <button type="button" data-credit-user="${u.id || u.telegramUserId}" data-amount="120">+120</button>
-                </article>
-              `).join('')
-              : `<div class="ft-empty">Пользователей пока нет.</div>`
-          }
-        </section>
-      `;
+        if (!data.participantId) {
+          const firstParticipant = document.querySelector('[data-participant-id], [data-participant], .participant-button, .participant-option');
+          firstParticipant?.click();
+        }
 
-      $$('[data-credit-user]', root).forEach((btn) => {
-        btn.onclick = async () => {
-          const userId = btn.dataset.creditUser;
-          const amount = Number(btn.dataset.amount || 0);
-
-          await fetch('/api/admin-pin/credit', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-admin-pin': pin
-            },
-            body: JSON.stringify({
-              userId,
-              amount,
-              reason: amount === 50 ? 'beta_testing' : 'manual_credit',
-              note: amount === 50 ? 'Бета-тестирование — бесплатно' : 'Ручное начисление'
-            })
-          });
-
-          renderAdminDashboard(pin);
-        };
-      });
-    } catch (e) {
-      root.innerHTML = `
-        <div class="ft-admin-pin-card">
-          <b>Нет доступа к админ-консоли</b>
-          <span>${e.message || 'Проверьте PIN'}</span>
-          <button type="button" id="ftAdminRetryPin">Ввести PIN заново</button>
-        </div>
-      `;
-
-      $('#ftAdminRetryPin').onclick = () => {
-        localStorage.removeItem(ADMIN_PIN_KEY);
-        renderPinForm();
-      };
-    }
-  }
-
-  function initNavigation() {
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-tab-target], button, a');
-      if (!btn) return;
-
-      const text = cleanText(btn);
-      const target = btn.dataset?.tabTarget;
-
-      if (target === 'main' || text === 'главная') {
-        e.preventDefault();
-        setTab('main');
-      }
-
-      if (target === 'profile' || text === 'личный кабинет') {
-        e.preventDefault();
-        setTab('profile');
-      }
-
-      if (target === 'admin' || text === 'админ') {
-        e.preventDefault();
-        setTab('admin');
+        if (!data.styleId) {
+          const selectedStyle = document.querySelector('.style-card.selected, [data-style-id].selected, [data-style].selected');
+          selectedStyle?.click();
+        }
       }
     }, true);
   }
 
-  function init() {
-    initNavigation();
-    renderWhereToFindBlock();
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      refreshPackagePrices();
+      renderAdminChart();
+      patchGenerateStateError();
+    }, 900);
+  });
 
-    const savedTab = localStorage.getItem('ft-active-tab') || 'main';
-    setTab(savedTab);
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      refreshPackagePrices();
+      renderAdminChart();
+    }, 400);
+  }, true);
+})();
 
-    setTimeout(applyVisibility, 500);
-    setTimeout(applyVisibility, 1500);
+/* FINAL HARD FIX: one generation handler, smoother prices, svg dashboard */
+
+(function finalHardFix() {
+  if (window.__finalHardFixApplied) return;
+  window.__finalHardFixApplied = true;
+
+  const HISTORY_KEY = 'fototime-ai-generated-photos';
+
+  function $(s, r = document) { return r.querySelector(s); }
+  function $$(s, r = document) { return Array.from(r.querySelectorAll(s)); }
+
+  function message(text, type = 'info') {
+    if (typeof showMessage === 'function') showMessage(text, type);
+    else alert(text);
   }
 
-  window.addEventListener('load', init);
-  setInterval(() => {
-    renderWhereToFindBlock();
-    applyVisibility();
-  }, 2500);
+  function headers() {
+    const h = {};
+    if (window.Telegram?.WebApp?.initData) h['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+    return h;
+  }
+
+  function getSelected() {
+    const participant =
+      $('.participant-button.selected') ||
+      $('.participant-option.selected') ||
+      $('[data-participant-id].selected') ||
+      $('[data-participant].selected') ||
+      $('.participant-button.active') ||
+      $('[data-participant-id].active');
+
+    const style =
+      $('.style-card.selected') ||
+      $('[data-style-id].selected') ||
+      $('[data-style].selected') ||
+      $('[aria-selected="true"].style-card') ||
+      $('.style-card.active');
+
+    const fileInput = $('input[type="file"]');
+
+    return {
+      participantId:
+        window.state?.selectedParticipantId ||
+        participant?.dataset?.participantId ||
+        participant?.dataset?.participant ||
+        participant?.getAttribute('data-id') ||
+        participant?.value ||
+        'female',
+
+      styleId:
+        window.state?.selectedStyleId ||
+        style?.dataset?.styleId ||
+        style?.dataset?.style ||
+        style?.getAttribute('data-id') ||
+        null,
+
+      styleTitle:
+        window.state?.selectedStyle?.title ||
+        style?.querySelector('strong, h3, .style-title')?.textContent?.trim() ||
+        style?.textContent?.trim() ||
+        'AI style',
+
+      photo:
+        window.state?.selectedPhoto ||
+        fileInput?.files?.[0] ||
+        null
+    };
+  }
+
+  function resultUrl(data) {
+    return data.resultUrl ||
+      data.imageUrl ||
+      data.url ||
+      data.image ||
+      data.result?.url ||
+      data.result?.imageUrl ||
+      data.data?.url ||
+      data.data?.imageUrl ||
+      (data.storage?.resultImage ? `/${data.storage.resultImage}` : '');
+  }
+
+  function saveHistory(item) {
+    const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    const url = item.resultUrl || item.imageUrl;
+    const clean = list.filter((x) => (x.resultUrl || x.imageUrl) !== url);
+    clean.unshift(item);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(clean.slice(0, 60)));
+  }
+
+  async function logError(error) {
+    try {
+      await fetch('/api/generation-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'finalHardFix', message: error.message || String(error), stack: error.stack || '' })
+      });
+    } catch {}
+  }
+
+  async function generate(button) {
+    if (button.dataset.loading === 'true') return;
+
+    const selected = getSelected();
+
+    if (!selected.styleId || !selected.photo) {
+      message('Выберите стиль и загрузите фото.', 'error');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('participantId', selected.participantId);
+    fd.append('styleId', selected.styleId);
+    fd.append('styleTitle', selected.styleTitle);
+    fd.append('photo', selected.photo);
+
+    const oldText = button.textContent;
+    button.dataset.loading = 'true';
+    button.disabled = true;
+    button.textContent = 'Создаём AI-фото...';
+
+    try {
+      const res = await fetch('/api/generate', { method: 'POST', headers: headers(), body: fd });
+      const text = await res.text();
+
+      let data = {};
+      try { data = text ? JSON.parse(text) : {}; }
+      catch { throw new Error(`Сервер вернул некорректный ответ: ${text.slice(0, 120)}`); }
+
+      if (!res.ok) throw new Error(data.message || data.error || `Ошибка генерации HTTP ${res.status}`);
+
+      const url = resultUrl(data);
+      if (!url) throw new Error('Сервер не вернул ссылку на готовое изображение');
+
+      const img = $('#resultImage');
+      const section = $('#resultSection');
+
+      if (img) img.src = url;
+      if (section) {
+        section.classList.remove('hidden');
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      saveHistory({
+        id: data.generationId || `generation_${Date.now()}`,
+        generationId: data.generationId || `generation_${Date.now()}`,
+        resultUrl: url,
+        imageUrl: url,
+        styleTitle: selected.styleTitle,
+        styleId: selected.styleId,
+        participantId: selected.participantId,
+        createdAt: new Date().toISOString()
+      });
+
+      if (typeof data.balance !== 'undefined') {
+        $$('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]').forEach((el) => {
+          el.textContent = data.balance;
+        });
+      }
+
+      message('Готово! Фото сохранено в личном кабинете.', 'success');
+    } catch (error) {
+      await logError(error);
+      message(error.message || 'Ошибка генерации.', 'error');
+    } finally {
+      button.dataset.loading = 'false';
+      button.disabled = false;
+      button.textContent = oldText || 'Создать AI-фото';
+    }
+  }
+
+  function replaceGenerateButton() {
+    const old = $('#generateButton, .generate-button');
+    if (!old || old.dataset.finalClean === 'true') return;
+
+    const fresh = old.cloneNode(true);
+    fresh.dataset.finalClean = 'true';
+    fresh.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      generate(fresh);
+    });
+
+    old.replaceWith(fresh);
+  }
+
+  function patchPrices() {
+    const packs = [
+      ['Старт', '50 токенов', '39 ₽', '≈ 1 генерация'],
+      ['Гости', '120 токенов', '89 ₽', '≈ 3 генерации'],
+      ['Популярный', '300 токенов', '219 ₽', '≈ 7 генераций'],
+      ['Максимум', '700 токенов', '459 ₽', '≈ 17 генераций']
+    ];
+
+    $$('.ft-package-grid').forEach((grid) => {
+      grid.innerHTML = packs.map(([title, tokens, price, gens]) => `
+        <article class="ft-price-card-soft">
+          <div>
+            <b>${title}</b>
+            <strong>${tokens}</strong>
+            <span>${gens}</span>
+          </div>
+          <em>${price}</em>
+        </article>
+      `).join('');
+    });
+  }
+
+  async function patchAdminChart() {
+    const panel = $('#adminPanel');
+    const pin = localStorage.getItem('ft-admin-pin') || '';
+    if (!panel || !pin) return;
+
+    const oldChart = $('#ftStabilityChart');
+    if (oldChart) oldChart.remove();
+
+    const [overviewRes, errorsRes] = await Promise.all([
+      fetch('/api/admin-pin/overview', { headers: { 'x-admin-pin': pin } }),
+      fetch('/api/generation-logs/admin', { headers: { 'x-admin-pin': pin } })
+    ]);
+
+    const overview = overviewRes.ok ? await overviewRes.json() : { stats: {} };
+    const errors = errorsRes.ok ? await errorsRes.json() : { items: [] };
+
+    const success = Number(overview.stats?.totalGenerations || 0);
+    const failed = Number(errors.items?.length || 0);
+    const total = Math.max(success + failed, 1);
+    const successPercent = Math.round((success / total) * 100);
+    const failedPercent = 100 - successPercent;
+
+    const chart = document.createElement('section');
+    chart.id = 'ftStabilityChart';
+    chart.className = 'ft-section-clean';
+    chart.innerHTML = `
+      <div class="ft-admin-section-head">
+        <h3>График стабильности</h3>
+        <button type="button" data-clear-all-admin>Очистить уведомления</button>
+      </div>
+
+      <div class="ft-svg-chart">
+        <svg viewBox="0 0 320 160" role="img" aria-label="Стабильность генераций">
+          <circle cx="80" cy="80" r="54" class="ft-ring-bg"></circle>
+          <circle cx="80" cy="80" r="54" class="ft-ring-ok" style="stroke-dasharray:${successPercent} 100"></circle>
+          <text x="80" y="75" text-anchor="middle" class="ft-chart-number">${successPercent}%</text>
+          <text x="80" y="96" text-anchor="middle" class="ft-chart-label">stable</text>
+
+          <rect x="170" y="${130 - success * 10}" width="42" height="${Math.max(success * 10, 4)}" rx="8" class="ft-bar-ok"></rect>
+          <rect x="232" y="${130 - failed * 10}" width="42" height="${Math.max(failed * 10, 4)}" rx="8" class="ft-bar-fail"></rect>
+
+          <text x="191" y="148" text-anchor="middle" class="ft-chart-label">ok</text>
+          <text x="253" y="148" text-anchor="middle" class="ft-chart-label">fail</text>
+        </svg>
+
+        <div class="ft-chart-legend">
+          <b>Успешно: ${success}</b>
+          <b>Ошибки: ${failed}</b>
+          <b>Стабильность: ${successPercent}%</b>
+        </div>
+      </div>
+    `;
+
+    panel.querySelector('.ft-admin-clean, .card')?.prepend(chart);
+
+    chart.querySelector('[data-clear-all-admin]')?.addEventListener('click', async () => {
+      await fetch('/api/generation-logs/admin', { method: 'DELETE', headers: { 'x-admin-pin': pin } });
+      await fetch('/api/feedback/admin', { method: 'DELETE', headers: { 'x-admin-pin': pin } });
+      chart.remove();
+      patchAdminChart();
+    });
+  }
+
+  function normalizeSpacing() {
+    $$('.card, .ft-section-clean, .ft-profile-clean, .ft-admin-clean').forEach((el) => {
+      el.classList.add('ft-space-normalized');
+    });
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      replaceGenerateButton();
+      patchPrices();
+      normalizeSpacing();
+    }, 800);
+  });
+
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      replaceGenerateButton();
+      patchPrices();
+      normalizeSpacing();
+      patchAdminChart();
+    }, 300);
+  }, true);
+})();
+
+/* EMERGENCY GENERATION FIX: capture before all old handlers */
+
+(function emergencyGenerationFix() {
+  if (window.__emergencyGenerationFixApplied) return;
+  window.__emergencyGenerationFixApplied = true;
+
+  const HISTORY_KEY = 'fototime-ai-generated-photos';
+
+  function $$(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
+
+  function show(text, type = 'info') {
+    if (typeof showMessage === 'function') {
+      showMessage(text, type);
+    } else {
+      alert(text);
+    }
+  }
+
+  function visible(el) {
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }
+
+  function findFile() {
+    const inputs = $$('input[type="file"]');
+
+    for (const input of inputs) {
+      if (input.files && input.files[0]) return input.files[0];
+    }
+
+    if (window.state?.selectedPhoto) return window.state.selectedPhoto;
+
+    return null;
+  }
+
+  function findParticipantId() {
+    if (window.state?.selectedParticipantId) return window.state.selectedParticipantId;
+
+    const selected = $$('button, [data-participant-id], [data-participant], .participant-button, .participant-option')
+      .find((el) => {
+        const cls = el.className || '';
+        const aria = el.getAttribute('aria-pressed') || el.getAttribute('aria-selected');
+        return (
+          String(cls).includes('selected') ||
+          String(cls).includes('active') ||
+          aria === 'true'
+        );
+      });
+
+    const text = (selected?.textContent || '').trim().toLowerCase();
+
+    if (selected?.dataset?.participantId) return selected.dataset.participantId;
+    if (selected?.dataset?.participant) return selected.dataset.participant;
+
+    if (text.includes('муж')) return 'male';
+    if (text.includes('жен')) return 'female';
+    if (text.includes('пар')) return 'couple';
+    if (text.includes('маль')) return 'boy';
+    if (text.includes('дев')) return 'girl';
+    if (text.includes('сем')) return 'family';
+
+    return 'female';
+  }
+
+  function findSelectedStyleCard() {
+    const candidates = $$(
+      '.style-card, [data-style-id], [data-style], [data-id], article, .card'
+    ).filter((el) => {
+      if (!visible(el)) return false;
+
+      const text = (el.textContent || '').trim();
+      if (!text) return false;
+
+      const hasImage = Boolean(el.querySelector('img'));
+      const hasStyleData = Boolean(el.dataset.styleId || el.dataset.style || el.dataset.id);
+      const looksLikeStyle = /SDXL|Nano Banana|FLUX|Замена Головы|Астрал|Хогвартс|Барби|Готика|Кавай|Комикс|Краски/i.test(text);
+
+      return hasImage || hasStyleData || looksLikeStyle;
+    });
+
+    const selected = candidates.find((el) => {
+      const cls = String(el.className || '');
+      const aria = el.getAttribute('aria-selected');
+
+      return (
+        cls.includes('selected') ||
+        cls.includes('active') ||
+        aria === 'true' ||
+        getComputedStyle(el).borderColor.includes('156') ||
+        getComputedStyle(el).outlineStyle !== 'none'
+      );
+    });
+
+    return selected || candidates[0] || null;
+  }
+
+  function findStyle() {
+    if (window.state?.selectedStyleId) {
+      return {
+        id: window.state.selectedStyleId,
+        title: window.state.selectedStyle?.title || window.state.selectedStyleId,
+        provider: window.state.selectedStyle?.provider || window.state.selectedStyle?.providers?.[0] || ''
+      };
+    }
+
+    const card = findSelectedStyleCard();
+
+    if (!card) {
+      return null;
+    }
+
+    const title =
+      card.querySelector('strong, h3, .style-title, .title')?.textContent?.trim() ||
+      card.textContent?.trim()?.split('\n')?.[0]?.trim() ||
+      '';
+
+    const providerText =
+      card.textContent?.match(/SDXL|Nano Banana|FLUX\.?2?|Замена Головы/i)?.[0] ||
+      '';
+
+    const id =
+      card.dataset.styleId ||
+      card.dataset.style ||
+      card.dataset.id ||
+      card.getAttribute('data-ns-id') ||
+      card.getAttribute('data-provider-style-id') ||
+      title;
+
+    if (!id) return null;
+
+    return {
+      id,
+      title: title || id,
+      provider: providerText
+    };
+  }
+
+  function responseImageUrl(data) {
+    return (
+      data.resultUrl ||
+      data.imageUrl ||
+      data.url ||
+      data.image ||
+      data.result?.url ||
+      data.result?.imageUrl ||
+      data.data?.url ||
+      data.data?.imageUrl ||
+      data.output?.url ||
+      data.output?.imageUrl ||
+      (data.storage?.resultImage ? `/${data.storage.resultImage}` : '')
+    );
+  }
+
+  function saveHistory(item) {
+    try {
+      const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      const url = item.resultUrl || item.imageUrl;
+
+      const filtered = list.filter((old) => {
+        return (old.resultUrl || old.imageUrl) !== url;
+      });
+
+      filtered.unshift(item);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered.slice(0, 60)));
+    } catch {}
+  }
+
+  async function logError(error, details) {
+    try {
+      await fetch('/api/generation-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: 'emergencyGenerationFix',
+          message: error?.message || String(error),
+          stack: error?.stack || '',
+          details
+        })
+      });
+    } catch {}
+  }
+
+  async function runGeneration(button) {
+    if (button.dataset.emergencyLoading === 'true') return;
+
+    const photo = findFile();
+    const style = findStyle();
+    const participantId = findParticipantId();
+
+    if (!photo) {
+      show('Загрузите фото.', 'error');
+      return;
+    }
+
+    if (!style?.id) {
+      show('Выберите стиль обработки.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('participantId', participantId);
+    formData.append('styleId', style.id);
+    formData.append('styleTitle', style.title || style.id);
+    formData.append('styleProvider', style.provider || '');
+    formData.append('photo', photo);
+
+    const oldText = button.textContent;
+    button.dataset.emergencyLoading = 'true';
+    button.disabled = true;
+    button.textContent = 'Создаём AI-фото...';
+
+    try {
+      const headers = {};
+
+      if (window.Telegram?.WebApp?.initData) {
+        headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+      }
+
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers,
+        body: formData
+      });
+
+      const raw = await response.text();
+
+      let data = {};
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch {
+        throw new Error(`Сервер вернул не JSON: ${raw.slice(0, 160)}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || `Ошибка генерации HTTP ${response.status}`);
+      }
+
+      const imageUrl = responseImageUrl(data);
+
+      if (!imageUrl) {
+        throw new Error('Генерация завершилась, но сервер не вернул ссылку на изображение.');
+      }
+
+      const resultImage = document.querySelector('#resultImage');
+      const resultSection = document.querySelector('#resultSection');
+
+      if (resultImage) resultImage.src = imageUrl;
+
+      if (resultSection) {
+        resultSection.classList.remove('hidden');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      saveHistory({
+        id: data.generationId || `generation_${Date.now()}`,
+        generationId: data.generationId || `generation_${Date.now()}`,
+        resultUrl: imageUrl,
+        imageUrl,
+        styleTitle: style.title || style.id,
+        styleId: style.id,
+        participantId,
+        createdAt: new Date().toISOString()
+      });
+
+      if (typeof data.balance !== 'undefined') {
+        document.querySelectorAll('.balance-pill strong, .balance-badge strong, #mainBalanceValue, #profileBalanceValue, [data-balance-value]').forEach((el) => {
+          el.textContent = data.balance;
+        });
+      }
+
+      show('Готово! Фото сохранено в личном кабинете.', 'success');
+    } catch (error) {
+      await logError(error, `participant=${participantId}; style=${style?.id || 'none'}; photo=${photo?.name || 'none'}`);
+      show(error.message || 'Ошибка генерации.', 'error');
+    } finally {
+      button.dataset.emergencyLoading = 'false';
+      button.disabled = false;
+      button.textContent = oldText || 'Создать AI-фото';
+    }
+  }
+
+  window.addEventListener('click', function interceptGenerate(event) {
+    const button = event.target.closest('#generateButton, .generate-button');
+
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    runGeneration(button);
+  }, true);
 })();
