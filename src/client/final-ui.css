@@ -4309,3 +4309,103 @@ body.ft-final-stabilized button:disabled,
 body.ft-final-stabilized .button:disabled {
   opacity: .62 !important;
 }
+
+
+/* FT_VISIBLE_UI_RECOVERY_CSS_20260608_2 */
+.ft-admin-login-hidden-outside-admin {
+  display: none !important;
+}
+
+body.ft-theme-dark,
+html.ft-theme-dark body,
+body[data-ft-theme="dark"] {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(56, 255, 226, .16), transparent 32%),
+    radial-gradient(circle at 85% 12%, rgba(180, 255, 40, .12), transparent 30%),
+    linear-gradient(180deg, #071216 0%, #04080a 100%) !important;
+  color: #f5fff8 !important;
+}
+
+body.ft-theme-dark .card,
+body.ft-theme-dark section,
+body.ft-theme-dark article,
+body.ft-theme-dark .ft-clean-card,
+body.ft-theme-dark .ft-stable-card {
+  background: rgba(18, 24, 29, .88) !important;
+  color: #f5fff8 !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+
+body.ft-theme-dark input,
+body.ft-theme-dark select,
+body.ft-theme-dark textarea {
+  background: rgba(255,255,255,.08) !important;
+  color: #f5fff8 !important;
+  border-color: rgba(255,255,255,.25) !important;
+}
+
+body.ft-theme-light,
+html.ft-theme-light body,
+body[data-ft-theme="light"] {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(115, 220, 255, .30), transparent 34%),
+    radial-gradient(circle at 90% 16%, rgba(190, 255, 88, .26), transparent 34%),
+    linear-gradient(180deg, #f7fffb 0%, #eef5ef 100%) !important;
+  color: #203b36 !important;
+}
+
+body.ft-theme-retro,
+html.ft-theme-retro body,
+body[data-ft-theme="retro"] {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 232, 184, .62), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 244, 210, .50), transparent 34%),
+    linear-gradient(180deg, #f6e6d0 0%, #ead7be 100%) !important;
+  color: #392920 !important;
+}
+
+.ft-theme-select-fixed-v2 {
+  min-width: 118px !important;
+  min-height: 38px !important;
+  padding: 7px 12px !important;
+  border-radius: 12px !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  cursor: pointer !important;
+}
+
+body.ft-theme-dark .ft-theme-select-fixed-v2 {
+  background: rgba(255,255,255,.12) !important;
+  color: #f5fff8 !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+}
+
+body.ft-theme-light .ft-theme-select-fixed-v2,
+body.ft-theme-retro .ft-theme-select-fixed-v2 {
+  background: rgba(255,255,255,.82) !important;
+  color: inherit !important;
+  border: 1px solid rgba(0,0,0,.24) !important;
+}
+
+body.ft-visible-ui-recovery-v2 {
+  padding-bottom: 120px !important;
+}
+
+body.ft-visible-ui-recovery-v2 button,
+body.ft-visible-ui-recovery-v2 .button,
+body.ft-visible-ui-recovery-v2 [role="button"],
+body.ft-visible-ui-recovery-v2 a[class*="button"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1.15 !important;
+}
+
+body.ft-visible-ui-recovery-v2 .ft-tabbar,
+body.ft-visible-ui-recovery-v2 .bottom-nav,
+body.ft-visible-ui-recovery-v2 [class*="tabbar"],
+body.ft-visible-ui-recovery-v2 [class*="bottom"] {
+  z-index: 50 !important;
+}

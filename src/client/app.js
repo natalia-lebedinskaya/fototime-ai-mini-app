@@ -6384,3 +6384,260 @@ window.addEventListener('load', () => {
 
   stabilize();
 })();
+
+
+/* FT_VISIBLE_UI_RECOVERY_20260608_2 */
+(function ftVisibleUiRecovery20260608_2() {
+  if (window.__ftVisibleUiRecovery20260608_2) return;
+  window.__ftVisibleUiRecovery20260608_2 = true;
+
+  const THEME_KEY = 'ft-theme';
+  const LEGACY_THEME_KEY = 'fototime-theme';
+
+  function qsa(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
+
+  function currentTabName() {
+    const hash = String(location.hash || '').toLowerCase();
+
+    if (hash.includes('admin')) return 'admin';
+    if (hash.includes('profile') || hash.includes('account') || hash.includes('lk')) return 'profile';
+
+    const active = qsa('button, [role="button"], .app-tab, .tab, .nav-item')
+      .find((el) => {
+        const cls = String(el.className || '').toLowerCase();
+        return cls.includes('active') || cls.includes('selected');
+      });
+
+    const text = String(active?.textContent || '').toLowerCase();
+    if (text.includes('админ')) return 'admin';
+    if (text.includes('личн')) return 'profile';
+
+    return 'home';
+  }
+
+  function normalizeThemeName(value) {
+    const raw = String(value || '').toLowerCase();
+
+    if (raw.includes('dark') || raw.includes('тем') || raw.includes('тём')) return 'dark';
+    if (raw.includes('light') || raw.includes('свет')) return 'light';
+    if (raw.includes('retro') || raw.includes('ретро')) return 'retro';
+
+    return localStorage.getItem(THEME_KEY) || localStorage.getItem(LEGACY_THEME_KEY) || 'retro';
+  }
+
+  function applyTheme(theme) {
+    const clean = normalizeThemeName(theme);
+
+    localStorage.setItem(THEME_KEY, clean);
+    localStorage.setItem(LEGACY_THEME_KEY, clean);
+    window.__ftForcedTheme = clean;
+
+    document.documentElement.dataset.ftTheme = clean;
+    document.body.dataset.ftTheme = clean;
+
+    for (const el of [document.documentElement, document.body]) {
+      el.classList.remove(
+        'ft-theme-dark',
+        'ft-theme-light',
+        'ft-theme-retro',
+        'theme-dark',
+        'theme-light',
+        'theme-retro',
+        'dark',
+        'light',
+        'retro'
+      );
+
+      el.classList.add('ft-theme-' + clean);
+      el.classList.add('theme-' + clean);
+    }
+
+    qsa('select').forEach((select) => {
+      const optionsText = qsa('option', select)
+        .map((option) => `${option.textContent || ''} ${option.value || ''}`)
+        .join(' ')
+        .toLowerCase();
+
+      const isThemeSelect =
+        optionsText.includes('тем') ||
+        optionsText.includes('тём') ||
+        optionsText.includes('свет') ||
+        optionsText.includes('ретро') ||
+        optionsText.includes('dark') ||
+        optionsText.includes('light') ||
+        optionsText.includes('retro');
+
+      if (!isThemeSelect) return;
+
+      select.classList.add('ft-theme-select-fixed-v2');
+
+      const option = qsa('option', select).find((item) => {
+        const label = `${item.textContent || ''} ${item.value || ''}`.toLowerCase();
+        if (clean === 'dark') return label.includes('тем') || label.includes('тём') || label.includes('dark');
+        if (clean === 'light') return label.includes('свет') || label.includes('light');
+        return label.includes('ретро') || label.includes('retro');
+      });
+
+      if (option && select.value !== option.value) {
+        select.value = option.value;
+      }
+    });
+  }
+
+  function bindThemeSelects() {
+    qsa('select').forEach((select) => {
+      const optionsText = qsa('option', select)
+        .map((option) => `${option.textContent || ''} ${option.value || ''}`)
+        .join(' ')
+        .toLowerCase();
+
+      const isThemeSelect =
+        optionsText.includes('тем') ||
+        optionsText.includes('тём') ||
+        optionsText.includes('свет') ||
+        optionsText.includes('ретро') ||
+        optionsText.includes('dark') ||
+        optionsText.includes('light') ||
+        optionsText.includes('retro');
+
+      if (!isThemeSelect) return;
+
+      select.classList.add('ft-theme-select-fixed-v2');
+
+      if (!select.__ftThemeFixedV2) {
+        select.__ftThemeFixedV2 = true;
+
+        select.addEventListener('change', () => {
+          const selectedText = select.options[select.selectedIndex]?.textContent || select.value;
+          applyTheme(selectedText);
+        }, true);
+      }
+    });
+
+    applyTheme(window.__ftForcedTheme || localStorage.getItem(THEME_KEY) || localStorage.getItem(LEGACY_THEME_KEY) || 'retro');
+  }
+
+  function normalizeCopy() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+
+    while (walker.nextNode()) {
+      nodes.push(walker.currentNode);
+    }
+
+    nodes.forEach((node) => {
+      node.nodeValue = String(node.nodeValue || '')
+        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('кредиты', 'токены')
+        .replaceAll('кредитов', 'токенов')
+        .replaceAll('кредита', 'токена')
+        .replaceAll('кредит', 'токен')
+        .replaceAll('кред.', 'ток.')
+        .replaceAll('текущего мероприятия', 'текущего режима')
+        .replaceAll('конфигурации мероприятия', 'каталога режима')
+        .replaceAll('Telegram авторизация активна', 'Локальный демо-режим активен')
+        .replaceAll('Ваши фото сохраняются в личном кабинете.', 'Фото сохраняются в личном кабинете.');
+    });
+  }
+
+  function hideAdminLoginOutsideAdmin() {
+    const tab = currentTabName();
+    const shouldShowAdmin = tab === 'admin';
+
+    qsa('section, article, .card, .ft-admin-final-panel, .ft-stable-card, .ft-clean-card, div').forEach((el) => {
+      const text = String(el.textContent || '').trim();
+
+      const looksLikeAdminLogin =
+        text.includes('Админ-консоль') &&
+        text.includes('Введите PIN администратора') &&
+        text.includes('Войти');
+
+      if (!looksLikeAdminLogin) return;
+
+      if (!shouldShowAdmin) {
+        el.classList.add('ft-admin-login-hidden-outside-admin');
+      } else {
+        el.classList.remove('ft-admin-login-hidden-outside-admin');
+      }
+    });
+
+    qsa('[data-ft-admin-final-panel]').forEach((el) => {
+      if (!shouldShowAdmin) {
+        el.classList.add('ft-admin-login-hidden-outside-admin');
+      } else {
+        el.classList.remove('ft-admin-login-hidden-outside-admin');
+      }
+    });
+  }
+
+  function patchAdminButtonsToHash() {
+    qsa('button, [role="button"], .app-tab, .tab, .nav-item').forEach((el) => {
+      if (el.__ftAdminHashFixed) return;
+      if (!/админ/i.test(el.textContent || '')) return;
+
+      el.__ftAdminHashFixed = true;
+      el.addEventListener('click', () => {
+        setTimeout(() => {
+          if (!location.hash.includes('admin')) {
+            history.replaceState(null, '', location.pathname + location.search + '#admin');
+          }
+          run();
+        }, 80);
+      }, true);
+    });
+
+    qsa('button, [role="button"], .app-tab, .tab, .nav-item').forEach((el) => {
+      if (el.__ftNonAdminHashFixed) return;
+      if (!/главная|личный кабинет/i.test(el.textContent || '')) return;
+
+      el.__ftNonAdminHashFixed = true;
+      el.addEventListener('click', () => {
+        setTimeout(() => {
+          hideAdminLoginOutsideAdmin();
+        }, 80);
+      }, true);
+    });
+  }
+
+  function removeDuplicateArrowInTopupButton() {
+    qsa('button, a, [role="button"], .button').forEach((el) => {
+      const text = String(el.textContent || '');
+      if (!text.includes('Пополнить баланс')) return;
+
+      const arrows = qsa('*', el).filter((child) => /→|➜|➔|›|»/.test(child.textContent || ''));
+      if (arrows.length > 1) {
+        arrows.slice(1).forEach((item) => item.remove());
+      }
+    });
+  }
+
+  function run() {
+    bindThemeSelects();
+    normalizeCopy();
+    hideAdminLoginOutsideAdmin();
+    patchAdminButtonsToHash();
+    removeDuplicateArrowInTopupButton();
+    document.body.classList.add('ft-visible-ui-recovery-v2');
+  }
+
+  document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('load', run);
+  window.addEventListener('hashchange', run);
+  document.addEventListener('click', () => setTimeout(run, 100), true);
+  document.addEventListener('change', () => setTimeout(run, 100), true);
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__ftVisibleUiRecoveryV2Timer);
+    window.__ftVisibleUiRecoveryV2Timer = setTimeout(run, 120);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+
+  run();
+})();
