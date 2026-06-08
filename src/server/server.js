@@ -63,9 +63,10 @@ app.use('/api/admin', adminRoute);
 app.use(errorHandler);
 
 
-const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '0.0.0.0';
 
+const PORT = Number(process.env.PORT || 3000);
+/* FT_RENDER_PORT_BIND_FINAL_20260608 */
 app.listen(PORT, HOST, () => {
   console.log(`FOTOTIME AI server is listening on http://${HOST}:${PORT}`);
 });

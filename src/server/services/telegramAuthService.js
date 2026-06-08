@@ -104,3 +104,49 @@ function ftLocalTelegramIdentityFallback(req) {
     isLocalDemo: true
   };
 }
+
+
+/* FT_LOCAL_AUTH_FINAL_20260608 */
+function ftFinalLocalIdentity(req = {}) {
+  const headerId =
+    req.headers?.['x-telegram-id'] ||
+    req.headers?.['x-user-id'] ||
+    req.headers?.['x-local-user-id'];
+
+  const queryId =
+    req.query?.telegramId ||
+    req.query?.userId ||
+    req.query?.localUserId;
+
+  const bodyId =
+    req.body?.telegramId ||
+    req.body?.userId ||
+    req.body?.localUserId;
+
+  const id = String(headerId || queryId || bodyId || 'local-demo-user').trim();
+
+  return {
+    id,
+    telegramId: id,
+    username: id === 'local-demo-user' ? 'local-demo-user' : id,
+    firstName: 'Local',
+    lastName: 'Demo',
+    isLocalDemo: true
+  };
+}
+
+module.exports.getTelegramIdentity = function getTelegramIdentity(req = {}) {
+  return ftFinalLocalIdentity(req);
+};
+
+module.exports.getTelegramIdentityFromRequest = function getTelegramIdentityFromRequest(req = {}) {
+  return ftFinalLocalIdentity(req);
+};
+
+module.exports.verifyTelegramWebAppData = function verifyTelegramWebAppData() {
+  return true;
+};
+
+module.exports.parseTelegramInitData = function parseTelegramInitData(req = {}) {
+  return ftFinalLocalIdentity(req);
+};

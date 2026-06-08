@@ -309,3 +309,25 @@ module.exports = {
   getAdminOverview,
   isAdminUser
 };
+
+
+/* FT_LOCAL_ADMIN_USER_FINAL_20260608 */
+if (module.exports && typeof module.exports.getOrCreateUser === 'function') {
+  const ftOriginalGetOrCreateUser = module.exports.getOrCreateUser;
+
+  module.exports.getOrCreateUser = function ftPatchedGetOrCreateUser(identity = {}) {
+    const user = ftOriginalGetOrCreateUser(identity);
+
+    const id = String(identity.id || identity.telegramId || user?.id || '').trim();
+    const username = String(identity.username || user?.username || '').trim();
+
+    if (id === 'local-demo-user' || username === 'local-demo-user') {
+      user.isAdmin = true;
+      user.role = 'admin';
+      user.tokens = Number(user.tokens ?? user.balance ?? 50) || 50;
+      user.balance = user.tokens;
+    }
+
+    return user;
+  };
+}

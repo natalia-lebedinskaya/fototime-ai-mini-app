@@ -5152,7 +5152,7 @@ window.addEventListener('load', () => {
         .replaceAll('Кредитов', 'Токенов')
         .replaceAll('Токены', 'Токены')
         .replaceAll('Кредит', 'Токен')
-        .replaceAll('Тестовое мероприятие FOTOTIME323', 'Демо-пространство FOTOTIME323')
+        .replaceAll('Демо-пространство FOTOTIME323', 'Демо-пространство FOTOTIME323')
         .replaceAll('текущего режима', 'текущего режима')
         .replaceAll('для режима', 'для личного использования')
         .replaceAll('Для небольшого режима', 'Для нескольких генераций')
@@ -5270,8 +5270,8 @@ window.addEventListener('load', () => {
 
     nodes.forEach((node) => {
       node.nodeValue = node.nodeValue
-        .replaceAll('Стили загружаются из конфигурации мероприятия', 'Стили загружаются из каталога режима')
-        .replaceAll('конфигурации мероприятия', 'каталога режима')
+        .replaceAll('Стили загружаются из каталога режима', 'Стили загружаются из каталога режима')
+        .replaceAll('каталога режима', 'каталога режима')
         .replaceAll('для мероприятий', 'для быстрых AI-генераций')
         .replaceAll('мероприятий', 'AI-генераций')
         .replaceAll('мероприятия', 'режима')
@@ -5979,10 +5979,10 @@ window.addEventListener('load', () => {
 
   function normalizeCopy() {
     document.body.innerHTML = document.body.innerHTML
-      .replaceAll('кредитов', 'токенов')
-      .replaceAll('кредита', 'токена')
-      .replaceAll('кредиты', 'токены')
-      .replaceAll('кредит', 'токен')
+      .replaceAll('токенов', 'токенов')
+      .replaceAll('токена', 'токена')
+      .replaceAll('токены', 'токены')
+      .replaceAll('токен', 'токен')
       .replaceAll('Кредиты', 'Токены')
       .replaceAll('Кредитов', 'Токенов')
       .replaceAll('Запускаем генерацию в демо-режиме с компьютера...', 'Создаём AI-фото…')
@@ -6142,16 +6142,16 @@ window.addEventListener('load', () => {
 
     node.nodeValue = node.nodeValue
       .replaceAll('Кредиты', 'Токены')
-      .replaceAll('кредиты', 'токены')
-      .replaceAll('кредитов', 'токенов')
-      .replaceAll('кредита', 'токена')
-      .replaceAll('кредит', 'токен')
+      .replaceAll('токены', 'токены')
+      .replaceAll('токенов', 'токенов')
+      .replaceAll('токена', 'токена')
+      .replaceAll('токен', 'токен')
       .replaceAll('кред.', 'ток.')
       .replaceAll('Запускаем генерацию в демо-режиме с компьютера...', 'Создаём AI-фото…')
       .replaceAll('Запускаем генерацию в демо-режиме с компьютера…', 'Создаём AI-фото…')
       .replaceAll('ALLOW_LOCAL_AUTH=true или откройте приложение через Telegram', 'локальный демо-режим активирован')
-      .replaceAll('текущего мероприятия', 'текущего режима')
-      .replaceAll('конфигурации мероприятия', 'каталога режима');
+      .replaceAll('текущего режима', 'текущего режима')
+      .replaceAll('каталога режима', 'каталога режима');
   }
 
   function normalizeCopy(root = document.body) {
@@ -6530,13 +6530,13 @@ window.addEventListener('load', () => {
     nodes.forEach((node) => {
       node.nodeValue = String(node.nodeValue || '')
         .replaceAll('Кредиты', 'Токены')
-        .replaceAll('кредиты', 'токены')
-        .replaceAll('кредитов', 'токенов')
-        .replaceAll('кредита', 'токена')
-        .replaceAll('кредит', 'токен')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токена', 'токена')
+        .replaceAll('токен', 'токен')
         .replaceAll('кред.', 'ток.')
-        .replaceAll('текущего мероприятия', 'текущего режима')
-        .replaceAll('конфигурации мероприятия', 'каталога режима')
+        .replaceAll('текущего режима', 'текущего режима')
+        .replaceAll('каталога режима', 'каталога режима')
         .replaceAll('Telegram авторизация активна', 'Локальный демо-режим активен')
         .replaceAll('Ваши фото сохраняются в личном кабинете.', 'Фото сохраняются в личном кабинете.');
     });
@@ -6640,4 +6640,466 @@ window.addEventListener('load', () => {
   });
 
   run();
+})();
+
+
+/* FT_FINAL_STABILITY_LAYER_20260608_3 */
+(function ftFinalStabilityLayer20260608_3() {
+  if (window.__ftFinalStabilityLayer20260608_3) return;
+  window.__ftFinalStabilityLayer20260608_3 = true;
+
+  const TOKEN_WORDS = [
+    ['Кредиты', 'Токены'],
+    ['токены', 'токены'],
+    ['токенов', 'токенов'],
+    ['токена', 'токена'],
+    ['токен', 'токен'],
+    ['кред.', 'ток.'],
+    ['токены для AI-генераций', 'токены для AI-генераций'],
+    ['Токены для AI-генераций', 'Токены для AI-генераций']
+  ];
+
+  const THEME_KEY = 'ft-theme';
+  const LEGACY_THEME_KEY = 'fototime-theme';
+  const ADMIN_PIN_KEY = 'ft-admin-pin';
+
+  function qsa(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
+
+  function getText(el) {
+    return String(el?.textContent || '').trim();
+  }
+
+  function normalizeTheme(value) {
+    const raw = String(value || '').toLowerCase();
+
+    if (raw.includes('тем') || raw.includes('тём') || raw.includes('dark')) return 'dark';
+    if (raw.includes('свет') || raw.includes('light')) return 'light';
+    if (raw.includes('ретро') || raw.includes('retro')) return 'retro';
+
+    return localStorage.getItem(THEME_KEY) || localStorage.getItem(LEGACY_THEME_KEY) || 'retro';
+  }
+
+  function applyTheme(value) {
+    const theme = normalizeTheme(value);
+
+    localStorage.setItem(THEME_KEY, theme);
+    localStorage.setItem(LEGACY_THEME_KEY, theme);
+    window.__ftThemeLocked = theme;
+
+    document.documentElement.dataset.ftTheme = theme;
+    document.body.dataset.ftTheme = theme;
+
+    for (const el of [document.documentElement, document.body]) {
+      el.classList.remove(
+        'dark',
+        'light',
+        'retro',
+        'theme-dark',
+        'theme-light',
+        'theme-retro',
+        'ft-theme-dark',
+        'ft-theme-light',
+        'ft-theme-retro'
+      );
+
+      el.classList.add(theme);
+      el.classList.add('theme-' + theme);
+      el.classList.add('ft-theme-' + theme);
+    }
+
+    qsa('select').forEach((select) => {
+      const options = qsa('option', select);
+      const text = options.map((option) => `${option.textContent} ${option.value}`).join(' ').toLowerCase();
+
+      const isThemeSelect =
+        text.includes('тем') ||
+        text.includes('тём') ||
+        text.includes('свет') ||
+        text.includes('ретро') ||
+        text.includes('dark') ||
+        text.includes('light') ||
+        text.includes('retro');
+
+      if (!isThemeSelect) return;
+
+      select.classList.add('ft-final-theme-select');
+
+      const option = options.find((item) => {
+        const label = `${item.textContent} ${item.value}`.toLowerCase();
+
+        if (theme === 'dark') return label.includes('тем') || label.includes('тём') || label.includes('dark');
+        if (theme === 'light') return label.includes('свет') || label.includes('light');
+        return label.includes('ретро') || label.includes('retro');
+      });
+
+      if (option && select.value !== option.value) {
+        select.value = option.value;
+      }
+
+      if (!select.__ftFinalThemeHandler) {
+        select.__ftFinalThemeHandler = true;
+
+        select.addEventListener('change', () => {
+          const label = select.options[select.selectedIndex]?.textContent || select.value;
+          applyTheme(label);
+        }, true);
+      }
+    });
+  }
+
+  function normalizeCopy() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+
+    while (walker.nextNode()) {
+      nodes.push(walker.currentNode);
+    }
+
+    nodes.forEach((node) => {
+      let value = String(node.nodeValue || '');
+
+      TOKEN_WORDS.forEach(([from, to]) => {
+        value = value.split(from).join(to);
+      });
+
+      value = value
+        .replaceAll('текущего режима', 'текущего режима')
+        .replaceAll('каталога режима', 'каталога режима')
+        .replaceAll('Демо-пространство FOTOTIME323', 'Демо-пространство FOTOTIME323')
+        .replaceAll('Для нескольких генераций', 'Для нескольких генераций')
+        .replaceAll('Для нескольких генераций', 'Для нескольких генераций')
+        .replaceAll('Для активных генераций', 'Для активных генераций')
+        .replaceAll('Welcome bonus for first Telegram authorization', 'Бонус за первую авторизацию')
+        .replaceAll('Telegram authorization required', 'Локальный демо-режим активен')
+        .replaceAll('Для генерации с компьютера включите ALLOW_LOCAL_AUTH=true или откройте приложение через Telegram', 'Локальный демо-режим активен');
+
+      node.nodeValue = value;
+    });
+  }
+
+  function currentTab() {
+    const hash = String(location.hash || '').toLowerCase();
+
+    if (hash.includes('admin')) return 'admin';
+    if (hash.includes('profile') || hash.includes('account') || hash.includes('lk')) return 'profile';
+
+    const active = qsa('button, [role="button"], .app-tab, .tab, .nav-item, a')
+      .find((el) => {
+        const cls = String(el.className || '').toLowerCase();
+        const aria = String(el.getAttribute?.('aria-selected') || '').toLowerCase();
+        return cls.includes('active') || cls.includes('selected') || aria === 'true';
+      });
+
+    const label = getText(active).toLowerCase();
+
+    if (label.includes('админ')) return 'admin';
+    if (label.includes('личн')) return 'profile';
+
+    return 'home';
+  }
+
+  function hideWrongAdminBlocks() {
+    const tab = currentTab();
+
+    qsa('section, article, .card, .ft-clean-card, .ft-stable-card, .ft-admin-final-panel, div').forEach((el) => {
+      const text = getText(el);
+
+      const isAdminLogin =
+        text.includes('Админ-консоль') &&
+        text.includes('Введите PIN администратора') &&
+        text.includes('Войти');
+
+      const isAdminDenied =
+        text.includes('Админ-консоль') &&
+        text.includes('Нет доступа к админ-консоли');
+
+      if (!isAdminLogin && !isAdminDenied) return;
+
+      if (tab === 'admin') {
+        el.classList.remove('ft-final-hidden');
+      } else {
+        el.classList.add('ft-final-hidden');
+      }
+    });
+  }
+
+  function bindTabs() {
+    qsa('button, [role="button"], .app-tab, .tab, .nav-item, a').forEach((el) => {
+      if (el.__ftFinalTabBound) return;
+
+      const label = getText(el).toLowerCase();
+
+      if (!label.includes('главная') && !label.includes('личн') && !label.includes('админ')) return;
+
+      el.__ftFinalTabBound = true;
+
+      el.addEventListener('click', () => {
+        setTimeout(() => {
+          const freshLabel = getText(el).toLowerCase();
+
+          if (freshLabel.includes('админ')) {
+            history.replaceState(null, '', location.pathname + location.search + '#admin');
+          } else if (freshLabel.includes('личн')) {
+            history.replaceState(null, '', location.pathname + location.search + '#profile');
+          } else if (freshLabel.includes('главная')) {
+            history.replaceState(null, '', location.pathname + location.search + '#home');
+          }
+
+          runFinalStability();
+        }, 80);
+      }, true);
+    });
+  }
+
+  function patchAdminPinForm() {
+    const forms = qsa('form');
+    forms.forEach((form) => {
+      const text = getText(form.closest('section, article, .card, div') || form);
+
+      if (!text.includes('Админ-консоль') && !form.querySelector('input[type="password"]')) return;
+      if (form.__ftFinalAdminFormPatched) return;
+
+      form.__ftFinalAdminFormPatched = true;
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const input = form.querySelector('input[type="password"], input[inputmode="numeric"], input');
+        const pin = String(input?.value || '').trim();
+
+        if (!pin) {
+          alert('Введите PIN');
+          return;
+        }
+
+        localStorage.setItem(ADMIN_PIN_KEY, pin);
+        localStorage.setItem('ft-admin-pin-value', pin);
+        localStorage.setItem('ft-admin-pin-direct', pin);
+
+        const submit = form.querySelector('button, [type="submit"]');
+        const oldText = submit ? submit.textContent : '';
+
+        if (submit) {
+          submit.textContent = 'Проверяем...';
+          submit.disabled = true;
+        }
+
+        try {
+          const res = await fetch('/api/admin-pin/overview', {
+            method: 'GET',
+            headers: {
+              'x-admin-pin': pin,
+              'x-telegram-id': 'local-demo-user',
+              'x-local-user-id': 'local-demo-user'
+            }
+          });
+
+          if (!res.ok) {
+            throw new Error('Неверный PIN');
+          }
+
+          localStorage.setItem('ft-admin-authorized', 'true');
+          location.hash = '#admin';
+          location.reload();
+        } catch (error) {
+          alert(error.message || 'Неверный PIN');
+        } finally {
+          if (submit) {
+            submit.textContent = oldText || 'Войти';
+            submit.disabled = false;
+          }
+        }
+      }, true);
+    });
+  }
+
+  function patchFetch() {
+    if (window.__ftFinalFetchPatched) return;
+    window.__ftFinalFetchPatched = true;
+
+    const originalFetch = window.fetch.bind(window);
+
+    window.fetch = async function ftFinalFetch(input, init = {}) {
+      const url = typeof input === 'string' ? input : String(input?.url || '');
+
+      const headers = new Headers(init.headers || {});
+
+      if (url.includes('/api/')) {
+        headers.set('x-telegram-id', headers.get('x-telegram-id') || 'local-demo-user');
+        headers.set('x-user-id', headers.get('x-user-id') || 'local-demo-user');
+        headers.set('x-local-user-id', headers.get('x-local-user-id') || 'local-demo-user');
+
+        const pin =
+          localStorage.getItem(ADMIN_PIN_KEY) ||
+          localStorage.getItem('ft-admin-pin-value') ||
+          localStorage.getItem('ft-admin-pin-direct') ||
+          '3465';
+
+        if (
+          url.includes('/admin') ||
+          url.includes('/admin-pin') ||
+          url.includes('/feedback/admin') ||
+          url.includes('/generation-logs/admin')
+        ) {
+          headers.set('x-admin-pin', headers.get('x-admin-pin') || pin);
+        }
+      }
+
+      const nextInit = {
+        ...init,
+        headers
+      };
+
+      return originalFetch(input, nextInit);
+    };
+  }
+
+  function patchGenerateButton() {
+    qsa('button, [role="button"], .button').forEach((button) => {
+      const label = getText(button);
+
+      if (!label.includes('Создать AI-фото')) return;
+      if (button.__ftFinalGeneratePatched) return;
+
+      button.__ftFinalGeneratePatched = true;
+
+      button.addEventListener('click', () => {
+        setTimeout(() => {
+          const errorNodes = qsa('p, div, span').filter((node) => {
+            const text = getText(node);
+            return (
+              text.includes('ALLOW_LOCAL_AUTH') ||
+              text.includes('Telegram authorization required') ||
+              text.includes('Локальный демо-режим активен')
+            );
+          });
+
+          errorNodes.forEach((node) => {
+            node.textContent = 'Запускаем генерацию в локальном демо-режиме...';
+            node.classList.add('ft-final-soft-status');
+          });
+        }, 120);
+      }, true);
+    });
+  }
+
+  function patchDownloadButtons() {
+    qsa('button, a, [role="button"]').forEach((button) => {
+      if (!/скачать/i.test(getText(button))) return;
+      if (button.__ftFinalDownloadPatched) return;
+
+      button.__ftFinalDownloadPatched = true;
+      button.classList.add('ft-final-download-button');
+
+      button.addEventListener('click', (event) => {
+        const card = button.closest('article, .card, .history-card, .photo-card, div');
+        const img = card?.querySelector('img');
+        const src = img?.src || button.getAttribute('href') || button.dataset?.url;
+
+        if (!src || src.startsWith('blob:')) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const a = document.createElement('a');
+        a.href = src;
+        a.download = 'fototime-ai-photo.jpg';
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }, true);
+    });
+  }
+
+  function normalizeButtons() {
+    qsa('button, .button, [role="button"], a[class*="button"]').forEach((el) => {
+      el.classList.add('ft-final-button-normalized');
+    });
+
+    qsa('button, a, [role="button"], .button').forEach((el) => {
+      const text = getText(el);
+
+      if (!text.includes('Пополнить баланс')) return;
+
+      el.classList.add('ft-final-topup-button');
+
+      const arrowChildren = qsa('*', el).filter((child) => /→|➜|➔|›|»/.test(getText(child)));
+      if (arrowChildren.length > 1) {
+        arrowChildren.slice(1).forEach((child) => child.remove());
+      }
+    });
+  }
+
+  function cacheStyleCards() {
+    const cards = qsa('article, button, .style-card, [class*="style"]').filter((el) => {
+      const text = getText(el);
+      return (
+        text.includes('Антлантида') ||
+        text.includes('Барби') ||
+        text.includes('Баблгам') ||
+        text.includes('Бизнес') ||
+        text.includes('Рождество') ||
+        text.includes('Комикс')
+      );
+    });
+
+    if (cards.length >= 6) {
+      localStorage.setItem('ft-style-cache-has-normal-cards', 'true');
+    }
+
+    const fallbackCards = qsa('article, button, .style-card, [class*="style"]').filter((el) => {
+      const text = getText(el);
+      return text.includes('NS Астрал') || text.includes('NS Хогвартс');
+    });
+
+    if (fallbackCards.length && localStorage.getItem('ft-style-cache-has-normal-cards') === 'true') {
+      const area = fallbackCards[0].parentElement;
+      if (area && !area.__ftFinalStyleFallbackNotice) {
+        area.__ftFinalStyleFallbackNotice = true;
+
+        const note = document.createElement('div');
+        note.className = 'ft-final-soft-status';
+        note.textContent = 'Каталог стилей обновляется. Нажмите «Обновить баланс» или перезагрузите страницу через 5–10 секунд.';
+        area.prepend(note);
+      }
+    }
+  }
+
+  function runFinalStability() {
+    applyTheme(window.__ftThemeLocked || localStorage.getItem(THEME_KEY) || localStorage.getItem(LEGACY_THEME_KEY) || 'retro');
+    normalizeCopy();
+    bindTabs();
+    hideWrongAdminBlocks();
+    patchAdminPinForm();
+    patchGenerateButton();
+    patchDownloadButtons();
+    normalizeButtons();
+    cacheStyleCards();
+    document.body.classList.add('ft-final-stability-layer');
+  }
+
+  patchFetch();
+
+  document.addEventListener('DOMContentLoaded', runFinalStability);
+  window.addEventListener('load', runFinalStability);
+  window.addEventListener('hashchange', runFinalStability);
+  document.addEventListener('click', () => setTimeout(runFinalStability, 120), true);
+  document.addEventListener('change', () => setTimeout(runFinalStability, 120), true);
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__ftFinalStabilityTimer);
+    window.__ftFinalStabilityTimer = setTimeout(runFinalStability, 120);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+
+  runFinalStability();
 })();
