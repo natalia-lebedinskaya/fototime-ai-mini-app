@@ -6791,3 +6791,260 @@ window.addEventListener('load', () => {
 
   run();
 })();
+
+
+
+/* FT_STABLE_RECOVERY_PATCH_20260608 */
+(function ftStableRecoveryPatch() {
+  if (window.__ftStableRecoveryPatchApplied) return;
+  window.__ftStableRecoveryPatchApplied = true;
+
+  const THEME_KEY = 'fototime-theme';
+
+  function normalizeTheme(value) {
+    const raw = String(value || '').toLowerCase();
+    if (raw.includes('dark') || raw.includes('тём') || raw.includes('тем')) return 'dark';
+    if (raw.includes('retro') || raw.includes('ретро')) return 'retro';
+    if (raw.includes('light') || raw.includes('свет')) return 'light';
+    return 'dark';
+  }
+
+  function applyTheme(value) {
+    const theme = normalizeTheme(value);
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
+
+    document.documentElement.classList.remove('theme-dark', 'theme-light', 'theme-retro', 'dark-theme', 'light-theme', 'retro-theme');
+    document.body.classList.remove('theme-dark', 'theme-light', 'theme-retro', 'dark-theme', 'light-theme', 'retro-theme');
+
+    document.documentElement.classList.add(`theme-${theme}`, `${theme}-theme`);
+    document.body.classList.add(`theme-${theme}`, `${theme}-theme`);
+
+    localStorage.setItem(THEME_KEY, theme);
+    localStorage.setItem('ft-theme', theme);
+    localStorage.setItem('theme', theme);
+
+    document.querySelectorAll('select').forEach((select) => {
+      const label = select.closest('label')?.textContent || select.previousSibling?.textContent || '';
+      if (/тему|theme/i.test(label) || [...select.options].some((o) => /тём|тем|dark|retro|ретро|light|свет/i.test(o.textContent))) {
+        [...select.options].forEach((option) => {
+          if (normalizeTheme(option.textContent || option.value) === theme) {
+            select.value = option.value;
+          }
+        });
+      }
+    });
+  }
+
+  function installThemeHandlers() {
+    document.querySelectorAll('select').forEach((select) => {
+      const optionsText = [...select.options].map((o) => `${o.value} ${o.textContent}`).join(' ');
+      if (!/тём|тем|dark|retro|ретро|light|свет/i.test(optionsText)) return;
+      if (select.dataset.ftThemeFixed === '1') return;
+
+      select.dataset.ftThemeFixed = '1';
+      select.addEventListener('change', () => {
+        const selected = select.options[select.selectedIndex];
+        applyTheme(selected?.textContent || selected?.value || select.value);
+      });
+    });
+  }
+
+  const STYLE_CACHE_KEY = 'ft-styles-cache-v2';
+
+  function normalizeStyleForClient(style, index) {
+    const id = String(style.id || style.styleId || style.slug || `style-${index + 1}`);
+    const title = String(style.title || style.name || style.label || id);
+    const image = style.image || style.preview || style.previewUrl || style.thumb || style.thumbnail || style.url || '';
+
+    return {
+      ...style,
+      id,
+      styleId: style.styleId || id,
+      title,
+      name: style.name || title,
+      label: style.label || title,
+      network: style.network || style.model || 'SDXL',
+      model: style.model || style.network || 'SDXL',
+      image,
+      preview: style.preview || style.previewUrl || image,
+      thumb: style.thumb || style.thumbnail || image,
+      thumbnail: style.thumbnail || style.thumb || image,
+      participantTypes: style.participantTypes || style.participants || ['male', 'female', 'couple', 'boy', 'girl', 'family'],
+      gender: style.gender || 'all'
+    };
+  }
+
+  function extractStyles(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.styles)) return payload.styles;
+    if (Array.isArray(payload?.items)) return payload.items;
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.data?.styles)) return payload.data.styles;
+    return [];
+  }
+
+  async function getStableStyles() {
+    try {
+      const cached = JSON.parse(localStorage.getItem(STYLE_CACHE_KEY) || '[]');
+      if (Array.isArray(cached) && cached.length > 2) return cached;
+    } catch (_) {}
+
+    const endpoints = [
+      '/api/styles',
+      '/api/event/styles',
+      '/api/config/styles',
+      '/api/styles/public'
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(`${endpoint}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) continue;
+
+        const payload = await response.json();
+        const list = extractStyles(payload).map(normalizeStyleForClient);
+
+        if (list.length) {
+          localStorage.setItem(STYLE_CACHE_KEY, JSON.stringify(list));
+          return list;
+        }
+      } catch (error) {
+        console.warn('[FT styles] endpoint failed:', endpoint, error);
+      }
+    }
+
+    return [];
+  }
+
+  function fixImage(img, title) {
+    if (!img) return;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+
+    img.addEventListener('error', () => {
+      const safeTitle = encodeURIComponent(title || 'FOTOTIME AI');
+      img.src = `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='960' viewBox='0 0 720 960'%3E%3Crect width='720' height='960' fill='%23161b22'/%3E%3Ccircle cx='210' cy='240' r='120' fill='%23b8ff1d' opacity='.85'/%3E%3Ccircle cx='500' cy='300' r='140' fill='%235eead4' opacity='.55'/%3E%3Ccircle cx='360' cy='560' r='190' fill='%237c3aed' opacity='.65'/%3E%3Ctext x='360' y='110' text-anchor='middle' font-family='Arial' font-size='34' font-weight='800' fill='white'%3EFOTOTIME AI%3C/text%3E%3Ctext x='360' y='760' text-anchor='middle' font-family='Arial' font-size='34' font-weight='800' fill='white'%3E${safeTitle}%3C/text%3E%3C/svg%3E`;
+    }, { once: true });
+  }
+
+  function renderStylesIntoExistingGrid(styles) {
+    if (!styles.length) return;
+
+    const grids = [
+      document.querySelector('.styles-grid'),
+      document.querySelector('.style-grid'),
+      document.querySelector('[data-styles-grid]'),
+      document.querySelector('#stylesGrid')
+    ].filter(Boolean);
+
+    const grid = grids[0] || [...document.querySelectorAll('section, .section, .card, .panel')]
+      .find((el) => /Стиль обработки|Поиск и фильтрация/i.test(el.textContent || ''))
+      ?.querySelector('.grid, [class*="grid"]');
+
+    if (!grid) return;
+
+    const currentText = grid.textContent || '';
+    const looksBroken = /NS Астрал|FOTOTIME AI|Cannot|undefined/i.test(currentText) || grid.querySelectorAll('img').length === 0;
+
+    if (!looksBroken && grid.querySelectorAll('img').length >= 3) {
+      grid.querySelectorAll('img').forEach((img) => {
+        const card = img.closest('[class*="card"], button, article, div');
+        fixImage(img, card?.textContent?.trim() || 'FOTOTIME AI');
+      });
+      return;
+    }
+
+    grid.innerHTML = styles.slice(0, 6).map((style, index) => {
+      const image = style.image || style.preview || style.thumb || style.thumbnail || '';
+      const title = style.title || style.name || `Стиль ${index + 1}`;
+      const model = style.network || style.model || 'SDXL';
+
+      return `
+        <button class="style-card ft-style-card-fixed ${index === 0 ? 'selected active' : ''}" type="button" data-style-id="${style.id || style.styleId}">
+          <img src="${image}" alt="${title}" class="style-card-image" />
+          <strong>${title}</strong>
+          <span>${model}</span>
+        </button>
+      `;
+    }).join('');
+
+    grid.querySelectorAll('img').forEach((img) => {
+      const card = img.closest('.ft-style-card-fixed');
+      fixImage(img, card?.querySelector('strong')?.textContent || 'FOTOTIME AI');
+    });
+  }
+
+  async function repairStyles() {
+    const styles = await getStableStyles();
+    renderStylesIntoExistingGrid(styles);
+  }
+
+  function patchCabinetButtons() {
+    document.querySelectorAll('button, a, [role="button"]').forEach((el) => {
+      const text = (el.textContent || '').trim().toLowerCase();
+      if (!text.includes('личный кабинет')) return;
+      if (el.dataset.ftCabinetFixed === '1') return;
+
+      el.dataset.ftCabinetFixed = '1';
+      el.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const tabs = [...document.querySelectorAll('button, a, [role="button"]')];
+        const target = tabs.find((item) => {
+          const itemText = (item.textContent || '').trim().toLowerCase();
+          return itemText === 'личный кабинет' || itemText.includes('личный кабинет');
+        });
+
+        if (target && target !== el) {
+          target.click();
+          return;
+        }
+
+        location.hash = '#profile';
+        window.dispatchEvent(new CustomEvent('ft:navigate', { detail: { tab: 'profile' } }));
+      }, true);
+    });
+  }
+
+  function normalizeTexts() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      node.nodeValue = node.nodeValue
+        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('кредиты', 'токены')
+        .replaceAll('кредитов', 'токенов')
+        .replaceAll('кредита', 'токена')
+        .replaceAll('кредит', 'токен')
+        .replaceAll('для текущего мероприятия', 'для текущего режима')
+        .replaceAll('из конфигурации мероприятия', 'из каталога режима');
+    });
+  }
+
+  function run() {
+    applyTheme(localStorage.getItem(THEME_KEY) || localStorage.getItem('ft-theme') || localStorage.getItem('theme') || 'dark');
+    installThemeHandlers();
+    patchCabinetButtons();
+    normalizeTexts();
+    repairStyles();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+
+  window.addEventListener('load', run);
+  setInterval(() => {
+    installThemeHandlers();
+    patchCabinetButtons();
+    normalizeTexts();
+  }, 1200);
+})();
+

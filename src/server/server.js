@@ -58,9 +58,10 @@ app.use('/api/generate', generateRoute);
 app.use('/api/styles', stylesRoute);
 app.use('/api/user', userRoute);
 app.use('/api/admin-pin', require('./routes/adminPin'));
-app.use('/api/config/styles', require('./routes/styles'));
-app.use('/api/event/styles', require('./routes/styles'));
 app.use('/api/styles', require('./routes/styles'));
+app.use('/api/event/styles', require('./routes/styles'));
+app.use('/api/config/styles', require('./routes/styles'));
+app.use('/api/styles/public', require('./routes/styles'));
 app.use('/api/admin', adminRoute);
 
 app.use(errorHandler);
