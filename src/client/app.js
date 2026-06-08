@@ -2015,7 +2015,7 @@ window.addEventListener('load', () => {
 
   const PACKAGES = [
     { title: 'Старт', tokens: 50, price: '49 ₽', generations: 1, note: 'Для знакомства с приложением' },
-    { title: 'Гости', tokens: 120, price: '99 ₽', generations: 3, note: 'Для нескольких генераций' },
+    { title: 'Комфорт', tokens: 120, price: '99 ₽', generations: 3, note: 'Для нескольких генераций' },
     { title: 'Популярный', tokens: 300, price: '249 ₽', generations: 7, note: 'Для регулярного использования' },
     { title: 'Максимум', tokens: 700, price: '499 ₽', generations: 17, note: 'Для активных генераций' }
   ];
@@ -2720,7 +2720,7 @@ window.addEventListener('load', () => {
   function packageHtml() {
     const packs = [
       ['Старт', 50, '49 ₽', 1, 'Для знакомства с приложением'],
-      ['Гости', 120, '99 ₽', 3, 'Для нескольких генераций'],
+      ['Комфорт', 120, '99 ₽', 3, 'Для нескольких генераций'],
       ['Популярный', 300, '249 ₽', 7, 'Для регулярного использования'],
       ['Максимум', 700, '499 ₽', 17, 'Для активных генераций']
     ];
@@ -3934,7 +3934,7 @@ window.addEventListener('load', () => {
 
   const PRICE_PACKAGES = [
     { title: 'Старт', tokens: 50, price: '49 ₽', gens: 1 },
-    { title: 'Гости', tokens: 120, price: '99 ₽', gens: 3 },
+    { title: 'Комфорт', tokens: 120, price: '99 ₽', gens: 3 },
     { title: 'Популярный', tokens: 300, price: '249 ₽', gens: 7 },
     { title: 'Максимум', tokens: 700, price: '499 ₽', gens: 17 }
   ];
@@ -4290,7 +4290,7 @@ window.addEventListener('load', () => {
   function patchPrices() {
     const packs = [
       ['Старт', '50 токенов', '49 ₽', '≈ 1 генерация'],
-      ['Гости', '120 токенов', '99 ₽', '≈ 3 генерации'],
+      ['Комфорт', '120 токенов', '99 ₽', '≈ 3 генерации'],
       ['Популярный', '300 токенов', '249 ₽', '≈ 7 генераций'],
       ['Максимум', '700 токенов', '499 ₽', '≈ 17 генераций']
     ];
@@ -5153,9 +5153,9 @@ window.addEventListener('load', () => {
         .replaceAll('Кредиты', 'Токены')
         .replaceAll('Кредит', 'Токен')
         .replaceAll('Тестовое мероприятие FOTOTIME323', 'Демо-пространство FOTOTIME323')
-        .replaceAll('текущего мероприятия', 'текущего режима')
-        .replaceAll('для мероприятия', 'для личного использования')
-        .replaceAll('Для небольшого мероприятия', 'Для нескольких генераций')
+        .replaceAll('текущего режима', 'текущего режима')
+        .replaceAll('для режима', 'для личного использования')
+        .replaceAll('Для небольшого режима', 'Для нескольких генераций')
         .replaceAll('Отзыв, идея улучшения или баг', 'Отзыв, идея улучшения или ошибка');
     });
   }
@@ -5250,4 +5250,181 @@ window.addEventListener('load', () => {
   runPatch();
   setTimeout(runPatch, 500);
   setTimeout(runPatch, 1500);
+});
+
+
+/* FT_POLISH_LAYER_20260608 */
+window.addEventListener('load', () => {
+  const LINKS = {
+    telegram: 'https://t.me/fototime23_Bot',
+    vk: 'https://vk.com/fototime323',
+    max: 'https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U',
+    avito: 'https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a',
+    site: 'https://fototime323.lpmotortest.com'
+  };
+
+  function replaceTextEverywhere() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      node.nodeValue = node.nodeValue
+        .replaceAll('Стили загружаются из конфигурации мероприятия', 'Стили загружаются из каталога режима')
+        .replaceAll('конфигурации мероприятия', 'каталога режима')
+        .replaceAll('для мероприятий', 'для быстрых AI-генераций')
+        .replaceAll('мероприятий', 'AI-генераций')
+        .replaceAll('мероприятия', 'режима')
+        .replaceAll('Гости', 'Комфорт')
+        .replaceAll('кредитов', 'токенов')
+        .replaceAll('кредиты', 'токены')
+        .replaceAll('кредит', 'токен')
+        .replaceAll('Кредитов', 'Токенов')
+        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('Кредит', 'Токен');
+    });
+  }
+
+  function fixTopupButton() {
+    document.querySelectorAll('.ft-topup-cta-fixed, a, button, div').forEach((el) => {
+      const raw = (el.textContent || '').trim();
+      if (!raw.includes('Пополнить баланс')) return;
+      if (raw.length > 170) return;
+
+      el.classList.add('ft-topup-cta-final');
+
+      el.querySelectorAll('.ft-cta-arrow').forEach((x) => x.remove());
+
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach((node) => {
+        node.nodeValue = node.nodeValue.replace(/[→➜➔➞]+/g, '').replace(/\s{2,}/g, ' ');
+      });
+
+      if (!el.querySelector('.ft-cta-arrow-final')) {
+        const arrow = document.createElement('span');
+        arrow.className = 'ft-cta-arrow-final';
+        arrow.textContent = '→';
+        el.appendChild(arrow);
+      }
+    });
+  }
+
+  function ensureContactButtons() {
+    document.querySelectorAll('section, article, .card, .ft-stable-card').forEach((card) => {
+      const txt = (card.textContent || '').toLowerCase();
+      if (!txt.includes('fototime323')) return;
+      if (!txt.includes('telegram') || !txt.includes('vk') || !txt.includes('сайт')) return;
+
+      let row = Array.from(card.querySelectorAll('div, nav')).find((el) => {
+        const t = (el.textContent || '').toLowerCase();
+        return t.includes('telegram') && t.includes('vk') && t.includes('сайт');
+      });
+
+      if (!row) return;
+      row.classList.add('ft-social-row-final');
+
+      const add = (key, label) => {
+        if (row.querySelector(`[data-ft-social="${key}"]`)) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ft-social-button-final';
+        btn.dataset.ftSocial = key;
+        btn.textContent = label;
+        btn.addEventListener('click', () => window.open(LINKS[key], '_blank'));
+        row.appendChild(btn);
+      };
+
+      add('max', '✦ MAX');
+      add('avito', '✦ Авито');
+    });
+
+    document.querySelectorAll('a, button').forEach((el) => {
+      const label = (el.textContent || '').trim().toLowerCase();
+
+      if (label.includes('telegram')) {
+        el.dataset.ftSocial = 'telegram';
+        el.onclick = () => window.open(LINKS.telegram, '_blank');
+      }
+
+      if (label === 'vk' || label.includes('vk')) {
+        el.dataset.ftSocial = 'vk';
+        el.onclick = () => window.open(LINKS.vk, '_blank');
+      }
+
+      if (label.includes('сайт')) {
+        el.dataset.ftSocial = 'site';
+        el.onclick = () => window.open(LINKS.site, '_blank');
+      }
+    });
+  }
+
+  async function downloadByUrl(url, filename = 'fototime-ai-photo.jpg') {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+  }
+
+  function fixDownloadButtons() {
+    document.querySelectorAll('button, a').forEach((btn) => {
+      const label = (btn.textContent || '').trim().toLowerCase();
+      if (label !== 'скачать' && !label.includes('скачать изображение')) return;
+
+      btn.classList.add('ft-download-button-final');
+
+      if (btn.dataset.ftDownloadFixed === '1') return;
+      btn.dataset.ftDownloadFixed = '1';
+
+      btn.addEventListener('click', async (event) => {
+        const card = btn.closest('article, .card, .history-card, .photo-card, div') || document;
+        const img = card.querySelector('img') || btn.closest('section, article, div')?.querySelector('img');
+
+        if (!img?.src) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        try {
+          const safeName = ((card.textContent || 'fototime-ai-photo').trim().split(/\s+/).slice(0, 3).join('-') || 'fototime-ai-photo')
+            .replace(/[^\wа-яё-]+/gi, '-')
+            .toLowerCase();
+          await downloadByUrl(img.src, `${safeName}.jpg`);
+        } catch (e) {
+          window.open(img.src, '_blank');
+        }
+      }, true);
+    });
+  }
+
+  function polishFeedback() {
+    document.querySelectorAll('section, article, .card').forEach((card) => {
+      const txt = (card.textContent || '').toLowerCase();
+      if (!txt.includes('обратная связь')) return;
+      card.classList.add('ft-feedback-card-final');
+      card.querySelectorAll('input, textarea, select').forEach((field) => {
+        field.classList.add('ft-feedback-field-final');
+      });
+    });
+  }
+
+  function run() {
+    replaceTextEverywhere();
+    fixTopupButton();
+    ensureContactButtons();
+    fixDownloadButtons();
+    polishFeedback();
+  }
+
+  run();
+  setTimeout(run, 300);
+  setTimeout(run, 1000);
+  setTimeout(run, 2500);
 });
