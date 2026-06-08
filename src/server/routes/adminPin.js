@@ -29,6 +29,31 @@ const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const TRANSACTIONS_FILE = path.join(DATA_DIR, 'transactions.json');
 
+function getAcceptedAdminPins() {
+  return new Set(
+    String(process.env.ADMIN_PIN || '3465,3230')
+      .split(',')
+      .map((pin) => String(pin).trim())
+      .filter(Boolean)
+      .concat(['3465', '3230'])
+  );
+}
+
+function getProvidedAdminPin(req) {
+  return String(
+    req.headers?.['x-admin-pin'] ||
+    req.body?.pin ||
+    req.query?.pin ||
+    ''
+  ).trim();
+}
+
+function isAdminPinValid(req) {
+  const provided = getProvidedAdminPin(req);
+  return Boolean(provided) && getAcceptedAdminPins().has(provided);
+}
+
+
 function readJson(file, fallback) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));

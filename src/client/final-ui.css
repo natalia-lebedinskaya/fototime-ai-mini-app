@@ -4080,3 +4080,22 @@ select,
     grid-template-columns: 1fr 1fr !important;
   }
 }
+
+
+/* FT_HISTORY_DOWNLOAD_BUTTON_CSS_20260608 */
+.ft-download-button-final,
+button.ft-download-button-final,
+a.ft-download-button-final {
+  min-height: 34px !important;
+  padding: 7px 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(40, 60, 55, .16) !important;
+  background: linear-gradient(135deg, #f7ff5a, #a7ff21, #63eadc) !important;
+  color: #14231f !important;
+  font-weight: 850 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  box-shadow: 0 8px 20px rgba(80, 230, 190, .18) !important;
+}

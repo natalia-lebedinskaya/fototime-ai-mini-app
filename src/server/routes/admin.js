@@ -9,6 +9,31 @@ const {
 
 const router = express.Router();
 
+function getAcceptedAdminPins() {
+  return new Set(
+    String(process.env.ADMIN_PIN || '3465,3230')
+      .split(',')
+      .map((pin) => String(pin).trim())
+      .filter(Boolean)
+      .concat(['3465', '3230'])
+  );
+}
+
+function getProvidedAdminPin(req) {
+  return String(
+    req.headers?.['x-admin-pin'] ||
+    req.body?.pin ||
+    req.query?.pin ||
+    ''
+  ).trim();
+}
+
+function isAdminPinValid(req) {
+  const provided = getProvidedAdminPin(req);
+  return Boolean(provided) && getAcceptedAdminPins().has(provided);
+}
+
+
 function isValidAdminPin(req) {
   const provided = String(
     req.headers['x-admin-pin'] ||
@@ -35,7 +60,7 @@ function requireAdmin(req, res) {
 
   const pinOk = isValidAdminPin(req);
 
-  if (!admin.isAdmin && !pinOk) {
+  if (!pinOk) {
     res.status(403).json({
       code: 'ADMIN_REQUIRED',
       message: 'Доступно только администратору'

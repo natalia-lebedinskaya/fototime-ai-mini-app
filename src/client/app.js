@@ -5428,3 +5428,130 @@ window.addEventListener('load', () => {
   setTimeout(run, 1000);
   setTimeout(run, 2500);
 });
+
+
+/* FT_HISTORY_DOWNLOAD_AND_PIN_FIX_20260608 */
+window.addEventListener('load', () => {
+  const ADMIN_PIN_KEY = 'ft-admin-pin';
+
+  function getVisibleAdminPin() {
+    const input =
+      document.querySelector('#adminPinInput') ||
+      document.querySelector('input[placeholder*="PIN"]') ||
+      document.querySelector('input[type="password"]');
+
+    const fromInput = input?.value?.trim();
+    const fromStorage = localStorage.getItem(ADMIN_PIN_KEY)?.trim();
+    return fromInput || fromStorage || '';
+  }
+
+  document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (!form || form.id !== 'adminPinForm') return;
+
+    const pin = getVisibleAdminPin();
+    if (pin) localStorage.setItem(ADMIN_PIN_KEY, pin);
+  }, true);
+
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = (resource, options = {}) => {
+    const url = typeof resource === 'string' ? resource : resource?.url || '';
+
+    if (url.includes('/api/admin') || url.includes('/api/admin-pin') || url.includes('/api/generation-logs') || url.includes('/api/feedback/admin')) {
+      const pin = getVisibleAdminPin();
+      const nextOptions = { ...options };
+      const headers = new Headers(nextOptions.headers || {});
+
+      if (pin && !headers.has('x-admin-pin')) {
+        headers.set('x-admin-pin', pin);
+      }
+
+      if (pin && nextOptions.method && nextOptions.method.toUpperCase() !== 'GET' && !nextOptions.body) {
+        headers.set('content-type', 'application/json');
+        nextOptions.body = JSON.stringify({ pin });
+      }
+
+      nextOptions.headers = headers;
+      return originalFetch(resource, nextOptions);
+    }
+
+    return originalFetch(resource, options);
+  };
+
+  function findImageForButton(button) {
+    let node = button;
+    for (let i = 0; i < 8 && node; i += 1) {
+      const img = node.querySelector?.('img');
+      if (img?.src) return img;
+      node = node.parentElement;
+    }
+
+    const card = button.closest('[class*="history"], [class*="photo"], article, section, .card, div');
+    return card?.querySelector?.('img') || null;
+  }
+
+  async function forceDownloadImage(src, filename) {
+    const response = await fetch(src, { mode: 'cors' });
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename || 'fototime-ai-photo.jpg';
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+  }
+
+  document.addEventListener('click', async (event) => {
+    const button = event.target.closest?.('button, a');
+    if (!button) return;
+
+    const label = (button.textContent || '').trim().toLowerCase();
+    if (label !== 'скачать' && !label.includes('скачать изображение')) return;
+
+    const img = findImageForButton(button);
+    if (!img?.src) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const cardText = (button.closest('article, section, .card, div')?.textContent || 'fototime-ai-photo')
+      .trim()
+      .split(/\s+/)
+      .slice(0, 4)
+      .join('-')
+      .replace(/[^\wа-яё-]+/gi, '-')
+      .toLowerCase();
+
+    const filename = `${cardText || 'fototime-ai-photo'}.jpg`;
+
+    try {
+      await forceDownloadImage(img.src, filename);
+    } catch (error) {
+      const fallback = document.createElement('a');
+      fallback.href = img.src;
+      fallback.download = filename;
+      fallback.target = '_blank';
+      fallback.rel = 'noopener';
+      document.body.appendChild(fallback);
+      fallback.click();
+      fallback.remove();
+    }
+  }, true);
+
+  function polishDownloadButtons() {
+    document.querySelectorAll('button, a').forEach((button) => {
+      const label = (button.textContent || '').trim().toLowerCase();
+      if (label === 'скачать' || label.includes('скачать изображение')) {
+        button.classList.add('ft-download-button-final');
+      }
+    });
+  }
+
+  polishDownloadButtons();
+  setInterval(polishDownloadButtons, 1500);
+});

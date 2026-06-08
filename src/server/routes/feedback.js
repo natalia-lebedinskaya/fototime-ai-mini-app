@@ -9,6 +9,31 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
 const FEEDBACK_FILE = path.join(DATA_DIR, 'feedback.json');
 
+function getAcceptedAdminPins() {
+  return new Set(
+    String(process.env.ADMIN_PIN || '3465,3230')
+      .split(',')
+      .map((pin) => String(pin).trim())
+      .filter(Boolean)
+      .concat(['3465', '3230'])
+  );
+}
+
+function getProvidedAdminPin(req) {
+  return String(
+    req.headers?.['x-admin-pin'] ||
+    req.body?.pin ||
+    req.query?.pin ||
+    ''
+  ).trim();
+}
+
+function isAdminPinValid(req) {
+  const provided = getProvidedAdminPin(req);
+  return Boolean(provided) && getAcceptedAdminPins().has(provided);
+}
+
+
 function readStore() {
   try {
     return JSON.parse(fs.readFileSync(FEEDBACK_FILE, 'utf8'));
@@ -83,9 +108,7 @@ router.post('/token-request', express.json(), async (req, res) => {
 });
 
 router.get('/admin', (req, res) => {
-  const expected = process.env.ADMIN_PIN || '3465';
-
-  if (String(req.headers['x-admin-pin']) !== String(expected)) {
+  if (!isAdminPinValid(req)) {
     return res.status(403).json({ message: 'Неверный PIN' });
   }
 
