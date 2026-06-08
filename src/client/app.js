@@ -1025,11 +1025,7 @@ function initUiThemeSelector() {
 
 
 
-/* REMOVED_CONFLICTING_THEME_SELECTOR_V14 */
-document.addEventListener('DOMContentLoaded', initFototimeThemeSelectorV14);
-} else {
-  initFototimeThemeSelectorV14();
-}
+
 
 
 async function renderAppVersion() {
@@ -5593,14 +5589,6 @@ window.addEventListener('load', () => {
 
 /* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_STABLE_RUNTIME_REPAIR_20260608 */
 
-_REMOVED */
-
-
-
-
-
-
-
 /* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_FINAL_STABLE_UI_CONTROLLER_20260608 */
 
 
@@ -5943,3 +5931,269 @@ _REMOVED */
     if (ticks >= 12) clearInterval(timer);
   }, 500);
 })();
+
+/* FT_BOOT_VISIBILITY_REPAIR_20260608 */
+(function ftBootVisibilityRepair() {
+  if (window.__ftBootVisibilityRepairApplied) return;
+  window.__ftBootVisibilityRepairApplied = true;
+
+  function showApp() {
+    const roots = [
+      document.documentElement,
+      document.body,
+      document.getElementById('app'),
+      document.querySelector('main'),
+      document.querySelector('.app'),
+      document.querySelector('.container'),
+      document.querySelector('.page'),
+      document.querySelector('.ft-app')
+    ].filter(Boolean);
+
+    roots.forEach((el) => {
+      el.classList.remove(
+        'loading',
+        'is-loading',
+        'app-loading',
+        'ft-loading',
+        'preloading',
+        'is-preloading',
+        'loaded-hidden',
+        'hidden'
+      );
+
+      el.classList.add('loaded', 'app-ready', 'ft-app-ready');
+
+      el.removeAttribute('data-loading');
+      el.removeAttribute('aria-busy');
+
+      el.style.opacity = '';
+      el.style.visibility = '';
+      el.style.filter = '';
+      el.style.pointerEvents = '';
+    });
+
+    document
+      .querySelectorAll(
+        '.loader, #loader, .preloader, #preloader, .loading-screen, .app-loader, .ft-loader, [data-loader], [data-loading]'
+      )
+      .forEach((el) => {
+        const text = (el.textContent || '').trim().toLowerCase();
+
+        if (
+          text.includes('loading') ||
+          el.className.toString().toLowerCase().includes('loader') ||
+          el.className.toString().toLowerCase().includes('loading') ||
+          el.id.toLowerCase().includes('loader')
+        ) {
+          el.style.display = 'none';
+          el.style.visibility = 'hidden';
+          el.setAttribute('hidden', 'hidden');
+        }
+      });
+
+    document.querySelectorAll('section, article, .card, .panel, [data-tab-content], .tab-content').forEach((el) => {
+      el.style.opacity = '';
+      el.style.visibility = '';
+      el.style.filter = '';
+    });
+  }
+
+  function fixTabs() {
+    const navButtons = Array.from(document.querySelectorAll('button, [role="button"], a'))
+      .filter((el) => /главная|личный кабинет|админ/i.test(el.textContent || ''));
+
+    navButtons.forEach((button) => {
+      if (button.dataset.ftTabFixed) return;
+      button.dataset.ftTabFixed = '1';
+
+      button.addEventListener('click', () => {
+        const text = (button.textContent || '').toLowerCase();
+
+        let tab = 'home';
+        if (text.includes('лич')) tab = 'account';
+        if (text.includes('админ')) tab = 'admin';
+
+        setTimeout(() => {
+          showApp();
+
+          if (tab === 'admin') {
+            const adminRoot =
+              document.querySelector('#admin') ||
+              document.querySelector('#adminTab') ||
+              document.querySelector('[data-tab-content="admin"]') ||
+              document.querySelector('[data-tab="admin"]');
+
+            if (adminRoot && !adminRoot.querySelector('input[type="password"]') && !/Клиенты|Админ-консоль|Введите PIN/i.test(adminRoot.textContent || '')) {
+              adminRoot.innerHTML = `
+                <section class="ft-admin-pin-card">
+                  <div class="ft-section-head">
+                    <span class="ft-step">AD</span>
+                    <div>
+                      <h2>Админ-консоль</h2>
+                      <p>Введите PIN администратора.</p>
+                    </div>
+                  </div>
+                  <form id="adminPinForm" class="ft-admin-pin-form">
+                    <input id="adminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
+                    <button type="submit">Войти</button>
+                  </form>
+                </section>
+              `;
+            }
+          }
+        }, 50);
+      }, true);
+    });
+  }
+
+  function bindAdminPin() {
+    document.addEventListener('submit', async (event) => {
+      const form = event.target;
+      if (!form || form.id !== 'adminPinForm') return;
+
+      event.preventDefault();
+
+      const input = form.querySelector('#adminPinInput, input[type="password"]');
+      const pin = String(input?.value || '').trim();
+
+      if (!pin) {
+        alert('Введите PIN');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin-pin/overview', {
+          headers: { 'x-admin-pin': pin }
+        });
+
+        if (!response.ok) {
+          alert('Неверный PIN');
+          return;
+        }
+
+        localStorage.setItem('ft-admin-pin', pin);
+        localStorage.setItem('ft-admin-pin-value', pin);
+
+        if (typeof window.renderAdminDashboard === 'function') {
+          await window.renderAdminDashboard();
+        } else if (typeof window.renderAdminFinal === 'function') {
+          await window.renderAdminFinal();
+        } else if (typeof window.renderAdmin === 'function') {
+          await window.renderAdmin();
+        }
+
+        showApp();
+      } catch (error) {
+        console.error('Admin PIN failed:', error);
+        alert('Не удалось открыть админ-консоль');
+      }
+    }, true);
+  }
+
+  function boot() {
+    showApp();
+    fixTabs();
+  }
+
+  bindAdminPin();
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  window.addEventListener('load', boot);
+
+  let count = 0;
+  const interval = setInterval(() => {
+    count += 1;
+    boot();
+    if (count >= 20) clearInterval(interval);
+  }, 300);
+})();
+
+
+/* FT_SINGLE_SAFE_THEME_BOOT_20260608 */
+(function ftSingleSafeThemeBoot20260608() {
+  if (window.__ftSingleSafeThemeBoot20260608) return;
+  window.__ftSingleSafeThemeBoot20260608 = true;
+
+  function normalizeTheme(value) {
+    if (value === 'dark' || value === 'light' || value === 'retro') return value;
+    if (value === 'Тёмная') return 'dark';
+    if (value === 'Светлая') return 'light';
+    if (value === 'Ретро') return 'retro';
+    return 'light';
+  }
+
+  function themeLabel(value) {
+    const theme = normalizeTheme(value);
+    if (theme === 'dark') return 'Тёмная';
+    if (theme === 'retro') return 'Ретро';
+    return 'Светлая';
+  }
+
+  function applyTheme(themeValue) {
+    const theme = normalizeTheme(themeValue);
+
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+    document.documentElement.classList.add('theme-' + theme);
+    document.body.classList.add('theme-' + theme);
+
+    try {
+      localStorage.setItem('ft-ui-theme', theme);
+      localStorage.setItem('ft-theme', theme);
+    } catch (_) {}
+
+    const select = document.getElementById('themeSelect');
+    if (select && select.value !== theme) {
+      select.value = theme;
+    }
+
+    return theme;
+  }
+
+  function initThemeOnce() {
+    let saved = 'light';
+
+    try {
+      saved =
+        localStorage.getItem('ft-ui-theme') ||
+        localStorage.getItem('ft-theme') ||
+        'light';
+    } catch (_) {}
+
+    applyTheme(saved);
+
+    const select = document.getElementById('themeSelect');
+    if (select && !select.dataset.ftSingleThemeBound) {
+      select.dataset.ftSingleThemeBound = '1';
+
+      Array.from(select.options || []).forEach((option) => {
+        const normalized = normalizeTheme(option.value || option.textContent);
+        option.value = normalized;
+        option.textContent = themeLabel(normalized);
+      });
+
+      select.value = normalizeTheme(saved);
+
+      select.addEventListener('change', (event) => {
+        event.preventDefault();
+        applyTheme(event.target.value);
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeOnce, { once: true });
+  } else {
+    initThemeOnce();
+  }
+
+  window.ftApplyTheme = applyTheme;
+})();
+
