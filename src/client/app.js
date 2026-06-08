@@ -19,29 +19,29 @@ const CREDIT_PACKAGES = [
     id: 'starter',
     title: 'Старт',
     credits: 50,
-    priceRub: 99,
-    description: 'Для первой пробы'
+    priceRub: 49,
+    description: 'Для знакомства с приложением'
   },
   {
-    id: 'event',
-    title: 'Гости',
+    id: 'comfort',
+    title: 'Комфорт',
     credits: 120,
-    priceRub: 199,
-    description: 'Оптимально для мероприятия'
+    priceRub: 99,
+    description: 'Для нескольких генераций'
   },
   {
     id: 'popular',
     title: 'Популярный',
     credits: 300,
-    priceRub: 449,
-    description: 'Больше генераций за выгодную цену'
+    priceRub: 249,
+    description: 'Для регулярного использования'
   },
   {
     id: 'max',
     title: 'Максимум',
     credits: 700,
-    priceRub: 899,
-    description: 'Для активного использования'
+    priceRub: 499,
+    description: 'Для активных генераций'
   }
 ];
 
@@ -1547,10 +1547,10 @@ window.addEventListener('load', () => {
   window.__accountAdminPanelsStableApplied = true;
 
   const TOKEN_PACKAGES = [
-    { title: 'Старт', tokens: 50, price: '99 ₽', note: 'Для первой пробы и тестирования.' },
-    { title: 'Гости', tokens: 120, price: '199 ₽', note: 'Для небольшого мероприятия.' },
+    { title: 'Старт', tokens: 50, price: '99 ₽', note: 'Для знакомства с приложением и тестирования.' },
+    { title: 'Гости', tokens: 120, price: '199 ₽', note: 'Для нескольких генераций.' },
     { title: 'Популярный', tokens: 300, price: '449 ₽', note: 'Оптимально для активного использования.' },
-    { title: 'Максимум', tokens: 700, price: '899 ₽', note: 'Для большого события или промо.' }
+    { title: 'Максимум', tokens: 700, price: '899 ₽', note: 'Для активных генераций.' }
   ];
 
   function getAuthHeaders() {
@@ -2014,10 +2014,10 @@ window.addEventListener('load', () => {
   const ADMIN_PIN = localStorage.getItem('ft-admin-pin-value') || '3465';
 
   const PACKAGES = [
-    { title: 'Старт', tokens: 50, price: '49 ₽', generations: 1, note: 'Для первой пробы' },
-    { title: 'Гости', tokens: 120, price: '99 ₽', generations: 3, note: 'Для небольшого мероприятия' },
-    { title: 'Популярный', tokens: 300, price: '249 ₽', generations: 7, note: 'Для активного использования' },
-    { title: 'Максимум', tokens: 700, price: '499 ₽', generations: 17, note: 'Для большого события или промо' }
+    { title: 'Старт', tokens: 50, price: '49 ₽', generations: 1, note: 'Для знакомства с приложением' },
+    { title: 'Гости', tokens: 120, price: '99 ₽', generations: 3, note: 'Для нескольких генераций' },
+    { title: 'Популярный', tokens: 300, price: '249 ₽', generations: 7, note: 'Для регулярного использования' },
+    { title: 'Максимум', tokens: 700, price: '499 ₽', generations: 17, note: 'Для активных генераций' }
   ];
 
   function headers() {
@@ -2719,10 +2719,10 @@ window.addEventListener('load', () => {
 
   function packageHtml() {
     const packs = [
-      ['Старт', 50, '49 ₽', 1, 'Для первой пробы'],
-      ['Гости', 120, '99 ₽', 3, 'Для небольшого мероприятия'],
-      ['Популярный', 300, '249 ₽', 7, 'Для активного использования'],
-      ['Максимум', 700, '499 ₽', 17, 'Для большого события или промо']
+      ['Старт', 50, '49 ₽', 1, 'Для знакомства с приложением'],
+      ['Гости', 120, '99 ₽', 3, 'Для нескольких генераций'],
+      ['Популярный', 300, '249 ₽', 7, 'Для регулярного использования'],
+      ['Максимум', 700, '499 ₽', 17, 'Для активных генераций']
     ];
 
     return packs.map(([title, tokens, price, gens, note]) => `
@@ -3468,7 +3468,7 @@ window.addEventListener('load', () => {
       <div class="ft-user-avatar">${userAvatarHtml()}</div>
       <div>
         <strong>${isTelegram() ? 'Аккаунт Telegram прикреплён' : 'Гостевой режим'}</strong>
-        <span>${isTelegram() ? `${userName()} · история и баланс сохраняются` : '50 токенов доступны на пробу. Для постоянного баланса откройте приложение через Telegram.'}</span>
+        <span>${isTelegram() ? `${userName()} · история и баланс сохраняются` : '50 токенов доступны на пробу. Для сохранения баланса откройте приложение через Telegram.'}</span>
       </div>
       <button type="button" id="ftAuthActionButton">${isTelegram() ? 'Выйти' : 'Как авторизоваться?'}</button>
     `;
