@@ -1024,63 +1024,9 @@ function initUiThemeSelector() {
 }
 
 
-// FOTOTIME theme selector v14
-const FOTOTIME_THEME_STORAGE_KEY_V14 = 'fototime-selected-theme-v14';
 
-function setFototimeThemeV14(themeName) {
-  const allowedThemes = ['light', 'dark', 'retro'];
-  const theme = allowedThemes.includes(themeName) ? themeName : 'light';
-
-  // One source of truth + compatibility cleanup.
-  document.body.dataset.uiTheme = theme;
-  document.body.dataset.appTheme = theme;
-  document.body.dataset.theme = theme;
-  document.documentElement.dataset.uiTheme = theme;
-
-  const select = document.getElementById('themeSelect');
-  if (select) {
-    select.value = theme;
-  }
-
-  try {
-    localStorage.setItem(FOTOTIME_THEME_STORAGE_KEY_V14, theme);
-    localStorage.setItem('fototime-ui-theme', theme);
-    localStorage.setItem('fototime-app-theme', theme);
-    localStorage.setItem('fototimeTheme', theme);
-  } catch (error) {
-    console.warn('Cannot save selected theme', error);
-  }
-}
-
-function initFototimeThemeSelectorV14() {
-  const select = document.getElementById('themeSelect');
-
-  let savedTheme = 'light';
-
-  try {
-    savedTheme =
-      localStorage.getItem(FOTOTIME_THEME_STORAGE_KEY_V14) ||
-      localStorage.getItem('fototime-ui-theme') ||
-      localStorage.getItem('fototime-app-theme') ||
-      localStorage.getItem('fototimeTheme') ||
-      'light';
-  } catch (error) {
-    console.warn('Cannot read selected theme', error);
-  }
-
-  setFototimeThemeV14(savedTheme);
-
-  if (!select) {
-    return;
-  }
-
-  select.addEventListener('change', (event) => {
-    setFototimeThemeV14(event.target.value);
-  });
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initFototimeThemeSelectorV14);
+/* REMOVED_CONFLICTING_THEME_SELECTOR_V14 */
+document.addEventListener('DOMContentLoaded', initFototimeThemeSelectorV14);
 } else {
   initFototimeThemeSelectorV14();
 }
@@ -4850,671 +4796,19 @@ window.addEventListener('load', () => {
 })();
 
 
-/* FT_DESKTOP_HEADERS_PATCH_20260607 */
-(function ftDesktopHeadersPatch20260607() {
-  if (window.__ftDesktopHeadersPatch20260607) return;
-  window.__ftDesktopHeadersPatch20260607 = true;
 
-  const nativeFetch = window.fetch.bind(window);
 
-  window.fetch = function ftPatchedFetch(input, init = {}) {
-    const url = typeof input === 'string' ? input : input?.url || '';
-    const isApi = url.includes('/api/');
+/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_DESKTOP_HEADERS_PATCH_20260607 */
 
-    if (!isApi) {
-      return nativeFetch(input, init);
-    }
 
-    const headers = new Headers(init.headers || {});
 
-    if (!headers.has('x-user-id')) {
-      headers.set('x-user-id', 'local-demo-user');
-    }
 
-    if (!headers.has('x-telegram-user-id')) {
-      headers.set('x-telegram-user-id', 'local-demo-user');
-    }
 
-    if (!headers.has('x-admin-pin')) {
-      const savedPin =
-        localStorage.getItem('ft-admin-pin-value') ||
-        localStorage.getItem('ft_admin_pin') ||
-        '3465';
-      headers.set('x-admin-pin', savedPin);
-    }
 
-    return nativeFetch(input, {
-      ...init,
-      headers
-    });
-  };
-})();
 
+/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_LINKS_AND_UI_PATCH_20260608 */
 
 
-/* FT_LINKS_AND_UI_PATCH_20260608 */
-window.addEventListener('load', () => {
-  const SUPPORT_LINK = 'https://t.me/fototime23_Bot';
-  const VK_LINK = 'https://vk.com/fototime323';
-  const MAX_LINK = 'https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U';
-  const AVITO_LINK = 'https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a';
-  const SITE_LINK = 'https://fototime323.lpmotortest.com';
-
-  function normalizeText() {
-    document.querySelectorAll('body *').forEach((node) => {
-      if (!node.childNodes || node.childNodes.length !== 1) return;
-      const child = node.childNodes[0];
-      if (!child || child.nodeType !== Node.TEXT_NODE) return;
-
-      child.nodeValue = child.nodeValue
-        .replaceAll('токенов', 'токенов')
-        .replaceAll('токены', 'токены')
-        .replaceAll('токен', 'токен')
-        .replaceAll('Токенов', 'Токенов')
-        .replaceAll('Токены', 'Токены')
-        .replaceAll('Токен', 'Токен')
-        .replaceAll('Демо-пространство FOTOTIME323', 'Демо-пространство FOTOTIME323')
-        .replaceAll('текущего режима', 'текущего режима')
-        .replaceAll('для режима', 'для личного использования')
-        .replaceAll('Для небольшого режима', 'Для нескольких генераций')
-        .replaceAll('Отзыв, идея улучшения или баг', 'Отзыв, идея улучшения или ошибка');
-    });
-  }
-
-  function patchTopupCta() {
-    document.querySelectorAll('a, button, div, section').forEach((el) => {
-      const text = (el.textContent || '').trim();
-      if (!text.includes('Пополнить баланс')) return;
-      if (text.length > 140) return;
-
-      el.classList.add('ft-topup-cta-fixed');
-      el.setAttribute('role', el.getAttribute('role') || 'button');
-
-      if (!el.querySelector('.ft-cta-arrow')) {
-        const arrow = document.createElement('span');
-        arrow.className = 'ft-cta-arrow';
-        arrow.textContent = '→';
-        el.appendChild(arrow);
-      }
-    });
-  }
-
-  function patchContactLinks() {
-    document.querySelectorAll('a, button').forEach((el) => {
-      const label = (el.textContent || '').trim().toLowerCase();
-
-      if (label.includes('telegram') || label.includes('поддержка')) {
-        el.setAttribute('data-ft-social', 'telegram');
-        if (el.tagName === 'A') el.href = SUPPORT_LINK;
-        el.onclick = () => window.open(SUPPORT_LINK, '_blank');
-      }
-
-      if (label === 'vk' || label.includes('vk')) {
-        el.setAttribute('data-ft-social', 'vk');
-        if (el.tagName === 'A') el.href = VK_LINK;
-        el.onclick = () => window.open(VK_LINK, '_blank');
-      }
-
-      if (label.includes('сайт')) {
-        el.setAttribute('data-ft-social', 'site');
-        if (el.tagName === 'A') el.href = SITE_LINK;
-        el.onclick = () => window.open(SITE_LINK, '_blank');
-      }
-    });
-
-    document.querySelectorAll('.ft-contact-card, .contact-card, section, article').forEach((card) => {
-      const txt = (card.textContent || '').toLowerCase();
-      if (!txt.includes('telegram') || !txt.includes('vk') || !txt.includes('сайт')) return;
-      if (card.querySelector('[data-ft-social="max"]')) return;
-
-      const row = Array.from(card.querySelectorAll('div, nav')).find((el) => {
-        const t = (el.textContent || '').toLowerCase();
-        return t.includes('telegram') && t.includes('vk') && t.includes('сайт');
-      }) || card;
-
-      const max = document.createElement('button');
-      max.type = 'button';
-      max.className = 'ft-social-button';
-      max.dataset.ftSocial = 'max';
-      max.textContent = '✦ MAX';
-      max.onclick = () => window.open(MAX_LINK, '_blank');
-
-      const avito = document.createElement('button');
-      avito.type = 'button';
-      avito.className = 'ft-social-button';
-      avito.dataset.ftSocial = 'avito';
-      avito.textContent = '✦ Авито';
-      avito.onclick = () => window.open(AVITO_LINK, '_blank');
-
-      row.appendChild(max);
-      row.appendChild(avito);
-    });
-  }
-
-  function patchFeedbackLabels() {
-    document.querySelectorAll('textarea, input').forEach((el) => {
-      if (el.placeholder) {
-        el.placeholder = el.placeholder
-          .replaceAll('баг', 'ошибку')
-          .replaceAll('Баг', 'Ошибку');
-      }
-    });
-  }
-
-  function runPatch() {
-    normalizeText();
-    patchTopupCta();
-    patchContactLinks();
-    patchFeedbackLabels();
-  }
-
-  runPatch();
-  setTimeout(runPatch, 500);
-  setTimeout(runPatch, 1500);
-});
-
-
-/* FT_POLISH_LAYER_20260608 */
-window.addEventListener('load', () => {
-  const LINKS = {
-    telegram: 'https://t.me/fototime23_Bot',
-    vk: 'https://vk.com/fototime323',
-    max: 'https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U',
-    avito: 'https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a',
-    site: 'https://fototime323.lpmotortest.com'
-  };
-
-  function replaceTextEverywhere() {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-
-    nodes.forEach((node) => {
-      node.nodeValue = node.nodeValue
-        .replaceAll('Стили загружаются из каталога режима', 'Стили загружаются из каталога режима')
-        .replaceAll('каталога режима', 'каталога режима')
-        .replaceAll('для мероприятий', 'для быстрых AI-генераций')
-        .replaceAll('мероприятий', 'AI-генераций')
-        .replaceAll('мероприятия', 'режима')
-        .replaceAll('Комфорт', 'Комфорт')
-        .replaceAll('токенов', 'токенов')
-        .replaceAll('токены', 'токены')
-        .replaceAll('токен', 'токен')
-        .replaceAll('Токенов', 'Токенов')
-        .replaceAll('Токены', 'Токены')
-        .replaceAll('Токен', 'Токен');
-    });
-  }
-
-  function fixTopupButton() {
-    document.querySelectorAll('.ft-topup-cta-fixed, a, button, div').forEach((el) => {
-      const raw = (el.textContent || '').trim();
-      if (!raw.includes('Пополнить баланс')) return;
-      if (raw.length > 170) return;
-
-      el.classList.add('ft-topup-cta-final');
-
-      el.querySelectorAll('.ft-cta-arrow').forEach((x) => x.remove());
-
-      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      const nodes = [];
-      while (walker.nextNode()) nodes.push(walker.currentNode);
-      nodes.forEach((node) => {
-        node.nodeValue = node.nodeValue.replace(/[→➜➔➞]+/g, '').replace(/\s{2,}/g, ' ');
-      });
-
-      if (!el.querySelector('.ft-cta-arrow-final')) {
-        const arrow = document.createElement('span');
-        arrow.className = 'ft-cta-arrow-final';
-        arrow.textContent = '→';
-        el.appendChild(arrow);
-      }
-    });
-  }
-
-  function ensureContactButtons() {
-    document.querySelectorAll('section, article, .card, .ft-stable-card').forEach((card) => {
-      const txt = (card.textContent || '').toLowerCase();
-      if (!txt.includes('fototime323')) return;
-      if (!txt.includes('telegram') || !txt.includes('vk') || !txt.includes('сайт')) return;
-
-      let row = Array.from(card.querySelectorAll('div, nav')).find((el) => {
-        const t = (el.textContent || '').toLowerCase();
-        return t.includes('telegram') && t.includes('vk') && t.includes('сайт');
-      });
-
-      if (!row) return;
-      row.classList.add('ft-social-row-final');
-
-      const add = (key, label) => {
-        if (row.querySelector(`[data-ft-social="${key}"]`)) return;
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'ft-social-button-final';
-        btn.dataset.ftSocial = key;
-        btn.textContent = label;
-        btn.addEventListener('click', () => window.open(LINKS[key], '_blank'));
-        row.appendChild(btn);
-      };
-
-      add('max', '✦ MAX');
-      add('avito', '✦ Авито');
-    });
-
-    document.querySelectorAll('a, button').forEach((el) => {
-      const label = (el.textContent || '').trim().toLowerCase();
-
-      if (label.includes('telegram')) {
-        el.dataset.ftSocial = 'telegram';
-        el.onclick = () => window.open(LINKS.telegram, '_blank');
-      }
-
-      if (label === 'vk' || label.includes('vk')) {
-        el.dataset.ftSocial = 'vk';
-        el.onclick = () => window.open(LINKS.vk, '_blank');
-      }
-
-      if (label.includes('сайт')) {
-        el.dataset.ftSocial = 'site';
-        el.onclick = () => window.open(LINKS.site, '_blank');
-      }
-    });
-  }
-
-  async function downloadByUrl(url, filename = 'fototime-ai-photo.jpg') {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
-  }
-
-  function fixDownloadButtons() {
-    document.querySelectorAll('button, a').forEach((btn) => {
-      const label = (btn.textContent || '').trim().toLowerCase();
-      if (label !== 'скачать' && !label.includes('скачать изображение')) return;
-
-      btn.classList.add('ft-download-button-final');
-
-      if (btn.dataset.ftDownloadFixed === '1') return;
-      btn.dataset.ftDownloadFixed = '1';
-
-      btn.addEventListener('click', async (event) => {
-        const card = btn.closest('article, .card, .history-card, .photo-card, div') || document;
-        const img = card.querySelector('img') || btn.closest('section, article, div')?.querySelector('img');
-
-        if (!img?.src) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        try {
-          const safeName = ((card.textContent || 'fototime-ai-photo').trim().split(/\s+/).slice(0, 3).join('-') || 'fototime-ai-photo')
-            .replace(/[^\wа-яё-]+/gi, '-')
-            .toLowerCase();
-          await downloadByUrl(img.src, `${safeName}.jpg`);
-        } catch (e) {
-          window.open(img.src, '_blank');
-        }
-      }, true);
-    });
-  }
-
-  function polishFeedback() {
-    document.querySelectorAll('section, article, .card').forEach((card) => {
-      const txt = (card.textContent || '').toLowerCase();
-      if (!txt.includes('обратная связь')) return;
-      card.classList.add('ft-feedback-card-final');
-      card.querySelectorAll('input, textarea, select').forEach((field) => {
-        field.classList.add('ft-feedback-field-final');
-      });
-    });
-  }
-
-  function run() {
-    replaceTextEverywhere();
-    fixTopupButton();
-    ensureContactButtons();
-    fixDownloadButtons();
-    polishFeedback();
-  }
-
-  run();
-  setTimeout(run, 300);
-  setTimeout(run, 1000);
-  setTimeout(run, 2500);
-});
-
-
-/* FT_HISTORY_DOWNLOAD_AND_PIN_FIX_20260608 */
-window.addEventListener('load', () => {
-  const ADMIN_PIN_KEY = 'ft-admin-pin';
-
-  function getVisibleAdminPin() {
-    const input =
-      document.querySelector('#adminPinInput') ||
-      document.querySelector('input[placeholder*="PIN"]') ||
-      document.querySelector('input[type="password"]');
-
-    const fromInput = input?.value?.trim();
-    const fromStorage = localStorage.getItem(ADMIN_PIN_KEY)?.trim();
-    return fromInput || fromStorage || '';
-  }
-
-  document.addEventListener('submit', (event) => {
-    const form = event.target;
-    if (!form || form.id !== 'adminPinForm') return;
-
-    const pin = getVisibleAdminPin();
-    if (pin) localStorage.setItem(ADMIN_PIN_KEY, pin);
-  }, true);
-
-  const originalFetch = window.fetch.bind(window);
-  window.fetch = (resource, options = {}) => {
-    const url = typeof resource === 'string' ? resource : resource?.url || '';
-
-    if (url.includes('/api/admin') || url.includes('/api/admin-pin') || url.includes('/api/generation-logs') || url.includes('/api/feedback/admin')) {
-      const pin = getVisibleAdminPin();
-      const nextOptions = { ...options };
-      const headers = new Headers(nextOptions.headers || {});
-
-      if (pin && !headers.has('x-admin-pin')) {
-        headers.set('x-admin-pin', pin);
-      }
-
-      if (pin && nextOptions.method && nextOptions.method.toUpperCase() !== 'GET' && !nextOptions.body) {
-        headers.set('content-type', 'application/json');
-        nextOptions.body = JSON.stringify({ pin });
-      }
-
-      nextOptions.headers = headers;
-      return originalFetch(resource, nextOptions);
-    }
-
-    return originalFetch(resource, options);
-  };
-
-  function findImageForButton(button) {
-    let node = button;
-    for (let i = 0; i < 8 && node; i += 1) {
-      const img = node.querySelector?.('img');
-      if (img?.src) return img;
-      node = node.parentElement;
-    }
-
-    const card = button.closest('[class*="history"], [class*="photo"], article, section, .card, div');
-    return card?.querySelector?.('img') || null;
-  }
-
-  async function forceDownloadImage(src, filename) {
-    const response = await fetch(src, { mode: 'cors' });
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = filename || 'fototime-ai-photo.jpg';
-    link.rel = 'noopener';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
-  }
-
-  document.addEventListener('click', async (event) => {
-    const button = event.target.closest?.('button, a');
-    if (!button) return;
-
-    const label = (button.textContent || '').trim().toLowerCase();
-    if (label !== 'скачать' && !label.includes('скачать изображение')) return;
-
-    const img = findImageForButton(button);
-    if (!img?.src) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const cardText = (button.closest('article, section, .card, div')?.textContent || 'fototime-ai-photo')
-      .trim()
-      .split(/\s+/)
-      .slice(0, 4)
-      .join('-')
-      .replace(/[^\wа-яё-]+/gi, '-')
-      .toLowerCase();
-
-    const filename = `${cardText || 'fototime-ai-photo'}.jpg`;
-
-    try {
-      await forceDownloadImage(img.src, filename);
-    } catch (error) {
-      const fallback = document.createElement('a');
-      fallback.href = img.src;
-      fallback.download = filename;
-      fallback.target = '_blank';
-      fallback.rel = 'noopener';
-      document.body.appendChild(fallback);
-      fallback.click();
-      fallback.remove();
-    }
-  }, true);
-
-  function polishDownloadButtons() {
-    document.querySelectorAll('button, a').forEach((button) => {
-      const label = (button.textContent || '').trim().toLowerCase();
-      if (label === 'скачать' || label.includes('скачать изображение')) {
-        button.classList.add('ft-download-button-final');
-      }
-    });
-  }
-
-  polishDownloadButtons();
-  setInterval(polishDownloadButtons, 1500);
-});
-
-
-/* FT_GENERATION_AND_PIN_VISIBLE_FIX_20260608 */
-(function ftGenerationAndPinVisibleFix() {
-  if (window.__ftGenerationAndPinVisibleFixApplied) return;
-  window.__ftGenerationAndPinVisibleFixApplied = true;
-
-  const FT_ADMIN_PIN_STORAGE_KEY = 'ft-admin-pin';
-
-  function ftShowGenerationError(message) {
-    const text = String(message || 'Не удалось создать AI-фото. Попробуйте ещё раз.').trim();
-
-    let target =
-      document.querySelector('#generationError') ||
-      document.querySelector('.generation-error') ||
-      document.querySelector('.photo-error') ||
-      document.querySelector('[data-generation-error]');
-
-    if (!target) {
-      const photoSection =
-        [...document.querySelectorAll('section, article, .card, .ft-stable-card')]
-          .find((node) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(node.textContent || ''));
-
-      if (photoSection) {
-        target = document.createElement('div');
-        target.className = 'ft-visible-generation-error';
-        target.setAttribute('data-generation-error', 'true');
-        photoSection.appendChild(target);
-      }
-    }
-
-    if (target) {
-      target.textContent = text;
-      target.style.display = 'block';
-      target.style.color = '#ff4f7b';
-      target.style.fontWeight = '800';
-      target.style.marginTop = '12px';
-      target.style.lineHeight = '1.25';
-    }
-
-    console.error('[FOTOTIME generation error]', text);
-  }
-
-  function ftClearGenerationError() {
-    document
-      .querySelectorAll('#generationError, .generation-error, .photo-error, [data-generation-error], .ft-visible-generation-error')
-      .forEach((node) => {
-        node.textContent = '';
-        node.style.display = 'none';
-      });
-  }
-
-  async function ftFetchJsonSafe(url, options = {}) {
-    const response = await fetch(url, options);
-    const contentType = response.headers.get('content-type') || '';
-    let payload = null;
-
-    if (contentType.includes('application/json')) {
-      payload = await response.json().catch(() => null);
-    } else {
-      const raw = await response.text().catch(() => '');
-      payload = raw ? { message: raw } : null;
-    }
-
-    if (!response.ok) {
-      const message =
-        payload?.message ||
-        payload?.error ||
-        payload?.details ||
-        `Ошибка запроса ${response.status}`;
-
-      const err = new Error(message);
-      err.status = response.status;
-      err.payload = payload;
-      throw err;
-    }
-
-    return payload;
-  }
-
-  async function ftVerifyAdminPin(pin) {
-    const cleanPin = String(pin || '').trim();
-
-    if (!cleanPin) {
-      throw new Error('Введите PIN администратора');
-    }
-
-    const result = await ftFetchJsonSafe('/api/admin-pin/verify', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-admin-pin': cleanPin
-      },
-      body: JSON.stringify({ pin: cleanPin })
-    });
-
-    if (!result?.ok) {
-      throw new Error(result?.message || 'Неверный PIN');
-    }
-
-    localStorage.setItem(FT_ADMIN_PIN_STORAGE_KEY, cleanPin);
-    localStorage.setItem('ft-admin-pin-value', cleanPin);
-    window.ftAdminPin = cleanPin;
-
-    return true;
-  }
-
-  document.addEventListener('submit', async (event) => {
-    const form = event.target;
-    if (!form || form.id !== 'adminPinForm') return;
-
-    const input =
-      form.querySelector('#adminPinInput') ||
-      form.querySelector('input[type="password"]') ||
-      form.querySelector('input[inputmode="numeric"]');
-
-    if (!input) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const button = form.querySelector('button[type="submit"], button');
-    const oldText = button ? button.textContent : '';
-
-    try {
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Проверяем...';
-      }
-
-      await ftVerifyAdminPin(input.value);
-
-      if (button) {
-        button.textContent = 'PIN принят';
-      }
-
-      setTimeout(() => {
-        location.reload();
-      }, 250);
-    } catch (error) {
-      alert(error?.message || 'Неверный PIN');
-      if (button) {
-        button.disabled = false;
-        button.textContent = oldText || 'Войти';
-      }
-    }
-  }, true);
-
-  const nativeFetch = window.fetch.bind(window);
-
-  window.fetch = async function ftFetchWithAdminPinAndErrors(input, init = {}) {
-    const url = typeof input === 'string' ? input : input?.url || '';
-
-    const savedPin =
-      localStorage.getItem(FT_ADMIN_PIN_STORAGE_KEY) ||
-      localStorage.getItem('ft-admin-pin-value') ||
-      window.ftAdminPin ||
-      '';
-
-    if (savedPin && /\/api\/(admin|admin-pin|generation-logs|feedback)/.test(url)) {
-      const headers = new Headers(init.headers || {});
-      if (!headers.has('x-admin-pin')) {
-        headers.set('x-admin-pin', savedPin);
-      }
-      init = { ...init, headers };
-    }
-
-    const response = await nativeFetch(input, init);
-
-    if (/\/api\/generate|\/api\/generation|\/api\/result/.test(url)) {
-      const cloned = response.clone();
-
-      if (!response.ok) {
-        let message = `Ошибка генерации ${response.status}`;
-
-        try {
-          const data = await cloned.json();
-          message = data?.message || data?.error || data?.details || message;
-        } catch (_) {
-          try {
-            const raw = await cloned.text();
-            if (raw) message = raw;
-          } catch (_) {}
-        }
-
-        ftShowGenerationError(message);
-      }
-    }
-
-    return response;
-  };
-
-  document.addEventListener('click', () => {
-    ftClearGenerationError();
-  }, true);
-
-  window.ftShowGenerationError = ftShowGenerationError;
-  window.ftVerifyAdminPin = ftVerifyAdminPin;
-})();
 
 
 /* FT_LOCAL_DESKTOP_GENERATION_OVERRIDE_20260608 */
@@ -5615,536 +4909,18 @@ window.addEventListener('load', () => {
 })();
 
 
-/* FT_AUTH_GENERATION_PIN_FINAL_FIX_20260608 */
-(function ftAuthGenerationPinFinalFix() {
-  if (window.__ftAuthGenerationPinFinalFixApplied) return;
-  window.__ftAuthGenerationPinFinalFixApplied = true;
 
-  const ADMIN_PIN_KEYS = ['ft-admin-pin', 'ft-admin-pin-value', 'ft-admin-pin-v2'];
 
-  function getSavedAdminPin() {
-    for (const key of ADMIN_PIN_KEYS) {
-      const value = localStorage.getItem(key);
-      if (value) return String(value).trim();
-    }
-    return '';
-  }
+/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_AUTH_GENERATION_PIN_FINAL_FIX_20260608 */
 
-  function saveAdminPin(pin) {
-    const clean = String(pin || '').trim();
-    if (!clean) return;
-    ADMIN_PIN_KEYS.forEach((key) => localStorage.setItem(key, clean));
-  }
 
-  function buildHeaders(init) {
-    const headers = new Headers(init && init.headers ? init.headers : {});
-    const pin = getSavedAdminPin();
-    if (pin && !headers.has('x-admin-pin')) headers.set('x-admin-pin', pin);
 
-    headers.set('x-local-auth', 'true');
-    headers.set('x-local-demo-auth', 'true');
-    headers.set('x-telegram-user-id', 'local-demo-user');
-    headers.set('x-user-id', 'local-demo-user');
 
-    return headers;
-  }
 
-  const nativeFetch = window.fetch.bind(window);
 
-  window.fetch = async function ftStableFetch(input, init = {}) {
-    const url = typeof input === 'string' ? input : input?.url || '';
-    const next = { ...init };
+/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_FINAL_STABILIZER_20260608 */
 
-    if (/\/api\/admin|\/api\/generation|\/api\/generate|\/api\/feedback/i.test(url)) {
-      next.headers = buildHeaders(next);
 
-      if (next.body instanceof FormData) {
-        next.body.set('allowLocalAuth', 'true');
-        next.body.set('localAuth', 'true');
-        next.body.set('telegramUserId', 'local-demo-user');
-        next.body.set('userId', 'local-demo-user');
-      }
-    }
-
-    const res = await nativeFetch(input, next);
-
-    if (/\/api\/generate|\/api\/generation/i.test(url) && !res.ok) {
-      let message = 'Не удалось создать AI-фото. Сервер вернул ошибку.';
-      try {
-        const data = await res.clone().json();
-        message = data.message || data.error || message;
-      } catch (_) {
-        try {
-          const raw = await res.clone().text();
-          if (raw) message = raw;
-        } catch (_) {}
-      }
-      showGenerationError(message);
-    }
-
-    return res;
-  };
-
-  function showGenerationError(message) {
-    const clean = String(message || '')
-      .replace('Local desktop generation allowed', 'Не удалось запустить генерацию. Проверьте серверный маршрут генерации.')
-      .replace('Локальный демо-режим активен', 'Не удалось запустить генерацию: сервер всё ещё требует Telegram-авторизацию.');
-
-    let target = document.querySelector('[data-ft-generation-error]');
-    if (!target) {
-      const photoBlock = [...document.querySelectorAll('section, article, .card, .ft-stable-card, .style-card')]
-        .find((el) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(el.textContent || ''));
-      if (photoBlock) {
-        target = document.createElement('div');
-        target.setAttribute('data-ft-generation-error', 'true');
-        photoBlock.appendChild(target);
-      }
-    }
-
-    if (target) {
-      target.textContent = clean;
-      target.style.display = 'block';
-      target.style.color = '#ff4f7b';
-      target.style.fontWeight = '800';
-      target.style.marginTop = '12px';
-      target.style.lineHeight = '1.25';
-    }
-  }
-
-  document.addEventListener('submit', function onAdminPinSubmit(event) {
-    const form = event.target;
-    if (!form || form.id !== 'adminPinForm') return;
-
-    const input = form.querySelector('input[type="password"], input');
-    const pin = input ? String(input.value || '').trim() : '';
-    if (pin) saveAdminPin(pin);
-  }, true);
-
-  document.addEventListener('click', function onClick(event) {
-    const button = event.target.closest('button, [role="button"], .button');
-    if (!button) return;
-
-    const label = button.textContent || '';
-    if (/Войти|Админ|Провер/i.test(label)) {
-      const form = button.closest('form') || document.querySelector('#adminPinForm');
-      const input = form?.querySelector('input[type="password"], input');
-      const pin = input ? String(input.value || '').trim() : '';
-      if (pin) saveAdminPin(pin);
-    }
-
-    if (/Создать AI-фото/i.test(label)) {
-      const old = document.querySelector('[data-ft-generation-error]');
-      if (old) old.remove();
-    }
-  }, true);
-
-  function normalizeCopy() {
-    document.body.innerHTML = document.body.innerHTML
-      .replaceAll('токенов', 'токенов')
-      .replaceAll('токена', 'токена')
-      .replaceAll('токены', 'токены')
-      .replaceAll('токен', 'токен')
-      .replaceAll('Токены', 'Токены')
-      .replaceAll('Токенов', 'Токенов')
-      .replaceAll('Запускаем генерацию в демо-режиме с компьютера...', 'Создаём AI-фото…')
-      .replaceAll('Запускаем генерацию в демо-режиме с компьютера…', 'Создаём AI-фото…');
-  }
-
-  setTimeout(normalizeCopy, 300);
-  setTimeout(normalizeCopy, 1200);
-})();
-
-
-/* FT_FINAL_STABILIZER_20260608 */
-(function ftFinalStabilizer20260608() {
-  if (window.__ftFinalStabilizer20260608) return;
-  window.__ftFinalStabilizer20260608 = true;
-
-  const ADMIN_PINS = ['3465', '3230'];
-  const ADMIN_PIN_KEYS = ['ft-admin-pin', 'ft-admin-pin-value', 'ft-admin-pin-v2'];
-  const STYLE_CACHE_KEY = 'ft-stable-styles-cache-v2';
-
-  function qs(selector, root = document) {
-    return root.querySelector(selector);
-  }
-
-  function qsa(selector, root = document) {
-    return Array.from(root.querySelectorAll(selector));
-  }
-
-  function readPin() {
-    for (const key of ADMIN_PIN_KEYS) {
-      const value = localStorage.getItem(key);
-      if (value) return String(value).trim();
-    }
-    return '';
-  }
-
-  function savePin(pin) {
-    const clean = String(pin || '').trim();
-    if (!clean) return;
-    ADMIN_PIN_KEYS.forEach((key) => localStorage.setItem(key, clean));
-    if (ADMIN_PINS.includes(clean)) {
-      localStorage.setItem('ft-admin-auth', 'true');
-      localStorage.setItem('ft-admin-auth-ok', 'true');
-      window.__ftAdminAuthed = true;
-    }
-  }
-
-  function isLocalAdmin() {
-    const pin = readPin();
-    return ADMIN_PINS.includes(pin) ||
-      localStorage.getItem('ft-admin-auth') === 'true' ||
-      localStorage.getItem('ft-admin-auth-ok') === 'true' ||
-      window.__ftAdminAuthed === true;
-  }
-
-  function ensureTelegramLocalAuth() {
-    window.Telegram = window.Telegram || {};
-    window.Telegram.WebApp = window.Telegram.WebApp || {};
-    window.Telegram.WebApp.initData = window.Telegram.WebApp.initData || 'local-demo-auth';
-    window.Telegram.WebApp.initDataUnsafe = window.Telegram.WebApp.initDataUnsafe || {};
-    window.Telegram.WebApp.initDataUnsafe.user = window.Telegram.WebApp.initDataUnsafe.user || {
-      id: 'local-demo-user',
-      username: 'local-demo-user',
-      first_name: 'Demo'
-    };
-
-    if (typeof window.Telegram.WebApp.ready !== 'function') {
-      window.Telegram.WebApp.ready = function() {};
-    }
-    if (typeof window.Telegram.WebApp.expand !== 'function') {
-      window.Telegram.WebApp.expand = function() {};
-    }
-
-    localStorage.setItem('ft-local-auth', 'true');
-    localStorage.setItem('ft-user-id', 'local-demo-user');
-  }
-
-  function makeHeaders(init) {
-    const headers = new Headers(init && init.headers ? init.headers : {});
-    const pin = readPin();
-
-    if (pin && !headers.has('x-admin-pin')) {
-      headers.set('x-admin-pin', pin);
-    }
-
-    headers.set('x-local-auth', 'true');
-    headers.set('x-local-demo-auth', 'true');
-    headers.set('x-telegram-user-id', 'local-demo-user');
-    headers.set('x-user-id', 'local-demo-user');
-
-    return headers;
-  }
-
-  ensureTelegramLocalAuth();
-
-  if (!window.__ftFetchFinalWrapped20260608) {
-    window.__ftFetchFinalWrapped20260608 = true;
-    const nativeFetch = window.fetch.bind(window);
-
-    window.fetch = async function ftFinalFetch(input, init = {}) {
-      const url = typeof input === 'string' ? input : input?.url || '';
-      const next = { ...init };
-
-      if (/\/api\/(generate|generation|admin|admin-pin|feedback|styles)/i.test(url)) {
-        next.headers = makeHeaders(next);
-
-        if (next.body instanceof FormData) {
-          next.body.set('allowLocalAuth', 'true');
-          next.body.set('localAuth', 'true');
-          next.body.set('telegramUserId', 'local-demo-user');
-          next.body.set('userId', 'local-demo-user');
-        }
-      }
-
-      const res = await nativeFetch(input, next);
-
-      if (/\/api\/styles/i.test(url) && res.ok) {
-        try {
-          const data = await res.clone().json();
-          const list = Array.isArray(data) ? data : (data.styles || data.items || []);
-          if (Array.isArray(list) && list.length >= 6) {
-            localStorage.setItem(STYLE_CACHE_KEY, JSON.stringify(data));
-          }
-          if (Array.isArray(list) && list.length < 6) {
-            const cachedRaw = localStorage.getItem(STYLE_CACHE_KEY);
-            if (cachedRaw) {
-              const cached = JSON.parse(cachedRaw);
-              return new Response(JSON.stringify(cached), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
-              });
-            }
-          }
-        } catch (_) {}
-      }
-
-      if (/\/api\/(generate|generation)/i.test(url) && !res.ok) {
-        let message = 'Не удалось запустить генерацию.';
-        try {
-          const data = await res.clone().json();
-          message = data.message || data.error || message;
-        } catch (_) {
-          try {
-            const raw = await res.clone().text();
-            if (raw) message = raw;
-          } catch (_) {}
-        }
-        showGenerationError(message);
-      }
-
-      return res;
-    };
-  }
-
-  function normalizeTextNode(node) {
-    if (!node || node.nodeType !== Node.TEXT_NODE || !node.nodeValue) return;
-
-    node.nodeValue = node.nodeValue
-      .replaceAll('Токены', 'Токены')
-      .replaceAll('токены', 'токены')
-      .replaceAll('токенов', 'токенов')
-      .replaceAll('токена', 'токена')
-      .replaceAll('токен', 'токен')
-      .replaceAll('кред.', 'ток.')
-      .replaceAll('Запускаем генерацию в демо-режиме с компьютера...', 'Создаём AI-фото…')
-      .replaceAll('Запускаем генерацию в демо-режиме с компьютера…', 'Создаём AI-фото…')
-      .replaceAll('ALLOW_LOCAL_AUTH=true или откройте приложение через Telegram', 'локальный демо-режим активирован')
-      .replaceAll('текущего режима', 'текущего режима')
-      .replaceAll('каталога режима', 'каталога режима');
-  }
-
-  function normalizeCopy(root = document.body) {
-    if (!root) return;
-
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(normalizeTextNode);
-  }
-
-  function applyThemeFromValue(value) {
-    const raw = String(value || '').toLowerCase();
-    let theme = 'retro';
-
-    if (raw.includes('тем') || raw.includes('dark')) theme = 'dark';
-    if (raw.includes('свет') || raw.includes('light')) theme = 'light';
-    if (raw.includes('ретро') || raw.includes('retro')) theme = 'retro';
-
-    document.documentElement.dataset.ftTheme = theme;
-    document.body.dataset.ftTheme = theme;
-
-    document.documentElement.classList.remove('ft-theme-dark', 'ft-theme-light', 'ft-theme-retro');
-    document.body.classList.remove('ft-theme-dark', 'ft-theme-light', 'ft-theme-retro');
-    document.documentElement.classList.add('ft-theme-' + theme);
-    document.body.classList.add('ft-theme-' + theme);
-
-    localStorage.setItem('ft-theme', theme);
-    localStorage.setItem('fototime-theme', theme);
-  }
-
-  function bindThemeSelects() {
-    const saved = localStorage.getItem('ft-theme') || localStorage.getItem('fototime-theme') || '';
-
-    qsa('select').forEach((select) => {
-      const options = qsa('option', select).map((o) => o.textContent || o.value).join(' ').toLowerCase();
-      const isThemeSelect = options.includes('тём') || options.includes('тем') || options.includes('свет') || options.includes('ретро') || options.includes('dark') || options.includes('light') || options.includes('retro');
-
-      if (!isThemeSelect) return;
-
-      select.classList.add('ft-theme-select-fixed');
-
-      if (saved) {
-        const wanted = saved === 'dark' ? /тем|dark/i : saved === 'light' ? /свет|light/i : /ретро|retro/i;
-        const option = qsa('option', select).find((o) => wanted.test(o.textContent || o.value));
-        if (option) select.value = option.value;
-      }
-
-      applyThemeFromValue(select.options[select.selectedIndex]?.textContent || select.value);
-
-      if (!select.__ftThemeBound) {
-        select.__ftThemeBound = true;
-        select.addEventListener('change', () => {
-          applyThemeFromValue(select.options[select.selectedIndex]?.textContent || select.value);
-        });
-      }
-    });
-  }
-
-  function removeLegacyAdminJunk() {
-    const adminVisible = /админ/i.test(document.body?.textContent || '');
-    if (!adminVisible) return;
-
-    qsa('section, article, .card, .ft-stable-card, .ft-clean-card, div').forEach((el) => {
-      const text = (el.textContent || '').trim();
-      if (!text) return;
-
-      const looksLikeOldStability =
-        text.includes('График стабильности') ||
-        text.includes('Стабильность генераций') ||
-        (text.includes('stable') && text.includes('fail') && text.includes('ok'));
-
-      if (looksLikeOldStability && el.children.length > 0) {
-        el.classList.add('ft-hidden-legacy-admin');
-      }
-    });
-  }
-
-  function renderAdminFallbackIfNeeded() {
-    const isAdminTab =
-      location.hash.includes('admin') ||
-      qsa('button, [role="button"], .app-tab, .tab').some((el) => /админ/i.test(el.textContent || '') && el.classList.contains('active'));
-
-    if (!isAdminTab && !/Админ-консоль/i.test(document.body?.textContent || '')) return;
-
-    const hasNoAccess = /Нет доступа к админ-консоли|Доступна только администратору/i.test(document.body?.textContent || '');
-    const hasRealAdmin = /Клиенты и начисление токенов|Всего генераций|Списано токенов/i.test(document.body?.textContent || '');
-
-    if (hasRealAdmin) return;
-
-    const mount =
-      qs('#app') ||
-      qs('main') ||
-      qs('.app') ||
-      document.body;
-
-    let panel = qs('[data-ft-admin-final-panel]');
-    if (!panel) {
-      panel = document.createElement('section');
-      panel.setAttribute('data-ft-admin-final-panel', 'true');
-      panel.className = 'ft-admin-final-panel';
-      mount.prepend(panel);
-    }
-
-    if (!isLocalAdmin() || hasNoAccess) {
-      panel.innerHTML = `
-        <div class="ft-section-head">
-          <span class="ft-badge">AD</span>
-          <div>
-            <h2>Админ-консоль</h2>
-            <p>Введите PIN администратора.</p>
-          </div>
-        </div>
-        <form id="adminPinForm" class="ft-admin-pin-final">
-          <input id="adminPinInput" type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off" />
-          <button type="submit">Войти</button>
-        </form>
-      `;
-    }
-  }
-
-  function showGenerationError(message) {
-    const clean = String(message || 'Не удалось запустить генерацию.')
-      .replace('Локальный демо-режим активен', 'Сервер всё ещё требует Telegram-авторизацию. Проверьте ALLOW_LOCAL_AUTH на Render.')
-      .replace('Local desktop generation allowed', 'Локальный демо-режим включён, но сервер не принял запрос генерации.');
-
-    let target = qs('[data-ft-generation-error]');
-    if (!target) {
-      const photoBlock = qsa('section, article, .card, .ft-stable-card, .ft-clean-card')
-        .find((el) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(el.textContent || ''));
-
-      if (photoBlock) {
-        target = document.createElement('div');
-        target.setAttribute('data-ft-generation-error', 'true');
-        target.className = 'ft-generation-error-final';
-        photoBlock.appendChild(target);
-      }
-    }
-
-    if (target) target.textContent = clean;
-  }
-
-  function patchAdminPinSubmit() {
-    qsa('form').forEach((form) => {
-      if (form.__ftAdminSubmitFixed) return;
-      if (!/PIN|Админ|админ/i.test(form.textContent || '')) return;
-
-      form.__ftAdminSubmitFixed = true;
-
-      form.addEventListener('submit', async (event) => {
-        const input = form.querySelector('input[type="password"], input');
-        const pin = String(input?.value || '').trim();
-
-        if (!pin) return;
-        savePin(pin);
-
-        if (ADMIN_PINS.includes(pin)) {
-          event.preventDefault();
-          event.stopPropagation();
-
-          const btn = form.querySelector('button');
-          if (btn) btn.textContent = 'Входим…';
-
-          try {
-            await fetch('/api/admin-pin/overview', {
-              headers: { 'x-admin-pin': pin }
-            });
-          } catch (_) {}
-
-          localStorage.setItem('ft-admin-auth', 'true');
-          window.__ftAdminAuthed = true;
-
-          setTimeout(() => {
-            location.href = location.pathname + location.search + '#admin';
-            location.reload();
-          }, 250);
-        }
-      }, true);
-    });
-  }
-
-  function patchCreateButtonStatus() {
-    qsa('button, [role="button"], .button').forEach((button) => {
-      if (button.__ftCreateFinalBound) return;
-      if (!/Создать AI-фото/i.test(button.textContent || '')) return;
-
-      button.__ftCreateFinalBound = true;
-
-      button.addEventListener('click', () => {
-        ensureTelegramLocalAuth();
-        const old = qs('[data-ft-generation-error]');
-        if (old) old.remove();
-
-        setTimeout(() => {
-          const hasProgress = /готов|созда|запущ|progress|генерац/i.test(document.body?.textContent || '');
-          if (!hasProgress) {
-            showGenerationError('Запрос не ушёл в генерацию. Проверьте Network: должен быть POST /api/generate или /api/generation.');
-          }
-        }, 2500);
-      }, true);
-    });
-  }
-
-  function stabilize() {
-    ensureTelegramLocalAuth();
-    bindThemeSelects();
-    normalizeCopy();
-    removeLegacyAdminJunk();
-    renderAdminFallbackIfNeeded();
-    patchAdminPinSubmit();
-    patchCreateButtonStatus();
-
-    document.body.classList.add('ft-final-stabilized');
-  }
-
-  document.addEventListener('DOMContentLoaded', stabilize);
-  window.addEventListener('load', stabilize);
-  document.addEventListener('click', () => setTimeout(stabilize, 80), true);
-  document.addEventListener('change', () => setTimeout(stabilize, 80), true);
-
-  const observer = new MutationObserver(() => {
-    clearTimeout(window.__ftFinalStabilizeTimer);
-    window.__ftFinalStabilizeTimer = setTimeout(stabilize, 120);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
-
-  stabilize();
-})();
 
 
 /* FT_VISIBLE_UI_RECOVERY_20260608_2 */
@@ -6794,822 +5570,110 @@ window.addEventListener('load', () => {
 
 
 
-/* FT_STABLE_RECOVERY_PATCH_20260608 */
-(function ftStableRecoveryPatch() {
-  if (window.__ftStableRecoveryPatchApplied) return;
-  window.__ftStableRecoveryPatchApplied = true;
 
-  const THEME_KEY = 'fototime-theme';
 
-  function normalizeTheme(value) {
-    const raw = String(value || '').toLowerCase();
-    if (raw.includes('dark') || raw.includes('тём') || raw.includes('тем')) return 'dark';
-    if (raw.includes('retro') || raw.includes('ретро')) return 'retro';
-    if (raw.includes('light') || raw.includes('свет')) return 'light';
-    return 'dark';
-  }
+/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_STABLE_RECOVERY_PATCH_20260608 */
 
-  function applyTheme(value) {
-    const theme = normalizeTheme(value);
-    document.documentElement.dataset.theme = theme;
-    document.body.dataset.theme = theme;
 
-    document.documentElement.classList.remove('theme-dark', 'theme-light', 'theme-retro', 'dark-theme', 'light-theme', 'retro-theme');
-    document.body.classList.remove('theme-dark', 'theme-light', 'theme-retro', 'dark-theme', 'light-theme', 'retro-theme');
 
-    document.documentElement.classList.add(`theme-${theme}`, `${theme}-theme`);
-    document.body.classList.add(`theme-${theme}`, `${theme}-theme`);
 
-    localStorage.setItem(THEME_KEY, theme);
-    localStorage.setItem('ft-theme', theme);
-    localStorage.setItem('theme', theme);
 
-    document.querySelectorAll('select').forEach((select) => {
-      const label = select.closest('label')?.textContent || select.previousSibling?.textContent || '';
-      if (/тему|theme/i.test(label) || [...select.options].some((o) => /тём|тем|dark|retro|ретро|light|свет/i.test(o.textContent))) {
-        [...select.options].forEach((option) => {
-          if (normalizeTheme(option.textContent || option.value) === theme) {
-            select.value = option.value;
-          }
-        });
-      }
-    });
-  }
 
-  function installThemeHandlers() {
-    document.querySelectorAll('select').forEach((select) => {
-      const optionsText = [...select.options].map((o) => `${o.value} ${o.textContent}`).join(' ');
-      if (!/тём|тем|dark|retro|ретро|light|свет/i.test(optionsText)) return;
-      if (select.dataset.ftThemeFixed === '1') return;
 
-      select.dataset.ftThemeFixed = '1';
-      select.addEventListener('change', () => {
-        const selected = select.options[select.selectedIndex];
-        applyTheme(selected?.textContent || selected?.value || select.value);
-      });
-    });
-  }
 
-  const STYLE_CACHE_KEY = 'ft-styles-cache-v2';
+/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_ONE_STABLE_CLIENT_PATCH_20260608 */
 
-  function normalizeStyleForClient(style, index) {
-    const id = String(style.id || style.styleId || style.slug || `style-${index + 1}`);
-    const title = String(style.title || style.name || style.label || id);
-    const image = style.image || style.preview || style.previewUrl || style.thumb || style.thumbnail || style.url || '';
 
-    return {
-      ...style,
-      id,
-      styleId: style.styleId || id,
-      title,
-      name: style.name || title,
-      label: style.label || title,
-      network: style.network || style.model || 'SDXL',
-      model: style.model || style.network || 'SDXL',
-      image,
-      preview: style.preview || style.previewUrl || image,
-      thumb: style.thumb || style.thumbnail || image,
-      thumbnail: style.thumbnail || style.thumb || image,
-      participantTypes: style.participantTypes || style.participants || ['male', 'female', 'couple', 'boy', 'girl', 'family'],
-      gender: style.gender || 'all'
-    };
-  }
 
-  function extractStyles(payload) {
-    if (Array.isArray(payload)) return payload;
-    if (Array.isArray(payload?.styles)) return payload.styles;
-    if (Array.isArray(payload?.items)) return payload.items;
-    if (Array.isArray(payload?.data)) return payload.data;
-    if (Array.isArray(payload?.data?.styles)) return payload.data.styles;
-    return [];
-  }
 
-  async function getStableStyles() {
-    try {
-      const cached = JSON.parse(localStorage.getItem(STYLE_CACHE_KEY) || '[]');
-      if (Array.isArray(cached) && cached.length > 2) return cached;
-    } catch (_) {}
 
-    const endpoints = [
-      '/api/styles',
-      '/api/event/styles',
-      '/api/config/styles',
-      '/api/styles/public'
-    ];
 
-    for (const endpoint of endpoints) {
-      try {
-        const response = await fetch(`${endpoint}?t=${Date.now()}`, { cache: 'no-store' });
-        if (!response.ok) continue;
 
-        const payload = await response.json();
-        const list = extractStyles(payload).map(normalizeStyleForClient);
 
-        if (list.length) {
-          localStorage.setItem(STYLE_CACHE_KEY, JSON.stringify(list));
-          return list;
-        }
-      } catch (error) {
-        console.warn('[FT styles] endpoint failed:', endpoint, error);
-      }
-    }
 
-    return [];
-  }
+/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_STABLE_RUNTIME_REPAIR_20260608 */
 
-  function fixImage(img, title) {
-    if (!img) return;
-    img.loading = 'lazy';
-    img.decoding = 'async';
+_REMOVED */
 
-    img.addEventListener('error', () => {
-      const safeTitle = encodeURIComponent(title || 'FOTOTIME AI');
-      img.src = `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='960' viewBox='0 0 720 960'%3E%3Crect width='720' height='960' fill='%23161b22'/%3E%3Ccircle cx='210' cy='240' r='120' fill='%23b8ff1d' opacity='.85'/%3E%3Ccircle cx='500' cy='300' r='140' fill='%235eead4' opacity='.55'/%3E%3Ccircle cx='360' cy='560' r='190' fill='%237c3aed' opacity='.65'/%3E%3Ctext x='360' y='110' text-anchor='middle' font-family='Arial' font-size='34' font-weight='800' fill='white'%3EFOTOTIME AI%3C/text%3E%3Ctext x='360' y='760' text-anchor='middle' font-family='Arial' font-size='34' font-weight='800' fill='white'%3E${safeTitle}%3C/text%3E%3C/svg%3E`;
-    }, { once: true });
-  }
 
-  function renderStylesIntoExistingGrid(styles) {
-    if (!styles.length) return;
 
-    const grids = [
-      document.querySelector('.styles-grid'),
-      document.querySelector('.style-grid'),
-      document.querySelector('[data-styles-grid]'),
-      document.querySelector('#stylesGrid')
-    ].filter(Boolean);
 
-    const grid = grids[0] || [...document.querySelectorAll('section, .section, .card, .panel')]
-      .find((el) => /Стиль обработки|Поиск и фильтрация/i.test(el.textContent || ''))
-      ?.querySelector('.grid, [class*="grid"]');
 
-    if (!grid) return;
 
-    const currentText = grid.textContent || '';
-    const looksBroken = /NS Астрал|FOTOTIME AI|Cannot|undefined/i.test(currentText) || grid.querySelectorAll('img').length === 0;
 
-    if (!looksBroken && grid.querySelectorAll('img').length >= 3) {
-      grid.querySelectorAll('img').forEach((img) => {
-        const card = img.closest('[class*="card"], button, article, div');
-        fixImage(img, card?.textContent?.trim() || 'FOTOTIME AI');
-      });
-      return;
-    }
+/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_FINAL_STABLE_UI_CONTROLLER_20260608 */
 
-    grid.innerHTML = styles.slice(0, 6).map((style, index) => {
-      const image = style.image || style.preview || style.thumb || style.thumbnail || '';
-      const title = style.title || style.name || `Стиль ${index + 1}`;
-      const model = style.network || style.model || 'SDXL';
 
-      return `
-        <button class="style-card ft-style-card-fixed ${index === 0 ? 'selected active' : ''}" type="button" data-style-id="${style.id || style.styleId}">
-          <img src="${image}" alt="${title}" class="style-card-image" />
-          <strong>${title}</strong>
-          <span>${model}</span>
-        </button>
-      `;
-    }).join('');
 
-    grid.querySelectorAll('img').forEach((img) => {
-      const card = img.closest('.ft-style-card-fixed');
-      fixImage(img, card?.querySelector('strong')?.textContent || 'FOTOTIME AI');
-    });
-  }
 
-  async function repairStyles() {
-    const styles = await getStableStyles();
-    renderStylesIntoExistingGrid(styles);
-  }
-
-  function patchCabinetButtons() {
-    document.querySelectorAll('button, a, [role="button"]').forEach((el) => {
-      const text = (el.textContent || '').trim().toLowerCase();
-      if (!text.includes('личный кабинет')) return;
-      if (el.dataset.ftCabinetFixed === '1') return;
-
-      el.dataset.ftCabinetFixed = '1';
-      el.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const tabs = [...document.querySelectorAll('button, a, [role="button"]')];
-        const target = tabs.find((item) => {
-          const itemText = (item.textContent || '').trim().toLowerCase();
-          return itemText === 'личный кабинет' || itemText.includes('личный кабинет');
-        });
-
-        if (target && target !== el) {
-          target.click();
-          return;
-        }
-
-        location.hash = '#profile';
-        window.dispatchEvent(new CustomEvent('ft:navigate', { detail: { tab: 'profile' } }));
-      }, true);
-    });
-  }
-
-  function normalizeTexts() {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-
-    nodes.forEach((node) => {
-      node.nodeValue = node.nodeValue
-        .replaceAll('Токены', 'Токены')
-        .replaceAll('токены', 'токены')
-        .replaceAll('токенов', 'токенов')
-        .replaceAll('токена', 'токена')
-        .replaceAll('токен', 'токен')
-        .replaceAll('для текущего мероприятия', 'для текущего режима')
-        .replaceAll('из конфигурации мероприятия', 'из каталога режима');
-    });
-  }
-
-  function run() {
-    applyTheme(localStorage.getItem(THEME_KEY) || localStorage.getItem('ft-theme') || localStorage.getItem('theme') || 'dark');
-    installThemeHandlers();
-    patchCabinetButtons();
-    normalizeTexts();
-    repairStyles();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', run);
-  } else {
-    run();
-  }
-
-  window.addEventListener('load', run);
-  setInterval(() => {
-    installThemeHandlers();
-    patchCabinetButtons();
-    normalizeTexts();
-  }, 1200);
-})();
-
-
-
-
-/* FT_ONE_STABLE_CLIENT_PATCH_20260608 */
-(function fototimeStableClientPatch() {
-  if (window.__fototimeStableClientPatchApplied) return;
-  window.__fototimeStableClientPatchApplied = true;
-
-  const THEME_KEY = 'fototime-theme';
-  const LEGACY_THEME_KEYS = [
-    'theme',
-    'ft-theme',
-    'fototime-theme',
-    'selectedTheme',
-    'app-theme',
-    'fototime-selected-theme'
-  ];
-
-  const VALID_THEMES = ['dark', 'light', 'retro'];
-  const THEME_LABEL_TO_VALUE = {
-    'тёмная': 'dark',
-    'темная': 'dark',
-    'dark': 'dark',
-    'светлая': 'light',
-    'light': 'light',
-    'ретро': 'retro',
-    'retro': 'retro'
-  };
-
-  const FALLBACK_STYLES = [
-    { id: 'atlantida', title: 'Атлантида', name: 'Атлантида', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-atlantida.jpg' },
-    { id: 'barbie', title: 'Барби', name: 'Барби', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-barbie.jpg' },
-    { id: 'bubblegum', title: 'Баблгам', name: 'Баблгам', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-bubblegum.jpg' },
-    { id: 'business', title: 'Бизнес', name: 'Бизнес', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-business.jpg' },
-    { id: 'christmas', title: 'Рождество', name: 'Рождество', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-christmas.jpg' },
-    { id: 'comic', title: 'Комикс', name: 'Комикс', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-comic.jpg' }
-  ];
-
-  let styleCache = null;
-  let styleCachePromise = null;
-
-  function normalizeTheme(value) {
-    const raw = String(value || '').trim().toLowerCase();
-    return THEME_LABEL_TO_VALUE[raw] || (VALID_THEMES.includes(raw) ? raw : '');
-  }
-
-  function getSavedTheme() {
-    for (const key of LEGACY_THEME_KEYS) {
-      const normalized = normalizeTheme(localStorage.getItem(key));
-      if (normalized) return normalized;
-    }
-
-    const select = document.querySelector('select');
-    if (select) {
-      const byValue = normalizeTheme(select.value);
-      const byText = normalizeTheme(select.options?.[select.selectedIndex]?.textContent);
-      if (byValue || byText) return byValue || byText;
-    }
-
-    return 'dark';
-  }
-
-  function syncSelectTheme(theme) {
-    document.querySelectorAll('select').forEach((select) => {
-      const options = Array.from(select.options || []);
-      const option = options.find((item) => {
-        return normalizeTheme(item.value) === theme || normalizeTheme(item.textContent) === theme;
-      });
-
-      if (option && select.value !== option.value) {
-        select.value = option.value;
-      }
-    });
-  }
-
-  function applyTheme(theme, persist = true) {
-    const normalized = normalizeTheme(theme) || 'dark';
-
-    document.documentElement.dataset.theme = normalized;
-    document.body.dataset.theme = normalized;
-
-    document.documentElement.classList.remove('theme-dark', 'theme-light', 'theme-retro', 'dark', 'light', 'retro');
-    document.body.classList.remove('theme-dark', 'theme-light', 'theme-retro', 'dark', 'light', 'retro');
-
-    document.documentElement.classList.add(`theme-${normalized}`, normalized);
-    document.body.classList.add(`theme-${normalized}`, normalized);
-
-    if (persist) {
-      localStorage.setItem(THEME_KEY, normalized);
-      localStorage.setItem('ft-theme', normalized);
-      localStorage.setItem('theme', normalized);
-    }
-
-    syncSelectTheme(normalized);
-  }
-
-  function cleanUrl(value) {
-    if (!value || typeof value !== 'string') return '';
-    const trimmed = value.trim();
-    if (!trimmed) return '';
-    if (/^https?:\/\//i.test(trimmed)) return trimmed;
-    if (trimmed.startsWith('/')) return trimmed;
-    return '/' + trimmed.replace(/^\.?\//, '');
-  }
-
-  function normalizeStyle(style, index) {
-    const title = style?.title || style?.name || style?.label || style?.styleName || style?.displayName || `Стиль ${index + 1}`;
-    const image = style?.imageUrl || style?.previewUrl || style?.thumbnail || style?.image || style?.cover || style?.icon || style?.url || style?.src || '';
-    return {
-      ...style,
-      id: style?.id || style?.slug || style?.code || style?.key || String(title).toLowerCase().replace(/\s+/g, '-'),
-      title,
-      name: title,
-      network: style?.network || style?.model || style?.category || 'SDXL',
-      category: style?.category || style?.network || style?.model || 'SDXL',
-      imageUrl: cleanUrl(image),
-      previewUrl: cleanUrl(image),
-      thumbnail: cleanUrl(image)
-    };
-  }
-
-  function unwrapStyles(payload) {
-    if (Array.isArray(payload)) return payload;
-    if (payload && Array.isArray(payload.styles)) return payload.styles;
-    if (payload && Array.isArray(payload.items)) return payload.items;
-    if (payload && Array.isArray(payload.data)) return payload.data;
-    return [];
-  }
-
-  async function loadStableStyles() {
-    if (styleCache?.length) return styleCache;
-    if (styleCachePromise) return styleCachePromise;
-
-    styleCachePromise = (async () => {
-      const endpoints = [
-        '/api/styles',
-        '/api/event/styles',
-        '/api/config/styles',
-        '/api/styles/public',
-        '/public-styles.json',
-        '/assets/public-styles.json'
-      ];
-
-      for (const endpoint of endpoints) {
-        try {
-          const res = await fetch(endpoint, { cache: 'no-store' });
-          if (!res.ok) continue;
-
-          const payload = await res.json();
-          const list = unwrapStyles(payload).map(normalizeStyle).filter(Boolean);
-
-          if (list.length) {
-            styleCache = list;
-            window.__fototimeStableStyles = list;
-            return list;
-          }
-        } catch (error) {}
-      }
-
-      styleCache = FALLBACK_STYLES.map(normalizeStyle);
-      window.__fototimeStableStyles = styleCache;
-      return styleCache;
-    })();
-
-    return styleCachePromise;
-  }
-
-  function getSelectedParticipant() {
-    const active = document.querySelector(
-      '.participant-option.active, .participant-btn.active, .participant-button.active, [data-participant].active, button.active[data-value]'
-    );
-
-    return active?.dataset?.participant || active?.dataset?.value || active?.textContent?.trim() || 'male';
-  }
-
-  function findStylesContainer() {
-    return (
-      document.querySelector('#stylesGrid') ||
-      document.querySelector('.styles-grid') ||
-      document.querySelector('.style-grid') ||
-      document.querySelector('[data-styles-grid]') ||
-      document.querySelector('.style-cards') ||
-      document.querySelector('.styles-list')
-    );
-  }
-
-  function createStyleCard(style, selected) {
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = 'ft-stable-style-card style-card';
-    card.dataset.styleId = style.id;
-    card.dataset.styleName = style.title;
-
-    if (selected) card.classList.add('active', 'selected');
-
-    const image = style.imageUrl || style.previewUrl || style.thumbnail;
-    const imageHtml = image
-      ? `<img src="${image}" alt="${style.title}" loading="lazy" onerror="this.classList.add('ft-style-image-error'); this.removeAttribute('src');">`
-      : `<div class="ft-style-placeholder">FOTOTIME AI</div>`;
-
-    card.innerHTML = `
-      <div class="ft-style-image">${imageHtml}</div>
-      <div class="ft-style-title">${style.title}</div>
-      <div class="ft-style-network">${style.network || style.category || 'SDXL'}</div>
-    `;
-
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.ft-stable-style-card, .style-card').forEach((item) => {
-        item.classList.remove('active', 'selected');
-      });
-
-      card.classList.add('active', 'selected');
-      window.selectedStyle = style;
-      window.selectedStyleId = style.id;
-      window.currentStyle = style;
-      localStorage.setItem('fototime-selected-style-id', style.id);
-    });
-
-    return card;
-  }
-
-  async function renderStableStyles(force = false) {
-    const container = findStylesContainer();
-    if (!container) return;
-
-    if (!force && container.dataset.ftStableRendered === 'true') return;
-
-    const styles = await loadStableStyles();
-    const currentId = localStorage.getItem('fototime-selected-style-id') || styles[0]?.id;
-
-    container.dataset.ftStableRendered = 'true';
-    container.innerHTML = '';
-
-    styles.slice(0, 6).forEach((style, index) => {
-      container.appendChild(createStyleCard(style, style.id === currentId || (!currentId && index === 0)));
-    });
-
-    if (!window.selectedStyle && styles.length) {
-      window.selectedStyle = styles.find((item) => item.id === currentId) || styles[0];
-      window.selectedStyleId = window.selectedStyle.id;
-      window.currentStyle = window.selectedStyle;
-    }
-  }
-
-  function normalizeTextNode(root) {
-    const walker = document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-
-    nodes.forEach((node) => {
-      let value = node.nodeValue;
-      if (!value) return;
-
-      value = value
-        .replaceAll('Токены', 'Токены')
-        .replaceAll('токены', 'токены')
-        .replaceAll('токенов', 'токенов')
-        .replaceAll('токена', 'токена')
-        .replaceAll('токен', 'токен')
-        .replaceAll('Гости', 'Комфорт')
-        .replaceAll('Тестовое мероприятие FOTOTIME323', 'Демо-пространство FOTOTIME323')
-        .replaceAll('Стили загружаются из конфигурации мероприятия', 'Стили загружаются из каталога режима');
-
-      if (node.nodeValue !== value) node.nodeValue = value;
-    });
-  }
-
-  function normalizeUI() {
-    normalizeTextNode(document.body);
-
-    document.querySelectorAll('.ft-topup-cta-fixed, .support-main-button, .topup-main-button, [class*="topup"], [class*="support"]').forEach((button) => {
-      button.classList.add('ft-stable-centered-button');
-    });
-
-    document.querySelectorAll('button, a, [role="button"]').forEach((button) => {
-      const text = button.textContent?.trim().toLowerCase();
-      if (text === 'личный кабинет') {
-        button.addEventListener('click', (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          openTab('account');
-        }, true);
-      }
-    });
-
-    applyTheme(getSavedTheme(), false);
-    renderStableStyles(false);
-  }
-
-  function openTab(tab) {
-    const tabName = tab === 'profile' ? 'account' : tab;
-
-    document.querySelectorAll('[data-tab], .app-tab, .tab-button, .bottom-nav button').forEach((button) => {
-      const value = button.dataset?.tab || button.textContent?.trim()?.toLowerCase();
-      const isTarget =
-        value === tabName ||
-        (tabName === 'account' && /личный|кабинет|profile|account/.test(value || '')) ||
-        (tabName === 'admin' && /admin|админ/.test(value || '')) ||
-        (tabName === 'home' && /home|главная/.test(value || ''));
-
-      if (isTarget) {
-        button.click();
-      }
-    });
-
-    if (tabName === 'admin') {
-      setTimeout(ensureAdminVisible, 80);
-    }
-
-    setTimeout(() => {
-      applyTheme(getSavedTheme(), false);
-      normalizeUI();
-    }, 120);
-  }
-
-  async function ensureAdminVisible() {
-    const adminRoot =
-      document.querySelector('#adminView') ||
-      document.querySelector('[data-view="admin"]') ||
-      document.querySelector('.admin-view') ||
-      document.querySelector('#app');
-
-    if (!adminRoot) return;
-
-    const adminText = document.body.textContent || '';
-    const hasDenied = /Нет доступа к админ-консоли|Доступна только администратору/.test(adminText);
-
-    if (!hasDenied && /Клиенты и начисление|Админ-консоль/.test(adminText)) return;
-
-    const pins = [
-      localStorage.getItem('ft-admin-pin'),
-      localStorage.getItem('ft-admin-pin-value'),
-      localStorage.getItem('adminPin'),
-      '3465',
-      '3230'
-    ].filter(Boolean);
-
-    for (const pin of pins) {
-      try {
-        const res = await fetch('/api/admin-pin/overview', {
-          headers: { 'x-admin-pin': pin },
-          cache: 'no-store'
-        });
-
-        if (res.ok) {
-          localStorage.setItem('ft-admin-pin', pin);
-          localStorage.setItem('ft-admin-pin-value', pin);
-          localStorage.setItem('adminPin', pin);
-          break;
-        }
-      } catch (error) {}
-    }
-  }
-
-  function hookThemeSelects() {
-    document.addEventListener('change', (event) => {
-      const target = event.target;
-      if (!target || target.tagName !== 'SELECT') return;
-
-      const normalized =
-        normalizeTheme(target.value) ||
-        normalizeTheme(target.options?.[target.selectedIndex]?.textContent);
-
-      if (!normalized) return;
-
-      applyTheme(normalized, true);
-
-      setTimeout(() => applyTheme(normalized, true), 50);
-      setTimeout(() => applyTheme(normalized, true), 250);
-    }, true);
-  }
-
-  function hookParticipantWithoutReloadSpam() {
-    document.addEventListener('click', (event) => {
-      const target = event.target.closest(
-        '.participant-option, .participant-btn, .participant-button, [data-participant], button[data-value]'
-      );
-
-      if (!target) return;
-
-      setTimeout(() => renderStableStyles(false), 50);
-    }, true);
-  }
-
-  function hookAdminPinSubmit() {
-    document.addEventListener('submit', async (event) => {
-      const form = event.target;
-      if (!form || !/admin/i.test(form.id || form.className || form.textContent || '')) return;
-
-      const input = form.querySelector('input[type="password"], input[name="pin"], #adminPinInput');
-      if (!input) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      const pin = String(input.value || '').trim();
-      if (!pin) return;
-
-      try {
-        const res = await fetch('/api/admin-pin/overview', {
-          method: 'GET',
-          headers: { 'x-admin-pin': pin },
-          cache: 'no-store'
-        });
-
-        if (!res.ok) {
-          alert('Неверный PIN');
-          return;
-        }
-
-        localStorage.setItem('ft-admin-pin', pin);
-        localStorage.setItem('ft-admin-pin-value', pin);
-        localStorage.setItem('adminPin', pin);
-
-        setTimeout(() => {
-          if (typeof window.renderAdmin === 'function') window.renderAdmin();
-          ensureAdminVisible();
-          normalizeUI();
-        }, 80);
-      } catch (error) {
-        alert('Не удалось проверить PIN');
-      }
-    }, true);
-  }
-
-  function patchFetchAdminHeaders() {
-    const originalFetch = window.fetch.bind(window);
-
-    window.fetch = function patchedFetch(input, init = {}) {
-      const url = typeof input === 'string' ? input : input?.url || '';
-
-      if (/\/api\/(admin|admin-pin|feedback\/admin|generation-logs\/admin)/.test(url)) {
-        const pin =
-          localStorage.getItem('ft-admin-pin') ||
-          localStorage.getItem('ft-admin-pin-value') ||
-          localStorage.getItem('adminPin') ||
-          '';
-
-        const headers = new Headers(init.headers || {});
-        if (pin && !headers.has('x-admin-pin')) headers.set('x-admin-pin', pin);
-
-        init = { ...init, headers };
-      }
-
-      return originalFetch(input, init);
-    };
-  }
-
-  function patchGenerationLocalMessage() {
-    document.addEventListener('click', (event) => {
-      const button = event.target.closest('button, [role="button"]');
-      if (!button) return;
-
-      const text = button.textContent || '';
-      if (!/Создать AI-фото|Создать/.test(text)) return;
-
-      setTimeout(() => {
-        normalizeTextNode(document.body);
-      }, 100);
-    }, true);
-  }
-
-  hookThemeSelects();
-  hookParticipantWithoutReloadSpam();
-  hookAdminPinSubmit();
-  patchFetchAdminHeaders();
-  patchGenerationLocalMessage();
-
-  applyTheme(getSavedTheme(), true);
-
-  window.addEventListener('load', () => {
-    applyTheme(getSavedTheme(), false);
-    normalizeUI();
-    renderStableStyles(true);
-
-    setTimeout(normalizeUI, 300);
-    setTimeout(normalizeUI, 900);
-    setTimeout(() => renderStableStyles(false), 1200);
-  });
-
-  const observer = new MutationObserver(() => {
-    clearTimeout(window.__ftStableUiTimer);
-    window.__ftStableUiTimer = setTimeout(normalizeUI, 60);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['class', 'data-theme']
-  });
-})();
-
-
-
-
-
-/* FT_STABLE_RUNTIME_REPAIR_20260608_REMOVED */
-
-
-
-
-
-/* FT_FINAL_STABLE_UI_CONTROLLER_20260608 */
-(function finalStableUiController() {
-  if (window.__ftFinalStableUiControllerApplied) return;
-  window.__ftFinalStableUiControllerApplied = true;
+/* FT_SINGLE_STABLE_RUNTIME_20260608 */
+(function ftSingleStableRuntime() {
+  if (window.__ftSingleStableRuntimeApplied) return;
+  window.__ftSingleStableRuntimeApplied = true;
 
   const THEME_KEY = 'ft-theme';
-  const ADMIN_PIN_KEY = 'ft-admin-pin';
-
-  const qs = (selector, root = document) => root.querySelector(selector);
-  const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const ALLOWED_THEMES = ['light', 'dark', 'retro'];
 
   function normalizeTheme(value) {
-    const raw = String(value || '').toLowerCase();
+    const raw = String(value || '').toLowerCase().trim();
 
     if (
       raw === 'dark' ||
       raw === 'theme-dark' ||
-      raw.includes('dark') ||
-      raw.includes('тем')
+      raw.includes('тём') ||
+      raw.includes('темн') ||
+      raw.includes('dark')
     ) return 'dark';
+
+    if (
+      raw === 'light' ||
+      raw === 'theme-light' ||
+      raw.includes('свет') ||
+      raw.includes('light')
+    ) return 'light';
 
     if (
       raw === 'retro' ||
       raw === 'theme-retro' ||
-      raw.includes('retro') ||
-      raw.includes('ретро')
+      raw.includes('ретро') ||
+      raw.includes('retro')
     ) return 'retro';
 
     return 'light';
   }
 
-  function setSelectValue(theme) {
-    qsa('select').forEach((select) => {
-      const context = [
-        select.id,
-        select.name,
-        select.className,
-        select.closest('label')?.textContent,
-        select.previousElementSibling?.textContent,
-        select.parentElement?.textContent
-      ].join(' ');
+  function getSavedTheme() {
+    const keys = [
+      'ft-theme',
+      'fototime-theme',
+      'theme',
+      'fototime-ui-theme',
+      'fototime-app-theme',
+      'fototimeTheme',
+      'fototime-selected-theme-v14',
+      'fototime-selected-theme'
+    ];
 
-      if (!/тем|theme/i.test(context)) return;
+    for (const key of keys) {
+      try {
+        const value = localStorage.getItem(key);
+        if (value) return normalizeTheme(value);
+      } catch (_) {}
+    }
 
-      const options = qsa('option', select);
-      const wanted = {
-        light: ['light', 'светлая'],
-        dark: ['dark', 'тёмная', 'темная'],
-        retro: ['retro', 'ретро']
-      }[theme];
+    return 'light';
+  }
 
-      const option = options.find((opt) => {
-        const value = String(opt.value || '').toLowerCase();
-        const text = String(opt.textContent || '').toLowerCase();
-        return wanted.some((needle) => value.includes(needle) || text.includes(needle));
-      });
+  function syncThemeSelect(theme) {
+    const select = document.getElementById('themeSelect');
+    if (!select) return;
 
-      if (option && select.value !== option.value) {
+    const wanted = normalizeTheme(theme);
+
+    Array.from(select.options || []).forEach((option) => {
+      const normalized = normalizeTheme(option.value || option.textContent);
+      if (normalized === wanted) {
+        option.selected = true;
         select.value = option.value;
       }
     });
@@ -7617,289 +5681,265 @@ window.addEventListener('load', () => {
 
   function applyTheme(themeInput) {
     const theme = normalizeTheme(themeInput);
-    localStorage.setItem(THEME_KEY, theme);
+    const roots = [document.documentElement, document.body].filter(Boolean);
 
-    document.documentElement.dataset.theme = theme;
-    document.body.dataset.theme = theme;
+    roots.forEach((el) => {
+      el.dataset.theme = theme;
+      el.dataset.ftTheme = theme;
+      el.dataset.uiTheme = theme;
+      el.dataset.appTheme = theme;
 
-    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+      el.classList.remove(
+        'light', 'dark', 'retro',
+        'theme-light', 'theme-dark', 'theme-retro',
+        'ft-theme-light', 'ft-theme-dark', 'ft-theme-retro',
+        'light-theme', 'dark-theme', 'retro-theme'
+      );
 
-    document.documentElement.classList.add(`theme-${theme}`);
-    document.body.classList.add(`theme-${theme}`);
+      el.classList.add(theme, `theme-${theme}`, `ft-theme-${theme}`);
+    });
 
-    setSelectValue(theme);
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+      localStorage.setItem('fototime-theme', theme);
+      localStorage.setItem('theme', theme);
+    } catch (_) {}
 
+    syncThemeSelect(theme);
     return theme;
   }
 
-  window.ftApplyTheme = applyTheme;
-
-  function getCurrentTheme() {
-    return normalizeTheme(
-      localStorage.getItem(THEME_KEY) ||
-      document.documentElement.dataset.theme ||
-      document.body.dataset.theme ||
-      'light'
-    );
-  }
-
-  function bindThemeOnce() {
-    if (window.__ftThemeDelegationBound) return;
-    window.__ftThemeDelegationBound = true;
-
-    document.addEventListener('change', (event) => {
-      const target = event.target;
-      if (!target || target.tagName !== 'SELECT') return;
-
-      const context = [
-        target.id,
-        target.name,
-        target.className,
-        target.closest('label')?.textContent,
-        target.previousElementSibling?.textContent,
-        target.parentElement?.textContent
-      ].join(' ');
-
-      if (!/тем|theme/i.test(context)) return;
-
-      event.stopImmediatePropagation();
-
-      const theme = applyTheme(target.value);
-
-      setTimeout(() => applyTheme(theme), 50);
-      setTimeout(() => applyTheme(theme), 250);
-    }, true);
-  }
-
-  function normalizeTokensText() {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-
-    nodes.forEach((node) => {
-      node.nodeValue = node.nodeValue
-        .replaceAll('Кредиты', 'Токены')
-        .replaceAll('кредиты', 'токены')
-        .replaceAll('кредитов', 'токенов')
-        .replaceAll('кредита', 'токена')
-        .replaceAll('кредит', 'токен');
-    });
-  }
-
-  async function getStyles() {
-    const urls = [
-      `/api/styles?stable=${Date.now()}`,
-      `/api/styles/public?stable=${Date.now()}`
+  function normalizeCopy(root = document) {
+    const walker = document.createTreeWalker(root.body || root, NodeFilter.SHOW_TEXT);
+    const replacements = [
+      ['Кредиты для AI-генераций', 'Токены для AI-генераций'],
+      ['кредиты для AI-генераций', 'токены для AI-генераций'],
+      ['кредитов', 'токенов'],
+      ['кредита', 'токена'],
+      ['кредиты', 'токены'],
+      ['кредит', 'токен'],
+      ['Гости', 'Комфорт'],
+      ['для мероприятия', 'для нескольких генераций'],
+      ['Для небольшого мероприятия', 'Для нескольких генераций'],
+      ['Для большого события или промо.', 'Для активных генераций.']
     ];
 
-    for (const url of urls) {
-      try {
-        const response = await fetch(url, { cache: 'no-store' });
-        if (!response.ok) continue;
+    let node;
+    while ((node = walker.nextNode())) {
+      let value = node.nodeValue;
+      let next = value;
 
-        const data = await response.json();
-        const list = data.styles || data.items || data.data || data;
-
-        if (Array.isArray(list) && list.length) {
-          return list;
-        }
-      } catch (error) {
-        console.warn('styles fetch failed', url, error);
-      }
-    }
-
-    return [];
-  }
-
-  function findStylesGrid() {
-    return (
-      qs('#stylesGrid') ||
-      qs('#styleGrid') ||
-      qs('[data-styles-grid]') ||
-      qs('.styles-grid') ||
-      qs('.style-grid') ||
-      qs('.styles-list') ||
-      qs('.style-cards')
-    );
-  }
-
-  function escapeHtml(value) {
-    return String(value ?? '').replace(/[<>&"]/g, (char) => ({
-      '<': '&lt;',
-      '>': '&gt;',
-      '&': '&amp;',
-      '"': '&quot;'
-    }[char]));
-  }
-
-  function createStyleCard(style, index) {
-    const image = style.imageUrl || style.previewUrl || style.thumbnail || '/assets/mock-result.svg';
-    const title = style.title || style.name || style.id || 'Стиль';
-    const network = style.network || style.category || 'SDXL';
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `ft-final-style-card style-card ${index === 0 ? 'active selected' : ''}`;
-    button.dataset.styleId = style.id || title;
-    button.dataset.styleTitle = title;
-
-    button.innerHTML = `
-      <div class="ft-final-style-image">
-        <img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" loading="lazy">
-      </div>
-      <div class="ft-final-style-title">${escapeHtml(title)}</div>
-      <div class="ft-final-style-network">${escapeHtml(network)}</div>
-    `;
-
-    const img = button.querySelector('img');
-    img.addEventListener('error', () => {
-      img.src = '/assets/mock-result.svg';
-    }, { once: true });
-
-    button.addEventListener('click', () => {
-      qsa('.style-card, .ft-final-style-card').forEach((card) => {
-        card.classList.remove('active', 'selected');
+      replacements.forEach(([from, to]) => {
+        next = next.split(from).join(to);
       });
 
-      button.classList.add('active', 'selected');
-
-      window.selectedStyleId = button.dataset.styleId;
-      window.selectedStyle = button.dataset.styleId;
-
-      const hidden = qs('input[name="styleId"], #styleIdInput, [data-selected-style]');
-      if (hidden) hidden.value = button.dataset.styleId;
-
-      document.dispatchEvent(new CustomEvent('ft:style-selected', {
-        detail: {
-          styleId: button.dataset.styleId,
-          title,
-          style
-        }
-      }));
-    });
-
-    return button;
+      if (next !== value) node.nodeValue = next;
+    }
   }
 
-  async function renderStyles(force = false) {
-    const grid = findStylesGrid();
-    if (!grid) return;
+  function normalizePrices(root = document) {
+    const text = root.body?.innerHTML || '';
+    if (!text) return;
 
-    if (grid.dataset.ftFinalStylesRendered === 'true' && !force) return;
+    const replacements = {
+      '39 ₽': '49 ₽',
+      '89 ₽': '99 ₽',
+      '219 ₽': '249 ₽',
+      '459 ₽': '499 ₽',
+      '199 ₽': '99 ₽',
+      '449 ₽': '249 ₽',
+      '899 ₽': '499 ₽'
+    };
 
-    const styles = await getStyles();
-    if (!styles.length) return;
-
-    grid.innerHTML = '';
-    grid.classList.add('ft-final-style-grid');
-
-    styles.slice(0, 24).forEach((style, index) => {
-      grid.appendChild(createStyleCard(style, index));
+    let html = root.body.innerHTML;
+    Object.entries(replacements).forEach(([from, to]) => {
+      html = html.split(from).join(to);
     });
 
-    if (!window.selectedStyleId && styles[0]) {
-      window.selectedStyleId = styles[0].id;
-      window.selectedStyle = styles[0].id;
+    if (html !== root.body.innerHTML) {
+      root.body.innerHTML = html;
+      bindStableEvents();
+    }
+  }
+
+  function openTab(name) {
+    const targetName = String(name || 'home');
+
+    document.querySelectorAll('[data-tab-content], .tab-content, .ft-tab-content, section[data-tab]').forEach((el) => {
+      const key = el.dataset.tabContent || el.dataset.tab || el.id || '';
+      const match =
+        key === targetName ||
+        key === `${targetName}-tab` ||
+        key === `${targetName}Tab` ||
+        el.id === targetName ||
+        el.id === `${targetName}Tab`;
+
+      el.hidden = !match;
+      el.style.display = match ? '' : 'none';
+      el.classList.toggle('active', match);
+      el.classList.toggle('is-active', match);
+    });
+
+    document.querySelectorAll('[data-tab-target], [data-tab], .bottom-nav button, .app-tab').forEach((btn) => {
+      const key = btn.dataset.tabTarget || btn.dataset.tab || '';
+      const text = (btn.textContent || '').toLowerCase();
+
+      const match =
+        key === targetName ||
+        (targetName === 'home' && text.includes('глав')) ||
+        (targetName === 'account' && text.includes('лич')) ||
+        (targetName === 'admin' && text.includes('админ'));
+
+      btn.classList.toggle('active', match);
+      btn.classList.toggle('is-active', match);
+      btn.setAttribute('aria-selected', match ? 'true' : 'false');
+    });
+
+    if (targetName === 'admin') {
+      ensureAdminPinVisible();
     }
 
-    grid.dataset.ftFinalStylesRendered = 'true';
+    applyTheme(getSavedTheme());
+    normalizeCopy();
   }
 
-  window.ftRenderStyles = renderStyles;
+  function ensureAdminPinVisible() {
+    const adminRoot =
+      document.querySelector('#admin') ||
+      document.querySelector('#adminTab') ||
+      document.querySelector('[data-tab-content="admin"]') ||
+      document.querySelector('[data-tab="admin"]');
 
-  function openTabByText(text) {
-    const targetText = String(text || '').toLowerCase();
+    if (!adminRoot) return;
 
-    const button = qsa('button, a, [role="button"]').find((el) => {
-      const currentText = String(el.textContent || '').toLowerCase();
-      const data = String(el.dataset.tab || el.dataset.tabTarget || '').toLowerCase();
+    const hasInput = adminRoot.querySelector('input[type="password"], #adminPinInput');
+    const hasConsole = /Клиенты|баланс|токен|Админ-консоль/i.test(adminRoot.textContent || '');
 
-      if (targetText.includes('лич')) {
-        return currentText.includes('личный кабинет') || data.includes('profile') || data.includes('account');
-      }
+    if (hasInput || hasConsole) return;
 
-      if (targetText.includes('админ')) {
-        return currentText.includes('админ') || data.includes('admin');
-      }
+    adminRoot.innerHTML = `
+      <section class="ft-admin-pin-card">
+        <div class="ft-section-head">
+          <span class="ft-step">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p>Введите PIN администратора.</p>
+          </div>
+        </div>
+        <form id="adminPinForm" class="ft-admin-pin-form">
+          <input id="adminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+    `;
+  }
 
-      if (targetText.includes('глав')) {
-        return currentText.includes('главная') || data.includes('main') || data.includes('home');
-      }
-
-      return false;
-    });
-
-    if (button) {
-      button.click();
-      return true;
+  async function tryAdminLogin(pin) {
+    const cleanPin = String(pin || '').trim();
+    if (!cleanPin) {
+      alert('Введите PIN');
+      return;
     }
 
-    return false;
+    try {
+      const res = await fetch('/api/admin-pin/overview', {
+        headers: { 'x-admin-pin': cleanPin }
+      });
+
+      if (!res.ok) {
+        alert('Неверный PIN');
+        return;
+      }
+
+      localStorage.setItem('ft-admin-pin', cleanPin);
+      localStorage.setItem('ft-admin-pin-value', cleanPin);
+
+      if (typeof window.renderAdminDashboard === 'function') {
+        await window.renderAdminDashboard();
+      } else if (typeof window.renderAdminFinal === 'function') {
+        await window.renderAdminFinal();
+      } else if (typeof window.renderAdmin === 'function') {
+        await window.renderAdmin();
+      }
+
+      setTimeout(() => {
+        applyTheme(getSavedTheme());
+        normalizeCopy();
+      }, 50);
+    } catch (error) {
+      alert('Не удалось открыть админ-консоль. Проверьте сервер или PIN.');
+      console.error('Admin login failed:', error);
+    }
   }
 
-  function bindNavigationOnce() {
-    if (window.__ftNavigationDelegationBound) return;
-    window.__ftNavigationDelegationBound = true;
-
-    document.addEventListener('click', (event) => {
-      const target = event.target.closest('button, a, [role="button"]');
+  function bindStableEvents() {
+    document.addEventListener('change', (event) => {
+      const target = event.target;
       if (!target) return;
 
-      const text = String(target.textContent || '').trim();
-
-      if (/личный кабинет/i.test(text) && !target.closest('.bottom-nav')) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        openTabByText('личный кабинет');
+      if (target.id === 'themeSelect') {
+        const theme = applyTheme(target.value || target.options[target.selectedIndex]?.textContent);
+        setTimeout(() => applyTheme(theme), 100);
+        setTimeout(() => applyTheme(theme), 400);
       }
+    }, true);
+
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('button, a, [role="button"]');
+      if (!button) return;
+
+      const text = (button.textContent || '').toLowerCase();
+      const tab = button.dataset.tabTarget || button.dataset.tab;
+
+      if (tab) {
+        openTab(tab);
+        return;
+      }
+
+      if (text.includes('глав')) openTab('home');
+      if (text.includes('личн')) openTab('account');
+      if (text.includes('админ')) openTab('admin');
+
+      if (text.includes('личный кабинет')) {
+        openTab('account');
+      }
+    }, true);
+
+    document.addEventListener('submit', (event) => {
+      const form = event.target;
+      if (!form || form.id !== 'adminPinForm') return;
+
+      event.preventDefault();
+      const input = form.querySelector('#adminPinInput, input[type="password"]');
+      tryAdminLogin(input?.value || '');
     }, true);
   }
 
-  async function repairAdminPanelIfNeeded() {
-    const adminVisible =
-      qs('[data-tab-panel="admin"]:not(.hidden)') ||
-      qs('#adminPanel:not(.hidden)') ||
-      qsa('section, .card').find((el) => /админ-консоль/i.test(el.textContent || ''));
+  function stabilize() {
+    applyTheme(getSavedTheme());
+    normalizeCopy();
 
-    if (!adminVisible) return;
-
-    const pin = localStorage.getItem(ADMIN_PIN_KEY) || localStorage.getItem('ft-admin-pin-value') || '3465';
-
-    try {
-      const response = await fetch(`/api/admin-pin/overview?stable=${Date.now()}`, {
-        headers: { 'x-admin-pin': pin },
-        cache: 'no-store'
-      });
-
-      if (!response.ok) return;
-
-      localStorage.setItem(ADMIN_PIN_KEY, pin);
-      localStorage.setItem('ft-admin-pin-ok', 'true');
-      localStorage.setItem('ft-admin-pin-value', pin);
-    } catch (error) {
-      console.warn('admin ping failed', error);
+    const select = document.getElementById('themeSelect');
+    if (select && !select.dataset.ftStableBound) {
+      select.dataset.ftStableBound = '1';
+      syncThemeSelect(getSavedTheme());
     }
   }
 
-  function runStablePass(forceStyles = false) {
-    bindThemeOnce();
-    bindNavigationOnce();
+  bindStableEvents();
 
-    const theme = getCurrentTheme();
-    applyTheme(theme);
-
-    normalizeTokensText();
-    renderStyles(forceStyles);
-    repairAdminPanelIfNeeded();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', stabilize);
+  } else {
+    stabilize();
   }
 
-  document.addEventListener('DOMContentLoaded', () => runStablePass(true));
-  window.addEventListener('load', () => runStablePass(true));
+  window.addEventListener('load', stabilize);
 
-  setTimeout(() => runStablePass(true), 100);
-  setTimeout(() => runStablePass(true), 600);
-  setTimeout(() => runStablePass(false), 1500);
+  let ticks = 0;
+  const timer = setInterval(() => {
+    ticks += 1;
+    stabilize();
+    if (ticks >= 12) clearInterval(timer);
+  }, 500);
 })();
-

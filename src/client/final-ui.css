@@ -5636,3 +5636,153 @@ body[data-theme="dark"] textarea {
   }
 }
 
+
+/* FT_SINGLE_STABLE_THEME_CSS_20260608 */
+
+html,
+body {
+  min-height: 100% !important;
+}
+
+html.theme-light,
+body.theme-light,
+html.ft-theme-light,
+body.ft-theme-light,
+html[data-theme="light"],
+body[data-theme="light"] {
+  color: #20342f !important;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(184, 255, 209, .28), transparent 34%),
+    radial-gradient(circle at 8% 5%, rgba(94, 234, 212, .18), transparent 34%),
+    linear-gradient(180deg, #eaffcf 0%, #f8fff4 100%) !important;
+}
+
+html.theme-retro,
+body.theme-retro,
+html.ft-theme-retro,
+body.ft-theme-retro,
+html[data-theme="retro"],
+body[data-theme="retro"] {
+  color: #3d2b24 !important;
+  background:
+    radial-gradient(circle at 8% 5%, rgba(255, 241, 196, .70), transparent 38%),
+    radial-gradient(circle at 92% 8%, rgba(255, 213, 142, .62), transparent 32%),
+    linear-gradient(180deg, #f5dfbd 0%, #fef0c8 100%) !important;
+}
+
+html.theme-dark,
+body.theme-dark,
+html.ft-theme-dark,
+body.ft-theme-dark,
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  color: #f8fafc !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(45, 212, 191, .22), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgba(132, 204, 22, .18), transparent 34%),
+    linear-gradient(180deg, #071514 0%, #06090b 100%) !important;
+}
+
+.theme-light section,
+.theme-light .card,
+.theme-light .panel,
+.theme-light [class*="card"],
+.theme-light [class*="panel"],
+.ft-theme-light section,
+.ft-theme-light .card,
+.ft-theme-light .panel,
+.ft-theme-light [class*="card"],
+.ft-theme-light [class*="panel"] {
+  background: rgba(255, 255, 255, .86) !important;
+  color: #20342f !important;
+  border-color: rgba(32, 52, 47, .22) !important;
+}
+
+.theme-retro section,
+.theme-retro .card,
+.theme-retro .panel,
+.theme-retro [class*="card"],
+.theme-retro [class*="panel"],
+.ft-theme-retro section,
+.ft-theme-retro .card,
+.ft-theme-retro .panel,
+.ft-theme-retro [class*="card"],
+.ft-theme-retro [class*="panel"] {
+  background: rgba(255, 250, 240, .84) !important;
+  color: #3d2b24 !important;
+  border-color: rgba(107, 83, 61, .24) !important;
+}
+
+.theme-dark section,
+.theme-dark .card,
+.theme-dark .panel,
+.theme-dark [class*="card"],
+.theme-dark [class*="panel"],
+.ft-theme-dark section,
+.ft-theme-dark .card,
+.ft-theme-dark .panel,
+.ft-theme-dark [class*="card"],
+.ft-theme-dark [class*="panel"] {
+  background: rgba(7, 18, 20, .88) !important;
+  color: #f8fafc !important;
+  border-color: rgba(248, 250, 252, .22) !important;
+}
+
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark p,
+.theme-dark span,
+.theme-dark label,
+.theme-dark strong,
+.theme-dark button,
+.theme-dark input,
+.theme-dark textarea,
+.theme-dark select,
+.ft-theme-dark h1,
+.ft-theme-dark h2,
+.ft-theme-dark h3,
+.ft-theme-dark h4,
+.ft-theme-dark p,
+.ft-theme-dark span,
+.ft-theme-dark label,
+.ft-theme-dark strong,
+.ft-theme-dark button,
+.ft-theme-dark input,
+.ft-theme-dark textarea,
+.ft-theme-dark select {
+  color: inherit;
+}
+
+button,
+.button,
+[role="button"],
+input[type="button"],
+input[type="submit"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+#adminPinForm,
+.ft-admin-pin-form {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+#adminPinInput,
+.ft-admin-pin-form input {
+  width: 100% !important;
+  min-height: 48px !important;
+  border-radius: 16px !important;
+  padding: 10px 14px !important;
+}
+
+.ft-admin-pin-form button {
+  width: 100% !important;
+  min-height: 48px !important;
+  border-radius: 999px !important;
+}
+
