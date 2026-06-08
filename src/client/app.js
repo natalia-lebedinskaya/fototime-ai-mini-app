@@ -3506,7 +3506,7 @@ window.addEventListener('load', () => {
           <span class="step">FB</span>
           <div>
             <h2>Обратная связь</h2>
-            <p class="section-subtitle">Отзыв, идея улучшения или баг — можно приложить скриншот.</p>
+            <p class="section-subtitle">Отзыв, идея улучшения или ошибка — можно приложить скриншот.</p>
           </div>
         </div>
 
@@ -4948,20 +4948,20 @@ window.addEventListener('load', () => {
   window.__ftTokenCopyRuntimeFixApplied = true;
 
   const replaceCopy = (value) => String(value || '')
-    .replaceAll('Кредиты для AI-генераций', 'Токены для AI-генераций')
-    .replaceAll('Кредитов для AI-генераций', 'Токенов для AI-генераций')
-    .replaceAll('Кредиты', 'Токены')
-    .replaceAll('кредиты', 'токены')
-    .replaceAll('кредитов', 'токенов')
-    .replaceAll('кредита', 'токена')
-    .replaceAll('кредитам', 'токенам')
-    .replaceAll('кредитами', 'токенами')
-    .replaceAll('кредитах', 'токенах')
-    .replaceAll('кредит', 'токен')
-    .replaceAll('39 ₽', '49 ₽')
-    .replaceAll('89 ₽', '99 ₽')
-    .replaceAll('219 ₽', '249 ₽')
-    .replaceAll('459 ₽', '499 ₽');
+    .replaceAll('Токены для AI-генераций', 'Токены для AI-генераций')
+    .replaceAll('Токенов для AI-генераций', 'Токенов для AI-генераций')
+    .replaceAll('Токены', 'Токены')
+    .replaceAll('токены', 'токены')
+    .replaceAll('токенов', 'токенов')
+    .replaceAll('токена', 'токена')
+    .replaceAll('токенам', 'токенам')
+    .replaceAll('токенами', 'токенами')
+    .replaceAll('токенах', 'токенах')
+    .replaceAll('токен', 'токен')
+    .replaceAll('49 ₽', '49 ₽')
+    .replaceAll('99 ₽', '99 ₽')
+    .replaceAll('249 ₽', '249 ₽')
+    .replaceAll('499 ₽', '499 ₽');
 
   function normalizeTokenCopy() {
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -5003,3 +5003,251 @@ window.addEventListener('load', () => {
   setTimeout(normalizeTokenCopy, 2500);
 });
 
+
+
+
+window.addEventListener('load', () => {
+  if (window.__ftStableAdminPinAndTokenPatch20260608) return;
+  window.__ftStableAdminPinAndTokenPatch20260608 = true;
+
+  const PIN_KEYS = [
+    'ft-admin-pin',
+    'ft-admin-pin-value',
+    'ADMIN_PIN',
+    'adminPin'
+  ];
+
+  function getSavedPin() {
+    for (const key of PIN_KEYS) {
+      const value = localStorage.getItem(key);
+      if (value && String(value).trim().length >= 4) return String(value).trim();
+    }
+    return '';
+  }
+
+  function savePin(pin) {
+    const value = String(pin || '').trim();
+    if (!value) return;
+    PIN_KEYS.forEach((key) => localStorage.setItem(key, value));
+  }
+
+  function normalizeCopy() {
+    const replace = (value) => String(value || '')
+      .replaceAll('Токены для AI-генераций', 'Токены для AI-генераций')
+      .replaceAll('Токенов для AI-генераций', 'Токенов для AI-генераций')
+      .replaceAll('Токены', 'Токены')
+      .replaceAll('Токенов', 'Токенов')
+      .replaceAll('Токен', 'Токен')
+      .replaceAll('токенов', 'токенов')
+      .replaceAll('токены', 'токены')
+      .replaceAll('токена', 'токена')
+      .replaceAll('токенами', 'токенами')
+      .replaceAll('токенам', 'токенам')
+      .replaceAll('токенах', 'токенах')
+      .replaceAll('токен', 'токен')
+      .replaceAll('39 ₽', '49 ₽')
+      .replaceAll('89 ₽', '99 ₽')
+      .replaceAll('219 ₽', '249 ₽')
+      .replaceAll('459 ₽', '499 ₽');
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      const next = replace(node.nodeValue);
+      if (next !== node.nodeValue) node.nodeValue = next;
+    });
+
+    document.querySelectorAll('input, textarea').forEach((el) => {
+      if (el.placeholder) el.placeholder = replace(el.placeholder);
+    });
+
+    document.querySelectorAll('button, a, [role="button"], .button').forEach((el) => {
+      const txt = (el.textContent || '').trim();
+
+      if (txt.includes('Пополнить баланс') || txt.includes('Напишите нам')) {
+        el.classList.add('ft-topup-cta-fixed');
+      }
+
+      if (txt.includes('Авторизоваться') || txt.includes('Обновить баланс') || txt.includes('Как авторизоваться')) {
+        el.classList.add('ft-action-button-fixed');
+      }
+    });
+  }
+
+  const originalFetch = window.fetch;
+  window.fetch = function patchedFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+    const isAdminRequest =
+      url.includes('/api/admin-pin') ||
+      url.includes('/api/generation-logs/admin') ||
+      url.includes('/api/feedback/admin');
+
+    if (isAdminRequest) {
+      const pin = getSavedPin();
+      const nextInit = { ...init };
+      const headers = new Headers(nextInit.headers || {});
+      if (pin && !headers.has('x-admin-pin')) headers.set('x-admin-pin', pin);
+      nextInit.headers = headers;
+      return originalFetch(input, nextInit);
+    }
+
+    return originalFetch(input, init);
+  };
+
+  document.addEventListener('submit', async (event) => {
+    const form = event.target;
+    if (!form || form.id !== 'adminPinForm') return;
+
+    const input =
+      form.querySelector('#adminPinInput') ||
+      form.querySelector('input[type="password"]') ||
+      form.querySelector('input');
+
+    const pin = String(input?.value || '').trim();
+    if (!pin) return;
+
+    savePin(pin);
+  }, true);
+
+  document.addEventListener('click', () => {
+    normalizeCopy();
+  }, true);
+
+  normalizeCopy();
+
+  const observer = new MutationObserver(normalizeCopy);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+
+  setTimeout(normalizeCopy, 200);
+  setTimeout(normalizeCopy, 800);
+  setTimeout(normalizeCopy, 2000);
+});
+
+
+
+/* FT_LINKS_AND_UI_PATCH_20260608 */
+window.addEventListener('load', () => {
+  const SUPPORT_LINK = 'https://t.me/fototime23_Bot';
+  const VK_LINK = 'https://vk.com/fototime323';
+  const MAX_LINK = 'https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U';
+  const AVITO_LINK = 'https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a';
+  const SITE_LINK = 'https://fototime323.lpmotortest.com';
+
+  function normalizeText() {
+    document.querySelectorAll('body *').forEach((node) => {
+      if (!node.childNodes || node.childNodes.length !== 1) return;
+      const child = node.childNodes[0];
+      if (!child || child.nodeType !== Node.TEXT_NODE) return;
+
+      child.nodeValue = child.nodeValue
+        .replaceAll('кредитов', 'токенов')
+        .replaceAll('кредиты', 'токены')
+        .replaceAll('кредит', 'токен')
+        .replaceAll('Кредитов', 'Токенов')
+        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('Кредит', 'Токен')
+        .replaceAll('Тестовое мероприятие FOTOTIME323', 'Демо-пространство FOTOTIME323')
+        .replaceAll('текущего мероприятия', 'текущего режима')
+        .replaceAll('для мероприятия', 'для личного использования')
+        .replaceAll('Для небольшого мероприятия', 'Для нескольких генераций')
+        .replaceAll('Отзыв, идея улучшения или баг', 'Отзыв, идея улучшения или ошибка');
+    });
+  }
+
+  function patchTopupCta() {
+    document.querySelectorAll('a, button, div, section').forEach((el) => {
+      const text = (el.textContent || '').trim();
+      if (!text.includes('Пополнить баланс')) return;
+      if (text.length > 140) return;
+
+      el.classList.add('ft-topup-cta-fixed');
+      el.setAttribute('role', el.getAttribute('role') || 'button');
+
+      if (!el.querySelector('.ft-cta-arrow')) {
+        const arrow = document.createElement('span');
+        arrow.className = 'ft-cta-arrow';
+        arrow.textContent = '→';
+        el.appendChild(arrow);
+      }
+    });
+  }
+
+  function patchContactLinks() {
+    document.querySelectorAll('a, button').forEach((el) => {
+      const label = (el.textContent || '').trim().toLowerCase();
+
+      if (label.includes('telegram') || label.includes('поддержка')) {
+        el.setAttribute('data-ft-social', 'telegram');
+        if (el.tagName === 'A') el.href = SUPPORT_LINK;
+        el.onclick = () => window.open(SUPPORT_LINK, '_blank');
+      }
+
+      if (label === 'vk' || label.includes('vk')) {
+        el.setAttribute('data-ft-social', 'vk');
+        if (el.tagName === 'A') el.href = VK_LINK;
+        el.onclick = () => window.open(VK_LINK, '_blank');
+      }
+
+      if (label.includes('сайт')) {
+        el.setAttribute('data-ft-social', 'site');
+        if (el.tagName === 'A') el.href = SITE_LINK;
+        el.onclick = () => window.open(SITE_LINK, '_blank');
+      }
+    });
+
+    document.querySelectorAll('.ft-contact-card, .contact-card, section, article').forEach((card) => {
+      const txt = (card.textContent || '').toLowerCase();
+      if (!txt.includes('telegram') || !txt.includes('vk') || !txt.includes('сайт')) return;
+      if (card.querySelector('[data-ft-social="max"]')) return;
+
+      const row = Array.from(card.querySelectorAll('div, nav')).find((el) => {
+        const t = (el.textContent || '').toLowerCase();
+        return t.includes('telegram') && t.includes('vk') && t.includes('сайт');
+      }) || card;
+
+      const max = document.createElement('button');
+      max.type = 'button';
+      max.className = 'ft-social-button';
+      max.dataset.ftSocial = 'max';
+      max.textContent = '✦ MAX';
+      max.onclick = () => window.open(MAX_LINK, '_blank');
+
+      const avito = document.createElement('button');
+      avito.type = 'button';
+      avito.className = 'ft-social-button';
+      avito.dataset.ftSocial = 'avito';
+      avito.textContent = '✦ Авито';
+      avito.onclick = () => window.open(AVITO_LINK, '_blank');
+
+      row.appendChild(max);
+      row.appendChild(avito);
+    });
+  }
+
+  function patchFeedbackLabels() {
+    document.querySelectorAll('textarea, input').forEach((el) => {
+      if (el.placeholder) {
+        el.placeholder = el.placeholder
+          .replaceAll('баг', 'ошибку')
+          .replaceAll('Баг', 'Ошибку');
+      }
+    });
+  }
+
+  function runPatch() {
+    normalizeText();
+    patchTopupCta();
+    patchContactLinks();
+    patchFeedbackLabels();
+  }
+
+  runPatch();
+  setTimeout(runPatch, 500);
+  setTimeout(runPatch, 1500);
+});
