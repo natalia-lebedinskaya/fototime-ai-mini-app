@@ -5433,3 +5433,206 @@ select {
   }
 }
 
+
+
+
+/* FT_FINAL_THEME_NO_FLICKER_20260608 */
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  min-height: 100% !important;
+  transition: none !important;
+}
+
+html[data-theme="light"],
+body[data-theme="light"],
+html.theme-light,
+body.theme-light {
+  --ft-bg-final: radial-gradient(circle at 12% 0%, rgba(184, 244, 255, .55), transparent 34%),
+                 radial-gradient(circle at 92% 10%, rgba(214, 255, 169, .48), transparent 34%),
+                 linear-gradient(180deg, #f7fbfa 0%, #edf3ef 100%);
+  --ft-card-final: rgba(255, 255, 255, .88);
+  --ft-soft-final: rgba(255, 255, 255, .64);
+  --ft-text-final: #21342f;
+  --ft-muted-final: rgba(33, 52, 47, .68);
+  --ft-border-final: rgba(33, 52, 47, .20);
+  --ft-shadow-final: 0 18px 46px rgba(28, 39, 36, .13);
+}
+
+html[data-theme="retro"],
+body[data-theme="retro"],
+html.theme-retro,
+body.theme-retro {
+  --ft-bg-final: radial-gradient(circle at 12% 0%, rgba(255, 238, 198, .70), transparent 35%),
+                 radial-gradient(circle at 90% 10%, rgba(255, 218, 155, .48), transparent 34%),
+                 linear-gradient(180deg, #faecd6 0%, #ead4b8 100%);
+  --ft-card-final: rgba(255, 250, 241, .88);
+  --ft-soft-final: rgba(255, 249, 239, .72);
+  --ft-text-final: #3d2b24;
+  --ft-muted-final: rgba(61, 43, 36, .68);
+  --ft-border-final: rgba(84, 61, 43, .22);
+  --ft-shadow-final: 0 18px 46px rgba(92, 70, 44, .17);
+}
+
+html[data-theme="dark"],
+body[data-theme="dark"],
+html.theme-dark,
+body.theme-dark {
+  color-scheme: dark;
+  --ft-bg-final: radial-gradient(circle at 12% 0%, rgba(15, 91, 81, .56), transparent 36%),
+                 radial-gradient(circle at 88% 8%, rgba(139, 255, 31, .18), transparent 34%),
+                 linear-gradient(180deg, #06100e 0%, #0b1513 100%);
+  --ft-card-final: rgba(10, 18, 17, .92);
+  --ft-soft-final: rgba(24, 35, 33, .86);
+  --ft-text-final: #f4fff9;
+  --ft-muted-final: rgba(244, 255, 249, .70);
+  --ft-border-final: rgba(230, 255, 248, .20);
+  --ft-shadow-final: 0 20px 52px rgba(0, 0, 0, .42);
+}
+
+html[data-theme],
+body[data-theme] {
+  background: var(--ft-bg-final) !important;
+  color: var(--ft-text-final) !important;
+}
+
+body,
+.app,
+#app,
+main,
+.app-shell,
+.app-container,
+.page,
+.page-content,
+.screen,
+.view {
+  background: transparent !important;
+  color: var(--ft-text-final) !important;
+}
+
+body::before,
+body::after,
+.app::before,
+.app::after,
+#app::before,
+#app::after {
+  display: none !important;
+}
+
+.card,
+section.card,
+.balance-card,
+.profile-card,
+.admin-card,
+.feedback-card,
+[class*="card"],
+[class*="panel"],
+[data-tab-panel] > section {
+  background: var(--ft-card-final) !important;
+  color: var(--ft-text-final) !important;
+  border-color: var(--ft-border-final) !important;
+  box-shadow: var(--ft-shadow-final) !important;
+}
+
+.section-subtitle,
+[class*="subtitle"],
+.muted,
+small {
+  color: var(--ft-muted-final) !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+body[data-theme="dark"] input,
+body[data-theme="dark"] select,
+body[data-theme="dark"] textarea {
+  background: rgba(255, 255, 255, .08) !important;
+  color: #f4fff9 !important;
+  border-color: rgba(255, 255, 255, .24) !important;
+}
+
+.ft-final-style-grid,
+.ft-stable-style-grid,
+.styles-grid,
+.style-grid,
+.styles-list,
+.style-cards {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+  background: transparent !important;
+}
+
+.ft-final-style-card,
+.ft-stable-style-card,
+.style-card {
+  display: block !important;
+  width: 100% !important;
+  padding: 14px !important;
+  border-radius: 20px !important;
+  background: var(--ft-soft-final) !important;
+  border: 1px solid var(--ft-border-final) !important;
+  color: var(--ft-text-final) !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+}
+
+.ft-final-style-card.active,
+.ft-final-style-card.selected,
+.ft-stable-style-card.active,
+.ft-stable-style-card.selected,
+.style-card.active,
+.style-card.selected {
+  border-color: #b8ff1d !important;
+  box-shadow: 0 0 0 2px rgba(184, 255, 29, .45) !important;
+}
+
+.ft-final-style-image,
+.ft-stable-style-image {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  background: rgba(127, 127, 127, .14) !important;
+}
+
+.ft-final-style-image img,
+.ft-stable-style-image img,
+.style-card img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.ft-final-style-title,
+.ft-stable-style-title {
+  margin-top: 10px !important;
+  font-weight: 800 !important;
+  color: var(--ft-text-final) !important;
+  text-align: center !important;
+}
+
+.ft-final-style-network,
+.ft-stable-style-network {
+  margin-top: 4px !important;
+  color: var(--ft-muted-final) !important;
+  text-align: center !important;
+}
+
+@media (max-width: 720px) {
+  .ft-final-style-grid,
+  .ft-stable-style-grid,
+  .styles-grid,
+  .style-grid,
+  .styles-list,
+  .style-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+}
+

@@ -7545,351 +7545,361 @@ window.addEventListener('load', () => {
 
 
 
-/* FT_STABLE_RUNTIME_REPAIR_20260608 */
-(function stableRuntimeRepair() {
-  if (window.__ftStableRuntimeRepairApplied) return;
-  window.__ftStableRuntimeRepairApplied = true;
 
-  const ADMIN_PIN_KEY = 'ft-admin-pin';
+/* FT_STABLE_RUNTIME_REPAIR_20260608_REMOVED */
+
+
+
+
+
+/* FT_FINAL_STABLE_UI_CONTROLLER_20260608 */
+(function finalStableUiController() {
+  if (window.__ftFinalStableUiControllerApplied) return;
+  window.__ftFinalStableUiControllerApplied = true;
+
   const THEME_KEY = 'ft-theme';
+  const ADMIN_PIN_KEY = 'ft-admin-pin';
 
-  const qs = (s, r = document) => r.querySelector(s);
-  const qsa = (s, r = document) => Array.from(r.querySelectorAll(s));
-
-  const safeText = (value) => String(value ?? '').replace(/[<>&"]/g, (char) => ({
-    '<': '&lt;',
-    '>': '&gt;',
-    '&': '&amp;',
-    '"': '&quot;'
-  }[char]));
+  const qs = (selector, root = document) => root.querySelector(selector);
+  const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
   function normalizeTheme(value) {
     const raw = String(value || '').toLowerCase();
-    if (raw.includes('dark') || raw.includes('тем')) return 'dark';
-    if (raw.includes('retro') || raw.includes('ретро')) return 'retro';
+
+    if (
+      raw === 'dark' ||
+      raw === 'theme-dark' ||
+      raw.includes('dark') ||
+      raw.includes('тем')
+    ) return 'dark';
+
+    if (
+      raw === 'retro' ||
+      raw === 'theme-retro' ||
+      raw.includes('retro') ||
+      raw.includes('ретро')
+    ) return 'retro';
+
     return 'light';
   }
 
-  function applyTheme(value) {
-    const theme = normalizeTheme(value);
-    document.documentElement.dataset.theme = theme;
-    document.body.dataset.theme = theme;
-    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-    document.documentElement.classList.add(`theme-${theme}`);
-    document.body.classList.add(`theme-${theme}`);
-    localStorage.setItem(THEME_KEY, theme);
-
+  function setSelectValue(theme) {
     qsa('select').forEach((select) => {
-      const label = select.closest('label')?.textContent || '';
-      const id = select.id || '';
-      const name = select.name || '';
-      if (/тем|theme/i.test(label + id + name)) {
-        select.value = theme === 'dark' ? 'dark' : theme === 'retro' ? 'retro' : 'light';
+      const context = [
+        select.id,
+        select.name,
+        select.className,
+        select.closest('label')?.textContent,
+        select.previousElementSibling?.textContent,
+        select.parentElement?.textContent
+      ].join(' ');
+
+      if (!/тем|theme/i.test(context)) return;
+
+      const options = qsa('option', select);
+      const wanted = {
+        light: ['light', 'светлая'],
+        dark: ['dark', 'тёмная', 'темная'],
+        retro: ['retro', 'ретро']
+      }[theme];
+
+      const option = options.find((opt) => {
+        const value = String(opt.value || '').toLowerCase();
+        const text = String(opt.textContent || '').toLowerCase();
+        return wanted.some((needle) => value.includes(needle) || text.includes(needle));
+      });
+
+      if (option && select.value !== option.value) {
+        select.value = option.value;
       }
     });
   }
 
-  window.ftApplyTheme = applyTheme;
+  function applyTheme(themeInput) {
+    const theme = normalizeTheme(themeInput);
+    localStorage.setItem(THEME_KEY, theme);
 
-  function bindThemeControls() {
-    qsa('select').forEach((select) => {
-      const label = select.closest('label')?.textContent || '';
-      const id = select.id || '';
-      const name = select.name || '';
-      if (!/тем|theme/i.test(label + id + name)) return;
-      select.addEventListener('change', () => applyTheme(select.value), true);
-    });
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
+
+    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+
+    document.documentElement.classList.add(`theme-${theme}`);
+    document.body.classList.add(`theme-${theme}`);
+
+    setSelectValue(theme);
+
+    return theme;
   }
 
-  function normalizeVisibleText() {
+  window.ftApplyTheme = applyTheme;
+
+  function getCurrentTheme() {
+    return normalizeTheme(
+      localStorage.getItem(THEME_KEY) ||
+      document.documentElement.dataset.theme ||
+      document.body.dataset.theme ||
+      'light'
+    );
+  }
+
+  function bindThemeOnce() {
+    if (window.__ftThemeDelegationBound) return;
+    window.__ftThemeDelegationBound = true;
+
+    document.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target || target.tagName !== 'SELECT') return;
+
+      const context = [
+        target.id,
+        target.name,
+        target.className,
+        target.closest('label')?.textContent,
+        target.previousElementSibling?.textContent,
+        target.parentElement?.textContent
+      ].join(' ');
+
+      if (!/тем|theme/i.test(context)) return;
+
+      event.stopImmediatePropagation();
+
+      const theme = applyTheme(target.value);
+
+      setTimeout(() => applyTheme(theme), 50);
+      setTimeout(() => applyTheme(theme), 250);
+    }, true);
+  }
+
+  function normalizeTokensText() {
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
+
     while (walker.nextNode()) nodes.push(walker.currentNode);
 
     nodes.forEach((node) => {
       node.nodeValue = node.nodeValue
-        .replaceAll('Токены', 'Токены')
-        .replaceAll('токены', 'токены')
-        .replaceAll('токенов', 'токенов')
-        .replaceAll('токена', 'токена')
-        .replaceAll('токен', 'токен')
-        .replaceAll('для мероприятия', 'для режима')
-        .replaceAll('Для мероприятия', 'Для режима');
+        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('кредиты', 'токены')
+        .replaceAll('кредитов', 'токенов')
+        .replaceAll('кредита', 'токена')
+        .replaceAll('кредит', 'токен');
     });
   }
 
-  async function loadStableStyles() {
-    const endpoints = [
-      `/api/styles?ts=${Date.now()}`,
-      `/api/styles/public?ts=${Date.now()}`
+  async function getStyles() {
+    const urls = [
+      `/api/styles?stable=${Date.now()}`,
+      `/api/styles/public?stable=${Date.now()}`
     ];
 
-    for (const endpoint of endpoints) {
+    for (const url of urls) {
       try {
-        const res = await fetch(endpoint, { cache: 'no-store' });
-        if (!res.ok) continue;
-        const data = await res.json();
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) continue;
+
+        const data = await response.json();
         const list = data.styles || data.items || data.data || data;
-        if (Array.isArray(list) && list.length) return list;
+
+        if (Array.isArray(list) && list.length) {
+          return list;
+        }
       } catch (error) {
-        console.warn('styles load failed', endpoint, error);
+        console.warn('styles fetch failed', url, error);
       }
     }
 
     return [];
   }
 
-  function findStyleGrid() {
-    return qs('#stylesGrid')
-      || qs('#styleGrid')
-      || qs('[data-styles-grid]')
-      || qs('.styles-grid')
-      || qs('.style-grid')
-      || qs('.styles-list')
-      || qs('.style-cards');
+  function findStylesGrid() {
+    return (
+      qs('#stylesGrid') ||
+      qs('#styleGrid') ||
+      qs('[data-styles-grid]') ||
+      qs('.styles-grid') ||
+      qs('.style-grid') ||
+      qs('.styles-list') ||
+      qs('.style-cards')
+    );
   }
 
-  function styleCard(style, selected) {
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[<>&"]/g, (char) => ({
+      '<': '&lt;',
+      '>': '&gt;',
+      '&': '&amp;',
+      '"': '&quot;'
+    }[char]));
+  }
+
+  function createStyleCard(style, index) {
     const image = style.imageUrl || style.previewUrl || style.thumbnail || '/assets/mock-result.svg';
     const title = style.title || style.name || style.id || 'Стиль';
     const network = style.network || style.category || 'SDXL';
 
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = `ft-stable-style-card style-card${selected ? ' active selected' : ''}`;
-    card.dataset.styleId = style.id || title;
-    card.dataset.styleTitle = title;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `ft-final-style-card style-card ${index === 0 ? 'active selected' : ''}`;
+    button.dataset.styleId = style.id || title;
+    button.dataset.styleTitle = title;
 
-    card.innerHTML = `
-      <div class="ft-stable-style-image">
-        <img src="${safeText(image)}" alt="${safeText(title)}" loading="lazy">
+    button.innerHTML = `
+      <div class="ft-final-style-image">
+        <img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" loading="lazy">
       </div>
-      <div class="ft-stable-style-title">${safeText(title)}</div>
-      <div class="ft-stable-style-network">${safeText(network)}</div>
+      <div class="ft-final-style-title">${escapeHtml(title)}</div>
+      <div class="ft-final-style-network">${escapeHtml(network)}</div>
     `;
 
-    card.addEventListener('click', () => {
-      qsa('.ft-stable-style-card, .style-card').forEach((item) => item.classList.remove('active', 'selected'));
-      card.classList.add('active', 'selected');
-      window.selectedStyleId = card.dataset.styleId;
-      window.selectedStyle = card.dataset.styleId;
-
-      const hidden = qs('input[name="styleId"], #styleIdInput, [data-selected-style]');
-      if (hidden) hidden.value = card.dataset.styleId;
-
-      document.dispatchEvent(new CustomEvent('ft:style-selected', {
-        detail: { styleId: card.dataset.styleId, style }
-      }));
-    });
-
-    const img = card.querySelector('img');
+    const img = button.querySelector('img');
     img.addEventListener('error', () => {
       img.src = '/assets/mock-result.svg';
     }, { once: true });
 
-    return card;
+    button.addEventListener('click', () => {
+      qsa('.style-card, .ft-final-style-card').forEach((card) => {
+        card.classList.remove('active', 'selected');
+      });
+
+      button.classList.add('active', 'selected');
+
+      window.selectedStyleId = button.dataset.styleId;
+      window.selectedStyle = button.dataset.styleId;
+
+      const hidden = qs('input[name="styleId"], #styleIdInput, [data-selected-style]');
+      if (hidden) hidden.value = button.dataset.styleId;
+
+      document.dispatchEvent(new CustomEvent('ft:style-selected', {
+        detail: {
+          styleId: button.dataset.styleId,
+          title,
+          style
+        }
+      }));
+    });
+
+    return button;
   }
 
-  async function renderStableStyles(force = false) {
-    const grid = findStyleGrid();
+  async function renderStyles(force = false) {
+    const grid = findStylesGrid();
     if (!grid) return;
 
-    if (grid.dataset.ftStableRendered === 'true' && !force) return;
+    if (grid.dataset.ftFinalStylesRendered === 'true' && !force) return;
 
-    const styles = await loadStableStyles();
+    const styles = await getStyles();
     if (!styles.length) return;
 
     grid.innerHTML = '';
-    grid.classList.add('ft-stable-style-grid');
+    grid.classList.add('ft-final-style-grid');
 
     styles.slice(0, 24).forEach((style, index) => {
-      grid.appendChild(styleCard(style, index === 0));
+      grid.appendChild(createStyleCard(style, index));
     });
 
-    const first = styles[0];
-    if (first && !window.selectedStyleId) {
-      window.selectedStyleId = first.id;
-      window.selectedStyle = first.id;
+    if (!window.selectedStyleId && styles[0]) {
+      window.selectedStyleId = styles[0].id;
+      window.selectedStyle = styles[0].id;
     }
 
-    grid.dataset.ftStableRendered = 'true';
+    grid.dataset.ftFinalStylesRendered = 'true';
   }
 
-  window.ftRenderStableStyles = renderStableStyles;
+  window.ftRenderStyles = renderStyles;
 
-  function openProfile() {
-    const profileBtn =
-      qs('[data-tab-target="profile"]')
-      || qs('[data-tab="profile"]')
-      || qsa('button, a').find((el) => /личный кабинет/i.test(el.textContent || ''));
+  function openTabByText(text) {
+    const targetText = String(text || '').toLowerCase();
 
-    if (profileBtn) {
-      profileBtn.click();
-      return;
-    }
+    const button = qsa('button, a, [role="button"]').find((el) => {
+      const currentText = String(el.textContent || '').toLowerCase();
+      const data = String(el.dataset.tab || el.dataset.tabTarget || '').toLowerCase();
 
-    qsa('[data-tab-panel], .app-panel').forEach((panel) => {
-      panel.classList.toggle('hidden', !/profile|account/i.test(panel.dataset.tabPanel || panel.id || panel.className));
-    });
-  }
-
-  function bindProfileButtons() {
-    qsa('button, a').forEach((el) => {
-      const text = (el.textContent || '').trim();
-      if (!/личный кабинет/i.test(text)) return;
-      if (el.dataset.ftProfileBound === 'true') return;
-      el.dataset.ftProfileBound = 'true';
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        openProfile();
-      }, true);
-    });
-  }
-
-  async function fetchAdminOverview(pin) {
-    const headers = { 'x-admin-pin': String(pin || '').trim() };
-    const endpoints = ['/api/admin/overview', '/api/admin-pin/overview'];
-
-    for (const endpoint of endpoints) {
-      const res = await fetch(`${endpoint}?ts=${Date.now()}`, { headers, cache: 'no-store' });
-      if (res.ok) return await res.json();
-    }
-
-    throw new Error('PIN не принят сервером');
-  }
-
-  function renderAdminLogin(panel, message = '') {
-    panel.innerHTML = `
-      <section class="card ft-stable-admin-card">
-        <div class="section-title">
-          <span class="section-index">AD</span>
-          <div>
-            <h2>Админ-консоль</h2>
-            <p class="section-subtitle">Введите PIN администратора.</p>
-          </div>
-        </div>
-        <form id="adminPinForm" class="ft-stable-admin-login">
-          <input id="adminPinInput" type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off">
-          <button type="submit">Войти</button>
-        </form>
-        ${message ? `<p class="ft-stable-error">${safeText(message)}</p>` : ''}
-      </section>
-    `;
-
-    panel.querySelector('#adminPinForm')?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const pin = panel.querySelector('#adminPinInput')?.value || '';
-      try {
-        await fetchAdminOverview(pin);
-        localStorage.setItem(ADMIN_PIN_KEY, pin);
-        localStorage.setItem('ft-admin-pin-ok', 'true');
-        localStorage.setItem('ft-admin-pin-value', pin);
-        await renderAdminPanel(panel, pin);
-      } catch (error) {
-        renderAdminLogin(panel, 'Неверный PIN или сервер не вернул админ-данные.');
+      if (targetText.includes('лич')) {
+        return currentText.includes('личный кабинет') || data.includes('profile') || data.includes('account');
       }
+
+      if (targetText.includes('админ')) {
+        return currentText.includes('админ') || data.includes('admin');
+      }
+
+      if (targetText.includes('глав')) {
+        return currentText.includes('главная') || data.includes('main') || data.includes('home');
+      }
+
+      return false;
     });
+
+    if (button) {
+      button.click();
+      return true;
+    }
+
+    return false;
   }
 
-  async function renderAdminPanel(panel, pin) {
-    const data = await fetchAdminOverview(pin);
-    const users = data.users || [];
-    const stats = data.stats || {};
-    const totalUsers = stats.totalUsers ?? users.length ?? 0;
-    const totalGenerations = stats.totalGenerations ?? users.reduce((sum, u) => sum + Number(u.generationsCount || 0), 0);
-    const spent = stats.totalSpentTokens ?? stats.totalSpentCredits ?? users.reduce((sum, u) => sum + Number(u.spentTokens || u.spentCredits || 0), 0);
+  function bindNavigationOnce() {
+    if (window.__ftNavigationDelegationBound) return;
+    window.__ftNavigationDelegationBound = true;
 
-    panel.innerHTML = `
-      <section class="card ft-stable-admin-card">
-        <div class="section-title">
-          <span class="section-index">AD</span>
-          <div>
-            <h2>Админ-консоль</h2>
-            <p class="section-subtitle">Клиенты, балансы, начисления и статистика.</p>
-          </div>
-        </div>
+    document.addEventListener('click', (event) => {
+      const target = event.target.closest('button, a, [role="button"]');
+      if (!target) return;
 
-        <div class="ft-stable-admin-stats">
-          <article><span>Клиентов</span><strong>${safeText(totalUsers)}</strong></article>
-          <article><span>Всего генераций</span><strong>${safeText(totalGenerations)}</strong></article>
-          <article><span>Списано токенов</span><strong>${safeText(spent)}</strong></article>
-        </div>
+      const text = String(target.textContent || '').trim();
 
-        <div class="ft-stable-admin-users">
-          ${users.map((user) => `
-            <article class="ft-stable-admin-user">
-              <div>
-                <strong>@${safeText(user.username || user.telegramUserId || user.id || 'user')}</strong>
-                <p>Telegram ID: ${safeText(user.telegramUserId || user.id || '—')}</p>
-                <p>Генераций: ${safeText(user.generationsCount || 0)} · списано: ${safeText(user.spentTokens || user.spentCredits || 0)} ток.</p>
-              </div>
-              <div class="ft-stable-admin-balance">
-                <strong>${safeText(user.balance ?? 0)}</strong>
-                <span>токенов</span>
-              </div>
-            </article>
-          `).join('')}
-        </div>
-      </section>
-    `;
+      if (/личный кабинет/i.test(text) && !target.closest('.bottom-nav')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        openTabByText('личный кабинет');
+      }
+    }, true);
   }
 
-  async function openAdminPanel() {
-    const panel =
-      qs('#adminPanel')
-      || qs('[data-tab-panel="admin"]')
-      || qs('.admin-panel');
+  async function repairAdminPanelIfNeeded() {
+    const adminVisible =
+      qs('[data-tab-panel="admin"]:not(.hidden)') ||
+      qs('#adminPanel:not(.hidden)') ||
+      qsa('section, .card').find((el) => /админ-консоль/i.test(el.textContent || ''));
 
-    if (!panel) return;
+    if (!adminVisible) return;
 
-    qsa('[data-tab-panel], .app-panel').forEach((item) => item.classList.add('hidden'));
-    panel.classList.remove('hidden');
-
-    const savedPin = localStorage.getItem(ADMIN_PIN_KEY) || localStorage.getItem('ft-admin-pin-value') || '3465';
+    const pin = localStorage.getItem(ADMIN_PIN_KEY) || localStorage.getItem('ft-admin-pin-value') || '3465';
 
     try {
-      await renderAdminPanel(panel, savedPin);
+      const response = await fetch(`/api/admin-pin/overview?stable=${Date.now()}`, {
+        headers: { 'x-admin-pin': pin },
+        cache: 'no-store'
+      });
+
+      if (!response.ok) return;
+
+      localStorage.setItem(ADMIN_PIN_KEY, pin);
+      localStorage.setItem('ft-admin-pin-ok', 'true');
+      localStorage.setItem('ft-admin-pin-value', pin);
     } catch (error) {
-      renderAdminLogin(panel);
+      console.warn('admin ping failed', error);
     }
   }
 
-  function bindAdminButtons() {
-    qsa('button, a').forEach((el) => {
-      const text = (el.textContent || '').trim();
-      const target = el.dataset.tabTarget || el.dataset.tab || '';
-      if (!/админ/i.test(text + target)) return;
-      if (el.dataset.ftAdminBound === 'true') return;
-      el.dataset.ftAdminBound = 'true';
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        openAdminPanel();
-      }, true);
-    });
-  }
+  function runStablePass(forceStyles = false) {
+    bindThemeOnce();
+    bindNavigationOnce();
 
-  function repair() {
-    bindThemeControls();
-    bindProfileButtons();
-    bindAdminButtons();
-    normalizeVisibleText();
-    renderStableStyles(false);
-
-    const theme = normalizeTheme(localStorage.getItem(THEME_KEY) || document.documentElement.dataset.theme || document.body.dataset.theme || 'light');
+    const theme = getCurrentTheme();
     applyTheme(theme);
+
+    normalizeTokensText();
+    renderStyles(forceStyles);
+    repairAdminPanelIfNeeded();
   }
 
-  const observer = new MutationObserver(() => {
-    clearTimeout(window.__ftStableRepairTimer);
-    window.__ftStableRepairTimer = setTimeout(repair, 80);
-  });
+  document.addEventListener('DOMContentLoaded', () => runStablePass(true));
+  window.addEventListener('load', () => runStablePass(true));
 
-  document.addEventListener('DOMContentLoaded', repair);
-  window.addEventListener('load', repair);
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-
-  setTimeout(repair, 250);
-  setTimeout(() => renderStableStyles(true), 900);
+  setTimeout(() => runStablePass(true), 100);
+  setTimeout(() => runStablePass(true), 600);
+  setTimeout(() => runStablePass(false), 1500);
 })();
 
