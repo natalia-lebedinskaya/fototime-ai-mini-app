@@ -5786,3 +5786,96 @@ input[type="submit"] {
   border-radius: 999px !important;
 }
 
+
+/* FT_BOOT_VISIBILITY_REPAIR_CSS_20260608 */
+
+html,
+body,
+body.loaded,
+body.app-ready,
+body.ft-app-ready {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  pointer-events: auto !important;
+}
+
+#app,
+.app,
+.ft-app,
+main,
+.container,
+.page {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+}
+
+.loader,
+#loader,
+.preloader,
+#preloader,
+.loading-screen,
+.app-loader,
+.ft-loader,
+[data-loader] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+section,
+article,
+.card,
+.panel,
+[class*="card"],
+[class*="panel"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.bottom-nav,
+.ft-bottom-nav,
+nav,
+[class*="bottom"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+[data-tab-content]:not([hidden]),
+.tab-content.active,
+.tab-content.is-active {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.ft-admin-pin-card {
+  width: min(920px, calc(100vw - 32px)) !important;
+  margin: 24px auto !important;
+  padding: 20px !important;
+  border-radius: 22px !important;
+}
+
+.ft-admin-pin-form {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.ft-admin-pin-form input,
+#adminPinInput {
+  width: 100% !important;
+  min-height: 48px !important;
+  border-radius: 16px !important;
+  padding: 10px 14px !important;
+  box-sizing: border-box !important;
+}
+
+.ft-admin-pin-form button {
+  width: 100% !important;
+  min-height: 48px !important;
+  border-radius: 999px !important;
+}
+
