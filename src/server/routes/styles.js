@@ -1,112 +1,186 @@
 const express = require('express');
-const eventConfig = require('../data/eventConfig');
+const fs = require('fs');
+const path = require('path');
 
 const router = express.Router();
 
-const DEFAULT_API_URL = 'https://api.cyberphotobooth.ru/api';
-const STYLES_FETCH_TIMEOUT_MS = 25000;
+const FALLBACK_STYLES = [
+  {
+    id: 'ns-atlantis',
+    title: 'Атлантида',
+    name: 'Атлантида',
+    network: 'SDXL',
+    model: 'SDXL',
+    participantTypes: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
+    gender: 'all',
+    image: '/assets/styles/atlantis.jpg',
+    preview: '/assets/styles/atlantis.jpg',
+    thumb: '/assets/styles/atlantis.jpg'
+  },
+  {
+    id: 'ns-barbie',
+    title: 'Барби',
+    name: 'Барби',
+    network: 'SDXL',
+    model: 'SDXL',
+    participantTypes: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
+    gender: 'all',
+    image: '/assets/styles/barbie.jpg',
+    preview: '/assets/styles/barbie.jpg',
+    thumb: '/assets/styles/barbie.jpg'
+  },
+  {
+    id: 'ns-bubblegum',
+    title: 'Баблгам',
+    name: 'Баблгам',
+    network: 'SDXL',
+    model: 'SDXL',
+    participantTypes: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
+    gender: 'all',
+    image: '/assets/styles/bubblegum.jpg',
+    preview: '/assets/styles/bubblegum.jpg',
+    thumb: '/assets/styles/bubblegum.jpg'
+  },
+  {
+    id: 'ns-business',
+    title: 'Бизнес',
+    name: 'Бизнес',
+    network: 'SDXL',
+    model: 'SDXL',
+    participantTypes: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
+    gender: 'all',
+    image: '/assets/styles/business.jpg',
+    preview: '/assets/styles/business.jpg',
+    thumb: '/assets/styles/business.jpg'
+  },
+  {
+    id: 'ns-christmas',
+    title: 'Рождество',
+    name: 'Рождество',
+    network: 'SDXL',
+    model: 'SDXL',
+    participantTypes: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
+    gender: 'all',
+    image: '/assets/styles/christmas.jpg',
+    preview: '/assets/styles/christmas.jpg',
+    thumb: '/assets/styles/christmas.jpg'
+  },
+  {
+    id: 'ns-comics',
+    title: 'Комикс',
+    name: 'Комикс',
+    network: 'SDXL',
+    model: 'SDXL',
+    participantTypes: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
+    gender: 'all',
+    image: '/assets/styles/comics.jpg',
+    preview: '/assets/styles/comics.jpg',
+    thumb: '/assets/styles/comics.jpg'
+  }
+];
 
-function getApiUrl() {
-  return process.env.CYBERPHOTOBOOTH_API_URL || DEFAULT_API_URL;
+function findStylesFile() {
+  const candidates = [
+    path.join(process.cwd(), 'public-styles.json'),
+    path.join(process.cwd(), 'styles.json'),
+    path.join(process.cwd(), 'public', 'public-styles.json'),
+    path.join(process.cwd(), 'public', 'styles.json'),
+    path.join(process.cwd(), 'src', 'client', 'public-styles.json'),
+    path.join(process.cwd(), 'src', 'client', 'assets', 'public-styles.json'),
+    path.join(process.cwd(), 'src', 'client', 'assets', 'styles.json')
+  ];
+
+  return candidates.find((filePath) => fs.existsSync(filePath));
 }
 
-function getModeName(mode) {
-  return mode?.display_name || mode?.displayName || mode?.name || 'AI';
-}
+function normalizeStyle(style, index) {
+  const id = String(
+    style.id ||
+    style.styleId ||
+    style.slug ||
+    style.code ||
+    `style-${index + 1}`
+  );
 
-function normalizeStyle(style) {
-  const modes = Array.isArray(style.modes) ? style.modes : [];
+  const title = String(
+    style.title ||
+    style.name ||
+    style.label ||
+    id
+  );
+
+  const image = String(
+    style.image ||
+    style.preview ||
+    style.thumb ||
+    style.thumbnail ||
+    style.url ||
+    ''
+  );
 
   return {
-    id: String(style.style_id || style.id || style.name),
-    name: style.name || style.display_name_en || style.displayNameEn || String(style.style_id || style.id),
-    displayNameRu: style.display_name_ru || style.displayNameRu || style.display_name_en || style.name,
-    displayNameEn: style.display_name_en || style.displayNameEn || style.name,
-    previewUrl: style.preview_url || style.previewUrl || style.preview_url_thumb || null,
-    modes,
-    modeNames: modes.map(getModeName),
-    participantType: 'male',
-    isAvailable: true,
-    source: 'cyberphotobooth'
+    ...style,
+    id,
+    styleId: style.styleId || id,
+    title,
+    name: style.name || title,
+    label: style.label || title,
+    network: style.network || style.model || 'SDXL',
+    model: style.model || style.network || 'SDXL',
+    image,
+    preview: style.preview || image,
+    thumb: style.thumb || image,
+    thumbnail: style.thumbnail || image,
+    participantTypes: style.participantTypes || style.participants || ['male', 'female', 'couple', 'boy', 'girl', 'family'],
+    gender: style.gender || 'all'
   };
 }
 
-function normalizeFallbackStyle(style) {
-  const modeName = style.modeName || style.provider || 'AI';
+function loadStyles() {
+  const filePath = findStylesFile();
 
-  return {
-    id: String(style.id),
-    name: style.name,
-    displayNameRu: style.name,
-    displayNameEn: style.name,
-    previewUrl: style.previewUrl || null,
-    modes: [
-      {
-        name: modeName,
-        display_name: modeName
-      }
-    ],
-    modeNames: [modeName],
-    participantType: style.participantType || 'male',
-    isAvailable: style.isAvailable !== false,
-    source: 'event-config-fallback'
-  };
-}
-
-function getFallbackStyles() {
-  return (eventConfig.styles || [])
-    .filter((style) => style.isAvailable !== false)
-    .map(normalizeFallbackStyle);
-}
-
-router.get('/', async (req, res) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), STYLES_FETCH_TIMEOUT_MS);
+  if (!filePath) {
+    return FALLBACK_STYLES;
+  }
 
   try {
-    const response = await fetch(`${getApiUrl()}/public/styles`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json'
-      },
-      signal: controller.signal
-    });
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const parsed = JSON.parse(raw);
 
-    clearTimeout(timeoutId);
+    const list = Array.isArray(parsed)
+      ? parsed
+      : Array.isArray(parsed.styles)
+        ? parsed.styles
+        : Array.isArray(parsed.items)
+          ? parsed.items
+          : Array.isArray(parsed.data)
+            ? parsed.data
+            : [];
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(200).json({
-        styles: getFallbackStyles(),
-        source: 'event-config-fallback',
-        warning: 'CyberPhotoBooth styles are temporarily unavailable'
-      });
+    if (!list.length) {
+      return FALLBACK_STYLES;
     }
 
-    const rawStyles = Array.isArray(data)
-      ? data
-      : Array.isArray(data.styles)
-        ? data.styles
-        : [];
-
-    const styles = rawStyles.map(normalizeStyle);
-
-    return res.status(200).json({
-      styles,
-      source: 'cyberphotobooth'
-    });
+    return list.map(normalizeStyle);
   } catch (error) {
-    clearTimeout(timeoutId);
-
-    console.error('CyberPhotoBooth styles fetch error:', error);
-
-    return res.status(200).json({
-      styles: getFallbackStyles(),
-      source: 'event-config-fallback',
-      warning: 'CyberPhotoBooth styles are temporarily unavailable'
-    });
+    console.error('[styles] Failed to read styles file:', error.message);
+    return FALLBACK_STYLES;
   }
-});
+}
+
+function sendStyles(req, res) {
+  const styles = loadStyles();
+
+  res.json({
+    ok: true,
+    count: styles.length,
+    styles,
+    items: styles,
+    data: styles
+  });
+}
+
+router.get('/', sendStyles);
+router.get('/public', sendStyles);
 
 module.exports = router;
