@@ -255,7 +255,7 @@ async function init() {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Не удалось получить конфигурацию мероприятия');
+      throw new Error(data.message || 'Не удалось получить конфигурацию использования');
     }
 
     state.eventConfig = data;
@@ -490,7 +490,7 @@ function showContent() {
 function showError(text) {
   eventStatus.textContent = 'Error';
   eventStatus.className = 'status-badge error';
-  errorText.textContent = text || 'Не удалось загрузить данные мероприятия. Попробуйте повторить запрос.';
+  errorText.textContent = text || 'Не удалось загрузить данные использования. Попробуйте повторить запрос.';
   errorState.classList.remove('hidden');
   content.classList.add('hidden');
 }
@@ -716,7 +716,7 @@ function renderStyles() {
 
   if (!state.selectedParticipantId) {
     emptyStylesState.classList.remove('hidden');
-    emptyStylesState.textContent = 'Сначала выберите участника мероприятия.';
+    emptyStylesState.textContent = 'Сначала выберите участника использования.';
 
     if (stylesProvidersFilters) {
       stylesProvidersFilters.classList.add('hidden');
@@ -1547,10 +1547,10 @@ window.addEventListener('load', () => {
   window.__accountAdminPanelsStableApplied = true;
 
   const TOKEN_PACKAGES = [
-    { title: 'Старт', tokens: 50, price: '99 ₽', note: 'Для знакомства с приложением и тестирования.' },
-    { title: 'Гости', tokens: 120, price: '199 ₽', note: 'Для нескольких генераций.' },
-    { title: 'Популярный', tokens: 300, price: '449 ₽', note: 'Оптимально для активного использования.' },
-    { title: 'Максимум', tokens: 700, price: '899 ₽', note: 'Для активных генераций.' }
+    { title: 'Старт', tokens: 50, price: '49 ₽', note: 'Для знакомства с приложением.' },
+    { title: 'Комфорт', tokens: 120, price: '99 ₽', note: 'Для нескольких генераций.' },
+    { title: 'Популярный', tokens: 300, price: '249 ₽', note: 'Для регулярного использования.' },
+    { title: 'Максимум', tokens: 700, price: '499 ₽', note: 'Для активных генераций.' }
   ];
 
   function getAuthHeaders() {
