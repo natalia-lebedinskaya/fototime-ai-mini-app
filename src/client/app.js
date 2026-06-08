@@ -4912,7 +4912,7 @@ window.addEventListener('load', () => {
         .replaceAll('токен', 'токен')
         .replaceAll('Токенов', 'Токенов')
         .replaceAll('Токены', 'Токены')
-        .replaceAll('Кредит', 'Токен')
+        .replaceAll('Токен', 'Токен')
         .replaceAll('Демо-пространство FOTOTIME323', 'Демо-пространство FOTOTIME323')
         .replaceAll('текущего режима', 'текущего режима')
         .replaceAll('для режима', 'для личного использования')
@@ -5042,7 +5042,7 @@ window.addEventListener('load', () => {
         .replaceAll('токен', 'токен')
         .replaceAll('Токенов', 'Токенов')
         .replaceAll('Токены', 'Токены')
-        .replaceAll('Кредит', 'Токен');
+        .replaceAll('Токен', 'Токен');
     });
   }
 
@@ -6433,18 +6433,18 @@ window.addEventListener('load', () => {
       let value = String(node.nodeValue || '');
 
       value = value
-        .replaceAll('Кредиты', 'Токены')
-        .replaceAll('кредиты', 'токены')
-        .replaceAll('Кредитов', 'Токенов')
-        .replaceAll('кредитов', 'токенов')
-        .replaceAll('кредита', 'токена')
-        .replaceAll('кредит', 'токен')
-        .replaceAll('Тестовое мероприятие FOTOTIME323', 'Демо-пространство FOTOTIME323')
+        .replaceAll('Токены', 'Токены')
+        .replaceAll('токены', 'токены')
+        .replaceAll('Токенов', 'Токенов')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токена', 'токена')
+        .replaceAll('токен', 'токен')
+        .replaceAll('Демо-пространство FOTOTIME323', 'Демо-пространство FOTOTIME323')
         .replaceAll('конфигурации мероприятия', 'каталога режима')
-        .replaceAll('текущего мероприятия', 'текущего режима')
-        .replaceAll('Для небольшого мероприятия', 'Для нескольких генераций')
-        .replaceAll('Оптимально для мероприятия', 'Для нескольких генераций')
-        .replaceAll('Для большого события или промо', 'Для активных генераций')
+        .replaceAll('текущего режима', 'текущего режима')
+        .replaceAll('Для нескольких генераций', 'Для нескольких генераций')
+        .replaceAll('Для нескольких генераций', 'Для нескольких генераций')
+        .replaceAll('Для активных генераций', 'Для активных генераций')
         .replaceAll('Telegram authorization required', 'Локальный демо-режим активен')
         .replaceAll('Для генерации с компьютера включите ALLOW_LOCAL_AUTH=true или откройте приложение через Telegram', 'Локальный демо-режим активен');
 

@@ -4552,3 +4552,100 @@ body {
     padding: 12px 16px !important;
   }
 }
+
+
+/* FT_FINAL_VISUAL_FIX_20260608 */
+body.ft-theme-dark,
+body[data-ft-theme="dark"],
+html.ft-theme-dark body {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(58, 255, 224, .18), transparent 34%),
+    radial-gradient(circle at 90% 14%, rgba(177, 255, 57, .15), transparent 34%),
+    linear-gradient(180deg, #071215 0%, #020608 100%) !important;
+  color: #f4fff8 !important;
+}
+
+body.ft-theme-dark main,
+body.ft-theme-dark #app,
+body.ft-theme-dark .app,
+body.ft-theme-dark .page,
+body.ft-theme-dark .screen,
+body.ft-theme-dark .container,
+body.ft-theme-dark .wrapper,
+body.ft-theme-dark header,
+body.ft-theme-dark .hero,
+body[data-ft-theme="dark"] main,
+body[data-ft-theme="dark"] #app,
+body[data-ft-theme="dark"] .app,
+body[data-ft-theme="dark"] .page,
+body[data-ft-theme="dark"] .screen,
+body[data-ft-theme="dark"] .container,
+body[data-ft-theme="dark"] .wrapper,
+body[data-ft-theme="dark"] header,
+body[data-ft-theme="dark"] .hero {
+  background: transparent !important;
+}
+
+body.ft-theme-dark section,
+body.ft-theme-dark article,
+body.ft-theme-dark [class*="card"],
+body.ft-theme-dark [class*="panel"],
+body[data-ft-theme="dark"] section,
+body[data-ft-theme="dark"] article,
+body[data-ft-theme="dark"] [class*="card"],
+body[data-ft-theme="dark"] [class*="panel"] {
+  background: rgba(12, 20, 24, .94) !important;
+  color: #f4fff8 !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+
+body.ft-theme-dark p,
+body.ft-theme-dark span,
+body.ft-theme-dark div,
+body.ft-theme-dark h1,
+body.ft-theme-dark h2,
+body.ft-theme-dark h3,
+body[data-ft-theme="dark"] p,
+body[data-ft-theme="dark"] span,
+body[data-ft-theme="dark"] div,
+body[data-ft-theme="dark"] h1,
+body[data-ft-theme="dark"] h2,
+body[data-ft-theme="dark"] h3 {
+  color: inherit;
+}
+
+body.ft-theme-dark button:not(.active):not(.selected):not(:disabled),
+body.ft-theme-dark a[role="button"]:not(.active):not(.selected):not(:disabled),
+body[data-ft-theme="dark"] button:not(.active):not(.selected):not(:disabled),
+body[data-ft-theme="dark"] a[role="button"]:not(.active):not(.selected):not(:disabled) {
+  background: rgba(255,255,255,.08) !important;
+  color: #f4fff8 !important;
+  border-color: rgba(255,255,255,.22) !important;
+}
+
+body.ft-theme-dark button.active,
+body.ft-theme-dark button.selected,
+body.ft-theme-dark .active,
+body.ft-theme-dark .selected,
+body[data-ft-theme="dark"] button.active,
+body[data-ft-theme="dark"] button.selected,
+body[data-ft-theme="dark"] .active,
+body[data-ft-theme="dark"] .selected {
+  color: #071215 !important;
+}
+
+.ft-button-clean,
+button,
+a[role="button"],
+[role="button"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.ft-topup-clean,
+button:has(span),
+a:has(span) {
+  overflow: hidden !important;
+}
