@@ -3683,3 +3683,50 @@ button:disabled.ft-safe-create-ready,
     min-height: 42px !important;
   }
 }
+
+
+.ft-force-centered-buttons button,
+.ft-force-centered-buttons .button,
+button,
+.button,
+a[class*="button"],
+[class*="button"],
+[class*="btn"],
+.auth-button,
+.account-refresh-button,
+.support-main-button,
+.topup-main-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1.15 !important;
+  vertical-align: middle !important;
+}
+
+.auth-button,
+.account-refresh-button,
+.support-main-button,
+.topup-main-button,
+button[data-action="auth"],
+button[data-auth],
+button[data-tab],
+.app-tab {
+  min-height: 44px !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+.ft-token-packages-card,
+.credit-package-final,
+.token-package,
+[class*="package"] {
+  line-height: 1.2 !important;
+}
+
+.ft-token-packages-card .price,
+.credit-package-final .price,
+.token-package .price,
+[class*="package"] .price {
+  white-space: nowrap !important;
+}

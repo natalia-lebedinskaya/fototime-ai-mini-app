@@ -2120,7 +2120,7 @@ window.addEventListener('load', () => {
           <span class="step">FT</span>
           <div>
             <h2>FOTOTIME323</h2>
-            <p class="section-subtitle">Фотобудка, нейрофото и интерактивные решения для мероприятий.</p>
+            <p class="section-subtitle">AI-фото, стилизация изображений и быстрые генерации.</p>
           </div>
         </div>
 
@@ -2796,7 +2796,7 @@ window.addEventListener('load', () => {
           <span class="step">FT</span>
           <div>
             <h2>FOTOTIME323</h2>
-            <p class="section-subtitle">Фотобудка, нейрофото и интерактивные решения для мероприятий.</p>
+            <p class="section-subtitle">AI-фото, стилизация изображений и быстрые генерации.</p>
           </div>
         </div>
         <div class="ft-social-grid">
@@ -3933,10 +3933,10 @@ window.addEventListener('load', () => {
   window.__finalProductHotfixApplied = true;
 
   const PRICE_PACKAGES = [
-    { title: 'Старт', tokens: 50, price: '39 ₽', gens: 1 },
-    { title: 'Гости', tokens: 120, price: '89 ₽', gens: 3 },
-    { title: 'Популярный', tokens: 300, price: '219 ₽', gens: 7 },
-    { title: 'Максимум', tokens: 700, price: '459 ₽', gens: 17 }
+    { title: 'Старт', tokens: 50, price: '49 ₽', gens: 1 },
+    { title: 'Гости', tokens: 120, price: '99 ₽', gens: 3 },
+    { title: 'Популярный', tokens: 300, price: '249 ₽', gens: 7 },
+    { title: 'Максимум', tokens: 700, price: '499 ₽', gens: 17 }
   ];
 
   function getSelectedFromDom() {
@@ -4289,10 +4289,10 @@ window.addEventListener('load', () => {
 
   function patchPrices() {
     const packs = [
-      ['Старт', '50 токенов', '39 ₽', '≈ 1 генерация'],
-      ['Гости', '120 токенов', '89 ₽', '≈ 3 генерации'],
-      ['Популярный', '300 токенов', '219 ₽', '≈ 7 генераций'],
-      ['Максимум', '700 токенов', '459 ₽', '≈ 17 генераций']
+      ['Старт', '50 токенов', '49 ₽', '≈ 1 генерация'],
+      ['Гости', '120 токенов', '99 ₽', '≈ 3 генерации'],
+      ['Популярный', '300 токенов', '249 ₽', '≈ 7 генераций'],
+      ['Максимум', '700 токенов', '499 ₽', '≈ 17 генераций']
     ];
 
     $$('.ft-package-grid').forEach((grid) => {
