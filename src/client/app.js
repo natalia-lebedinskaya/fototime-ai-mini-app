@@ -6797,3 +6797,480 @@ window.addEventListener('load', () => {
 })();
 /* FT_FINAL_SINGLE_RUNTIME_20260608_END */
 
+
+/* FT_ADMIN_NAV_REPAIR_20260608_START */
+(function ftAdminNavRepair20260608() {
+  if (window.__ftAdminNavRepair20260608) return;
+  window.__ftAdminNavRepair20260608 = true;
+
+  const PIN_KEYS = [
+    'ft-admin-pin',
+    'ft-admin-pin-value',
+    'ft-admin-pin-direct'
+  ];
+
+  function getStoredPin() {
+    for (const key of PIN_KEYS) {
+      try {
+        const value = localStorage.getItem(key);
+        if (value) return String(value).trim();
+      } catch (_) {}
+    }
+    return '';
+  }
+
+  function savePin(pin) {
+    for (const key of PIN_KEYS) {
+      try {
+        localStorage.setItem(key, pin);
+      } catch (_) {}
+    }
+    try {
+      localStorage.setItem('ft-admin-pin-ok', 'true');
+    } catch (_) {}
+  }
+
+  function clearPin() {
+    for (const key of PIN_KEYS) {
+      try {
+        localStorage.removeItem(key);
+      } catch (_) {}
+    }
+    try {
+      localStorage.removeItem('ft-admin-pin-ok');
+    } catch (_) {}
+  }
+
+  function getTheme() {
+    try {
+      return localStorage.getItem('ft-theme') || 'light';
+    } catch (_) {
+      return 'light';
+    }
+  }
+
+  function applyTheme() {
+    const theme = ['light', 'dark', 'retro'].includes(getTheme()) ? getTheme() : 'light';
+
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
+
+    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+
+    document.documentElement.classList.add(`theme-${theme}`);
+    document.body.classList.add(`theme-${theme}`);
+
+    const select =
+      document.getElementById('themeSelect') ||
+      document.querySelector('[name="theme"]') ||
+      Array.from(document.querySelectorAll('select')).find((item) =>
+        /Светлая|Тёмная|Темная|Ретро|light|dark|retro/i.test(item.textContent || '')
+      );
+
+    if (select && select.value !== theme) {
+      select.value = theme;
+    }
+  }
+
+  function normalizeTabName(raw) {
+    const value = String(raw || '').toLowerCase().trim();
+
+    if (
+      value === 'home' ||
+      value === 'main' ||
+      value.includes('главная')
+    ) return 'home';
+
+    if (
+      value === 'account' ||
+      value === 'cabinet' ||
+      value.includes('личный') ||
+      value.includes('кабинет')
+    ) return 'account';
+
+    if (
+      value === 'admin' ||
+      value.includes('админ')
+    ) return 'admin';
+
+    return '';
+  }
+
+  function getBottomNavCandidates() {
+    return Array.from(document.querySelectorAll('nav, .bottom-nav, .app-tabs, .tabs, [class*="bottom"], [class*="nav"]'))
+      .filter((node) => {
+        const text = String(node.textContent || '').toLowerCase();
+        return text.includes('главная') && text.includes('личный') && text.includes('админ');
+      });
+  }
+
+  function repairBottomNav() {
+    const navs = getBottomNavCandidates();
+    if (!navs.length) return;
+
+    // Оставляем только один настоящий нижний nav. Остальные скрываем.
+    const mainNav = navs[navs.length - 1];
+
+    navs.forEach((nav) => {
+      if (nav !== mainNav) {
+        nav.dataset.ftDuplicateNav = 'true';
+        nav.style.display = 'none';
+      }
+    });
+
+    mainNav.dataset.ftStableBottomNav = 'true';
+    mainNav.classList.add('ft-stable-bottom-nav');
+
+    mainNav.innerHTML = `
+      <button type="button" data-ft-tab="home">Главная</button>
+      <button type="button" data-ft-tab="account">Личный кабинет</button>
+      <button type="button" data-ft-tab="admin">Админ</button>
+    `;
+
+    mainNav.querySelectorAll('[data-ft-tab]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        activateTab(button.dataset.ftTab);
+      }, true);
+    });
+  }
+
+  function findAppRoot() {
+    return (
+      document.getElementById('app') ||
+      document.querySelector('main') ||
+      document.querySelector('.app') ||
+      document.body
+    );
+  }
+
+  function getStableAdminSection() {
+    let section = document.getElementById('ftStableAdminSection');
+
+    if (!section) {
+      section = document.createElement('section');
+      section.id = 'ftStableAdminSection';
+      section.dataset.ftStableTab = 'admin';
+
+      const root = findAppRoot();
+      root.appendChild(section);
+    }
+
+    return section;
+  }
+
+  function hideOldAdminNoAccessBlocks() {
+    Array.from(document.querySelectorAll('section, article, div')).forEach((node) => {
+      if (node.id === 'ftStableAdminSection') return;
+
+      const text = String(node.textContent || '');
+
+      if (
+        text.includes('Нет доступа к админ-консоли') ||
+        text.includes('Доступна только администратору')
+      ) {
+        node.dataset.ftOldAdminHidden = 'true';
+        node.style.display = 'none';
+      }
+    });
+  }
+
+  function showOnlyActiveTab(tabName) {
+    document.body.dataset.ftActiveTab = tabName;
+    document.documentElement.dataset.ftActiveTab = tabName;
+
+    document.querySelectorAll('[data-ft-tab], [data-tab-target], .app-tab, .bottom-nav button, nav button').forEach((button) => {
+      const target = normalizeTabName(
+        button.dataset.ftTab ||
+        button.dataset.tabTarget ||
+        button.getAttribute('data-tab') ||
+        button.textContent
+      );
+
+      if (!target) return;
+
+      const active = target === tabName;
+      button.classList.toggle('active', active);
+      button.classList.toggle('selected', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    const stableAdmin = getStableAdminSection();
+
+    if (tabName === 'admin') {
+      stableAdmin.hidden = false;
+      stableAdmin.style.display = 'block';
+      stableAdmin.style.visibility = 'visible';
+      stableAdmin.style.opacity = '1';
+      hideOldAdminNoAccessBlocks();
+      renderStableAdmin();
+      return;
+    }
+
+    stableAdmin.hidden = true;
+    stableAdmin.style.display = 'none';
+
+    // Если были скрыты старые заглушки — они и должны оставаться скрытыми.
+    hideOldAdminNoAccessBlocks();
+  }
+
+  async function fetchAdminOverview(pin) {
+    const res = await fetch('/api/admin-pin/overview', {
+      headers: {
+        Accept: 'application/json',
+        'x-admin-pin': pin
+      },
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      throw new Error(`admin overview status ${res.status}`);
+    }
+
+    return res.json();
+  }
+
+  function extractUsers(data) {
+    if (Array.isArray(data?.users)) return data.users;
+    if (Array.isArray(data?.clients)) return data.clients;
+    if (Array.isArray(data?.data?.users)) return data.data.users;
+    if (data?.users && typeof data.users === 'object') return Object.values(data.users);
+    if (data?.clients && typeof data.clients === 'object') return Object.values(data.clients);
+    return [];
+  }
+
+  function n(value) {
+    const number = Number(value || 0);
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  function renderPinForm(message = '') {
+    const section = getStableAdminSection();
+
+    section.innerHTML = `
+      <div class="ft-admin-stable-panel">
+        <div class="ft-admin-title-row">
+          <span class="ft-admin-badge">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p>Введите PIN администратора.</p>
+          </div>
+        </div>
+
+        <form id="ftStableAdminPinForm" class="ft-admin-stable-form">
+          <input id="ftStableAdminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
+          <button type="submit">Войти</button>
+        </form>
+
+        ${message ? `<p class="ft-admin-stable-error">${message}</p>` : ''}
+      </div>
+    `;
+
+    const form = section.querySelector('#ftStableAdminPinForm');
+    const input = section.querySelector('#ftStableAdminPinInput');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const pin = String(input.value || '').trim();
+
+      if (!pin) {
+        renderPinForm('Введите PIN.');
+        return;
+      }
+
+      try {
+        await fetchAdminOverview(pin);
+        savePin(pin);
+        await renderStableAdmin();
+      } catch (error) {
+        clearPin();
+        renderPinForm('PIN не принят сервером. Попробуйте 3465 или 3230.');
+      }
+    });
+
+    setTimeout(() => input?.focus(), 100);
+  }
+
+  async function renderStableAdmin() {
+    const section = getStableAdminSection();
+    const pin = getStoredPin();
+
+    if (!pin) {
+      renderPinForm();
+      return;
+    }
+
+    section.innerHTML = `
+      <div class="ft-admin-stable-panel">
+        <div class="ft-admin-title-row">
+          <span class="ft-admin-badge">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p>Загружаем данные…</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    try {
+      const data = await fetchAdminOverview(pin);
+      const users = extractUsers(data);
+
+      const balance = data.balance ?? data.credits ?? data.tokens ?? data.admin?.balance ?? 0;
+      const totalGenerations = data.totalGenerations ?? data.generationsTotal ?? data.stats?.totalGenerations ?? 0;
+      const spent = data.spentCredits ?? data.tokensSpent ?? data.creditsSpent ?? data.stats?.spentCredits ?? 0;
+
+      section.innerHTML = `
+        <div class="ft-admin-stable-panel">
+          <div class="ft-admin-title-row">
+            <span class="ft-admin-badge">AD</span>
+            <div>
+              <h2>Админ-консоль</h2>
+              <p>Доступ активен. PIN принят сервером.</p>
+            </div>
+          </div>
+
+          <div class="ft-admin-stable-stats">
+            <article>
+              <span>Баланс</span>
+              <strong>${n(balance)}</strong>
+              <small>токенов</small>
+            </article>
+            <article>
+              <span>Клиентов</span>
+              <strong>${users.length}</strong>
+              <small>пользователей</small>
+            </article>
+            <article>
+              <span>Генераций</span>
+              <strong>${n(totalGenerations)}</strong>
+              <small>всего</small>
+            </article>
+            <article>
+              <span>Списано</span>
+              <strong>${n(spent)}</strong>
+              <small>токенов</small>
+            </article>
+          </div>
+
+          <div class="ft-admin-stable-card">
+            <h3>Пользователи</h3>
+            ${
+              users.length
+                ? users.map((user) => {
+                    const id = user.telegramId || user.telegram_id || user.userId || user.id || user.username || 'local-demo-user';
+                    const name = user.username || user.name || user.firstName || user.first_name || id;
+                    const userBalance = user.balance ?? user.credits ?? user.tokens ?? 0;
+                    const generations = user.generations ?? user.generationCount ?? user.totalGenerations ?? 0;
+
+                    return `
+                      <div class="ft-admin-stable-user">
+                        <div>
+                          <strong>@${name}</strong>
+                          <p>ID: ${id}</p>
+                          <p>Генераций: ${n(generations)}</p>
+                        </div>
+                        <div>
+                          <strong>${n(userBalance)}</strong>
+                          <span>токенов</span>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')
+                : `<p>Пользователи не найдены в ответе API.</p>`
+            }
+          </div>
+
+          <div class="ft-admin-stable-actions">
+            <button type="button" id="ftStableAdminRefresh">Обновить</button>
+            <button type="button" id="ftStableAdminLogout">Выйти</button>
+          </div>
+        </div>
+      `;
+
+      section.querySelector('#ftStableAdminRefresh')?.addEventListener('click', () => renderStableAdmin());
+      section.querySelector('#ftStableAdminLogout')?.addEventListener('click', () => {
+        clearPin();
+        renderPinForm();
+      });
+
+    } catch (error) {
+      clearPin();
+      renderPinForm('Доступ не подтверждён. Попробуйте 3465 или 3230.');
+    }
+  }
+
+  function activateTab(tabName) {
+    const normalized = normalizeTabName(tabName) || 'home';
+    showOnlyActiveTab(normalized);
+    repairBottomNav();
+    applyTheme();
+  }
+
+  function bindGlobalClicks() {
+    document.addEventListener('click', (event) => {
+      const navButton = event.target.closest('[data-ft-tab], [data-tab-target], .app-tab, .bottom-nav button, nav button');
+
+      if (!navButton) return;
+
+      const target = normalizeTabName(
+        navButton.dataset.ftTab ||
+        navButton.dataset.tabTarget ||
+        navButton.getAttribute('data-tab') ||
+        navButton.textContent
+      );
+
+      if (!target) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      activateTab(target);
+    }, true);
+  }
+
+  function bindThemeSelect() {
+    document.addEventListener('change', (event) => {
+      const target = event.target;
+
+      if (!target || target.tagName !== 'SELECT') return;
+
+      const text = String(target.textContent || '');
+      if (!/Светлая|Тёмная|Темная|Ретро|light|dark|retro/i.test(text)) return;
+
+      const value = String(target.value || '').toLowerCase();
+      const theme = value === 'dark' || value === 'retro' || value === 'light' ? value : 'light';
+
+      try {
+        localStorage.setItem('ft-theme', theme);
+      } catch (_) {}
+
+      applyTheme();
+    }, true);
+  }
+
+  function boot() {
+    applyTheme();
+    repairBottomNav();
+    hideOldAdminNoAccessBlocks();
+
+    if (document.body.dataset.ftActiveTab === 'admin') {
+      activateTab('admin');
+    }
+  }
+
+  bindGlobalClicks();
+  bindThemeSelect();
+
+  document.addEventListener('DOMContentLoaded', boot);
+  setTimeout(boot, 50);
+  setTimeout(boot, 500);
+  setTimeout(boot, 1500);
+
+  window.ftAdminNavRepairActivateTab = activateTab;
+  window.ftAdminNavRepairRenderAdmin = renderStableAdmin;
+})();
+/* FT_ADMIN_NAV_REPAIR_20260608_END */
+
