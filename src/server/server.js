@@ -14,7 +14,6 @@ const errorHandler = require('./middleware/errorHandler');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -52,6 +51,7 @@ app.use('/api/admin-pin', require('./routes/adminPin'));
 app.use('/api/admin', adminRoute);
 
 app.use(errorHandler);
+
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '0.0.0.0';
