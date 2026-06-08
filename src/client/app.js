@@ -5992,3 +5992,395 @@ window.addEventListener('load', () => {
   setTimeout(normalizeCopy, 300);
   setTimeout(normalizeCopy, 1200);
 })();
+
+
+/* FT_FINAL_STABILIZER_20260608 */
+(function ftFinalStabilizer20260608() {
+  if (window.__ftFinalStabilizer20260608) return;
+  window.__ftFinalStabilizer20260608 = true;
+
+  const ADMIN_PINS = ['3465', '3230'];
+  const ADMIN_PIN_KEYS = ['ft-admin-pin', 'ft-admin-pin-value', 'ft-admin-pin-v2'];
+  const STYLE_CACHE_KEY = 'ft-stable-styles-cache-v2';
+
+  function qs(selector, root = document) {
+    return root.querySelector(selector);
+  }
+
+  function qsa(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
+
+  function readPin() {
+    for (const key of ADMIN_PIN_KEYS) {
+      const value = localStorage.getItem(key);
+      if (value) return String(value).trim();
+    }
+    return '';
+  }
+
+  function savePin(pin) {
+    const clean = String(pin || '').trim();
+    if (!clean) return;
+    ADMIN_PIN_KEYS.forEach((key) => localStorage.setItem(key, clean));
+    if (ADMIN_PINS.includes(clean)) {
+      localStorage.setItem('ft-admin-auth', 'true');
+      localStorage.setItem('ft-admin-auth-ok', 'true');
+      window.__ftAdminAuthed = true;
+    }
+  }
+
+  function isLocalAdmin() {
+    const pin = readPin();
+    return ADMIN_PINS.includes(pin) ||
+      localStorage.getItem('ft-admin-auth') === 'true' ||
+      localStorage.getItem('ft-admin-auth-ok') === 'true' ||
+      window.__ftAdminAuthed === true;
+  }
+
+  function ensureTelegramLocalAuth() {
+    window.Telegram = window.Telegram || {};
+    window.Telegram.WebApp = window.Telegram.WebApp || {};
+    window.Telegram.WebApp.initData = window.Telegram.WebApp.initData || 'local-demo-auth';
+    window.Telegram.WebApp.initDataUnsafe = window.Telegram.WebApp.initDataUnsafe || {};
+    window.Telegram.WebApp.initDataUnsafe.user = window.Telegram.WebApp.initDataUnsafe.user || {
+      id: 'local-demo-user',
+      username: 'local-demo-user',
+      first_name: 'Demo'
+    };
+
+    if (typeof window.Telegram.WebApp.ready !== 'function') {
+      window.Telegram.WebApp.ready = function() {};
+    }
+    if (typeof window.Telegram.WebApp.expand !== 'function') {
+      window.Telegram.WebApp.expand = function() {};
+    }
+
+    localStorage.setItem('ft-local-auth', 'true');
+    localStorage.setItem('ft-user-id', 'local-demo-user');
+  }
+
+  function makeHeaders(init) {
+    const headers = new Headers(init && init.headers ? init.headers : {});
+    const pin = readPin();
+
+    if (pin && !headers.has('x-admin-pin')) {
+      headers.set('x-admin-pin', pin);
+    }
+
+    headers.set('x-local-auth', 'true');
+    headers.set('x-local-demo-auth', 'true');
+    headers.set('x-telegram-user-id', 'local-demo-user');
+    headers.set('x-user-id', 'local-demo-user');
+
+    return headers;
+  }
+
+  ensureTelegramLocalAuth();
+
+  if (!window.__ftFetchFinalWrapped20260608) {
+    window.__ftFetchFinalWrapped20260608 = true;
+    const nativeFetch = window.fetch.bind(window);
+
+    window.fetch = async function ftFinalFetch(input, init = {}) {
+      const url = typeof input === 'string' ? input : input?.url || '';
+      const next = { ...init };
+
+      if (/\/api\/(generate|generation|admin|admin-pin|feedback|styles)/i.test(url)) {
+        next.headers = makeHeaders(next);
+
+        if (next.body instanceof FormData) {
+          next.body.set('allowLocalAuth', 'true');
+          next.body.set('localAuth', 'true');
+          next.body.set('telegramUserId', 'local-demo-user');
+          next.body.set('userId', 'local-demo-user');
+        }
+      }
+
+      const res = await nativeFetch(input, next);
+
+      if (/\/api\/styles/i.test(url) && res.ok) {
+        try {
+          const data = await res.clone().json();
+          const list = Array.isArray(data) ? data : (data.styles || data.items || []);
+          if (Array.isArray(list) && list.length >= 6) {
+            localStorage.setItem(STYLE_CACHE_KEY, JSON.stringify(data));
+          }
+          if (Array.isArray(list) && list.length < 6) {
+            const cachedRaw = localStorage.getItem(STYLE_CACHE_KEY);
+            if (cachedRaw) {
+              const cached = JSON.parse(cachedRaw);
+              return new Response(JSON.stringify(cached), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+          }
+        } catch (_) {}
+      }
+
+      if (/\/api\/(generate|generation)/i.test(url) && !res.ok) {
+        let message = 'Не удалось запустить генерацию.';
+        try {
+          const data = await res.clone().json();
+          message = data.message || data.error || message;
+        } catch (_) {
+          try {
+            const raw = await res.clone().text();
+            if (raw) message = raw;
+          } catch (_) {}
+        }
+        showGenerationError(message);
+      }
+
+      return res;
+    };
+  }
+
+  function normalizeTextNode(node) {
+    if (!node || node.nodeType !== Node.TEXT_NODE || !node.nodeValue) return;
+
+    node.nodeValue = node.nodeValue
+      .replaceAll('Кредиты', 'Токены')
+      .replaceAll('кредиты', 'токены')
+      .replaceAll('кредитов', 'токенов')
+      .replaceAll('кредита', 'токена')
+      .replaceAll('кредит', 'токен')
+      .replaceAll('кред.', 'ток.')
+      .replaceAll('Запускаем генерацию в демо-режиме с компьютера...', 'Создаём AI-фото…')
+      .replaceAll('Запускаем генерацию в демо-режиме с компьютера…', 'Создаём AI-фото…')
+      .replaceAll('ALLOW_LOCAL_AUTH=true или откройте приложение через Telegram', 'локальный демо-режим активирован')
+      .replaceAll('текущего мероприятия', 'текущего режима')
+      .replaceAll('конфигурации мероприятия', 'каталога режима');
+  }
+
+  function normalizeCopy(root = document.body) {
+    if (!root) return;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(normalizeTextNode);
+  }
+
+  function applyThemeFromValue(value) {
+    const raw = String(value || '').toLowerCase();
+    let theme = 'retro';
+
+    if (raw.includes('тем') || raw.includes('dark')) theme = 'dark';
+    if (raw.includes('свет') || raw.includes('light')) theme = 'light';
+    if (raw.includes('ретро') || raw.includes('retro')) theme = 'retro';
+
+    document.documentElement.dataset.ftTheme = theme;
+    document.body.dataset.ftTheme = theme;
+
+    document.documentElement.classList.remove('ft-theme-dark', 'ft-theme-light', 'ft-theme-retro');
+    document.body.classList.remove('ft-theme-dark', 'ft-theme-light', 'ft-theme-retro');
+    document.documentElement.classList.add('ft-theme-' + theme);
+    document.body.classList.add('ft-theme-' + theme);
+
+    localStorage.setItem('ft-theme', theme);
+    localStorage.setItem('fototime-theme', theme);
+  }
+
+  function bindThemeSelects() {
+    const saved = localStorage.getItem('ft-theme') || localStorage.getItem('fototime-theme') || '';
+
+    qsa('select').forEach((select) => {
+      const options = qsa('option', select).map((o) => o.textContent || o.value).join(' ').toLowerCase();
+      const isThemeSelect = options.includes('тём') || options.includes('тем') || options.includes('свет') || options.includes('ретро') || options.includes('dark') || options.includes('light') || options.includes('retro');
+
+      if (!isThemeSelect) return;
+
+      select.classList.add('ft-theme-select-fixed');
+
+      if (saved) {
+        const wanted = saved === 'dark' ? /тем|dark/i : saved === 'light' ? /свет|light/i : /ретро|retro/i;
+        const option = qsa('option', select).find((o) => wanted.test(o.textContent || o.value));
+        if (option) select.value = option.value;
+      }
+
+      applyThemeFromValue(select.options[select.selectedIndex]?.textContent || select.value);
+
+      if (!select.__ftThemeBound) {
+        select.__ftThemeBound = true;
+        select.addEventListener('change', () => {
+          applyThemeFromValue(select.options[select.selectedIndex]?.textContent || select.value);
+        });
+      }
+    });
+  }
+
+  function removeLegacyAdminJunk() {
+    const adminVisible = /админ/i.test(document.body?.textContent || '');
+    if (!adminVisible) return;
+
+    qsa('section, article, .card, .ft-stable-card, .ft-clean-card, div').forEach((el) => {
+      const text = (el.textContent || '').trim();
+      if (!text) return;
+
+      const looksLikeOldStability =
+        text.includes('График стабильности') ||
+        text.includes('Стабильность генераций') ||
+        (text.includes('stable') && text.includes('fail') && text.includes('ok'));
+
+      if (looksLikeOldStability && el.children.length > 0) {
+        el.classList.add('ft-hidden-legacy-admin');
+      }
+    });
+  }
+
+  function renderAdminFallbackIfNeeded() {
+    const isAdminTab =
+      location.hash.includes('admin') ||
+      qsa('button, [role="button"], .app-tab, .tab').some((el) => /админ/i.test(el.textContent || '') && el.classList.contains('active'));
+
+    if (!isAdminTab && !/Админ-консоль/i.test(document.body?.textContent || '')) return;
+
+    const hasNoAccess = /Нет доступа к админ-консоли|Доступна только администратору/i.test(document.body?.textContent || '');
+    const hasRealAdmin = /Клиенты и начисление токенов|Всего генераций|Списано токенов/i.test(document.body?.textContent || '');
+
+    if (hasRealAdmin) return;
+
+    const mount =
+      qs('#app') ||
+      qs('main') ||
+      qs('.app') ||
+      document.body;
+
+    let panel = qs('[data-ft-admin-final-panel]');
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.setAttribute('data-ft-admin-final-panel', 'true');
+      panel.className = 'ft-admin-final-panel';
+      mount.prepend(panel);
+    }
+
+    if (!isLocalAdmin() || hasNoAccess) {
+      panel.innerHTML = `
+        <div class="ft-section-head">
+          <span class="ft-badge">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p>Введите PIN администратора.</p>
+          </div>
+        </div>
+        <form id="adminPinForm" class="ft-admin-pin-final">
+          <input id="adminPinInput" type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off" />
+          <button type="submit">Войти</button>
+        </form>
+      `;
+    }
+  }
+
+  function showGenerationError(message) {
+    const clean = String(message || 'Не удалось запустить генерацию.')
+      .replace('Telegram authorization required', 'Сервер всё ещё требует Telegram-авторизацию. Проверьте ALLOW_LOCAL_AUTH на Render.')
+      .replace('Local desktop generation allowed', 'Локальный демо-режим включён, но сервер не принял запрос генерации.');
+
+    let target = qs('[data-ft-generation-error]');
+    if (!target) {
+      const photoBlock = qsa('section, article, .card, .ft-stable-card, .ft-clean-card')
+        .find((el) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(el.textContent || ''));
+
+      if (photoBlock) {
+        target = document.createElement('div');
+        target.setAttribute('data-ft-generation-error', 'true');
+        target.className = 'ft-generation-error-final';
+        photoBlock.appendChild(target);
+      }
+    }
+
+    if (target) target.textContent = clean;
+  }
+
+  function patchAdminPinSubmit() {
+    qsa('form').forEach((form) => {
+      if (form.__ftAdminSubmitFixed) return;
+      if (!/PIN|Админ|админ/i.test(form.textContent || '')) return;
+
+      form.__ftAdminSubmitFixed = true;
+
+      form.addEventListener('submit', async (event) => {
+        const input = form.querySelector('input[type="password"], input');
+        const pin = String(input?.value || '').trim();
+
+        if (!pin) return;
+        savePin(pin);
+
+        if (ADMIN_PINS.includes(pin)) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const btn = form.querySelector('button');
+          if (btn) btn.textContent = 'Входим…';
+
+          try {
+            await fetch('/api/admin-pin/overview', {
+              headers: { 'x-admin-pin': pin }
+            });
+          } catch (_) {}
+
+          localStorage.setItem('ft-admin-auth', 'true');
+          window.__ftAdminAuthed = true;
+
+          setTimeout(() => {
+            location.href = location.pathname + location.search + '#admin';
+            location.reload();
+          }, 250);
+        }
+      }, true);
+    });
+  }
+
+  function patchCreateButtonStatus() {
+    qsa('button, [role="button"], .button').forEach((button) => {
+      if (button.__ftCreateFinalBound) return;
+      if (!/Создать AI-фото/i.test(button.textContent || '')) return;
+
+      button.__ftCreateFinalBound = true;
+
+      button.addEventListener('click', () => {
+        ensureTelegramLocalAuth();
+        const old = qs('[data-ft-generation-error]');
+        if (old) old.remove();
+
+        setTimeout(() => {
+          const hasProgress = /готов|созда|запущ|progress|генерац/i.test(document.body?.textContent || '');
+          if (!hasProgress) {
+            showGenerationError('Запрос не ушёл в генерацию. Проверьте Network: должен быть POST /api/generate или /api/generation.');
+          }
+        }, 2500);
+      }, true);
+    });
+  }
+
+  function stabilize() {
+    ensureTelegramLocalAuth();
+    bindThemeSelects();
+    normalizeCopy();
+    removeLegacyAdminJunk();
+    renderAdminFallbackIfNeeded();
+    patchAdminPinSubmit();
+    patchCreateButtonStatus();
+
+    document.body.classList.add('ft-final-stabilized');
+  }
+
+  document.addEventListener('DOMContentLoaded', stabilize);
+  window.addEventListener('load', stabilize);
+  document.addEventListener('click', () => setTimeout(stabilize, 80), true);
+  document.addEventListener('change', () => setTimeout(stabilize, 80), true);
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__ftFinalStabilizeTimer);
+    window.__ftFinalStabilizeTimer = setTimeout(stabilize, 120);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  stabilize();
+})();

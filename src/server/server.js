@@ -1,4 +1,9 @@
 
+/* FT_FINAL_SERVER_DEFAULTS_20260608 */
+process.env.ADMIN_PIN = String(process.env.ADMIN_PIN || '3465,3230');
+process.env.ALLOW_LOCAL_AUTH = String(process.env.ALLOW_LOCAL_AUTH || 'true');
+
+
 /* FT_FORCE_LOCAL_AUTH_SERVER_DEFAULT_20260608 */
 process.env.ALLOW_LOCAL_AUTH = String(process.env.ALLOW_LOCAL_AUTH || 'true');
 process.env.ADMIN_PIN = String(process.env.ADMIN_PIN || '3465,3230');

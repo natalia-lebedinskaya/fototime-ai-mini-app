@@ -4154,3 +4154,158 @@ button,
     padding: 12px 14px !important;
   }
 }
+
+
+/* FT_FINAL_STABILIZER_CSS_20260608 */
+html.ft-theme-dark,
+body.ft-theme-dark {
+  color-scheme: dark !important;
+  background:
+    radial-gradient(circle at 15% 5%, rgba(44, 255, 220, .13), transparent 34%),
+    radial-gradient(circle at 85% 25%, rgba(188, 255, 44, .10), transparent 30%),
+    #05090b !important;
+  color: #f6fff9 !important;
+}
+
+html.ft-theme-light,
+body.ft-theme-light {
+  color-scheme: light !important;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(121, 221, 255, .28), transparent 34%),
+    radial-gradient(circle at 90% 18%, rgba(200, 255, 112, .24), transparent 34%),
+    #f7fbf8 !important;
+  color: #243b38 !important;
+}
+
+html.ft-theme-retro,
+body.ft-theme-retro {
+  color-scheme: light !important;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(255, 229, 179, .48), transparent 32%),
+    radial-gradient(circle at 88% 16%, rgba(255, 244, 207, .42), transparent 32%),
+    #f4e6d3 !important;
+  color: #3a2a22 !important;
+}
+
+.ft-theme-select-fixed {
+  min-height: 36px !important;
+  padding: 6px 12px !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  border: 1px solid rgba(0,0,0,.22) !important;
+  background: rgba(255,255,255,.78) !important;
+  color: inherit !important;
+}
+
+body.ft-theme-dark .ft-theme-select-fixed {
+  background: rgba(255,255,255,.12) !important;
+  color: #f6fff9 !important;
+  border-color: rgba(255,255,255,.24) !important;
+}
+
+.ft-hidden-legacy-admin {
+  display: none !important;
+}
+
+.ft-admin-final-panel {
+  width: min(920px, calc(100vw - 32px)) !important;
+  margin: 24px auto !important;
+  padding: 24px !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(92, 120, 116, .28) !important;
+  background: rgba(255,255,255,.78) !important;
+  box-shadow: 0 18px 60px rgba(0,0,0,.08) !important;
+}
+
+body.ft-theme-dark .ft-admin-final-panel {
+  background: rgba(20, 26, 31, .92) !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+
+.ft-section-head {
+  display: flex !important;
+  gap: 14px !important;
+  align-items: flex-start !important;
+  margin-bottom: 18px !important;
+}
+
+.ft-section-head h2 {
+  margin: 0 0 4px !important;
+  font-size: 26px !important;
+  line-height: 1.05 !important;
+}
+
+.ft-section-head p {
+  margin: 0 !important;
+  opacity: .78 !important;
+}
+
+.ft-badge {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #dfff42, #54e7dc) !important;
+  color: #10221f !important;
+  flex: 0 0 auto !important;
+}
+
+.ft-admin-pin-final {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.ft-admin-pin-final input {
+  width: 100% !important;
+  min-height: 52px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(0,0,0,.22) !important;
+  padding: 0 16px !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+.ft-admin-pin-final button,
+.ft-generation-error-final + button,
+button,
+.button,
+[role="button"] {
+  text-align: center !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ft-admin-pin-final button {
+  min-height: 50px !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  font-weight: 900 !important;
+  background: linear-gradient(90deg, #fff45d, #a6ff13, #55e7de) !important;
+  color: #101816 !important;
+}
+
+.ft-generation-error-final {
+  margin-top: 12px !important;
+  color: #ff4f7b !important;
+  font-weight: 900 !important;
+  line-height: 1.25 !important;
+}
+
+body.ft-final-stabilized button,
+body.ft-final-stabilized .button,
+body.ft-final-stabilized [role="button"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1.15 !important;
+}
+
+body.ft-final-stabilized button:disabled,
+body.ft-final-stabilized .button:disabled {
+  opacity: .62 !important;
+}
