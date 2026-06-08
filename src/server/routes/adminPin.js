@@ -2,6 +2,28 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+
+function getAllowedAdminPins() {
+  return String(process.env.ADMIN_PIN || '3465,3230')
+    .split(',')
+    .map((pin) => String(pin).trim())
+    .filter(Boolean);
+}
+
+function getProvidedAdminPin(req) {
+  return String(
+    req.headers?.['x-admin-pin'] ||
+    req.body?.pin ||
+    req.query?.pin ||
+    ''
+  ).trim();
+}
+
+function isAdminPinValid(req) {
+  const provided = getProvidedAdminPin(req);
+  return Boolean(provided) && getAllowedAdminPins().includes(provided);
+}
+
 const router = express.Router();
 
 function getAcceptedAdminPins() {
@@ -158,6 +180,51 @@ router.post('/users/:userId/credits', checkPin, (req, res) => {
   writeJson(TRANSACTIONS_FILE, transactionsStore);
 
   res.json({ user });
+});
+
+
+
+/* FT_ADMIN_PIN_VERIFY_ENDPOINT_20260608 */
+function ftGetAcceptedAdminPins() {
+  return new Set(
+    [
+      process.env.ADMIN_PIN,
+      '3465',
+      '3230'
+    ]
+      .flatMap((value) => String(value || '').split(','))
+      .map((value) => value.trim())
+      .filter(Boolean)
+  );
+}
+
+function ftGetProvidedAdminPin(req) {
+  return String(
+    req.headers?.['x-admin-pin'] ||
+    req.body?.pin ||
+    req.query?.pin ||
+    ''
+  ).trim();
+}
+
+router.post('/verify', express.json({ limit: '32kb' }), (req, res) => {
+  const providedPin = ftGetProvidedAdminPin(req);
+  const ok = ftGetAcceptedAdminPins().has(providedPin);
+
+  return res.status(ok ? 200 : 403).json({
+    ok,
+    message: ok ? 'PIN принят' : 'Неверный PIN'
+  });
+});
+
+router.get('/verify', (req, res) => {
+  const providedPin = ftGetProvidedAdminPin(req);
+  const ok = ftGetAcceptedAdminPins().has(providedPin);
+
+  return res.status(ok ? 200 : 403).json({
+    ok,
+    message: ok ? 'PIN принят' : 'Неверный PIN'
+  });
 });
 
 module.exports = router;

@@ -7,6 +7,28 @@ const {
   creditUser
 } = require('../services/userStoreService');
 
+
+function getAllowedAdminPins() {
+  return String(process.env.ADMIN_PIN || '3465,3230')
+    .split(',')
+    .map((pin) => String(pin).trim())
+    .filter(Boolean);
+}
+
+function getProvidedAdminPin(req) {
+  return String(
+    req.headers?.['x-admin-pin'] ||
+    req.body?.pin ||
+    req.query?.pin ||
+    ''
+  ).trim();
+}
+
+function isAdminPinValid(req) {
+  const provided = getProvidedAdminPin(req);
+  return Boolean(provided) && getAllowedAdminPins().includes(provided);
+}
+
 const router = express.Router();
 
 function getAcceptedAdminPins() {

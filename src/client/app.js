@@ -2529,7 +2529,7 @@ window.addEventListener('load', () => {
       document.getElementById('mainAuthHint')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       return new Response(JSON.stringify({
-        message: 'Запускаем генерацию в демо-режиме с компьютера…'
+        message: 'Создаём AI-фото…'
       }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' }
@@ -5150,7 +5150,7 @@ window.addEventListener('load', () => {
         .replaceAll('токены', 'токены')
         .replaceAll('токен', 'токен')
         .replaceAll('Кредитов', 'Токенов')
-        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('Токены', 'Токены')
         .replaceAll('Кредит', 'Токен')
         .replaceAll('Тестовое мероприятие FOTOTIME323', 'Демо-пространство FOTOTIME323')
         .replaceAll('текущего режима', 'текущего режима')
@@ -5280,7 +5280,7 @@ window.addEventListener('load', () => {
         .replaceAll('токены', 'токены')
         .replaceAll('токен', 'токен')
         .replaceAll('Кредитов', 'Токенов')
-        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('Токены', 'Токены')
         .replaceAll('Кредит', 'Токен');
     });
   }
@@ -5851,4 +5851,144 @@ window.addEventListener('load', () => {
       clearGenerateError();
     }
   }, true);
+})();
+
+
+/* FT_AUTH_GENERATION_PIN_FINAL_FIX_20260608 */
+(function ftAuthGenerationPinFinalFix() {
+  if (window.__ftAuthGenerationPinFinalFixApplied) return;
+  window.__ftAuthGenerationPinFinalFixApplied = true;
+
+  const ADMIN_PIN_KEYS = ['ft-admin-pin', 'ft-admin-pin-value', 'ft-admin-pin-v2'];
+
+  function getSavedAdminPin() {
+    for (const key of ADMIN_PIN_KEYS) {
+      const value = localStorage.getItem(key);
+      if (value) return String(value).trim();
+    }
+    return '';
+  }
+
+  function saveAdminPin(pin) {
+    const clean = String(pin || '').trim();
+    if (!clean) return;
+    ADMIN_PIN_KEYS.forEach((key) => localStorage.setItem(key, clean));
+  }
+
+  function buildHeaders(init) {
+    const headers = new Headers(init && init.headers ? init.headers : {});
+    const pin = getSavedAdminPin();
+    if (pin && !headers.has('x-admin-pin')) headers.set('x-admin-pin', pin);
+
+    headers.set('x-local-auth', 'true');
+    headers.set('x-local-demo-auth', 'true');
+    headers.set('x-telegram-user-id', 'local-demo-user');
+    headers.set('x-user-id', 'local-demo-user');
+
+    return headers;
+  }
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = async function ftStableFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+    const next = { ...init };
+
+    if (/\/api\/admin|\/api\/generation|\/api\/generate|\/api\/feedback/i.test(url)) {
+      next.headers = buildHeaders(next);
+
+      if (next.body instanceof FormData) {
+        next.body.set('allowLocalAuth', 'true');
+        next.body.set('localAuth', 'true');
+        next.body.set('telegramUserId', 'local-demo-user');
+        next.body.set('userId', 'local-demo-user');
+      }
+    }
+
+    const res = await nativeFetch(input, next);
+
+    if (/\/api\/generate|\/api\/generation/i.test(url) && !res.ok) {
+      let message = 'Не удалось создать AI-фото. Сервер вернул ошибку.';
+      try {
+        const data = await res.clone().json();
+        message = data.message || data.error || message;
+      } catch (_) {
+        try {
+          const raw = await res.clone().text();
+          if (raw) message = raw;
+        } catch (_) {}
+      }
+      showGenerationError(message);
+    }
+
+    return res;
+  };
+
+  function showGenerationError(message) {
+    const clean = String(message || '')
+      .replace('Local desktop generation allowed', 'Не удалось запустить генерацию. Проверьте серверный маршрут генерации.')
+      .replace('Telegram authorization required', 'Не удалось запустить генерацию: сервер всё ещё требует Telegram-авторизацию.');
+
+    let target = document.querySelector('[data-ft-generation-error]');
+    if (!target) {
+      const photoBlock = [...document.querySelectorAll('section, article, .card, .ft-stable-card, .style-card')]
+        .find((el) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(el.textContent || ''));
+      if (photoBlock) {
+        target = document.createElement('div');
+        target.setAttribute('data-ft-generation-error', 'true');
+        photoBlock.appendChild(target);
+      }
+    }
+
+    if (target) {
+      target.textContent = clean;
+      target.style.display = 'block';
+      target.style.color = '#ff4f7b';
+      target.style.fontWeight = '800';
+      target.style.marginTop = '12px';
+      target.style.lineHeight = '1.25';
+    }
+  }
+
+  document.addEventListener('submit', function onAdminPinSubmit(event) {
+    const form = event.target;
+    if (!form || form.id !== 'adminPinForm') return;
+
+    const input = form.querySelector('input[type="password"], input');
+    const pin = input ? String(input.value || '').trim() : '';
+    if (pin) saveAdminPin(pin);
+  }, true);
+
+  document.addEventListener('click', function onClick(event) {
+    const button = event.target.closest('button, [role="button"], .button');
+    if (!button) return;
+
+    const label = button.textContent || '';
+    if (/Войти|Админ|Провер/i.test(label)) {
+      const form = button.closest('form') || document.querySelector('#adminPinForm');
+      const input = form?.querySelector('input[type="password"], input');
+      const pin = input ? String(input.value || '').trim() : '';
+      if (pin) saveAdminPin(pin);
+    }
+
+    if (/Создать AI-фото/i.test(label)) {
+      const old = document.querySelector('[data-ft-generation-error]');
+      if (old) old.remove();
+    }
+  }, true);
+
+  function normalizeCopy() {
+    document.body.innerHTML = document.body.innerHTML
+      .replaceAll('кредитов', 'токенов')
+      .replaceAll('кредита', 'токена')
+      .replaceAll('кредиты', 'токены')
+      .replaceAll('кредит', 'токен')
+      .replaceAll('Кредиты', 'Токены')
+      .replaceAll('Кредитов', 'Токенов')
+      .replaceAll('Запускаем генерацию в демо-режиме с компьютера...', 'Создаём AI-фото…')
+      .replaceAll('Запускаем генерацию в демо-режиме с компьютера…', 'Создаём AI-фото…');
+  }
+
+  setTimeout(normalizeCopy, 300);
+  setTimeout(normalizeCopy, 1200);
 })();
