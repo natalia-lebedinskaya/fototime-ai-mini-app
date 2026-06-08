@@ -26,6 +26,13 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
+
+/* FT_STATIC_ASSETS_STABLE_20260608 */
+app.use('/assets', express.static(path.join(__dirname, '..', 'client', 'assets'), {
+  maxAge: '1h',
+  fallthrough: true
+}));
+
 app.use(express.json());
 app.use('/api/image-proxy', require('./routes/imageProxy'));
 app.use('/api/generation-logs', require('./routes/generationLogs'));

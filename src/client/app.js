@@ -7016,11 +7016,11 @@ window.addEventListener('load', () => {
 
     nodes.forEach((node) => {
       node.nodeValue = node.nodeValue
-        .replaceAll('Кредиты', 'Токены')
-        .replaceAll('кредиты', 'токены')
-        .replaceAll('кредитов', 'токенов')
-        .replaceAll('кредита', 'токена')
-        .replaceAll('кредит', 'токен')
+        .replaceAll('Токены', 'Токены')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токена', 'токена')
+        .replaceAll('токен', 'токен')
         .replaceAll('для текущего мероприятия', 'для текущего режима')
         .replaceAll('из конфигурации мероприятия', 'из каталога режима');
     });
@@ -7303,11 +7303,11 @@ window.addEventListener('load', () => {
       if (!value) return;
 
       value = value
-        .replaceAll('Кредиты', 'Токены')
-        .replaceAll('кредиты', 'токены')
-        .replaceAll('кредитов', 'токенов')
-        .replaceAll('кредита', 'токена')
-        .replaceAll('кредит', 'токен')
+        .replaceAll('Токены', 'Токены')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токена', 'токена')
+        .replaceAll('токен', 'токен')
         .replaceAll('Гости', 'Комфорт')
         .replaceAll('Тестовое мероприятие FOTOTIME323', 'Демо-пространство FOTOTIME323')
         .replaceAll('Стили загружаются из конфигурации мероприятия', 'Стили загружаются из каталога режима');
@@ -7540,5 +7540,356 @@ window.addEventListener('load', () => {
     attributes: true,
     attributeFilter: ['class', 'data-theme']
   });
+})();
+
+
+
+
+/* FT_STABLE_RUNTIME_REPAIR_20260608 */
+(function stableRuntimeRepair() {
+  if (window.__ftStableRuntimeRepairApplied) return;
+  window.__ftStableRuntimeRepairApplied = true;
+
+  const ADMIN_PIN_KEY = 'ft-admin-pin';
+  const THEME_KEY = 'ft-theme';
+
+  const qs = (s, r = document) => r.querySelector(s);
+  const qsa = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+  const safeText = (value) => String(value ?? '').replace(/[<>&"]/g, (char) => ({
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    '"': '&quot;'
+  }[char]));
+
+  function normalizeTheme(value) {
+    const raw = String(value || '').toLowerCase();
+    if (raw.includes('dark') || raw.includes('тем')) return 'dark';
+    if (raw.includes('retro') || raw.includes('ретро')) return 'retro';
+    return 'light';
+  }
+
+  function applyTheme(value) {
+    const theme = normalizeTheme(value);
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
+    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+    document.documentElement.classList.add(`theme-${theme}`);
+    document.body.classList.add(`theme-${theme}`);
+    localStorage.setItem(THEME_KEY, theme);
+
+    qsa('select').forEach((select) => {
+      const label = select.closest('label')?.textContent || '';
+      const id = select.id || '';
+      const name = select.name || '';
+      if (/тем|theme/i.test(label + id + name)) {
+        select.value = theme === 'dark' ? 'dark' : theme === 'retro' ? 'retro' : 'light';
+      }
+    });
+  }
+
+  window.ftApplyTheme = applyTheme;
+
+  function bindThemeControls() {
+    qsa('select').forEach((select) => {
+      const label = select.closest('label')?.textContent || '';
+      const id = select.id || '';
+      const name = select.name || '';
+      if (!/тем|theme/i.test(label + id + name)) return;
+      select.addEventListener('change', () => applyTheme(select.value), true);
+    });
+  }
+
+  function normalizeVisibleText() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      node.nodeValue = node.nodeValue
+        .replaceAll('Токены', 'Токены')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токена', 'токена')
+        .replaceAll('токен', 'токен')
+        .replaceAll('для мероприятия', 'для режима')
+        .replaceAll('Для мероприятия', 'Для режима');
+    });
+  }
+
+  async function loadStableStyles() {
+    const endpoints = [
+      `/api/styles?ts=${Date.now()}`,
+      `/api/styles/public?ts=${Date.now()}`
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        const res = await fetch(endpoint, { cache: 'no-store' });
+        if (!res.ok) continue;
+        const data = await res.json();
+        const list = data.styles || data.items || data.data || data;
+        if (Array.isArray(list) && list.length) return list;
+      } catch (error) {
+        console.warn('styles load failed', endpoint, error);
+      }
+    }
+
+    return [];
+  }
+
+  function findStyleGrid() {
+    return qs('#stylesGrid')
+      || qs('#styleGrid')
+      || qs('[data-styles-grid]')
+      || qs('.styles-grid')
+      || qs('.style-grid')
+      || qs('.styles-list')
+      || qs('.style-cards');
+  }
+
+  function styleCard(style, selected) {
+    const image = style.imageUrl || style.previewUrl || style.thumbnail || '/assets/mock-result.svg';
+    const title = style.title || style.name || style.id || 'Стиль';
+    const network = style.network || style.category || 'SDXL';
+
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = `ft-stable-style-card style-card${selected ? ' active selected' : ''}`;
+    card.dataset.styleId = style.id || title;
+    card.dataset.styleTitle = title;
+
+    card.innerHTML = `
+      <div class="ft-stable-style-image">
+        <img src="${safeText(image)}" alt="${safeText(title)}" loading="lazy">
+      </div>
+      <div class="ft-stable-style-title">${safeText(title)}</div>
+      <div class="ft-stable-style-network">${safeText(network)}</div>
+    `;
+
+    card.addEventListener('click', () => {
+      qsa('.ft-stable-style-card, .style-card').forEach((item) => item.classList.remove('active', 'selected'));
+      card.classList.add('active', 'selected');
+      window.selectedStyleId = card.dataset.styleId;
+      window.selectedStyle = card.dataset.styleId;
+
+      const hidden = qs('input[name="styleId"], #styleIdInput, [data-selected-style]');
+      if (hidden) hidden.value = card.dataset.styleId;
+
+      document.dispatchEvent(new CustomEvent('ft:style-selected', {
+        detail: { styleId: card.dataset.styleId, style }
+      }));
+    });
+
+    const img = card.querySelector('img');
+    img.addEventListener('error', () => {
+      img.src = '/assets/mock-result.svg';
+    }, { once: true });
+
+    return card;
+  }
+
+  async function renderStableStyles(force = false) {
+    const grid = findStyleGrid();
+    if (!grid) return;
+
+    if (grid.dataset.ftStableRendered === 'true' && !force) return;
+
+    const styles = await loadStableStyles();
+    if (!styles.length) return;
+
+    grid.innerHTML = '';
+    grid.classList.add('ft-stable-style-grid');
+
+    styles.slice(0, 24).forEach((style, index) => {
+      grid.appendChild(styleCard(style, index === 0));
+    });
+
+    const first = styles[0];
+    if (first && !window.selectedStyleId) {
+      window.selectedStyleId = first.id;
+      window.selectedStyle = first.id;
+    }
+
+    grid.dataset.ftStableRendered = 'true';
+  }
+
+  window.ftRenderStableStyles = renderStableStyles;
+
+  function openProfile() {
+    const profileBtn =
+      qs('[data-tab-target="profile"]')
+      || qs('[data-tab="profile"]')
+      || qsa('button, a').find((el) => /личный кабинет/i.test(el.textContent || ''));
+
+    if (profileBtn) {
+      profileBtn.click();
+      return;
+    }
+
+    qsa('[data-tab-panel], .app-panel').forEach((panel) => {
+      panel.classList.toggle('hidden', !/profile|account/i.test(panel.dataset.tabPanel || panel.id || panel.className));
+    });
+  }
+
+  function bindProfileButtons() {
+    qsa('button, a').forEach((el) => {
+      const text = (el.textContent || '').trim();
+      if (!/личный кабинет/i.test(text)) return;
+      if (el.dataset.ftProfileBound === 'true') return;
+      el.dataset.ftProfileBound = 'true';
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        openProfile();
+      }, true);
+    });
+  }
+
+  async function fetchAdminOverview(pin) {
+    const headers = { 'x-admin-pin': String(pin || '').trim() };
+    const endpoints = ['/api/admin/overview', '/api/admin-pin/overview'];
+
+    for (const endpoint of endpoints) {
+      const res = await fetch(`${endpoint}?ts=${Date.now()}`, { headers, cache: 'no-store' });
+      if (res.ok) return await res.json();
+    }
+
+    throw new Error('PIN не принят сервером');
+  }
+
+  function renderAdminLogin(panel, message = '') {
+    panel.innerHTML = `
+      <section class="card ft-stable-admin-card">
+        <div class="section-title">
+          <span class="section-index">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Введите PIN администратора.</p>
+          </div>
+        </div>
+        <form id="adminPinForm" class="ft-stable-admin-login">
+          <input id="adminPinInput" type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off">
+          <button type="submit">Войти</button>
+        </form>
+        ${message ? `<p class="ft-stable-error">${safeText(message)}</p>` : ''}
+      </section>
+    `;
+
+    panel.querySelector('#adminPinForm')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const pin = panel.querySelector('#adminPinInput')?.value || '';
+      try {
+        await fetchAdminOverview(pin);
+        localStorage.setItem(ADMIN_PIN_KEY, pin);
+        localStorage.setItem('ft-admin-pin-ok', 'true');
+        localStorage.setItem('ft-admin-pin-value', pin);
+        await renderAdminPanel(panel, pin);
+      } catch (error) {
+        renderAdminLogin(panel, 'Неверный PIN или сервер не вернул админ-данные.');
+      }
+    });
+  }
+
+  async function renderAdminPanel(panel, pin) {
+    const data = await fetchAdminOverview(pin);
+    const users = data.users || [];
+    const stats = data.stats || {};
+    const totalUsers = stats.totalUsers ?? users.length ?? 0;
+    const totalGenerations = stats.totalGenerations ?? users.reduce((sum, u) => sum + Number(u.generationsCount || 0), 0);
+    const spent = stats.totalSpentTokens ?? stats.totalSpentCredits ?? users.reduce((sum, u) => sum + Number(u.spentTokens || u.spentCredits || 0), 0);
+
+    panel.innerHTML = `
+      <section class="card ft-stable-admin-card">
+        <div class="section-title">
+          <span class="section-index">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p class="section-subtitle">Клиенты, балансы, начисления и статистика.</p>
+          </div>
+        </div>
+
+        <div class="ft-stable-admin-stats">
+          <article><span>Клиентов</span><strong>${safeText(totalUsers)}</strong></article>
+          <article><span>Всего генераций</span><strong>${safeText(totalGenerations)}</strong></article>
+          <article><span>Списано токенов</span><strong>${safeText(spent)}</strong></article>
+        </div>
+
+        <div class="ft-stable-admin-users">
+          ${users.map((user) => `
+            <article class="ft-stable-admin-user">
+              <div>
+                <strong>@${safeText(user.username || user.telegramUserId || user.id || 'user')}</strong>
+                <p>Telegram ID: ${safeText(user.telegramUserId || user.id || '—')}</p>
+                <p>Генераций: ${safeText(user.generationsCount || 0)} · списано: ${safeText(user.spentTokens || user.spentCredits || 0)} ток.</p>
+              </div>
+              <div class="ft-stable-admin-balance">
+                <strong>${safeText(user.balance ?? 0)}</strong>
+                <span>токенов</span>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }
+
+  async function openAdminPanel() {
+    const panel =
+      qs('#adminPanel')
+      || qs('[data-tab-panel="admin"]')
+      || qs('.admin-panel');
+
+    if (!panel) return;
+
+    qsa('[data-tab-panel], .app-panel').forEach((item) => item.classList.add('hidden'));
+    panel.classList.remove('hidden');
+
+    const savedPin = localStorage.getItem(ADMIN_PIN_KEY) || localStorage.getItem('ft-admin-pin-value') || '3465';
+
+    try {
+      await renderAdminPanel(panel, savedPin);
+    } catch (error) {
+      renderAdminLogin(panel);
+    }
+  }
+
+  function bindAdminButtons() {
+    qsa('button, a').forEach((el) => {
+      const text = (el.textContent || '').trim();
+      const target = el.dataset.tabTarget || el.dataset.tab || '';
+      if (!/админ/i.test(text + target)) return;
+      if (el.dataset.ftAdminBound === 'true') return;
+      el.dataset.ftAdminBound = 'true';
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        openAdminPanel();
+      }, true);
+    });
+  }
+
+  function repair() {
+    bindThemeControls();
+    bindProfileButtons();
+    bindAdminButtons();
+    normalizeVisibleText();
+    renderStableStyles(false);
+
+    const theme = normalizeTheme(localStorage.getItem(THEME_KEY) || document.documentElement.dataset.theme || document.body.dataset.theme || 'light');
+    applyTheme(theme);
+  }
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__ftStableRepairTimer);
+    window.__ftStableRepairTimer = setTimeout(repair, 80);
+  });
+
+  document.addEventListener('DOMContentLoaded', repair);
+  window.addEventListener('load', repair);
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
+  setTimeout(repair, 250);
+  setTimeout(() => renderStableStyles(true), 900);
 })();
 
