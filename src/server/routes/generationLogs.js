@@ -4,16 +4,16 @@ const path = require('path');
 
 const router = express.Router();
 
-const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
-const LOGS_FILE = path.join(DATA_DIR, 'generation-errors.json');
-
 function getAcceptedAdminPins() {
   return new Set(
-    String(process.env.ADMIN_PIN || '3465,3230')
-      .split(',')
-      .map((pin) => String(pin).trim())
+    [
+      process.env.ADMIN_PIN,
+      '3465',
+      '3230'
+    ]
+      .flatMap((value) => String(value || '').split(','))
+      .map((value) => value.trim())
       .filter(Boolean)
-      .concat(['3465', '3230'])
   );
 }
 
@@ -27,9 +27,18 @@ function getProvidedAdminPin(req) {
 }
 
 function isAdminPinValid(req) {
-  const provided = getProvidedAdminPin(req);
-  return Boolean(provided) && getAcceptedAdminPins().has(provided);
+  return getAcceptedAdminPins().has(getProvidedAdminPin(req));
 }
+
+
+const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
+const LOGS_FILE = path.join(DATA_DIR, 'generation-errors.json');
+
+
+
+
+
+
 
 
 function readStore() {

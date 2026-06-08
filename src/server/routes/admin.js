@@ -11,11 +11,14 @@ const router = express.Router();
 
 function getAcceptedAdminPins() {
   return new Set(
-    String(process.env.ADMIN_PIN || '3465,3230')
-      .split(',')
-      .map((pin) => String(pin).trim())
+    [
+      process.env.ADMIN_PIN,
+      '3465',
+      '3230'
+    ]
+      .flatMap((value) => String(value || '').split(','))
+      .map((value) => value.trim())
       .filter(Boolean)
-      .concat(['3465', '3230'])
   );
 }
 
@@ -29,9 +32,15 @@ function getProvidedAdminPin(req) {
 }
 
 function isAdminPinValid(req) {
-  const provided = getProvidedAdminPin(req);
-  return Boolean(provided) && getAcceptedAdminPins().has(provided);
+  return getAcceptedAdminPins().has(getProvidedAdminPin(req));
 }
+
+
+
+
+
+
+
 
 
 function isValidAdminPin(req) {

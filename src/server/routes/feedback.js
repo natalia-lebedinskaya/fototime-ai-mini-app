@@ -4,18 +4,17 @@ const path = require('path');
 const multer = require('multer');
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
-
-const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
-const FEEDBACK_FILE = path.join(DATA_DIR, 'feedback.json');
 
 function getAcceptedAdminPins() {
   return new Set(
-    String(process.env.ADMIN_PIN || '3465,3230')
-      .split(',')
-      .map((pin) => String(pin).trim())
+    [
+      process.env.ADMIN_PIN,
+      '3465',
+      '3230'
+    ]
+      .flatMap((value) => String(value || '').split(','))
+      .map((value) => value.trim())
       .filter(Boolean)
-      .concat(['3465', '3230'])
   );
 }
 
@@ -29,9 +28,19 @@ function getProvidedAdminPin(req) {
 }
 
 function isAdminPinValid(req) {
-  const provided = getProvidedAdminPin(req);
-  return Boolean(provided) && getAcceptedAdminPins().has(provided);
+  return getAcceptedAdminPins().has(getProvidedAdminPin(req));
 }
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+
+const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
+const FEEDBACK_FILE = path.join(DATA_DIR, 'feedback.json');
+
+
+
+
+
+
 
 
 function readStore() {
