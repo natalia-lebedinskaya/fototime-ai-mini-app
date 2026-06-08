@@ -5636,3 +5636,167 @@ body[data-theme="dark"] textarea {
   }
 }
 
+
+
+
+/* FT_REMOVE_WHITE_STAGE_AND_FIX_THEMES_20260608 */
+html,
+body {
+  width: 100% !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+  overflow-x: hidden !important;
+}
+
+html[data-theme="light"],
+body[data-theme="light"],
+html.theme-light,
+body.theme-light {
+  --ft-page-bg: radial-gradient(circle at 8% 0%, rgba(196, 246, 255, .55), transparent 34%),
+                radial-gradient(circle at 92% 0%, rgba(198, 255, 177, .48), transparent 34%),
+                linear-gradient(180deg, #f6fbfa 0%, #eef5f0 100%);
+  --ft-page-card: rgba(255, 255, 255, .88);
+  --ft-page-soft: rgba(255, 255, 255, .70);
+  --ft-page-text: #18322d;
+  --ft-page-muted: rgba(24, 50, 45, .68);
+  --ft-page-border: rgba(24, 50, 45, .20);
+}
+
+html[data-theme="retro"],
+body[data-theme="retro"],
+html.theme-retro,
+body.theme-retro {
+  --ft-page-bg: radial-gradient(circle at 8% 0%, rgba(255, 238, 198, .72), transparent 35%),
+                radial-gradient(circle at 92% 8%, rgba(255, 220, 158, .50), transparent 35%),
+                linear-gradient(180deg, #faecd6 0%, #ead2b2 100%);
+  --ft-page-card: rgba(255, 250, 241, .90);
+  --ft-page-soft: rgba(255, 249, 239, .72);
+  --ft-page-text: #3d2b24;
+  --ft-page-muted: rgba(61, 43, 36, .68);
+  --ft-page-border: rgba(84, 61, 43, .23);
+}
+
+html[data-theme="dark"],
+body[data-theme="dark"],
+html.theme-dark,
+body.theme-dark {
+  --ft-page-bg: radial-gradient(circle at 8% 0%, rgba(12, 92, 80, .58), transparent 36%),
+                radial-gradient(circle at 92% 8%, rgba(153, 255, 36, .18), transparent 34%),
+                linear-gradient(180deg, #06100e 0%, #0a1513 100%);
+  --ft-page-card: rgba(8, 18, 16, .94);
+  --ft-page-soft: rgba(23, 34, 32, .86);
+  --ft-page-text: #f4fff9;
+  --ft-page-muted: rgba(244, 255, 249, .72);
+  --ft-page-border: rgba(230, 255, 248, .20);
+}
+
+html[data-theme],
+body[data-theme] {
+  background: var(--ft-page-bg) !important;
+  color: var(--ft-page-text) !important;
+}
+
+/* Главная проблема: старый центральный stage/контейнер давал белую простыню */
+body > div,
+#root,
+#app,
+.app,
+.app-root,
+.app-shell,
+.app-container,
+.page,
+.page-content,
+.screen,
+.view,
+main {
+  background-color: transparent !important;
+  color: var(--ft-page-text) !important;
+}
+
+/* Но сами карточки остаются карточками */
+.card,
+section,
+.balance-card,
+.profile-card,
+.feedback-card,
+.admin-card,
+[class*="card"],
+[class*="panel"],
+[class*="section"] {
+  background: var(--ft-page-card) !important;
+  color: var(--ft-page-text) !important;
+  border-color: var(--ft-page-border) !important;
+}
+
+/* Исключение: сетки и внутренние оболочки не должны быть белой подложкой */
+.styles-grid,
+.style-grid,
+.style-cards,
+.styles-list,
+.ft-final-style-grid,
+[class*="styles-grid"],
+[class*="style-grid"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Читаемость */
+h1,
+h2,
+h3,
+h4,
+strong,
+b,
+label,
+button,
+.button,
+[role="button"] {
+  color: var(--ft-page-text) !important;
+}
+
+p,
+small,
+.section-subtitle,
+[class*="subtitle"],
+[class*="muted"] {
+  color: var(--ft-page-muted) !important;
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] strong,
+html[data-theme="dark"] b,
+html[data-theme="dark"] label {
+  color: #f4fff9 !important;
+}
+
+html[data-theme="dark"] p,
+html[data-theme="dark"] small,
+html[data-theme="dark"] .section-subtitle,
+html[data-theme="dark"] [class*="subtitle"],
+html[data-theme="dark"] [class*="muted"] {
+  color: rgba(244, 255, 249, .72) !important;
+}
+
+/* Select темы не должен визуально скакать */
+select {
+  min-height: 34px !important;
+  font-weight: 800 !important;
+  border-radius: 8px !important;
+}
+
+/* Убираем остаточные псевдоподложки */
+body::before,
+body::after,
+#app::before,
+#app::after,
+.app::before,
+.app::after,
+main::before,
+main::after {
+  display: none !important;
+  content: none !important;
+}
+

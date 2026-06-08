@@ -7680,11 +7680,11 @@ window.addEventListener('load', () => {
 
     nodes.forEach((node) => {
       node.nodeValue = node.nodeValue
-        .replaceAll('Кредиты', 'Токены')
-        .replaceAll('кредиты', 'токены')
-        .replaceAll('кредитов', 'токенов')
-        .replaceAll('кредита', 'токена')
-        .replaceAll('кредит', 'токен');
+        .replaceAll('Токены', 'Токены')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токена', 'токена')
+        .replaceAll('токен', 'токен');
     });
   }
 
@@ -7901,5 +7901,174 @@ window.addEventListener('load', () => {
   setTimeout(() => runStablePass(true), 100);
   setTimeout(() => runStablePass(true), 600);
   setTimeout(() => runStablePass(false), 1500);
+})();
+
+
+
+
+/* FT_FINAL_TEXT_AND_THEME_STABILIZER_20260608 */
+(function ftFinalTextAndThemeStabilizer() {
+  if (window.__ftFinalTextAndThemeStabilizerApplied) return;
+  window.__ftFinalTextAndThemeStabilizerApplied = true;
+
+  const THEME_KEY = 'ft-theme';
+  const THEME_LOCK_KEY = 'ft-theme-locked-value';
+
+  function normalizeTheme(value) {
+    const raw = String(value || '').trim().toLowerCase();
+
+    if (raw.includes('dark') || raw.includes('тем') || raw.includes('тём')) return 'dark';
+    if (raw.includes('retro') || raw.includes('ретро')) return 'retro';
+    return 'light';
+  }
+
+  function themeLabel(theme) {
+    if (theme === 'dark') return 'Тёмная';
+    if (theme === 'retro') return 'Ретро';
+    return 'Светлая';
+  }
+
+  function getTheme() {
+    return normalizeTheme(
+      localStorage.getItem(THEME_LOCK_KEY) ||
+      localStorage.getItem(THEME_KEY) ||
+      document.documentElement.dataset.theme ||
+      document.body.dataset.theme ||
+      'light'
+    );
+  }
+
+  function isThemeSelect(select) {
+    if (!select || select.tagName !== 'SELECT') return false;
+
+    const text = [
+      select.id,
+      select.name,
+      select.className,
+      select.closest('label')?.textContent,
+      select.parentElement?.textContent
+    ].join(' ');
+
+    return /тема|theme/i.test(text);
+  }
+
+  function syncThemeSelects(theme) {
+    document.querySelectorAll('select').forEach((select) => {
+      if (!isThemeSelect(select)) return;
+
+      Array.from(select.options || []).forEach((option) => {
+        const optionTheme = normalizeTheme(option.value || option.textContent);
+        option.textContent = themeLabel(optionTheme);
+      });
+
+      const matched = Array.from(select.options || []).find((option) => {
+        return normalizeTheme(option.value || option.textContent) === theme;
+      });
+
+      if (matched && select.value !== matched.value) {
+        select.value = matched.value;
+      }
+    });
+  }
+
+  function applyTheme(themeInput) {
+    const theme = normalizeTheme(themeInput);
+
+    localStorage.setItem(THEME_KEY, theme);
+    localStorage.setItem(THEME_LOCK_KEY, theme);
+
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
+
+    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+
+    document.documentElement.classList.add(`theme-${theme}`);
+    document.body.classList.add(`theme-${theme}`);
+
+    syncThemeSelects(theme);
+  }
+
+  function replaceCreditsText(root = document.body) {
+    if (!root) return;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+
+    while (walker.nextNode()) {
+      nodes.push(walker.currentNode);
+    }
+
+    nodes.forEach((node) => {
+      let text = node.nodeValue;
+
+      text = text
+        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('кредиты', 'токены')
+        .replaceAll('Кредитов', 'Токенов')
+        .replaceAll('кредитов', 'токенов')
+        .replaceAll('Кредита', 'Токена')
+        .replaceAll('кредита', 'токена')
+        .replaceAll('Кредит', 'Токен')
+        .replaceAll('кредит', 'токен');
+
+      if (node.nodeValue !== text) {
+        node.nodeValue = text;
+      }
+    });
+  }
+
+  document.addEventListener('change', function(event) {
+    const select = event.target;
+
+    if (!isThemeSelect(select)) return;
+
+    const selectedTheme = normalizeTheme(
+      select.value ||
+      select.options[select.selectedIndex]?.textContent
+    );
+
+    applyTheme(selectedTheme);
+  }, true);
+
+  document.addEventListener('click', function(event) {
+    const target = event.target.closest('button, a, [role="button"]');
+    if (!target) return;
+
+    setTimeout(() => {
+      applyTheme(getTheme());
+      replaceCreditsText();
+    }, 80);
+
+    setTimeout(() => {
+      applyTheme(getTheme());
+      replaceCreditsText();
+    }, 250);
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    replaceCreditsText();
+    syncThemeSelects(getTheme());
+  });
+
+  if (document.body) {
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      applyTheme(getTheme());
+      replaceCreditsText();
+    }, { once: true });
+  } else {
+    applyTheme(getTheme());
+    replaceCreditsText();
+  }
+
+  window.ftApplyTheme = applyTheme;
 })();
 
