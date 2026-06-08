@@ -4940,3 +4940,66 @@ window.addEventListener('load', () => {
     });
   };
 })();
+
+
+
+window.addEventListener('load', () => {
+  if (window.__ftTokenCopyRuntimeFixApplied) return;
+  window.__ftTokenCopyRuntimeFixApplied = true;
+
+  const replaceCopy = (value) => String(value || '')
+    .replaceAll('Кредиты для AI-генераций', 'Токены для AI-генераций')
+    .replaceAll('Кредитов для AI-генераций', 'Токенов для AI-генераций')
+    .replaceAll('Кредиты', 'Токены')
+    .replaceAll('кредиты', 'токены')
+    .replaceAll('кредитов', 'токенов')
+    .replaceAll('кредита', 'токена')
+    .replaceAll('кредитам', 'токенам')
+    .replaceAll('кредитами', 'токенами')
+    .replaceAll('кредитах', 'токенах')
+    .replaceAll('кредит', 'токен')
+    .replaceAll('39 ₽', '49 ₽')
+    .replaceAll('89 ₽', '99 ₽')
+    .replaceAll('219 ₽', '249 ₽')
+    .replaceAll('459 ₽', '499 ₽');
+
+  function normalizeTokenCopy() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      const next = replaceCopy(node.nodeValue);
+      if (next !== node.nodeValue) node.nodeValue = next;
+    });
+
+    document.querySelectorAll('input, textarea').forEach((el) => {
+      if (el.placeholder) el.placeholder = replaceCopy(el.placeholder);
+      if (el.value && !el.matches(':focus')) el.value = replaceCopy(el.value);
+    });
+
+    document.querySelectorAll('button, a, .button, [role="button"]').forEach((el) => {
+      const txt = (el.textContent || '').trim();
+      if (txt.includes('Пополнить баланс') || txt.includes('Напишите нам в Telegram')) {
+        el.classList.add('ft-topup-cta-fixed');
+      }
+      if (txt.includes('Авторизоваться')) {
+        el.classList.add('ft-auth-button-fixed');
+      }
+    });
+  }
+
+  normalizeTokenCopy();
+
+  const observer = new MutationObserver(normalizeTokenCopy);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+
+  setTimeout(normalizeTokenCopy, 300);
+  setTimeout(normalizeTokenCopy, 1000);
+  setTimeout(normalizeTokenCopy, 2500);
+});
+

@@ -3730,3 +3730,52 @@ button[data-tab],
 [class*="package"] .price {
   white-space: nowrap !important;
 }
+
+
+/* FT token/copy UI stabilization */
+.ft-topup-cta-fixed {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 58px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 12px 18px !important;
+  text-align: center !important;
+  line-height: 1.18 !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.ft-auth-button-fixed,
+button,
+.button,
+[role="button"] {
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1.15 !important;
+}
+
+.ft-auth-button-fixed {
+  min-height: 42px !important;
+  padding-top: 9px !important;
+  padding-bottom: 9px !important;
+}
+
+.ft-topup-cta-fixed *,
+.ft-auth-button-fixed * {
+  line-height: 1.15 !important;
+}
+
+@media (max-width: 720px) {
+  .ft-topup-cta-fixed {
+    min-height: 54px !important;
+    padding: 10px 14px !important;
+    font-size: clamp(14px, 3.8vw, 16px) !important;
+  }
+}
