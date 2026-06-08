@@ -1,4 +1,6 @@
-/* FT_LOCAL_DEMO_ADMIN_PATCH_20260607 */\n/* FT_LOCAL_AUTH_DIRECT_PATCH_20260607 */\nconst fs = require('fs');
+/* FT_LOCAL_DEMO_ADMIN_PATCH_20260607 */
+/* FT_LOCAL_AUTH_DIRECT_PATCH_20260607 */
+const fs = require('fs');
 const path = require('path');
 const { getTelegramIdentity } = require('./telegramAuthService');
 

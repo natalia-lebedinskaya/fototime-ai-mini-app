@@ -1,4 +1,5 @@
-/* FT_ADMIN_PIN_BYPASS_PATCH_20260607 */\nconst express = require('express');
+/* FT_ADMIN_PIN_BYPASS_PATCH_20260607 */
+const express = require('express');
 const {
   getIdentityFromRequest,
   getOrCreateUser,
