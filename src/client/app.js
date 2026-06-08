@@ -2529,7 +2529,7 @@ window.addEventListener('load', () => {
       document.getElementById('mainAuthHint')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       return new Response(JSON.stringify({
-        message: 'Для генерации с компьютера включите ALLOW_LOCAL_AUTH=true или откройте приложение через Telegram'
+        message: 'Запускаем генерацию в демо-режиме с компьютера…'
       }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' }
@@ -5045,10 +5045,10 @@ window.addEventListener('load', () => {
       .replaceAll('токенам', 'токенам')
       .replaceAll('токенах', 'токенах')
       .replaceAll('токен', 'токен')
-      .replaceAll('39 ₽', '49 ₽')
-      .replaceAll('89 ₽', '99 ₽')
-      .replaceAll('219 ₽', '249 ₽')
-      .replaceAll('459 ₽', '499 ₽');
+      .replaceAll('49 ₽', '49 ₽')
+      .replaceAll('99 ₽', '99 ₽')
+      .replaceAll('249 ₽', '249 ₽')
+      .replaceAll('499 ₽', '499 ₽');
 
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
@@ -5146,9 +5146,9 @@ window.addEventListener('load', () => {
       if (!child || child.nodeType !== Node.TEXT_NODE) return;
 
       child.nodeValue = child.nodeValue
-        .replaceAll('кредитов', 'токенов')
-        .replaceAll('кредиты', 'токены')
-        .replaceAll('кредит', 'токен')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токен', 'токен')
         .replaceAll('Кредитов', 'Токенов')
         .replaceAll('Кредиты', 'Токены')
         .replaceAll('Кредит', 'Токен')
@@ -5275,10 +5275,10 @@ window.addEventListener('load', () => {
         .replaceAll('для мероприятий', 'для быстрых AI-генераций')
         .replaceAll('мероприятий', 'AI-генераций')
         .replaceAll('мероприятия', 'режима')
-        .replaceAll('Гости', 'Комфорт')
-        .replaceAll('кредитов', 'токенов')
-        .replaceAll('кредиты', 'токены')
-        .replaceAll('кредит', 'токен')
+        .replaceAll('Комфорт', 'Комфорт')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токен', 'токен')
         .replaceAll('Кредитов', 'Токенов')
         .replaceAll('Кредиты', 'Токены')
         .replaceAll('Кредит', 'Токен');
@@ -5555,3 +5555,300 @@ window.addEventListener('load', () => {
   polishDownloadButtons();
   setInterval(polishDownloadButtons, 1500);
 });
+
+
+/* FT_GENERATION_AND_PIN_VISIBLE_FIX_20260608 */
+(function ftGenerationAndPinVisibleFix() {
+  if (window.__ftGenerationAndPinVisibleFixApplied) return;
+  window.__ftGenerationAndPinVisibleFixApplied = true;
+
+  const FT_ADMIN_PIN_STORAGE_KEY = 'ft-admin-pin';
+
+  function ftShowGenerationError(message) {
+    const text = String(message || 'Не удалось создать AI-фото. Попробуйте ещё раз.').trim();
+
+    let target =
+      document.querySelector('#generationError') ||
+      document.querySelector('.generation-error') ||
+      document.querySelector('.photo-error') ||
+      document.querySelector('[data-generation-error]');
+
+    if (!target) {
+      const photoSection =
+        [...document.querySelectorAll('section, article, .card, .ft-stable-card')]
+          .find((node) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(node.textContent || ''));
+
+      if (photoSection) {
+        target = document.createElement('div');
+        target.className = 'ft-visible-generation-error';
+        target.setAttribute('data-generation-error', 'true');
+        photoSection.appendChild(target);
+      }
+    }
+
+    if (target) {
+      target.textContent = text;
+      target.style.display = 'block';
+      target.style.color = '#ff4f7b';
+      target.style.fontWeight = '800';
+      target.style.marginTop = '12px';
+      target.style.lineHeight = '1.25';
+    }
+
+    console.error('[FOTOTIME generation error]', text);
+  }
+
+  function ftClearGenerationError() {
+    document
+      .querySelectorAll('#generationError, .generation-error, .photo-error, [data-generation-error], .ft-visible-generation-error')
+      .forEach((node) => {
+        node.textContent = '';
+        node.style.display = 'none';
+      });
+  }
+
+  async function ftFetchJsonSafe(url, options = {}) {
+    const response = await fetch(url, options);
+    const contentType = response.headers.get('content-type') || '';
+    let payload = null;
+
+    if (contentType.includes('application/json')) {
+      payload = await response.json().catch(() => null);
+    } else {
+      const raw = await response.text().catch(() => '');
+      payload = raw ? { message: raw } : null;
+    }
+
+    if (!response.ok) {
+      const message =
+        payload?.message ||
+        payload?.error ||
+        payload?.details ||
+        `Ошибка запроса ${response.status}`;
+
+      const err = new Error(message);
+      err.status = response.status;
+      err.payload = payload;
+      throw err;
+    }
+
+    return payload;
+  }
+
+  async function ftVerifyAdminPin(pin) {
+    const cleanPin = String(pin || '').trim();
+
+    if (!cleanPin) {
+      throw new Error('Введите PIN администратора');
+    }
+
+    const result = await ftFetchJsonSafe('/api/admin-pin/verify', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-admin-pin': cleanPin
+      },
+      body: JSON.stringify({ pin: cleanPin })
+    });
+
+    if (!result?.ok) {
+      throw new Error(result?.message || 'Неверный PIN');
+    }
+
+    localStorage.setItem(FT_ADMIN_PIN_STORAGE_KEY, cleanPin);
+    localStorage.setItem('ft-admin-pin-value', cleanPin);
+    window.ftAdminPin = cleanPin;
+
+    return true;
+  }
+
+  document.addEventListener('submit', async (event) => {
+    const form = event.target;
+    if (!form || form.id !== 'adminPinForm') return;
+
+    const input =
+      form.querySelector('#adminPinInput') ||
+      form.querySelector('input[type="password"]') ||
+      form.querySelector('input[inputmode="numeric"]');
+
+    if (!input) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const button = form.querySelector('button[type="submit"], button');
+    const oldText = button ? button.textContent : '';
+
+    try {
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Проверяем...';
+      }
+
+      await ftVerifyAdminPin(input.value);
+
+      if (button) {
+        button.textContent = 'PIN принят';
+      }
+
+      setTimeout(() => {
+        location.reload();
+      }, 250);
+    } catch (error) {
+      alert(error?.message || 'Неверный PIN');
+      if (button) {
+        button.disabled = false;
+        button.textContent = oldText || 'Войти';
+      }
+    }
+  }, true);
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = async function ftFetchWithAdminPinAndErrors(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    const savedPin =
+      localStorage.getItem(FT_ADMIN_PIN_STORAGE_KEY) ||
+      localStorage.getItem('ft-admin-pin-value') ||
+      window.ftAdminPin ||
+      '';
+
+    if (savedPin && /\/api\/(admin|admin-pin|generation-logs|feedback)/.test(url)) {
+      const headers = new Headers(init.headers || {});
+      if (!headers.has('x-admin-pin')) {
+        headers.set('x-admin-pin', savedPin);
+      }
+      init = { ...init, headers };
+    }
+
+    const response = await nativeFetch(input, init);
+
+    if (/\/api\/generate|\/api\/generation|\/api\/result/.test(url)) {
+      const cloned = response.clone();
+
+      if (!response.ok) {
+        let message = `Ошибка генерации ${response.status}`;
+
+        try {
+          const data = await cloned.json();
+          message = data?.message || data?.error || data?.details || message;
+        } catch (_) {
+          try {
+            const raw = await cloned.text();
+            if (raw) message = raw;
+          } catch (_) {}
+        }
+
+        ftShowGenerationError(message);
+      }
+    }
+
+    return response;
+  };
+
+  document.addEventListener('click', () => {
+    ftClearGenerationError();
+  }, true);
+
+  window.ftShowGenerationError = ftShowGenerationError;
+  window.ftVerifyAdminPin = ftVerifyAdminPin;
+})();
+
+
+/* FT_LOCAL_DESKTOP_GENERATION_OVERRIDE_20260608 */
+(function ftLocalDesktopGenerationOverride() {
+  if (window.__ftLocalDesktopGenerationOverrideApplied) return;
+  window.__ftLocalDesktopGenerationOverrideApplied = true;
+
+  function isTelegramWebApp() {
+    return Boolean(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+  }
+
+  function getLocalUserId() {
+    return 'local-demo-user';
+  }
+
+  function showGenerateError(message) {
+    const photoSection = [...document.querySelectorAll('section, article, .card, .ft-stable-card, .style-card')]
+      .find((node) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(node.textContent || ''));
+
+    let errorNode = document.querySelector('[data-ft-generation-error]');
+    if (!errorNode && photoSection) {
+      errorNode = document.createElement('div');
+      errorNode.setAttribute('data-ft-generation-error', 'true');
+      photoSection.appendChild(errorNode);
+    }
+
+    if (errorNode) {
+      errorNode.textContent = message || 'Не удалось создать AI-фото. Попробуйте ещё раз.';
+      errorNode.style.display = 'block';
+      errorNode.style.color = '#ff4f7b';
+      errorNode.style.fontWeight = '800';
+      errorNode.style.marginTop = '12px';
+      errorNode.style.lineHeight = '1.25';
+    }
+
+    console.error('[FOTOTIME GENERATION]', message);
+  }
+
+  function clearGenerateError() {
+    document.querySelectorAll('[data-ft-generation-error]').forEach((node) => {
+      node.textContent = '';
+      node.style.display = 'none';
+    });
+  }
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = async function ftFetchLocalGeneration(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+    const isGenerationRequest = /\/api\/generate|\/api\/generation/i.test(url);
+
+    if (isGenerationRequest && !isTelegramWebApp()) {
+      const headers = new Headers(init.headers || {});
+      headers.set('x-local-auth', 'true');
+      headers.set('x-local-demo-auth', 'true');
+      headers.set('x-telegram-user-id', getLocalUserId());
+      headers.set('x-user-id', getLocalUserId());
+
+      if (init.body instanceof FormData) {
+        init.body.set('allowLocalAuth', 'true');
+        init.body.set('localAuth', 'true');
+        init.body.set('telegramUserId', getLocalUserId());
+        init.body.set('userId', getLocalUserId());
+      }
+
+      init = { ...init, headers };
+      clearGenerateError();
+    }
+
+    const response = await nativeFetch(input, init);
+
+    if (isGenerationRequest && !response.ok) {
+      const copy = response.clone();
+      let message = `Ошибка генерации ${response.status}`;
+
+      try {
+        const data = await copy.json();
+        message = data?.message || data?.error || data?.details || message;
+      } catch (_) {
+        try {
+          const raw = await copy.text();
+          if (raw) message = raw;
+        } catch (_) {}
+      }
+
+      showGenerateError(message);
+    }
+
+    return response;
+  };
+
+  document.addEventListener('click', (event) => {
+    const text = event.target?.textContent || '';
+    if (/Создать AI-фото/i.test(text)) {
+      clearGenerateError();
+    }
+  }, true);
+})();
