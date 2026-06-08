@@ -5879,3 +5879,254 @@ nav,
   border-radius: 999px !important;
 }
 
+
+/* FT_FINAL_ADMIN_THEME_CSS_20260608_START */
+
+html,
+body {
+  min-height: 100% !important;
+}
+
+body[data-theme="light"],
+html[data-theme="light"] body,
+body.theme-light {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(184,255,224,.42), transparent 34%),
+    radial-gradient(circle at 92% 12%, rgba(184,255,224,.34), transparent 34%),
+    linear-gradient(180deg, #eefcff 0%, #f8fff4 100%) !important;
+  color: #20342f !important;
+}
+
+body[data-theme="dark"],
+html[data-theme="dark"] body,
+body.theme-dark {
+  background:
+    radial-gradient(circle at 8% 5%, rgba(25,122,92,.42), transparent 34%),
+    radial-gradient(circle at 92% 8%, rgba(126,170,42,.25), transparent 38%),
+    linear-gradient(180deg, #071714 0%, #06110f 100%) !important;
+  color: #f4fff8 !important;
+}
+
+body[data-theme="retro"],
+html[data-theme="retro"] body,
+body.theme-retro {
+  background:
+    radial-gradient(circle at 8% 5%, rgba(255,241,196,.70), transparent 38%),
+    radial-gradient(circle at 92% 8%, rgba(255,213,142,.62), transparent 32%),
+    linear-gradient(180deg, #f5dfbd 0%, #efe0c8 100%) !important;
+  color: #3d2b24 !important;
+}
+
+[data-tab-content] {
+  display: none;
+}
+
+[data-tab-content].active {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.ft-admin-panel {
+  width: min(920px, calc(100vw - 32px)) !important;
+  margin: 24px auto 120px !important;
+  padding: 24px !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(120, 139, 147, .38) !important;
+  background: rgba(255,255,255,.82) !important;
+  box-shadow: 0 18px 48px rgba(0,0,0,.12) !important;
+  color: inherit !important;
+}
+
+body[data-theme="dark"] .ft-admin-panel,
+html[data-theme="dark"] .ft-admin-panel,
+body.theme-dark .ft-admin-panel {
+  background: rgba(7, 18, 17, .92) !important;
+  border-color: rgba(255,255,255,.24) !important;
+  color: #f4fff8 !important;
+}
+
+.ft-section-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 14px !important;
+  margin-bottom: 18px !important;
+}
+
+.ft-section-head h2 {
+  margin: 0 0 4px !important;
+  font-size: clamp(24px, 4vw, 36px) !important;
+  line-height: 1.05 !important;
+}
+
+.ft-section-head p {
+  margin: 0 !important;
+  opacity: .78 !important;
+}
+
+.ft-badge {
+  display: inline-grid !important;
+  place-items: center !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #ccff31, #48e6d9) !important;
+  color: #10251f !important;
+}
+
+.ft-admin-pin-form {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.ft-admin-pin-form input {
+  width: 100% !important;
+  min-height: 52px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(120, 139, 147, .5) !important;
+  padding: 0 16px !important;
+  font-size: 18px !important;
+  box-sizing: border-box !important;
+  background: rgba(255,255,255,.92) !important;
+  color: #17251f !important;
+}
+
+body[data-theme="dark"] .ft-admin-pin-form input,
+html[data-theme="dark"] .ft-admin-pin-form input,
+body.theme-dark .ft-admin-pin-form input {
+  background: rgba(255,255,255,.08) !important;
+  color: #fff !important;
+}
+
+.ft-admin-pin-form button,
+.ft-admin-actions button,
+.ft-admin-actions-bottom button {
+  min-height: 44px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  padding: 10px 18px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  background: linear-gradient(90deg, #fff455, #b8ff1d, #56e8db) !important;
+  color: #10251f !important;
+}
+
+.ft-admin-error {
+  color: #ff4f73 !important;
+  font-weight: 800 !important;
+  margin-top: 12px !important;
+}
+
+.ft-admin-stats {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  margin: 18px 0 !important;
+}
+
+.ft-admin-stats article,
+.ft-admin-card,
+.ft-admin-user {
+  border: 1px solid rgba(120, 139, 147, .35) !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.55) !important;
+  padding: 16px !important;
+  color: inherit !important;
+}
+
+body[data-theme="dark"] .ft-admin-stats article,
+body[data-theme="dark"] .ft-admin-card,
+body[data-theme="dark"] .ft-admin-user,
+html[data-theme="dark"] .ft-admin-stats article,
+html[data-theme="dark"] .ft-admin-card,
+html[data-theme="dark"] .ft-admin-user {
+  background: rgba(255,255,255,.055) !important;
+  border-color: rgba(255,255,255,.22) !important;
+}
+
+.ft-admin-stats span,
+.ft-admin-stats small {
+  display: block !important;
+  opacity: .72 !important;
+}
+
+.ft-admin-stats strong {
+  display: block !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+  margin: 6px 0 !important;
+}
+
+.ft-admin-users {
+  display: grid !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+}
+
+.ft-admin-user {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 12px !important;
+}
+
+.ft-admin-user p {
+  margin: 3px 0 !important;
+  opacity: .78 !important;
+}
+
+.ft-admin-user-balance {
+  text-align: right !important;
+}
+
+.ft-admin-user-balance strong {
+  display: block !important;
+  font-size: 34px !important;
+  color: #62c851 !important;
+}
+
+.ft-admin-actions {
+  grid-column: 1 / -1 !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.ft-admin-actions-bottom {
+  display: flex !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  margin-top: 18px !important;
+}
+
+.ft-muted {
+  opacity: .72 !important;
+}
+
+@media (max-width: 720px) {
+  .ft-admin-panel {
+    width: calc(100vw - 24px) !important;
+    padding: 18px !important;
+    border-radius: 20px !important;
+  }
+
+  .ft-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .ft-admin-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .ft-admin-user {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ft-admin-user-balance {
+    text-align: left !important;
+  }
+}
+
+/* FT_FINAL_ADMIN_THEME_CSS_20260608_END */
+
