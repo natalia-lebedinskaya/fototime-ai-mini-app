@@ -53,6 +53,9 @@ app.use('/api/admin', adminRoute);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Fototime AI app is running on port ${PORT}`);
+const PORT = Number(process.env.PORT || 3000);
+const HOST = process.env.HOST || '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
+  console.log(`FOTOTIME AI server is listening on http://${HOST}:${PORT}`);
 });
