@@ -4411,29 +4411,87 @@ body.ft-visible-ui-recovery-v2 [class*="bottom"] {
 }
 
 
-/* FT_FINAL_STABILITY_CSS_20260608_3 */
-.ft-final-hidden {
-  display: none !important;
+
+
+
+/* FT_RESCUE_UI_AUTH_STYLES_CSS_V5_20260608 */
+.ft-transparent-shell-v5 {
+  background-color: transparent !important;
 }
 
-.ft-final-soft-status {
-  color: #ff4f7d !important;
-  font-weight: 900 !important;
-  margin-top: 12px !important;
+body.ft-theme-light,
+body[data-ft-theme="light"] {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(88, 221, 255, .28), transparent 36%),
+    radial-gradient(circle at 88% 12%, rgba(177, 255, 57, .24), transparent 34%),
+    linear-gradient(180deg, #f6fffb 0%, #edf4ef 100%) !important;
+  color: #1b302c !important;
 }
 
-.ft-final-theme-select {
-  min-width: 118px !important;
+body.ft-theme-retro,
+body[data-ft-theme="retro"] {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 232, 187, .58), transparent 36%),
+    radial-gradient(circle at 88% 12%, rgba(255, 246, 211, .46), transparent 34%),
+    linear-gradient(180deg, #f5e5cf 0%, #ead6bd 100%) !important;
+  color: #38271f !important;
+}
+
+body.ft-theme-dark,
+body[data-ft-theme="dark"] {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(57, 255, 226, .16), transparent 34%),
+    radial-gradient(circle at 88% 12%, rgba(177, 255, 57, .14), transparent 32%),
+    linear-gradient(180deg, #071216 0%, #020608 100%) !important;
+  color: #f5fff8 !important;
+}
+
+body.ft-theme-dark section,
+body.ft-theme-dark article,
+body.ft-theme-dark .card,
+body.ft-theme-dark .ft-clean-card,
+body.ft-theme-dark .ft-stable-card,
+body.ft-theme-dark [class*="card"] {
+  background: rgba(14, 22, 26, .92) !important;
+  color: #f5fff8 !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+
+body.ft-theme-dark input,
+body.ft-theme-dark select,
+body.ft-theme-dark textarea {
+  background: rgba(255,255,255,.08) !important;
+  color: #f5fff8 !important;
+  border-color: rgba(255,255,255,.28) !important;
+}
+
+body.ft-theme-dark input::placeholder,
+body.ft-theme-dark textarea::placeholder {
+  color: rgba(245,255,248,.62) !important;
+}
+
+body.ft-theme-dark .ft-button-v5:not(.active):not(.selected):not(:disabled),
+body.ft-theme-dark button:not(.active):not(.selected):not(:disabled) {
+  color: #f5fff8 !important;
+}
+
+body.ft-theme-dark .ft-button-v5:disabled,
+body.ft-theme-dark button:disabled {
+  color: rgba(245,255,248,.45) !important;
+  opacity: .72 !important;
+}
+
+.ft-theme-select-v5 {
   min-height: 38px !important;
-  padding: 7px 12px !important;
+  min-width: 118px !important;
+  padding: 6px 12px !important;
   border-radius: 12px !important;
   font-size: 16px !important;
   font-weight: 900 !important;
-  line-height: 1.1 !important;
   cursor: pointer !important;
 }
 
-.ft-final-button-normalized {
+.ft-button-v5 {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -4441,18 +4499,13 @@ body.ft-visible-ui-recovery-v2 [class*="bottom"] {
   line-height: 1.15 !important;
 }
 
-.ft-final-topup-button {
-  width: 100% !important;
-  min-height: 62px !important;
-  display: grid !important;
-  grid-template-columns: 1fr auto !important;
-  align-items: center !important;
-  gap: 14px !important;
-  padding: 14px 22px !important;
+.ft-topup-v5 {
+  min-height: 58px !important;
+  padding: 12px 22px !important;
   overflow: hidden !important;
 }
 
-.ft-final-download-button {
+.ft-download-v5 {
   min-height: 34px !important;
   padding: 7px 16px !important;
   border-radius: 12px !important;
@@ -4462,81 +4515,40 @@ body.ft-visible-ui-recovery-v2 [class*="bottom"] {
   border: 1px solid rgba(0,0,0,.12) !important;
 }
 
-body.ft-final-stability-layer {
-  padding-bottom: 126px !important;
+.ft-status-v5 {
+  color: #ff4f7d !important;
+  font-weight: 900 !important;
+  margin-top: 12px !important;
 }
 
-body.ft-theme-dark,
-html.ft-theme-dark body,
-body[data-ft-theme="dark"] {
-  background:
-    radial-gradient(circle at 12% 0%, rgba(56, 255, 226, .16), transparent 32%),
-    radial-gradient(circle at 85% 12%, rgba(180, 255, 40, .14), transparent 30%),
-    linear-gradient(180deg, #071216 0%, #04080a 100%) !important;
-  color: #f5fff8 !important;
+.ft-rescued-style-card {
+  min-height: 210px !important;
+  border-radius: 18px !important;
+  padding: 10px !important;
+  flex-direction: column !important;
+  gap: 8px !important;
 }
 
-body.ft-theme-dark section,
-body.ft-theme-dark article,
-body.ft-theme-dark .card,
-body.ft-theme-dark .ft-clean-card,
-body.ft-theme-dark .ft-stable-card {
-  background: rgba(18, 24, 29, .88) !important;
-  color: #f5fff8 !important;
-  border-color: rgba(255,255,255,.18) !important;
+.ft-rescued-style-card img {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  border-radius: 14px !important;
 }
 
-body.ft-theme-dark input,
-body.ft-theme-dark select,
-body.ft-theme-dark textarea {
-  background: rgba(255,255,255,.09) !important;
-  color: #f5fff8 !important;
-  border-color: rgba(255,255,255,.26) !important;
-}
-
-body.ft-theme-light,
-html.ft-theme-light body,
-body[data-ft-theme="light"] {
-  background:
-    radial-gradient(circle at 12% 0%, rgba(115, 220, 255, .30), transparent 34%),
-    radial-gradient(circle at 90% 16%, rgba(190, 255, 88, .26), transparent 34%),
-    linear-gradient(180deg, #f7fffb 0%, #eef5ef 100%) !important;
-  color: #203b36 !important;
-}
-
-body.ft-theme-retro,
-html.ft-theme-retro body,
-body[data-ft-theme="retro"] {
-  background:
-    radial-gradient(circle at 10% 0%, rgba(255, 232, 184, .62), transparent 34%),
-    radial-gradient(circle at 88% 16%, rgba(255, 244, 210, .50), transparent 34%),
-    linear-gradient(180deg, #f6e6d0 0%, #ead7be 100%) !important;
-  color: #392920 !important;
-}
-
-body.ft-theme-light section,
-body.ft-theme-light article,
-body.ft-theme-light .card,
-body.ft-theme-light .ft-clean-card,
-body.ft-theme-light .ft-stable-card,
-body.ft-theme-retro section,
-body.ft-theme-retro article,
-body.ft-theme-retro .card,
-body.ft-theme-retro .ft-clean-card,
-body.ft-theme-retro .ft-stable-card {
-  background: rgba(255,255,255,.74) !important;
+body {
+  padding-bottom: 130px !important;
 }
 
 @media (max-width: 720px) {
-  .ft-final-topup-button {
-    min-height: 58px !important;
-    padding: 12px 16px !important;
-    font-size: clamp(13px, 3.5vw, 16px) !important;
+  .ft-theme-select-v5 {
+    min-height: 36px !important;
+    min-width: 108px !important;
+    font-size: 15px !important;
   }
 
-  .ft-final-theme-select {
-    min-width: 108px !important;
-    min-height: 36px !important;
-    font-size: 15px !important;
+  .ft-topup-v5 {
+    min-height: 56px !important;
+    padding: 12px 16px !important;
   }
 }

@@ -150,3 +150,42 @@ module.exports.verifyTelegramWebAppData = function verifyTelegramWebAppData() {
 module.exports.parseTelegramInitData = function parseTelegramInitData(req = {}) {
   return ftFinalLocalIdentity(req);
 };
+
+
+/* FT_AUTH_LOCAL_DEMO_V5_20260608 */
+function ftLocalIdentityV5(req = {}) {
+  const id = String(
+    req?.headers?.['x-telegram-id'] ||
+    req?.headers?.['x-user-id'] ||
+    req?.headers?.['x-local-user-id'] ||
+    req?.body?.telegramId ||
+    req?.query?.telegramId ||
+    'local-demo-user'
+  ).trim();
+
+  return {
+    id,
+    telegramId: id,
+    username: id,
+    firstName: 'Local',
+    lastName: 'Demo',
+    isLocalDemo: true,
+    isAdmin: true
+  };
+}
+
+module.exports.getTelegramIdentity = function getTelegramIdentity(req = {}) {
+  return ftLocalIdentityV5(req);
+};
+
+module.exports.getTelegramIdentityFromRequest = function getTelegramIdentityFromRequest(req = {}) {
+  return ftLocalIdentityV5(req);
+};
+
+module.exports.verifyTelegramWebAppData = function verifyTelegramWebAppData() {
+  return true;
+};
+
+module.exports.parseTelegramInitData = function parseTelegramInitData(req = {}) {
+  return ftLocalIdentityV5(req);
+};
