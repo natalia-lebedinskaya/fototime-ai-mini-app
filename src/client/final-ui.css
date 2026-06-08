@@ -4817,3 +4817,317 @@ select {
   font-weight: 800 !important;
 }
 
+
+
+
+/* FT_ONE_STABLE_VISUAL_PATCH_20260608 */
+
+html,
+body {
+  min-height: 100% !important;
+  transition: background .18s ease, color .18s ease !important;
+}
+
+html[data-theme="dark"],
+body[data-theme="dark"],
+html.theme-dark,
+body.theme-dark,
+html.dark,
+body.dark {
+  --ft-page-bg: radial-gradient(circle at 15% 0%, rgba(37, 120, 105, .36), transparent 34%),
+                radial-gradient(circle at 85% 8%, rgba(132, 170, 50, .24), transparent 32%),
+                linear-gradient(180deg, #061614 0%, #071110 100%) !important;
+  --ft-card-bg: rgba(9, 18, 18, .94) !important;
+  --ft-card-soft: rgba(18, 30, 30, .94) !important;
+  --ft-text: #f7fff9 !important;
+  --ft-muted: rgba(236, 255, 247, .72) !important;
+  --ft-border: rgba(209, 235, 226, .24) !important;
+  --ft-input-bg: rgba(255,255,255,.08) !important;
+}
+
+html[data-theme="light"],
+body[data-theme="light"],
+html.theme-light,
+body.theme-light,
+html.light,
+body.light {
+  --ft-page-bg: radial-gradient(circle at 8% 5%, rgba(168, 229, 255, .42), transparent 34%),
+                radial-gradient(circle at 88% 9%, rgba(192, 255, 158, .34), transparent 30%),
+                linear-gradient(180deg, #efffff 0%, #fbfff8 100%) !important;
+  --ft-card-bg: rgba(255,255,255,.90) !important;
+  --ft-card-soft: rgba(255,255,255,.76) !important;
+  --ft-text: #203a34 !important;
+  --ft-muted: rgba(32, 58, 52, .70) !important;
+  --ft-border: rgba(32, 58, 52, .22) !important;
+  --ft-input-bg: rgba(255,255,255,.92) !important;
+}
+
+html[data-theme="retro"],
+body[data-theme="retro"],
+html.theme-retro,
+body.theme-retro,
+html.retro,
+body.retro {
+  --ft-page-bg: radial-gradient(circle at 10% 0%, rgba(255, 240, 206, .74), transparent 34%),
+                radial-gradient(circle at 86% 7%, rgba(255, 216, 158, .36), transparent 30%),
+                linear-gradient(180deg, #fff2d8 0%, #ead4b8 100%) !important;
+  --ft-card-bg: rgba(255,250,241,.90) !important;
+  --ft-card-soft: rgba(255,255,255,.68) !important;
+  --ft-text: #3d2b24 !important;
+  --ft-muted: rgba(61, 43, 36, .68) !important;
+  --ft-border: rgba(61, 43, 36, .20) !important;
+  --ft-input-bg: rgba(255,255,255,.86) !important;
+}
+
+html[data-theme],
+body[data-theme],
+html.theme-dark body,
+html.theme-light body,
+html.theme-retro body {
+  background: var(--ft-page-bg) !important;
+  color: var(--ft-text) !important;
+}
+
+#app,
+.app,
+.app-shell,
+main,
+.main,
+.container,
+.page,
+.wrapper,
+.view,
+.screen {
+  background: transparent !important;
+}
+
+section,
+.card,
+.panel,
+.block,
+.ft-card,
+.account-card,
+.balance-card,
+.admin-card,
+.feedback-card,
+.profile-card,
+[class*="card"],
+[class*="panel"],
+[class*="section"] {
+  color: var(--ft-text) !important;
+  border-color: var(--ft-border) !important;
+}
+
+body[data-theme="dark"] section,
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .panel,
+body[data-theme="dark"] .block,
+body[data-theme="dark"] .ft-card,
+body[data-theme="dark"] .account-card,
+body[data-theme="dark"] .balance-card,
+body[data-theme="dark"] .admin-card,
+body[data-theme="dark"] .feedback-card,
+body[data-theme="dark"] .profile-card,
+body[data-theme="dark"] [class*="card"],
+body[data-theme="dark"] [class*="panel"],
+body[data-theme="dark"] [class*="section"] {
+  background: var(--ft-card-bg) !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+body[data-theme="light"] section,
+body[data-theme="light"] .card,
+body[data-theme="light"] .panel,
+body[data-theme="light"] .block,
+body[data-theme="light"] .ft-card,
+body[data-theme="light"] .account-card,
+body[data-theme="light"] .balance-card,
+body[data-theme="light"] .admin-card,
+body[data-theme="light"] .feedback-card,
+body[data-theme="light"] .profile-card,
+body[data-theme="light"] [class*="card"],
+body[data-theme="light"] [class*="panel"],
+body[data-theme="light"] [class*="section"],
+body[data-theme="retro"] section,
+body[data-theme="retro"] .card,
+body[data-theme="retro"] .panel,
+body[data-theme="retro"] .block,
+body[data-theme="retro"] .ft-card,
+body[data-theme="retro"] .account-card,
+body[data-theme="retro"] .balance-card,
+body[data-theme="retro"] .admin-card,
+body[data-theme="retro"] .feedback-card,
+body[data-theme="retro"] .profile-card,
+body[data-theme="retro"] [class*="card"],
+body[data-theme="retro"] [class*="panel"],
+body[data-theme="retro"] [class*="section"] {
+  background: var(--ft-card-bg) !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+p,
+span,
+div,
+label,
+small,
+strong,
+b,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: inherit;
+}
+
+body[data-theme="dark"] p,
+body[data-theme="dark"] span,
+body[data-theme="dark"] label,
+body[data-theme="dark"] small,
+body[data-theme="dark"] .muted,
+body[data-theme="dark"] .section-subtitle,
+body[data-theme="dark"] [class*="subtitle"],
+body[data-theme="dark"] [class*="muted"] {
+  color: var(--ft-muted) !important;
+}
+
+body[data-theme="dark"] h1,
+body[data-theme="dark"] h2,
+body[data-theme="dark"] h3,
+body[data-theme="dark"] h4,
+body[data-theme="dark"] strong,
+body[data-theme="dark"] b {
+  color: var(--ft-text) !important;
+}
+
+select,
+input,
+textarea {
+  background: var(--ft-input-bg) !important;
+  color: var(--ft-text) !important;
+  border: 1px solid var(--ft-border) !important;
+  opacity: 1 !important;
+}
+
+button,
+.button,
+[role="button"],
+a[class*="button"],
+[class*="btn"],
+.ft-stable-centered-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 8px !important;
+  line-height: 1.15 !important;
+  opacity: 1;
+}
+
+button:disabled,
+.button:disabled,
+[aria-disabled="true"],
+.disabled {
+  opacity: .55 !important;
+  filter: saturate(.85) !important;
+}
+
+.ft-stable-style-card,
+.style-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  min-height: 260px !important;
+  border: 1px solid var(--ft-border) !important;
+  border-radius: 18px !important;
+  padding: 12px !important;
+  background: var(--ft-card-soft) !important;
+  color: var(--ft-text) !important;
+  overflow: hidden !important;
+}
+
+.ft-stable-style-card.active,
+.ft-stable-style-card.selected,
+.style-card.active,
+.style-card.selected {
+  border-color: #b8ff1d !important;
+  box-shadow: 0 0 0 2px rgba(184, 255, 29, .45) !important;
+}
+
+.ft-style-image,
+.style-card img,
+.ft-stable-style-card img {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 14px !important;
+  object-fit: cover !important;
+  background: rgba(255,255,255,.08) !important;
+}
+
+.ft-style-image {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.ft-style-image img {
+  display: block !important;
+  height: 100% !important;
+}
+
+.ft-style-image-error,
+.ft-style-placeholder {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 180px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--ft-muted) !important;
+  background: rgba(255,255,255,.08) !important;
+}
+
+.ft-style-title {
+  margin-top: 10px !important;
+  font-weight: 800 !important;
+  color: var(--ft-text) !important;
+  text-align: center !important;
+}
+
+.ft-style-network {
+  margin-top: 4px !important;
+  color: var(--ft-muted) !important;
+  text-align: center !important;
+}
+
+body[data-theme="dark"] .style-card,
+body[data-theme="dark"] .ft-stable-style-card {
+  background: rgba(18, 30, 30, .96) !important;
+}
+
+body[data-theme="dark"] .style-card *,
+body[data-theme="dark"] .ft-stable-style-card * {
+  color: var(--ft-text) !important;
+}
+
+.bottom-nav,
+.app-tabs,
+.tabbar,
+[class*="bottom"],
+[class*="tabbar"] {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+@media (max-width: 760px) {
+  .ft-stable-style-card,
+  .style-card {
+    min-height: 220px !important;
+  }
+}
+

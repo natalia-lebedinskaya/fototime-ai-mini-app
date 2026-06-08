@@ -50,6 +50,9 @@ app.get('/api/version', (_req, res) => {
 });
 
 app.use('/storage', express.static(path.join(process.cwd(), 'storage')));
+app.use('/assets', express.static(path.join(__dirname, '..', 'client', 'assets')));
+app.use('/assets', express.static(path.join(process.cwd(), 'public', 'assets')));
+app.use('/public', express.static(path.join(process.cwd(), 'public')));
 app.use(express.static(path.join(__dirname, '../client')));
 
 app.use('/api/health', healthRoute);

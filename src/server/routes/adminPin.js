@@ -1,3 +1,26 @@
+
+/* FT_STABLE_PIN_HELPERS_20260608 */
+function ftStableAllowedPins() {
+  return String(process.env.ADMIN_PIN || '3465,3230')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function ftStableProvidedPin(req) {
+  return String(
+    req.headers['x-admin-pin'] ||
+    req.body?.pin ||
+    req.query?.pin ||
+    ''
+  ).trim();
+}
+
+function ftStablePinOk(req) {
+  const provided = ftStableProvidedPin(req);
+  return Boolean(provided) && ftStableAllowedPins().includes(provided);
+}
+
 /* FT_ADMIN_PIN_FINAL_HELPER_20260608_V5 */
 
 function ftAdminPinsFinal() {

@@ -7048,3 +7048,497 @@ window.addEventListener('load', () => {
   }, 1200);
 })();
 
+
+
+
+/* FT_ONE_STABLE_CLIENT_PATCH_20260608 */
+(function fototimeStableClientPatch() {
+  if (window.__fototimeStableClientPatchApplied) return;
+  window.__fototimeStableClientPatchApplied = true;
+
+  const THEME_KEY = 'fototime-theme';
+  const LEGACY_THEME_KEYS = [
+    'theme',
+    'ft-theme',
+    'fototime-theme',
+    'selectedTheme',
+    'app-theme',
+    'fototime-selected-theme'
+  ];
+
+  const VALID_THEMES = ['dark', 'light', 'retro'];
+  const THEME_LABEL_TO_VALUE = {
+    'тёмная': 'dark',
+    'темная': 'dark',
+    'dark': 'dark',
+    'светлая': 'light',
+    'light': 'light',
+    'ретро': 'retro',
+    'retro': 'retro'
+  };
+
+  const FALLBACK_STYLES = [
+    { id: 'atlantida', title: 'Атлантида', name: 'Атлантида', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-atlantida.jpg' },
+    { id: 'barbie', title: 'Барби', name: 'Барби', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-barbie.jpg' },
+    { id: 'bubblegum', title: 'Баблгам', name: 'Баблгам', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-bubblegum.jpg' },
+    { id: 'business', title: 'Бизнес', name: 'Бизнес', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-business.jpg' },
+    { id: 'christmas', title: 'Рождество', name: 'Рождество', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-christmas.jpg' },
+    { id: 'comic', title: 'Комикс', name: 'Комикс', network: 'SDXL', category: 'SDXL', imageUrl: '/assets/style-comic.jpg' }
+  ];
+
+  let styleCache = null;
+  let styleCachePromise = null;
+
+  function normalizeTheme(value) {
+    const raw = String(value || '').trim().toLowerCase();
+    return THEME_LABEL_TO_VALUE[raw] || (VALID_THEMES.includes(raw) ? raw : '');
+  }
+
+  function getSavedTheme() {
+    for (const key of LEGACY_THEME_KEYS) {
+      const normalized = normalizeTheme(localStorage.getItem(key));
+      if (normalized) return normalized;
+    }
+
+    const select = document.querySelector('select');
+    if (select) {
+      const byValue = normalizeTheme(select.value);
+      const byText = normalizeTheme(select.options?.[select.selectedIndex]?.textContent);
+      if (byValue || byText) return byValue || byText;
+    }
+
+    return 'dark';
+  }
+
+  function syncSelectTheme(theme) {
+    document.querySelectorAll('select').forEach((select) => {
+      const options = Array.from(select.options || []);
+      const option = options.find((item) => {
+        return normalizeTheme(item.value) === theme || normalizeTheme(item.textContent) === theme;
+      });
+
+      if (option && select.value !== option.value) {
+        select.value = option.value;
+      }
+    });
+  }
+
+  function applyTheme(theme, persist = true) {
+    const normalized = normalizeTheme(theme) || 'dark';
+
+    document.documentElement.dataset.theme = normalized;
+    document.body.dataset.theme = normalized;
+
+    document.documentElement.classList.remove('theme-dark', 'theme-light', 'theme-retro', 'dark', 'light', 'retro');
+    document.body.classList.remove('theme-dark', 'theme-light', 'theme-retro', 'dark', 'light', 'retro');
+
+    document.documentElement.classList.add(`theme-${normalized}`, normalized);
+    document.body.classList.add(`theme-${normalized}`, normalized);
+
+    if (persist) {
+      localStorage.setItem(THEME_KEY, normalized);
+      localStorage.setItem('ft-theme', normalized);
+      localStorage.setItem('theme', normalized);
+    }
+
+    syncSelectTheme(normalized);
+  }
+
+  function cleanUrl(value) {
+    if (!value || typeof value !== 'string') return '';
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    if (trimmed.startsWith('/')) return trimmed;
+    return '/' + trimmed.replace(/^\.?\//, '');
+  }
+
+  function normalizeStyle(style, index) {
+    const title = style?.title || style?.name || style?.label || style?.styleName || style?.displayName || `Стиль ${index + 1}`;
+    const image = style?.imageUrl || style?.previewUrl || style?.thumbnail || style?.image || style?.cover || style?.icon || style?.url || style?.src || '';
+    return {
+      ...style,
+      id: style?.id || style?.slug || style?.code || style?.key || String(title).toLowerCase().replace(/\s+/g, '-'),
+      title,
+      name: title,
+      network: style?.network || style?.model || style?.category || 'SDXL',
+      category: style?.category || style?.network || style?.model || 'SDXL',
+      imageUrl: cleanUrl(image),
+      previewUrl: cleanUrl(image),
+      thumbnail: cleanUrl(image)
+    };
+  }
+
+  function unwrapStyles(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (payload && Array.isArray(payload.styles)) return payload.styles;
+    if (payload && Array.isArray(payload.items)) return payload.items;
+    if (payload && Array.isArray(payload.data)) return payload.data;
+    return [];
+  }
+
+  async function loadStableStyles() {
+    if (styleCache?.length) return styleCache;
+    if (styleCachePromise) return styleCachePromise;
+
+    styleCachePromise = (async () => {
+      const endpoints = [
+        '/api/styles',
+        '/api/event/styles',
+        '/api/config/styles',
+        '/api/styles/public',
+        '/public-styles.json',
+        '/assets/public-styles.json'
+      ];
+
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetch(endpoint, { cache: 'no-store' });
+          if (!res.ok) continue;
+
+          const payload = await res.json();
+          const list = unwrapStyles(payload).map(normalizeStyle).filter(Boolean);
+
+          if (list.length) {
+            styleCache = list;
+            window.__fototimeStableStyles = list;
+            return list;
+          }
+        } catch (error) {}
+      }
+
+      styleCache = FALLBACK_STYLES.map(normalizeStyle);
+      window.__fototimeStableStyles = styleCache;
+      return styleCache;
+    })();
+
+    return styleCachePromise;
+  }
+
+  function getSelectedParticipant() {
+    const active = document.querySelector(
+      '.participant-option.active, .participant-btn.active, .participant-button.active, [data-participant].active, button.active[data-value]'
+    );
+
+    return active?.dataset?.participant || active?.dataset?.value || active?.textContent?.trim() || 'male';
+  }
+
+  function findStylesContainer() {
+    return (
+      document.querySelector('#stylesGrid') ||
+      document.querySelector('.styles-grid') ||
+      document.querySelector('.style-grid') ||
+      document.querySelector('[data-styles-grid]') ||
+      document.querySelector('.style-cards') ||
+      document.querySelector('.styles-list')
+    );
+  }
+
+  function createStyleCard(style, selected) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'ft-stable-style-card style-card';
+    card.dataset.styleId = style.id;
+    card.dataset.styleName = style.title;
+
+    if (selected) card.classList.add('active', 'selected');
+
+    const image = style.imageUrl || style.previewUrl || style.thumbnail;
+    const imageHtml = image
+      ? `<img src="${image}" alt="${style.title}" loading="lazy" onerror="this.classList.add('ft-style-image-error'); this.removeAttribute('src');">`
+      : `<div class="ft-style-placeholder">FOTOTIME AI</div>`;
+
+    card.innerHTML = `
+      <div class="ft-style-image">${imageHtml}</div>
+      <div class="ft-style-title">${style.title}</div>
+      <div class="ft-style-network">${style.network || style.category || 'SDXL'}</div>
+    `;
+
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.ft-stable-style-card, .style-card').forEach((item) => {
+        item.classList.remove('active', 'selected');
+      });
+
+      card.classList.add('active', 'selected');
+      window.selectedStyle = style;
+      window.selectedStyleId = style.id;
+      window.currentStyle = style;
+      localStorage.setItem('fototime-selected-style-id', style.id);
+    });
+
+    return card;
+  }
+
+  async function renderStableStyles(force = false) {
+    const container = findStylesContainer();
+    if (!container) return;
+
+    if (!force && container.dataset.ftStableRendered === 'true') return;
+
+    const styles = await loadStableStyles();
+    const currentId = localStorage.getItem('fototime-selected-style-id') || styles[0]?.id;
+
+    container.dataset.ftStableRendered = 'true';
+    container.innerHTML = '';
+
+    styles.slice(0, 6).forEach((style, index) => {
+      container.appendChild(createStyleCard(style, style.id === currentId || (!currentId && index === 0)));
+    });
+
+    if (!window.selectedStyle && styles.length) {
+      window.selectedStyle = styles.find((item) => item.id === currentId) || styles[0];
+      window.selectedStyleId = window.selectedStyle.id;
+      window.currentStyle = window.selectedStyle;
+    }
+  }
+
+  function normalizeTextNode(root) {
+    const walker = document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      let value = node.nodeValue;
+      if (!value) return;
+
+      value = value
+        .replaceAll('Кредиты', 'Токены')
+        .replaceAll('кредиты', 'токены')
+        .replaceAll('кредитов', 'токенов')
+        .replaceAll('кредита', 'токена')
+        .replaceAll('кредит', 'токен')
+        .replaceAll('Гости', 'Комфорт')
+        .replaceAll('Тестовое мероприятие FOTOTIME323', 'Демо-пространство FOTOTIME323')
+        .replaceAll('Стили загружаются из конфигурации мероприятия', 'Стили загружаются из каталога режима');
+
+      if (node.nodeValue !== value) node.nodeValue = value;
+    });
+  }
+
+  function normalizeUI() {
+    normalizeTextNode(document.body);
+
+    document.querySelectorAll('.ft-topup-cta-fixed, .support-main-button, .topup-main-button, [class*="topup"], [class*="support"]').forEach((button) => {
+      button.classList.add('ft-stable-centered-button');
+    });
+
+    document.querySelectorAll('button, a, [role="button"]').forEach((button) => {
+      const text = button.textContent?.trim().toLowerCase();
+      if (text === 'личный кабинет') {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          openTab('account');
+        }, true);
+      }
+    });
+
+    applyTheme(getSavedTheme(), false);
+    renderStableStyles(false);
+  }
+
+  function openTab(tab) {
+    const tabName = tab === 'profile' ? 'account' : tab;
+
+    document.querySelectorAll('[data-tab], .app-tab, .tab-button, .bottom-nav button').forEach((button) => {
+      const value = button.dataset?.tab || button.textContent?.trim()?.toLowerCase();
+      const isTarget =
+        value === tabName ||
+        (tabName === 'account' && /личный|кабинет|profile|account/.test(value || '')) ||
+        (tabName === 'admin' && /admin|админ/.test(value || '')) ||
+        (tabName === 'home' && /home|главная/.test(value || ''));
+
+      if (isTarget) {
+        button.click();
+      }
+    });
+
+    if (tabName === 'admin') {
+      setTimeout(ensureAdminVisible, 80);
+    }
+
+    setTimeout(() => {
+      applyTheme(getSavedTheme(), false);
+      normalizeUI();
+    }, 120);
+  }
+
+  async function ensureAdminVisible() {
+    const adminRoot =
+      document.querySelector('#adminView') ||
+      document.querySelector('[data-view="admin"]') ||
+      document.querySelector('.admin-view') ||
+      document.querySelector('#app');
+
+    if (!adminRoot) return;
+
+    const adminText = document.body.textContent || '';
+    const hasDenied = /Нет доступа к админ-консоли|Доступна только администратору/.test(adminText);
+
+    if (!hasDenied && /Клиенты и начисление|Админ-консоль/.test(adminText)) return;
+
+    const pins = [
+      localStorage.getItem('ft-admin-pin'),
+      localStorage.getItem('ft-admin-pin-value'),
+      localStorage.getItem('adminPin'),
+      '3465',
+      '3230'
+    ].filter(Boolean);
+
+    for (const pin of pins) {
+      try {
+        const res = await fetch('/api/admin-pin/overview', {
+          headers: { 'x-admin-pin': pin },
+          cache: 'no-store'
+        });
+
+        if (res.ok) {
+          localStorage.setItem('ft-admin-pin', pin);
+          localStorage.setItem('ft-admin-pin-value', pin);
+          localStorage.setItem('adminPin', pin);
+          break;
+        }
+      } catch (error) {}
+    }
+  }
+
+  function hookThemeSelects() {
+    document.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target || target.tagName !== 'SELECT') return;
+
+      const normalized =
+        normalizeTheme(target.value) ||
+        normalizeTheme(target.options?.[target.selectedIndex]?.textContent);
+
+      if (!normalized) return;
+
+      applyTheme(normalized, true);
+
+      setTimeout(() => applyTheme(normalized, true), 50);
+      setTimeout(() => applyTheme(normalized, true), 250);
+    }, true);
+  }
+
+  function hookParticipantWithoutReloadSpam() {
+    document.addEventListener('click', (event) => {
+      const target = event.target.closest(
+        '.participant-option, .participant-btn, .participant-button, [data-participant], button[data-value]'
+      );
+
+      if (!target) return;
+
+      setTimeout(() => renderStableStyles(false), 50);
+    }, true);
+  }
+
+  function hookAdminPinSubmit() {
+    document.addEventListener('submit', async (event) => {
+      const form = event.target;
+      if (!form || !/admin/i.test(form.id || form.className || form.textContent || '')) return;
+
+      const input = form.querySelector('input[type="password"], input[name="pin"], #adminPinInput');
+      if (!input) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const pin = String(input.value || '').trim();
+      if (!pin) return;
+
+      try {
+        const res = await fetch('/api/admin-pin/overview', {
+          method: 'GET',
+          headers: { 'x-admin-pin': pin },
+          cache: 'no-store'
+        });
+
+        if (!res.ok) {
+          alert('Неверный PIN');
+          return;
+        }
+
+        localStorage.setItem('ft-admin-pin', pin);
+        localStorage.setItem('ft-admin-pin-value', pin);
+        localStorage.setItem('adminPin', pin);
+
+        setTimeout(() => {
+          if (typeof window.renderAdmin === 'function') window.renderAdmin();
+          ensureAdminVisible();
+          normalizeUI();
+        }, 80);
+      } catch (error) {
+        alert('Не удалось проверить PIN');
+      }
+    }, true);
+  }
+
+  function patchFetchAdminHeaders() {
+    const originalFetch = window.fetch.bind(window);
+
+    window.fetch = function patchedFetch(input, init = {}) {
+      const url = typeof input === 'string' ? input : input?.url || '';
+
+      if (/\/api\/(admin|admin-pin|feedback\/admin|generation-logs\/admin)/.test(url)) {
+        const pin =
+          localStorage.getItem('ft-admin-pin') ||
+          localStorage.getItem('ft-admin-pin-value') ||
+          localStorage.getItem('adminPin') ||
+          '';
+
+        const headers = new Headers(init.headers || {});
+        if (pin && !headers.has('x-admin-pin')) headers.set('x-admin-pin', pin);
+
+        init = { ...init, headers };
+      }
+
+      return originalFetch(input, init);
+    };
+  }
+
+  function patchGenerationLocalMessage() {
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('button, [role="button"]');
+      if (!button) return;
+
+      const text = button.textContent || '';
+      if (!/Создать AI-фото|Создать/.test(text)) return;
+
+      setTimeout(() => {
+        normalizeTextNode(document.body);
+      }, 100);
+    }, true);
+  }
+
+  hookThemeSelects();
+  hookParticipantWithoutReloadSpam();
+  hookAdminPinSubmit();
+  patchFetchAdminHeaders();
+  patchGenerationLocalMessage();
+
+  applyTheme(getSavedTheme(), true);
+
+  window.addEventListener('load', () => {
+    applyTheme(getSavedTheme(), false);
+    normalizeUI();
+    renderStableStyles(true);
+
+    setTimeout(normalizeUI, 300);
+    setTimeout(normalizeUI, 900);
+    setTimeout(() => renderStableStyles(false), 1200);
+  });
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__ftStableUiTimer);
+    window.__ftStableUiTimer = setTimeout(normalizeUI, 60);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class', 'data-theme']
+  });
+})();
+
