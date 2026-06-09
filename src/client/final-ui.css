@@ -4649,3 +4649,219 @@ button:has(span),
 a:has(span) {
   overflow: hidden !important;
 }
+
+/* FT_CLIENT_STABILITY_REPAIR_20260609_START */
+html[data-theme="dark"],
+body[data-theme="dark"],
+html.theme-dark,
+body.theme-dark {
+  --ft-page-bg: #061512;
+  --ft-card-bg: rgba(8, 18, 18, 0.96);
+  --ft-soft-bg: rgba(255, 255, 255, 0.08);
+  --ft-text-color: #f7fffb;
+  --ft-muted-color: rgba(247, 255, 251, 0.72);
+  --ft-border-color: rgba(255, 255, 255, 0.22);
+}
+
+html[data-theme="retro"],
+body[data-theme="retro"],
+html.theme-retro,
+body.theme-retro {
+  --ft-page-bg: #f5dfbf;
+  --ft-card-bg: rgba(255, 250, 241, 0.94);
+  --ft-soft-bg: rgba(255, 255, 255, 0.62);
+  --ft-text-color: #3d2b24;
+  --ft-muted-color: rgba(61, 43, 36, 0.72);
+  --ft-border-color: rgba(107, 83, 61, 0.28);
+}
+
+html[data-theme="light"],
+body[data-theme="light"],
+html.theme-light,
+body.theme-light {
+  --ft-page-bg: #efffff;
+  --ft-card-bg: rgba(255, 255, 255, 0.92);
+  --ft-soft-bg: rgba(255, 255, 255, 0.72);
+  --ft-text-color: #18302d;
+  --ft-muted-color: rgba(24, 48, 45, 0.68);
+  --ft-border-color: rgba(24, 48, 45, 0.22);
+}
+
+body {
+  background: var(--ft-page-bg) !important;
+  color: var(--ft-text-color) !important;
+}
+
+.card,
+.panel,
+.section,
+.account-card,
+.feedback-card,
+.balance-card,
+.style-section,
+.upload-section,
+.ft-admin-stable-panel,
+[data-tab-content],
+.tab-content,
+.app-tab-content {
+  color: var(--ft-text-color) !important;
+}
+
+body[data-theme="dark"] .card,
+body.theme-dark .card,
+body[data-theme="dark"] .panel,
+body.theme-dark .panel,
+body[data-theme="dark"] .section,
+body.theme-dark .section,
+body[data-theme="dark"] .account-card,
+body.theme-dark .account-card,
+body[data-theme="dark"] .feedback-card,
+body.theme-dark .feedback-card,
+body[data-theme="dark"] .balance-card,
+body.theme-dark .balance-card,
+body[data-theme="dark"] .style-section,
+body.theme-dark .style-section,
+body[data-theme="dark"] .upload-section,
+body.theme-dark .upload-section,
+body[data-theme="dark"] .ft-admin-stable-panel,
+body.theme-dark .ft-admin-stable-panel {
+  background: var(--ft-card-bg) !important;
+  border-color: var(--ft-border-color) !important;
+  color: var(--ft-text-color) !important;
+}
+
+.ft-generation-status {
+  margin-top: 12px;
+  font-weight: 700;
+  color: var(--ft-text-color);
+}
+
+.ft-generation-success a {
+  margin-left: 8px;
+  color: inherit;
+  text-decoration: underline;
+}
+
+button.ready,
+.generate-button.ready,
+#generateButton.ready {
+  opacity: 1 !important;
+  filter: none !important;
+  cursor: pointer !important;
+}
+
+button:disabled,
+.generate-button:disabled,
+#generateButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ft-admin-stable-panel {
+  width: min(100% - 32px, 980px);
+  margin: 24px auto;
+  padding: 24px;
+  border: 1px solid var(--ft-border-color, rgba(0,0,0,.18));
+  border-radius: 24px;
+  background: var(--ft-card-bg, rgba(255,255,255,.92));
+  box-shadow: 0 18px 50px rgba(0,0,0,.12);
+}
+
+.ft-admin-stable-panel h2,
+.ft-admin-stable-panel h3,
+.ft-admin-stable-panel p,
+.ft-admin-stable-panel b,
+.ft-admin-stable-panel span,
+.ft-admin-stable-panel small {
+  color: var(--ft-text-color, #18302d);
+}
+
+.ft-admin-pin-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ft-admin-pin-form input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--ft-border-color, rgba(0,0,0,.18));
+  border-radius: 16px;
+  padding: 0 16px;
+  font: inherit;
+  background: var(--ft-soft-bg, #fff);
+  color: var(--ft-text-color, #18302d);
+}
+
+.ft-admin-pin-form button,
+.ft-admin-head button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+  background: linear-gradient(90deg, #fff65f, #b9ff19, #59eadb);
+  color: #071d19;
+}
+
+.ft-admin-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ft-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.ft-admin-card,
+.ft-admin-row {
+  border: 1px solid var(--ft-border-color, rgba(0,0,0,.18));
+  border-radius: 16px;
+  padding: 14px;
+  background: var(--ft-soft-bg, rgba(255,255,255,.72));
+}
+
+.ft-admin-card b {
+  display: block;
+  font-size: 28px;
+}
+
+.ft-admin-card span,
+.ft-admin-row small {
+  display: block;
+  color: var(--ft-muted-color, rgba(24,48,45,.68));
+}
+
+.ft-admin-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.ft-admin-error {
+  color: #c62828 !important;
+  font-weight: 800;
+}
+
+.bottom-nav,
+nav.bottom-nav,
+.ft-stable-bottom-nav {
+  z-index: 9999 !important;
+}
+
+@media (max-width: 720px) {
+  .ft-admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ft-admin-stable-panel {
+    width: calc(100% - 20px);
+    padding: 18px;
+  }
+}
+/* FT_CLIENT_STABILITY_REPAIR_20260609_END */

@@ -6791,3 +6791,600 @@ window.addEventListener('load', () => {
 
   run();
 })();
+
+/* FT_CLIENT_STABILITY_REPAIR_20260609_START */
+(function ftClientStabilityRepair() {
+  if (window.__ftClientStabilityRepairApplied) return;
+  window.__ftClientStabilityRepairApplied = true;
+
+  const THEME_KEY = 'ft-theme';
+  const ADMIN_PIN_KEYS = [
+    'ft-admin-pin',
+    'ft-admin-pin-value',
+    'ft-admin-pin-direct',
+    'ft-admin-pin-ok'
+  ];
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+  function normalizeTheme(value) {
+    if (value === 'dark' || value === 'theme-dark' || value === 'Темная' || value === 'Тёмная') return 'dark';
+    if (value === 'retro' || value === 'theme-retro' || value === 'Ретро') return 'retro';
+    return 'light';
+  }
+
+  function getTheme() {
+    try {
+      return normalizeTheme(localStorage.getItem(THEME_KEY) || localStorage.getItem('fototime-theme') || 'light');
+    } catch (_) {
+      return 'light';
+    }
+  }
+
+  function setTheme(theme) {
+    const nextTheme = normalizeTheme(theme);
+
+    document.documentElement.dataset.theme = nextTheme;
+    document.body.dataset.theme = nextTheme;
+
+    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
+
+    document.documentElement.classList.add(`theme-${nextTheme}`);
+    document.body.classList.add(`theme-${nextTheme}`);
+
+    try {
+      localStorage.setItem(THEME_KEY, nextTheme);
+      localStorage.setItem('fototime-theme', nextTheme);
+    } catch (_) {}
+
+    syncThemeSelect(nextTheme);
+  }
+
+  function syncThemeSelect(theme = getTheme()) {
+    const selects = $$('select').filter((select) => {
+      const text = Array.from(select.options || []).map((option) => option.textContent).join(' ').toLowerCase();
+      return text.includes('свет') || text.includes('тём') || text.includes('темн') || text.includes('ретро');
+    });
+
+    selects.forEach((select) => {
+      const option = Array.from(select.options || []).find((item) => {
+        const value = normalizeTheme(item.value || item.textContent);
+        return value === theme;
+      });
+
+      if (option && select.value !== option.value) {
+        select.value = option.value;
+      }
+    });
+  }
+
+  document.addEventListener('change', (event) => {
+    const select = event.target.closest('select');
+    if (!select) return;
+
+    const text = Array.from(select.options || []).map((option) => option.textContent).join(' ').toLowerCase();
+    if (!(text.includes('свет') || text.includes('тём') || text.includes('темн') || text.includes('ретро'))) return;
+
+    const selected = select.options[select.selectedIndex];
+    setTheme(normalizeTheme(select.value || selected?.textContent || 'light'));
+  }, true);
+
+  function getCurrentTabName() {
+    const active = $('[data-tab-target].active, [data-ft-tab].active, .app-tab.active, .bottom-nav button.active, .bottom-nav button.selected');
+    const raw = active?.dataset?.tabTarget || active?.dataset?.ftTab || active?.textContent || 'main';
+    const value = String(raw).toLowerCase();
+
+    if (value.includes('profile') || value.includes('account') || value.includes('кабинет') || value.includes('лич')) return 'profile';
+    if (value.includes('admin') || value.includes('админ')) return 'admin';
+    return 'main';
+  }
+
+  function findTabContainers() {
+    return $$('[data-tab-content], .tab-content, .app-tab-content, section[id*="Tab"], section[id*="tab"], #mainTab, #profileTab, #adminTab');
+  }
+
+  function isContainerFor(container, tab) {
+    const raw = [
+      container.dataset.tabContent,
+      container.dataset.tab,
+      container.id,
+      container.className,
+      container.getAttribute('aria-label'),
+      container.textContent?.slice(0, 80)
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    if (tab === 'profile') return raw.includes('profile') || raw.includes('account') || raw.includes('лич') || raw.includes('кабинет');
+    if (tab === 'admin') return raw.includes('admin') || raw.includes('админ');
+    return raw.includes('main') || raw.includes('home') || raw.includes('глав');
+  }
+
+  function setActiveTab(tab) {
+    const normalized = tab === 'admin' || tab === 'profile' ? tab : 'main';
+
+    $$('[data-tab-target], [data-ft-tab], .app-tab, .bottom-nav button, nav button').forEach((button) => {
+      const raw = button.dataset.tabTarget || button.dataset.ftTab || button.textContent || '';
+      const value = String(raw).toLowerCase();
+
+      const isMain = normalized === 'main' && (value.includes('main') || value.includes('home') || value.includes('глав'));
+      const isProfile = normalized === 'profile' && (value.includes('profile') || value.includes('account') || value.includes('лич') || value.includes('кабинет'));
+      const isAdmin = normalized === 'admin' && (value.includes('admin') || value.includes('админ'));
+
+      button.classList.toggle('active', isMain || isProfile || isAdmin);
+      button.classList.toggle('selected', isMain || isProfile || isAdmin);
+      button.setAttribute('aria-selected', isMain || isProfile || isAdmin ? 'true' : 'false');
+    });
+
+    const containers = findTabContainers();
+    if (containers.length) {
+      containers.forEach((container) => {
+        const shouldShow = isContainerFor(container, normalized);
+        container.hidden = !shouldShow;
+        container.classList.toggle('active', shouldShow);
+        container.style.display = shouldShow ? '' : 'none';
+      });
+    }
+
+    if (normalized === 'admin') {
+      setTimeout(renderAdminStable, 0);
+    }
+
+    setTheme(getTheme());
+  }
+
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-tab-target], [data-ft-tab], .app-tab, .bottom-nav button, nav button, button');
+    if (!button) return;
+
+    const text = (button.dataset.tabTarget || button.dataset.ftTab || button.textContent || '').toLowerCase();
+
+    if (text.includes('лич') || text.includes('кабинет') || text.includes('profile') || text.includes('account')) {
+      event.preventDefault();
+      setActiveTab('profile');
+      return;
+    }
+
+    if (text.includes('админ') || text.includes('admin')) {
+      event.preventDefault();
+      setActiveTab('admin');
+      return;
+    }
+
+    if (text.includes('глав') || text.includes('main') || text.includes('home')) {
+      event.preventDefault();
+      setActiveTab('main');
+    }
+  }, true);
+
+  function getSelectedParticipant() {
+    const active = $('.participant-option.active, .participant-button.active, [data-participant].active, button.active[data-participant]');
+    return active?.dataset?.participant || active?.dataset?.participantId || active?.value || 'male';
+  }
+
+  function getSelectedStyle() {
+    const active = $('.style-card.active, .style-card.selected, [data-style-id].active, [data-style-id].selected, [data-style].active, [data-style].selected');
+    return active?.dataset?.styleId || active?.dataset?.style || active?.dataset?.id || '';
+  }
+
+  function getPhotoInput() {
+    return $('#photoInput') ||
+      $('input[type="file"][name="photo"]') ||
+      $('input[type="file"][accept*="image"]') ||
+      $('input[type="file"]');
+  }
+
+  function getGenerateButton() {
+    return $('#generateButton') ||
+      $('.generate-button') ||
+      $$('button').find((button) => /создать|сгенерировать|generate/i.test(button.textContent || ''));
+  }
+
+  function getGenerationStatusNode() {
+    let node = $('[data-ft-generation-status]') || $('#generationStatus') || $('.generation-status');
+
+    if (!node) {
+      node = document.createElement('div');
+      node.dataset.ftGenerationStatus = 'true';
+      node.className = 'ft-generation-status';
+      const button = getGenerateButton();
+      button?.insertAdjacentElement('afterend', node);
+    }
+
+    return node;
+  }
+
+  function updatePhotoUi() {
+    const input = getPhotoInput();
+    const button = getGenerateButton();
+    const status = getGenerationStatusNode();
+
+    const hasFile = Boolean(input?.files?.length);
+    const styleId = getSelectedStyle();
+
+    if (input?.files?.[0]) {
+      const fileName = input.files[0].name || 'фото';
+      status.textContent = `Фото загружено: ${fileName}`;
+    } else {
+      status.textContent = '';
+    }
+
+    if (button) {
+      const canGenerate = hasFile && Boolean(styleId);
+      button.disabled = !canGenerate;
+      button.classList.toggle('disabled', !canGenerate);
+      button.classList.toggle('ready', canGenerate);
+      button.setAttribute('aria-disabled', canGenerate ? 'false' : 'true');
+    }
+  }
+
+  document.addEventListener('change', (event) => {
+    if (event.target.matches('input[type="file"]')) {
+      updatePhotoUi();
+    }
+  }, true);
+
+  document.addEventListener('click', (event) => {
+    const styleCard = event.target.closest('.style-card, [data-style-id], [data-style]');
+    if (!styleCard) return;
+
+    $$('.style-card, [data-style-id], [data-style]').forEach((card) => {
+      card.classList.remove('active', 'selected');
+    });
+
+    styleCard.classList.add('active', 'selected');
+    updatePhotoUi();
+  }, true);
+
+  async function runStableGeneration(button) {
+    const input = getPhotoInput();
+    const status = getGenerationStatusNode();
+
+    if (!input?.files?.length) {
+      status.textContent = 'Сначала загрузите фото.';
+      return;
+    }
+
+    const styleId = getSelectedStyle();
+    if (!styleId) {
+      status.textContent = 'Сначала выберите стиль.';
+      return;
+    }
+
+    const file = input.files[0];
+    const formData = new FormData();
+
+    formData.append('photo', file);
+    formData.append('file', file);
+    formData.append('styleId', styleId);
+    formData.append('style', styleId);
+    formData.append('participantId', getSelectedParticipant());
+    formData.append('participant', getSelectedParticipant());
+
+    button.disabled = true;
+    button.classList.add('loading');
+    status.textContent = 'Создаём AI-фото...';
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || data.error) {
+        throw new Error(data.message || data.error || `Ошибка генерации: ${response.status}`);
+      }
+
+      const imageUrl =
+        data.resultUrl ||
+        data.resultImage ||
+        data.imageUrl ||
+        data.url ||
+        data.result?.url ||
+        data.result?.imageUrl;
+
+      if (imageUrl) {
+        status.innerHTML = `
+          <div class="ft-generation-success">
+            Фото готово.
+            <a href="${imageUrl}" download target="_blank" rel="noopener">Скачать результат</a>
+          </div>
+        `;
+
+        try {
+          const history = JSON.parse(localStorage.getItem('fototime-ai-generated-photos') || '[]');
+          history.unshift({
+            id: data.generationId || String(Date.now()),
+            title: $('.style-card.active, .style-card.selected')?.textContent?.trim() || styleId,
+            imageUrl,
+            resultUrl: imageUrl,
+            createdAt: new Date().toISOString()
+          });
+          localStorage.setItem('fototime-ai-generated-photos', JSON.stringify(history.slice(0, 50)));
+        } catch (_) {}
+      } else {
+        status.textContent = 'Генерация завершена, но сервер не вернул ссылку на фото.';
+      }
+    } catch (error) {
+      console.error('Stable generation failed:', error);
+      status.textContent = error.message || 'Не удалось создать AI-фото.';
+    } finally {
+      button.disabled = false;
+      button.classList.remove('loading');
+      updatePhotoUi();
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('#generateButton, .generate-button, button');
+    if (!button) return;
+
+    if (!/создать|сгенерировать|generate/i.test(button.textContent || '') && button.id !== 'generateButton') return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (button.disabled && !(getPhotoInput()?.files?.length && getSelectedStyle())) {
+      updatePhotoUi();
+      return;
+    }
+
+    runStableGeneration(button);
+  }, true);
+
+  document.addEventListener('click', async (event) => {
+    const target = event.target.closest('a, button');
+    if (!target) return;
+
+    const text = (target.textContent || '').toLowerCase();
+    if (!text.includes('скачать')) return;
+
+    const card = target.closest('.history-card, .generated-photo-card, .photo-card, article, li, div');
+    const image = card?.querySelector('img');
+    const url = target.href || image?.src || target.dataset.url || target.dataset.href;
+
+    if (!url) return;
+
+    event.preventDefault();
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `fototime-ai-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (error) {
+      console.warn('Download fallback failed:', error);
+      window.open(url, '_blank', 'noopener');
+    }
+  }, true);
+
+  function getAdminPin() {
+    for (const key of ADMIN_PIN_KEYS) {
+      const value = localStorage.getItem(key);
+      if (value && value !== 'true') return value;
+    }
+    return '';
+  }
+
+  function saveAdminPin(pin) {
+    localStorage.setItem('ft-admin-pin', pin);
+    localStorage.setItem('ft-admin-pin-value', pin);
+    localStorage.setItem('ft-admin-pin-direct', pin);
+    localStorage.setItem('ft-admin-pin-ok', 'true');
+  }
+
+  function clearAdminPin() {
+    ADMIN_PIN_KEYS.forEach((key) => localStorage.removeItem(key));
+  }
+
+  function getAdminRoot() {
+    let root =
+      $('#adminTab') ||
+      $('[data-tab-content="admin"]') ||
+      $('[data-tab="admin"]') ||
+      $$('.tab-content, .app-tab-content, section').find((node) => /админ|admin/i.test(node.id + ' ' + node.className + ' ' + node.textContent.slice(0, 100)));
+
+    if (!root) {
+      root = document.createElement('section');
+      root.id = 'adminTab';
+      root.dataset.tabContent = 'admin';
+      root.className = 'tab-content';
+      const appRoot = $('#app') || $('main') || document.body;
+      appRoot.appendChild(root);
+    }
+
+    root.hidden = false;
+    root.style.display = '';
+    root.classList.add('active');
+
+    return root;
+  }
+
+  function adminPinForm(message = '') {
+    return `
+      <section class="ft-admin-stable-panel">
+        <div class="step-badge">AD</div>
+        <h2>Админ-консоль</h2>
+        <p>Введите PIN администратора.</p>
+        ${message ? `<p class="ft-admin-error">${message}</p>` : ''}
+        <form id="ftStableAdminPinForm" class="ft-admin-pin-form">
+          <input id="ftStableAdminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+    `;
+  }
+
+  function adminDashboardHtml(data, logs, feedback) {
+    const stats = data?.stats || {};
+    const users = Array.isArray(data?.users) ? data.users : [];
+
+    return `
+      <section class="ft-admin-stable-panel">
+        <div class="ft-admin-head">
+          <div>
+            <div class="step-badge">AD</div>
+            <h2>Админ-консоль</h2>
+            <p>Доступ подтверждён.</p>
+          </div>
+          <button type="button" id="ftStableAdminLogout">Выйти</button>
+        </div>
+
+        <div class="ft-admin-grid">
+          <div class="ft-admin-card">
+            <b>${Number(stats.totalUsers || users.length || 0)}</b>
+            <span>пользователей</span>
+          </div>
+          <div class="ft-admin-card">
+            <b>${Number(stats.totalGenerations || 0)}</b>
+            <span>генераций</span>
+          </div>
+          <div class="ft-admin-card">
+            <b>${Number(stats.totalSpentCredits || 0)}</b>
+            <span>списано токенов</span>
+          </div>
+        </div>
+
+        <h3>Пользователи</h3>
+        <div class="ft-admin-list">
+          ${users.length ? users.map((user) => `
+            <div class="ft-admin-row">
+              <div>
+                <b>@${user.username || user.telegramUserId || user.id || 'user'}</b>
+                <small>Баланс: ${Number(user.balance || 0)} · Генераций: ${Number(user.generationsCount || 0)}</small>
+              </div>
+            </div>
+          `).join('') : '<p>Пользователей пока нет.</p>'}
+        </div>
+
+        <h3>Ошибки генерации</h3>
+        <div class="ft-admin-list">
+          ${Array.isArray(logs) && logs.length ? logs.slice(0, 10).map((log) => `
+            <div class="ft-admin-row">
+              <div>
+                <b>${log.status || log.type || 'log'}</b>
+                <small>${log.message || log.error || JSON.stringify(log).slice(0, 160)}</small>
+              </div>
+            </div>
+          `).join('') : '<p>Ошибок генерации нет.</p>'}
+        </div>
+
+        <h3>Обратная связь</h3>
+        <div class="ft-admin-list">
+          ${Array.isArray(feedback) && feedback.length ? feedback.slice(0, 10).map((item) => `
+            <div class="ft-admin-row">
+              <div>
+                <b>${item.type || 'Сообщение'}</b>
+                <small>${item.message || item.text || JSON.stringify(item).slice(0, 160)}</small>
+              </div>
+            </div>
+          `).join('') : '<p>Сообщений пока нет.</p>'}
+        </div>
+      </section>
+    `;
+  }
+
+  async function renderAdminStable(forceForm = false) {
+    const root = getAdminRoot();
+
+    if (forceForm || !getAdminPin()) {
+      root.innerHTML = adminPinForm();
+      return;
+    }
+
+    const pin = getAdminPin();
+    root.innerHTML = `
+      <section class="ft-admin-stable-panel">
+        <div class="step-badge">AD</div>
+        <h2>Админ-консоль</h2>
+        <p>Загружаем данные...</p>
+      </section>
+    `;
+
+    try {
+      const [overviewRes, logsRes, feedbackRes] = await Promise.all([
+        fetch('/api/admin-pin/overview', { headers: { 'x-admin-pin': pin } }),
+        fetch('/api/generation-logs/admin', { headers: { 'x-admin-pin': pin } }).catch(() => null),
+        fetch('/api/feedback/admin', { headers: { 'x-admin-pin': pin } }).catch(() => null)
+      ]);
+
+      if (!overviewRes.ok) {
+        clearAdminPin();
+        root.innerHTML = adminPinForm('PIN не принят. Попробуйте 3465 или 3230.');
+        return;
+      }
+
+      const overview = await overviewRes.json();
+      const logs = logsRes?.ok ? await logsRes.json().catch(() => []) : [];
+      const feedback = feedbackRes?.ok ? await feedbackRes.json().catch(() => []) : [];
+
+      root.innerHTML = adminDashboardHtml(
+        overview,
+        Array.isArray(logs) ? logs : logs.items || logs.logs || [],
+        Array.isArray(feedback) ? feedback : feedback.items || feedback.feedback || []
+      );
+    } catch (error) {
+      console.error('Admin stable render failed:', error);
+      root.innerHTML = adminPinForm('Не удалось загрузить админку. Проверьте сеть и PIN.');
+    }
+  }
+
+  document.addEventListener('submit', async (event) => {
+    const form = event.target.closest('#ftStableAdminPinForm, #adminPinForm, #ftAdminPinForm');
+    if (!form) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const input = form.querySelector('input[type="password"], input[inputmode="numeric"], input');
+    const pin = String(input?.value || '').trim();
+
+    if (!pin) {
+      alert('Введите PIN');
+      return;
+    }
+
+    saveAdminPin(pin);
+    await renderAdminStable();
+  }, true);
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('#ftStableAdminLogout')) return;
+    clearAdminPin();
+    renderAdminStable(true);
+  }, true);
+
+  window.renderAdminStable = renderAdminStable;
+  window.ftSetActiveTab = setActiveTab;
+  window.ftSetTheme = setTheme;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTheme(getTheme());
+    updatePhotoUi();
+
+    if (getCurrentTabName() === 'admin') {
+      renderAdminStable();
+    }
+
+    setTimeout(() => {
+      setTheme(getTheme());
+      updatePhotoUi();
+    }, 300);
+  });
+
+  setTimeout(() => {
+    setTheme(getTheme());
+    updatePhotoUi();
+  }, 700);
+})();
+/* FT_CLIENT_STABILITY_REPAIR_20260609_END */
