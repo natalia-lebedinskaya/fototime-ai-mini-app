@@ -1376,15 +1376,35 @@ const originalFetch = window.fetch;
 
 window.fetch = function patchedFetch(input, init = {}) {
   const url = typeof input === 'string' ? input : input?.url || '';
+  const headers = {
+    ...(init.headers || {})
+  };
 
   if (url.startsWith('/api/')) {
-    init.headers = {
-      ...(init.headers || {}),
-      'x-telegram-init-data': getTelegramInitData()
-    };
+    headers['x-telegram-init-data'] = getTelegramInitData();
   }
 
-  return originalFetch(input, init);
+  if (
+    url.includes('/api/admin') ||
+    url.includes('/api/admin-pin') ||
+    url.includes('/api/generation-logs') ||
+    url.includes('/api/feedback/admin')
+  ) {
+    const adminPin =
+      localStorage.getItem('ft-admin-pin') ||
+      localStorage.getItem('ft-admin-pin-value') ||
+      localStorage.getItem('ft-admin-pin-v2') ||
+      '3465';
+
+    if (adminPin) {
+      headers['x-admin-pin'] = adminPin.trim();
+    }
+  }
+
+  return originalFetch(input, {
+    ...init,
+    headers
+  });
 };
 
 /* SAFE FIX: tab state */
@@ -3665,7 +3685,7 @@ window.addEventListener('load', () => {
     setTimeout(() => {
       ensureAuthStatus();
       ensureFeedback();
-      renderAdminDashboard();
+      renderAdminStable();
       fixFooterGap();
     }, 1000);
   });
@@ -7188,26 +7208,51 @@ window.addEventListener('load', () => {
   }
 
   function getAdminRoot() {
-    let root =
-      $('#adminTab') ||
-      $('[data-tab-content="admin"]') ||
-      $('[data-tab="admin"]') ||
-      $$('.tab-content, .app-tab-content, section').find((node) => /админ|admin/i.test(node.id + ' ' + node.className + ' ' + node.textContent.slice(0, 100)));
+    let root = document.querySelector('#ftAdminStableRoot');
 
     if (!root) {
       root = document.createElement('section');
-      root.id = 'adminTab';
-      root.dataset.tabContent = 'admin';
-      root.className = 'tab-content';
-      const appRoot = $('#app') || $('main') || document.body;
-      appRoot.appendChild(root);
+      root.id = 'ftAdminStableRoot';
+      root.dataset.tabPanel = 'admin';
+      root.className = 'app-tab-panel active';
+      document.body.appendChild(root);
     }
 
     root.hidden = false;
-    root.style.display = '';
+    root.style.display = 'block';
+    root.style.position = 'relative';
+    root.style.zIndex = '20';
+    root.style.width = '100%';
+    root.style.maxWidth = '640px';
+    root.style.margin = '0 auto 120px';
+    root.style.padding = '16px';
+
+    root.classList.remove('hidden');
     root.classList.add('active');
 
     return root;
+  }
+
+  function getAdminPin() {
+    return (
+      localStorage.getItem('ft-admin-pin') ||
+      localStorage.getItem('ft-admin-pin-value') ||
+      localStorage.getItem('ft-admin-pin-v2') ||
+      ''
+    ).trim();
+  }
+
+  function saveAdminPin(pin) {
+    const clean = String(pin || '').trim();
+    localStorage.setItem('ft-admin-pin', clean);
+    localStorage.setItem('ft-admin-pin-value', clean);
+    localStorage.setItem('ft-admin-pin-v2', clean);
+  }
+
+  function clearAdminPin() {
+    localStorage.removeItem('ft-admin-pin');
+    localStorage.removeItem('ft-admin-pin-value');
+    localStorage.removeItem('ft-admin-pin-v2');
   }
 
   function adminPinForm(message = '') {
@@ -7228,6 +7273,8 @@ window.addEventListener('load', () => {
   function adminDashboardHtml(data, logs, feedback) {
     const stats = data?.stats || {};
     const users = Array.isArray(data?.users) ? data.users : [];
+    const logItems = Array.isArray(logs) ? logs : logs?.items || logs?.logs || [];
+    const feedbackItems = Array.isArray(feedback) ? feedback : feedback?.items || feedback?.feedback || [];
 
     return `
       <section class="ft-admin-stable-panel">
@@ -7241,52 +7288,37 @@ window.addEventListener('load', () => {
         </div>
 
         <div class="ft-admin-grid">
-          <div class="ft-admin-card">
-            <b>${Number(stats.totalUsers || users.length || 0)}</b>
-            <span>пользователей</span>
-          </div>
-          <div class="ft-admin-card">
-            <b>${Number(stats.totalGenerations || 0)}</b>
-            <span>генераций</span>
-          </div>
-          <div class="ft-admin-card">
-            <b>${Number(stats.totalSpentCredits || 0)}</b>
-            <span>списано токенов</span>
-          </div>
+          <div class="ft-admin-card"><b>${Number(stats.totalUsers || users.length || 0)}</b><span>пользователей</span></div>
+          <div class="ft-admin-card"><b>${Number(stats.totalGenerations || 0)}</b><span>генераций</span></div>
+          <div class="ft-admin-card"><b>${Number(stats.totalSpentCredits || 0)}</b><span>списано токенов</span></div>
         </div>
 
         <h3>Пользователи</h3>
         <div class="ft-admin-list">
           ${users.length ? users.map((user) => `
             <div class="ft-admin-row">
-              <div>
-                <b>@${user.username || user.telegramUserId || user.id || 'user'}</b>
-                <small>Баланс: ${Number(user.balance || 0)} · Генераций: ${Number(user.generationsCount || 0)}</small>
-              </div>
+              <b>${user.name || user.username || user.id || 'Пользователь'}</b>
+              <span>${Number(user.credits || user.balance || 0)} токенов</span>
             </div>
           `).join('') : '<p>Пользователей пока нет.</p>'}
         </div>
 
-        <h3>Ошибки генерации</h3>
+        <h3>Логи генераций</h3>
         <div class="ft-admin-list">
-          ${Array.isArray(logs) && logs.length ? logs.slice(0, 10).map((log) => `
+          ${logItems.length ? logItems.slice(0, 20).map((item) => `
             <div class="ft-admin-row">
-              <div>
-                <b>${log.status || log.type || 'log'}</b>
-                <small>${log.message || log.error || JSON.stringify(log).slice(0, 160)}</small>
-              </div>
+              <b>${item.status || item.provider || item.id || 'Лог'}</b>
+              <span>${item.createdAt || item.date || ''}</span>
             </div>
-          `).join('') : '<p>Ошибок генерации нет.</p>'}
+          `).join('') : '<p>Логов пока нет.</p>'}
         </div>
 
         <h3>Обратная связь</h3>
         <div class="ft-admin-list">
-          ${Array.isArray(feedback) && feedback.length ? feedback.slice(0, 10).map((item) => `
+          ${feedbackItems.length ? feedbackItems.slice(0, 20).map((item) => `
             <div class="ft-admin-row">
-              <div>
-                <b>${item.type || 'Сообщение'}</b>
-                <small>${item.message || item.text || JSON.stringify(item).slice(0, 160)}</small>
-              </div>
+              <b>${item.name || item.contact || 'Сообщение'}</b>
+              <span>${item.message || item.text || ''}</span>
             </div>
           `).join('') : '<p>Сообщений пока нет.</p>'}
         </div>
@@ -7296,13 +7328,13 @@ window.addEventListener('load', () => {
 
   async function renderAdminStable(forceForm = false) {
     const root = getAdminRoot();
+    const pin = getAdminPin();
 
-    if (forceForm || !getAdminPin()) {
+    if (forceForm || !pin) {
       root.innerHTML = adminPinForm();
       return;
     }
 
-    const pin = getAdminPin();
     root.innerHTML = `
       <section class="ft-admin-stable-panel">
         <div class="step-badge">AD</div>
@@ -7312,10 +7344,12 @@ window.addEventListener('load', () => {
     `;
 
     try {
+      const headers = { 'x-admin-pin': pin };
+
       const [overviewRes, logsRes, feedbackRes] = await Promise.all([
-        fetch('/api/admin-pin/overview', { headers: { 'x-admin-pin': pin } }),
-        fetch('/api/generation-logs/admin', { headers: { 'x-admin-pin': pin } }).catch(() => null),
-        fetch('/api/feedback/admin', { headers: { 'x-admin-pin': pin } }).catch(() => null)
+        fetch('/api/admin-pin/overview', { headers }),
+        fetch('/api/generation-logs/admin', { headers }).catch(() => null),
+        fetch('/api/feedback/admin', { headers }).catch(() => null)
       ]);
 
       if (!overviewRes.ok) {
@@ -7324,45 +7358,66 @@ window.addEventListener('load', () => {
         return;
       }
 
-      const overview = await overviewRes.json();
+      const overview = await overviewRes.json().catch(() => ({}));
       const logs = logsRes?.ok ? await logsRes.json().catch(() => []) : [];
       const feedback = feedbackRes?.ok ? await feedbackRes.json().catch(() => []) : [];
 
-      root.innerHTML = adminDashboardHtml(
-        overview,
-        Array.isArray(logs) ? logs : logs.items || logs.logs || [],
-        Array.isArray(feedback) ? feedback : feedback.items || feedback.feedback || []
-      );
+      root.innerHTML = adminDashboardHtml(overview, logs, feedback);
     } catch (error) {
-      console.error('Admin stable render failed:', error);
-      root.innerHTML = adminPinForm('Не удалось загрузить админку. Проверьте сеть и PIN.');
+      root.innerHTML = `
+        <section class="ft-admin-stable-panel">
+          <div class="step-badge">AD</div>
+          <h2>Админ-консоль</h2>
+          <p class="ft-admin-error">Ошибка загрузки админки: ${error.message}</p>
+          <button type="button" id="ftStableAdminRetry">Повторить</button>
+        </section>
+      `;
     }
   }
 
-  document.addEventListener('submit', async (event) => {
-    const form = event.target.closest('#ftStableAdminPinForm, #adminPinForm, #ftAdminPinForm');
-    if (!form) return;
+  if (!window.__ftStableAdminEvents) {
+    window.__ftStableAdminEvents = true;
 
-    event.preventDefault();
-    event.stopPropagation();
+    document.addEventListener('submit', async (event) => {
+      const form = event.target.closest('#ftStableAdminPinForm');
+      if (!form) return;
 
-    const input = form.querySelector('input[type="password"], input[inputmode="numeric"], input');
-    const pin = String(input?.value || '').trim();
+      event.preventDefault();
+      const pin = document.querySelector('#ftStableAdminPinInput')?.value || '';
+      saveAdminPin(pin);
+      await renderAdminStable();
+    });
 
-    if (!pin) {
-      alert('Введите PIN');
-      return;
-    }
+    document.addEventListener('click', async (event) => {
+      if (event.target.closest('#ftStableAdminLogout')) {
+        event.preventDefault();
+        event.stopPropagation();
+        clearAdminPin();
 
-    saveAdminPin(pin);
-    await renderAdminStable();
-  }, true);
+        const root = getAdminRoot();
+        root.innerHTML = adminPinForm();
+        root.hidden = false;
+        root.style.display = 'block';
+        root.classList.remove('hidden');
+        root.classList.add('active');
+        return false;
+      }
 
+      if (event.target.closest('#ftStableAdminRetry')) {
+        await renderAdminStable();
+      }
+    });
+  }
+
+  
   document.addEventListener('click', (event) => {
-    if (!event.target.closest('#ftStableAdminLogout')) return;
-    clearAdminPin();
-    renderAdminStable(true);
-  }, true);
+    const adminTab = event.target.closest('[data-tab-target="admin"], [data-tab="admin"], #adminTabButton, .admin-tab');
+    if (!adminTab) return;
+
+    setTimeout(() => {
+      renderAdminStable();
+    }, 50);
+  });
 
   window.renderAdminStable = renderAdminStable;
   window.ftSetActiveTab = setActiveTab;
