@@ -15,3 +15,6 @@ storage/
 _local_checkpoints/
 src/client/app.before_restore_*.js
 *.bak
+
+# Local rescue backups
+rescue-backups/
