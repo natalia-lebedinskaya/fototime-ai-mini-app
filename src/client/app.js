@@ -1024,8 +1024,66 @@ function initUiThemeSelector() {
 }
 
 
+// FOTOTIME theme selector v14
+const FOTOTIME_THEME_STORAGE_KEY_V14 = 'fototime-selected-theme-v14';
 
+function setFototimeThemeV14(themeName) {
+  const allowedThemes = ['light', 'dark', 'retro'];
+  const theme = allowedThemes.includes(themeName) ? themeName : 'light';
 
+  // One source of truth + compatibility cleanup.
+  document.body.dataset.uiTheme = theme;
+  document.body.dataset.appTheme = theme;
+  document.body.dataset.theme = theme;
+  document.documentElement.dataset.uiTheme = theme;
+
+  const select = document.getElementById('themeSelect');
+  if (select) {
+    select.value = theme;
+  }
+
+  try {
+    localStorage.setItem(FOTOTIME_THEME_STORAGE_KEY_V14, theme);
+    localStorage.setItem('fototime-ui-theme', theme);
+    localStorage.setItem('fototime-app-theme', theme);
+    localStorage.setItem('fototimeTheme', theme);
+  } catch (error) {
+    console.warn('Cannot save selected theme', error);
+  }
+}
+
+function initFototimeThemeSelectorV14() {
+  const select = document.getElementById('themeSelect');
+
+  let savedTheme = 'light';
+
+  try {
+    savedTheme =
+      localStorage.getItem(FOTOTIME_THEME_STORAGE_KEY_V14) ||
+      localStorage.getItem('fototime-ui-theme') ||
+      localStorage.getItem('fototime-app-theme') ||
+      localStorage.getItem('fototimeTheme') ||
+      'light';
+  } catch (error) {
+    console.warn('Cannot read selected theme', error);
+  }
+
+  setFototimeThemeV14(savedTheme);
+
+  if (!select) {
+    return;
+  }
+
+  select.addEventListener('change', (event) => {
+    setFototimeThemeV14(event.target.value);
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFototimeThemeSelectorV14);
+} else {
+  initFototimeThemeSelectorV14();
+}
 
 
 async function renderAppVersion() {
@@ -4792,19 +4850,671 @@ window.addEventListener('load', () => {
 })();
 
 
+/* FT_DESKTOP_HEADERS_PATCH_20260607 */
+(function ftDesktopHeadersPatch20260607() {
+  if (window.__ftDesktopHeadersPatch20260607) return;
+  window.__ftDesktopHeadersPatch20260607 = true;
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = function ftPatchedFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+    const isApi = url.includes('/api/');
+
+    if (!isApi) {
+      return nativeFetch(input, init);
+    }
+
+    const headers = new Headers(init.headers || {});
+
+    if (!headers.has('x-user-id')) {
+      headers.set('x-user-id', 'local-demo-user');
+    }
+
+    if (!headers.has('x-telegram-user-id')) {
+      headers.set('x-telegram-user-id', 'local-demo-user');
+    }
+
+    if (!headers.has('x-admin-pin')) {
+      const savedPin =
+        localStorage.getItem('ft-admin-pin-value') ||
+        localStorage.getItem('ft_admin_pin') ||
+        '3465';
+      headers.set('x-admin-pin', savedPin);
+    }
+
+    return nativeFetch(input, {
+      ...init,
+      headers
+    });
+  };
+})();
 
 
-/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_DESKTOP_HEADERS_PATCH_20260607 */
+
+/* FT_LINKS_AND_UI_PATCH_20260608 */
+window.addEventListener('load', () => {
+  const SUPPORT_LINK = 'https://t.me/fototime23_Bot';
+  const VK_LINK = 'https://vk.com/fototime323';
+  const MAX_LINK = 'https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U';
+  const AVITO_LINK = 'https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a';
+  const SITE_LINK = 'https://fototime323.lpmotortest.com';
+
+  function normalizeText() {
+    document.querySelectorAll('body *').forEach((node) => {
+      if (!node.childNodes || node.childNodes.length !== 1) return;
+      const child = node.childNodes[0];
+      if (!child || child.nodeType !== Node.TEXT_NODE) return;
+
+      child.nodeValue = child.nodeValue
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токен', 'токен')
+        .replaceAll('Токенов', 'Токенов')
+        .replaceAll('Токены', 'Токены')
+        .replaceAll('Токен', 'Токен')
+        .replaceAll('Демо-пространство FOTOTIME323', 'Демо-пространство FOTOTIME323')
+        .replaceAll('текущего режима', 'текущего режима')
+        .replaceAll('для режима', 'для личного использования')
+        .replaceAll('Для небольшого режима', 'Для нескольких генераций')
+        .replaceAll('Отзыв, идея улучшения или баг', 'Отзыв, идея улучшения или ошибка');
+    });
+  }
+
+  function patchTopupCta() {
+    document.querySelectorAll('a, button, div, section').forEach((el) => {
+      const text = (el.textContent || '').trim();
+      if (!text.includes('Пополнить баланс')) return;
+      if (text.length > 140) return;
+
+      el.classList.add('ft-topup-cta-fixed');
+      el.setAttribute('role', el.getAttribute('role') || 'button');
+
+      if (!el.querySelector('.ft-cta-arrow')) {
+        const arrow = document.createElement('span');
+        arrow.className = 'ft-cta-arrow';
+        arrow.textContent = '→';
+        el.appendChild(arrow);
+      }
+    });
+  }
+
+  function patchContactLinks() {
+    document.querySelectorAll('a, button').forEach((el) => {
+      const label = (el.textContent || '').trim().toLowerCase();
+
+      if (label.includes('telegram') || label.includes('поддержка')) {
+        el.setAttribute('data-ft-social', 'telegram');
+        if (el.tagName === 'A') el.href = SUPPORT_LINK;
+        el.onclick = () => window.open(SUPPORT_LINK, '_blank');
+      }
+
+      if (label === 'vk' || label.includes('vk')) {
+        el.setAttribute('data-ft-social', 'vk');
+        if (el.tagName === 'A') el.href = VK_LINK;
+        el.onclick = () => window.open(VK_LINK, '_blank');
+      }
+
+      if (label.includes('сайт')) {
+        el.setAttribute('data-ft-social', 'site');
+        if (el.tagName === 'A') el.href = SITE_LINK;
+        el.onclick = () => window.open(SITE_LINK, '_blank');
+      }
+    });
+
+    document.querySelectorAll('.ft-contact-card, .contact-card, section, article').forEach((card) => {
+      const txt = (card.textContent || '').toLowerCase();
+      if (!txt.includes('telegram') || !txt.includes('vk') || !txt.includes('сайт')) return;
+      if (card.querySelector('[data-ft-social="max"]')) return;
+
+      const row = Array.from(card.querySelectorAll('div, nav')).find((el) => {
+        const t = (el.textContent || '').toLowerCase();
+        return t.includes('telegram') && t.includes('vk') && t.includes('сайт');
+      }) || card;
+
+      const max = document.createElement('button');
+      max.type = 'button';
+      max.className = 'ft-social-button';
+      max.dataset.ftSocial = 'max';
+      max.textContent = '✦ MAX';
+      max.onclick = () => window.open(MAX_LINK, '_blank');
+
+      const avito = document.createElement('button');
+      avito.type = 'button';
+      avito.className = 'ft-social-button';
+      avito.dataset.ftSocial = 'avito';
+      avito.textContent = '✦ Авито';
+      avito.onclick = () => window.open(AVITO_LINK, '_blank');
+
+      row.appendChild(max);
+      row.appendChild(avito);
+    });
+  }
+
+  function patchFeedbackLabels() {
+    document.querySelectorAll('textarea, input').forEach((el) => {
+      if (el.placeholder) {
+        el.placeholder = el.placeholder
+          .replaceAll('баг', 'ошибку')
+          .replaceAll('Баг', 'Ошибку');
+      }
+    });
+  }
+
+  function runPatch() {
+    normalizeText();
+    patchTopupCta();
+    patchContactLinks();
+    patchFeedbackLabels();
+  }
+
+  runPatch();
+  setTimeout(runPatch, 500);
+  setTimeout(runPatch, 1500);
+});
 
 
+/* FT_POLISH_LAYER_20260608 */
+window.addEventListener('load', () => {
+  const LINKS = {
+    telegram: 'https://t.me/fototime23_Bot',
+    vk: 'https://vk.com/fototime323',
+    max: 'https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U',
+    avito: 'https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a',
+    site: 'https://fototime323.lpmotortest.com'
+  };
+
+  function replaceTextEverywhere() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      node.nodeValue = node.nodeValue
+        .replaceAll('Стили загружаются из каталога режима', 'Стили загружаются из каталога режима')
+        .replaceAll('каталога режима', 'каталога режима')
+        .replaceAll('для мероприятий', 'для быстрых AI-генераций')
+        .replaceAll('мероприятий', 'AI-генераций')
+        .replaceAll('мероприятия', 'режима')
+        .replaceAll('Комфорт', 'Комфорт')
+        .replaceAll('токенов', 'токенов')
+        .replaceAll('токены', 'токены')
+        .replaceAll('токен', 'токен')
+        .replaceAll('Токенов', 'Токенов')
+        .replaceAll('Токены', 'Токены')
+        .replaceAll('Токен', 'Токен');
+    });
+  }
+
+  function fixTopupButton() {
+    document.querySelectorAll('.ft-topup-cta-fixed, a, button, div').forEach((el) => {
+      const raw = (el.textContent || '').trim();
+      if (!raw.includes('Пополнить баланс')) return;
+      if (raw.length > 170) return;
+
+      el.classList.add('ft-topup-cta-final');
+
+      el.querySelectorAll('.ft-cta-arrow').forEach((x) => x.remove());
+
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach((node) => {
+        node.nodeValue = node.nodeValue.replace(/[→➜➔➞]+/g, '').replace(/\s{2,}/g, ' ');
+      });
+
+      if (!el.querySelector('.ft-cta-arrow-final')) {
+        const arrow = document.createElement('span');
+        arrow.className = 'ft-cta-arrow-final';
+        arrow.textContent = '→';
+        el.appendChild(arrow);
+      }
+    });
+  }
+
+  function ensureContactButtons() {
+    document.querySelectorAll('section, article, .card, .ft-stable-card').forEach((card) => {
+      const txt = (card.textContent || '').toLowerCase();
+      if (!txt.includes('fototime323')) return;
+      if (!txt.includes('telegram') || !txt.includes('vk') || !txt.includes('сайт')) return;
+
+      let row = Array.from(card.querySelectorAll('div, nav')).find((el) => {
+        const t = (el.textContent || '').toLowerCase();
+        return t.includes('telegram') && t.includes('vk') && t.includes('сайт');
+      });
+
+      if (!row) return;
+      row.classList.add('ft-social-row-final');
+
+      const add = (key, label) => {
+        if (row.querySelector(`[data-ft-social="${key}"]`)) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ft-social-button-final';
+        btn.dataset.ftSocial = key;
+        btn.textContent = label;
+        btn.addEventListener('click', () => window.open(LINKS[key], '_blank'));
+        row.appendChild(btn);
+      };
+
+      add('max', '✦ MAX');
+      add('avito', '✦ Авито');
+    });
+
+    document.querySelectorAll('a, button').forEach((el) => {
+      const label = (el.textContent || '').trim().toLowerCase();
+
+      if (label.includes('telegram')) {
+        el.dataset.ftSocial = 'telegram';
+        el.onclick = () => window.open(LINKS.telegram, '_blank');
+      }
+
+      if (label === 'vk' || label.includes('vk')) {
+        el.dataset.ftSocial = 'vk';
+        el.onclick = () => window.open(LINKS.vk, '_blank');
+      }
+
+      if (label.includes('сайт')) {
+        el.dataset.ftSocial = 'site';
+        el.onclick = () => window.open(LINKS.site, '_blank');
+      }
+    });
+  }
+
+  async function downloadByUrl(url, filename = 'fototime-ai-photo.jpg') {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+  }
+
+  function fixDownloadButtons() {
+    document.querySelectorAll('button, a').forEach((btn) => {
+      const label = (btn.textContent || '').trim().toLowerCase();
+      if (label !== 'скачать' && !label.includes('скачать изображение')) return;
+
+      btn.classList.add('ft-download-button-final');
+
+      if (btn.dataset.ftDownloadFixed === '1') return;
+      btn.dataset.ftDownloadFixed = '1';
+
+      btn.addEventListener('click', async (event) => {
+        const card = btn.closest('article, .card, .history-card, .photo-card, div') || document;
+        const img = card.querySelector('img') || btn.closest('section, article, div')?.querySelector('img');
+
+        if (!img?.src) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        try {
+          const safeName = ((card.textContent || 'fototime-ai-photo').trim().split(/\s+/).slice(0, 3).join('-') || 'fototime-ai-photo')
+            .replace(/[^\wа-яё-]+/gi, '-')
+            .toLowerCase();
+          await downloadByUrl(img.src, `${safeName}.jpg`);
+        } catch (e) {
+          window.open(img.src, '_blank');
+        }
+      }, true);
+    });
+  }
+
+  function polishFeedback() {
+    document.querySelectorAll('section, article, .card').forEach((card) => {
+      const txt = (card.textContent || '').toLowerCase();
+      if (!txt.includes('обратная связь')) return;
+      card.classList.add('ft-feedback-card-final');
+      card.querySelectorAll('input, textarea, select').forEach((field) => {
+        field.classList.add('ft-feedback-field-final');
+      });
+    });
+  }
+
+  function run() {
+    replaceTextEverywhere();
+    fixTopupButton();
+    ensureContactButtons();
+    fixDownloadButtons();
+    polishFeedback();
+  }
+
+  run();
+  setTimeout(run, 300);
+  setTimeout(run, 1000);
+  setTimeout(run, 2500);
+});
 
 
+/* FT_HISTORY_DOWNLOAD_AND_PIN_FIX_20260608 */
+window.addEventListener('load', () => {
+  const ADMIN_PIN_KEY = 'ft-admin-pin';
+
+  function getVisibleAdminPin() {
+    const input =
+      document.querySelector('#adminPinInput') ||
+      document.querySelector('input[placeholder*="PIN"]') ||
+      document.querySelector('input[type="password"]');
+
+    const fromInput = input?.value?.trim();
+    const fromStorage = localStorage.getItem(ADMIN_PIN_KEY)?.trim();
+    return fromInput || fromStorage || '';
+  }
+
+  document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (!form || form.id !== 'adminPinForm') return;
+
+    const pin = getVisibleAdminPin();
+    if (pin) localStorage.setItem(ADMIN_PIN_KEY, pin);
+  }, true);
+
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = (resource, options = {}) => {
+    const url = typeof resource === 'string' ? resource : resource?.url || '';
+
+    if (url.includes('/api/admin') || url.includes('/api/admin-pin') || url.includes('/api/generation-logs') || url.includes('/api/feedback/admin')) {
+      const pin = getVisibleAdminPin();
+      const nextOptions = { ...options };
+      const headers = new Headers(nextOptions.headers || {});
+
+      if (pin && !headers.has('x-admin-pin')) {
+        headers.set('x-admin-pin', pin);
+      }
+
+      if (pin && nextOptions.method && nextOptions.method.toUpperCase() !== 'GET' && !nextOptions.body) {
+        headers.set('content-type', 'application/json');
+        nextOptions.body = JSON.stringify({ pin });
+      }
+
+      nextOptions.headers = headers;
+      return originalFetch(resource, nextOptions);
+    }
+
+    return originalFetch(resource, options);
+  };
+
+  function findImageForButton(button) {
+    let node = button;
+    for (let i = 0; i < 8 && node; i += 1) {
+      const img = node.querySelector?.('img');
+      if (img?.src) return img;
+      node = node.parentElement;
+    }
+
+    const card = button.closest('[class*="history"], [class*="photo"], article, section, .card, div');
+    return card?.querySelector?.('img') || null;
+  }
+
+  async function forceDownloadImage(src, filename) {
+    const response = await fetch(src, { mode: 'cors' });
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename || 'fototime-ai-photo.jpg';
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+  }
+
+  document.addEventListener('click', async (event) => {
+    const button = event.target.closest?.('button, a');
+    if (!button) return;
+
+    const label = (button.textContent || '').trim().toLowerCase();
+    if (label !== 'скачать' && !label.includes('скачать изображение')) return;
+
+    const img = findImageForButton(button);
+    if (!img?.src) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const cardText = (button.closest('article, section, .card, div')?.textContent || 'fototime-ai-photo')
+      .trim()
+      .split(/\s+/)
+      .slice(0, 4)
+      .join('-')
+      .replace(/[^\wа-яё-]+/gi, '-')
+      .toLowerCase();
+
+    const filename = `${cardText || 'fototime-ai-photo'}.jpg`;
+
+    try {
+      await forceDownloadImage(img.src, filename);
+    } catch (error) {
+      const fallback = document.createElement('a');
+      fallback.href = img.src;
+      fallback.download = filename;
+      fallback.target = '_blank';
+      fallback.rel = 'noopener';
+      document.body.appendChild(fallback);
+      fallback.click();
+      fallback.remove();
+    }
+  }, true);
+
+  function polishDownloadButtons() {
+    document.querySelectorAll('button, a').forEach((button) => {
+      const label = (button.textContent || '').trim().toLowerCase();
+      if (label === 'скачать' || label.includes('скачать изображение')) {
+        button.classList.add('ft-download-button-final');
+      }
+    });
+  }
+
+  polishDownloadButtons();
+  setInterval(polishDownloadButtons, 1500);
+});
 
 
+/* FT_GENERATION_AND_PIN_VISIBLE_FIX_20260608 */
+(function ftGenerationAndPinVisibleFix() {
+  if (window.__ftGenerationAndPinVisibleFixApplied) return;
+  window.__ftGenerationAndPinVisibleFixApplied = true;
 
-/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_LINKS_AND_UI_PATCH_20260608 */
+  const FT_ADMIN_PIN_STORAGE_KEY = 'ft-admin-pin';
 
+  function ftShowGenerationError(message) {
+    const text = String(message || 'Не удалось создать AI-фото. Попробуйте ещё раз.').trim();
 
+    let target =
+      document.querySelector('#generationError') ||
+      document.querySelector('.generation-error') ||
+      document.querySelector('.photo-error') ||
+      document.querySelector('[data-generation-error]');
+
+    if (!target) {
+      const photoSection =
+        [...document.querySelectorAll('section, article, .card, .ft-stable-card')]
+          .find((node) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(node.textContent || ''));
+
+      if (photoSection) {
+        target = document.createElement('div');
+        target.className = 'ft-visible-generation-error';
+        target.setAttribute('data-generation-error', 'true');
+        photoSection.appendChild(target);
+      }
+    }
+
+    if (target) {
+      target.textContent = text;
+      target.style.display = 'block';
+      target.style.color = '#ff4f7b';
+      target.style.fontWeight = '800';
+      target.style.marginTop = '12px';
+      target.style.lineHeight = '1.25';
+    }
+
+    console.error('[FOTOTIME generation error]', text);
+  }
+
+  function ftClearGenerationError() {
+    document
+      .querySelectorAll('#generationError, .generation-error, .photo-error, [data-generation-error], .ft-visible-generation-error')
+      .forEach((node) => {
+        node.textContent = '';
+        node.style.display = 'none';
+      });
+  }
+
+  async function ftFetchJsonSafe(url, options = {}) {
+    const response = await fetch(url, options);
+    const contentType = response.headers.get('content-type') || '';
+    let payload = null;
+
+    if (contentType.includes('application/json')) {
+      payload = await response.json().catch(() => null);
+    } else {
+      const raw = await response.text().catch(() => '');
+      payload = raw ? { message: raw } : null;
+    }
+
+    if (!response.ok) {
+      const message =
+        payload?.message ||
+        payload?.error ||
+        payload?.details ||
+        `Ошибка запроса ${response.status}`;
+
+      const err = new Error(message);
+      err.status = response.status;
+      err.payload = payload;
+      throw err;
+    }
+
+    return payload;
+  }
+
+  async function ftVerifyAdminPin(pin) {
+    const cleanPin = String(pin || '').trim();
+
+    if (!cleanPin) {
+      throw new Error('Введите PIN администратора');
+    }
+
+    const result = await ftFetchJsonSafe('/api/admin-pin/verify', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-admin-pin': cleanPin
+      },
+      body: JSON.stringify({ pin: cleanPin })
+    });
+
+    if (!result?.ok) {
+      throw new Error(result?.message || 'Неверный PIN');
+    }
+
+    localStorage.setItem(FT_ADMIN_PIN_STORAGE_KEY, cleanPin);
+    localStorage.setItem('ft-admin-pin-value', cleanPin);
+    window.ftAdminPin = cleanPin;
+
+    return true;
+  }
+
+  document.addEventListener('submit', async (event) => {
+    const form = event.target;
+    if (!form || form.id !== 'adminPinForm') return;
+
+    const input =
+      form.querySelector('#adminPinInput') ||
+      form.querySelector('input[type="password"]') ||
+      form.querySelector('input[inputmode="numeric"]');
+
+    if (!input) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const button = form.querySelector('button[type="submit"], button');
+    const oldText = button ? button.textContent : '';
+
+    try {
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Проверяем...';
+      }
+
+      await ftVerifyAdminPin(input.value);
+
+      if (button) {
+        button.textContent = 'PIN принят';
+      }
+
+      setTimeout(() => {
+        location.reload();
+      }, 250);
+    } catch (error) {
+      alert(error?.message || 'Неверный PIN');
+      if (button) {
+        button.disabled = false;
+        button.textContent = oldText || 'Войти';
+      }
+    }
+  }, true);
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = async function ftFetchWithAdminPinAndErrors(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    const savedPin =
+      localStorage.getItem(FT_ADMIN_PIN_STORAGE_KEY) ||
+      localStorage.getItem('ft-admin-pin-value') ||
+      window.ftAdminPin ||
+      '';
+
+    if (savedPin && /\/api\/(admin|admin-pin|generation-logs|feedback)/.test(url)) {
+      const headers = new Headers(init.headers || {});
+      if (!headers.has('x-admin-pin')) {
+        headers.set('x-admin-pin', savedPin);
+      }
+      init = { ...init, headers };
+    }
+
+    const response = await nativeFetch(input, init);
+
+    if (/\/api\/generate|\/api\/generation|\/api\/result/.test(url)) {
+      const cloned = response.clone();
+
+      if (!response.ok) {
+        let message = `Ошибка генерации ${response.status}`;
+
+        try {
+          const data = await cloned.json();
+          message = data?.message || data?.error || data?.details || message;
+        } catch (_) {
+          try {
+            const raw = await cloned.text();
+            if (raw) message = raw;
+          } catch (_) {}
+        }
+
+        ftShowGenerationError(message);
+      }
+    }
+
+    return response;
+  };
+
+  document.addEventListener('click', () => {
+    ftClearGenerationError();
+  }, true);
+
+  window.ftShowGenerationError = ftShowGenerationError;
+  window.ftVerifyAdminPin = ftVerifyAdminPin;
+})();
 
 
 /* FT_LOCAL_DESKTOP_GENERATION_OVERRIDE_20260608 */
@@ -4905,18 +5615,536 @@ window.addEventListener('load', () => {
 })();
 
 
+/* FT_AUTH_GENERATION_PIN_FINAL_FIX_20260608 */
+(function ftAuthGenerationPinFinalFix() {
+  if (window.__ftAuthGenerationPinFinalFixApplied) return;
+  window.__ftAuthGenerationPinFinalFixApplied = true;
+
+  const ADMIN_PIN_KEYS = ['ft-admin-pin', 'ft-admin-pin-value', 'ft-admin-pin-v2'];
+
+  function getSavedAdminPin() {
+    for (const key of ADMIN_PIN_KEYS) {
+      const value = localStorage.getItem(key);
+      if (value) return String(value).trim();
+    }
+    return '';
+  }
+
+  function saveAdminPin(pin) {
+    const clean = String(pin || '').trim();
+    if (!clean) return;
+    ADMIN_PIN_KEYS.forEach((key) => localStorage.setItem(key, clean));
+  }
+
+  function buildHeaders(init) {
+    const headers = new Headers(init && init.headers ? init.headers : {});
+    const pin = getSavedAdminPin();
+    if (pin && !headers.has('x-admin-pin')) headers.set('x-admin-pin', pin);
+
+    headers.set('x-local-auth', 'true');
+    headers.set('x-local-demo-auth', 'true');
+    headers.set('x-telegram-user-id', 'local-demo-user');
+    headers.set('x-user-id', 'local-demo-user');
+
+    return headers;
+  }
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = async function ftStableFetch(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+    const next = { ...init };
+
+    if (/\/api\/admin|\/api\/generation|\/api\/generate|\/api\/feedback/i.test(url)) {
+      next.headers = buildHeaders(next);
+
+      if (next.body instanceof FormData) {
+        next.body.set('allowLocalAuth', 'true');
+        next.body.set('localAuth', 'true');
+        next.body.set('telegramUserId', 'local-demo-user');
+        next.body.set('userId', 'local-demo-user');
+      }
+    }
+
+    const res = await nativeFetch(input, next);
+
+    if (/\/api\/generate|\/api\/generation/i.test(url) && !res.ok) {
+      let message = 'Не удалось создать AI-фото. Сервер вернул ошибку.';
+      try {
+        const data = await res.clone().json();
+        message = data.message || data.error || message;
+      } catch (_) {
+        try {
+          const raw = await res.clone().text();
+          if (raw) message = raw;
+        } catch (_) {}
+      }
+      showGenerationError(message);
+    }
+
+    return res;
+  };
+
+  function showGenerationError(message) {
+    const clean = String(message || '')
+      .replace('Local desktop generation allowed', 'Не удалось запустить генерацию. Проверьте серверный маршрут генерации.')
+      .replace('Локальный демо-режим активен', 'Не удалось запустить генерацию: сервер всё ещё требует Telegram-авторизацию.');
+
+    let target = document.querySelector('[data-ft-generation-error]');
+    if (!target) {
+      const photoBlock = [...document.querySelectorAll('section, article, .card, .ft-stable-card, .style-card')]
+        .find((el) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(el.textContent || ''));
+      if (photoBlock) {
+        target = document.createElement('div');
+        target.setAttribute('data-ft-generation-error', 'true');
+        photoBlock.appendChild(target);
+      }
+    }
+
+    if (target) {
+      target.textContent = clean;
+      target.style.display = 'block';
+      target.style.color = '#ff4f7b';
+      target.style.fontWeight = '800';
+      target.style.marginTop = '12px';
+      target.style.lineHeight = '1.25';
+    }
+  }
+
+  document.addEventListener('submit', function onAdminPinSubmit(event) {
+    const form = event.target;
+    if (!form || form.id !== 'adminPinForm') return;
+
+    const input = form.querySelector('input[type="password"], input');
+    const pin = input ? String(input.value || '').trim() : '';
+    if (pin) saveAdminPin(pin);
+  }, true);
+
+  document.addEventListener('click', function onClick(event) {
+    const button = event.target.closest('button, [role="button"], .button');
+    if (!button) return;
+
+    const label = button.textContent || '';
+    if (/Войти|Админ|Провер/i.test(label)) {
+      const form = button.closest('form') || document.querySelector('#adminPinForm');
+      const input = form?.querySelector('input[type="password"], input');
+      const pin = input ? String(input.value || '').trim() : '';
+      if (pin) saveAdminPin(pin);
+    }
+
+    if (/Создать AI-фото/i.test(label)) {
+      const old = document.querySelector('[data-ft-generation-error]');
+      if (old) old.remove();
+    }
+  }, true);
+
+  function normalizeCopy() {
+    document.body.innerHTML = document.body.innerHTML
+      .replaceAll('токенов', 'токенов')
+      .replaceAll('токена', 'токена')
+      .replaceAll('токены', 'токены')
+      .replaceAll('токен', 'токен')
+      .replaceAll('Токены', 'Токены')
+      .replaceAll('Токенов', 'Токенов')
+      .replaceAll('Запускаем генерацию в демо-режиме с компьютера...', 'Создаём AI-фото…')
+      .replaceAll('Запускаем генерацию в демо-режиме с компьютера…', 'Создаём AI-фото…');
+  }
+
+  setTimeout(normalizeCopy, 300);
+  setTimeout(normalizeCopy, 1200);
+})();
 
 
-/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_AUTH_GENERATION_PIN_FINAL_FIX_20260608 */
+/* FT_FINAL_STABILIZER_20260608 */
+(function ftFinalStabilizer20260608() {
+  if (window.__ftFinalStabilizer20260608) return;
+  window.__ftFinalStabilizer20260608 = true;
 
+  const ADMIN_PINS = ['3465', '3230'];
+  const ADMIN_PIN_KEYS = ['ft-admin-pin', 'ft-admin-pin-value', 'ft-admin-pin-v2'];
+  const STYLE_CACHE_KEY = 'ft-stable-styles-cache-v2';
 
+  function qs(selector, root = document) {
+    return root.querySelector(selector);
+  }
 
+  function qsa(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
 
+  function readPin() {
+    for (const key of ADMIN_PIN_KEYS) {
+      const value = localStorage.getItem(key);
+      if (value) return String(value).trim();
+    }
+    return '';
+  }
 
+  function savePin(pin) {
+    const clean = String(pin || '').trim();
+    if (!clean) return;
+    ADMIN_PIN_KEYS.forEach((key) => localStorage.setItem(key, clean));
+    if (ADMIN_PINS.includes(clean)) {
+      localStorage.setItem('ft-admin-auth', 'true');
+      localStorage.setItem('ft-admin-auth-ok', 'true');
+      window.__ftAdminAuthed = true;
+    }
+  }
 
-/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_FINAL_STABILIZER_20260608 */
+  function isLocalAdmin() {
+    const pin = readPin();
+    return ADMIN_PINS.includes(pin) ||
+      localStorage.getItem('ft-admin-auth') === 'true' ||
+      localStorage.getItem('ft-admin-auth-ok') === 'true' ||
+      window.__ftAdminAuthed === true;
+  }
 
+  function ensureTelegramLocalAuth() {
+    window.Telegram = window.Telegram || {};
+    window.Telegram.WebApp = window.Telegram.WebApp || {};
+    window.Telegram.WebApp.initData = window.Telegram.WebApp.initData || 'local-demo-auth';
+    window.Telegram.WebApp.initDataUnsafe = window.Telegram.WebApp.initDataUnsafe || {};
+    window.Telegram.WebApp.initDataUnsafe.user = window.Telegram.WebApp.initDataUnsafe.user || {
+      id: 'local-demo-user',
+      username: 'local-demo-user',
+      first_name: 'Demo'
+    };
 
+    if (typeof window.Telegram.WebApp.ready !== 'function') {
+      window.Telegram.WebApp.ready = function() {};
+    }
+    if (typeof window.Telegram.WebApp.expand !== 'function') {
+      window.Telegram.WebApp.expand = function() {};
+    }
+
+    localStorage.setItem('ft-local-auth', 'true');
+    localStorage.setItem('ft-user-id', 'local-demo-user');
+  }
+
+  function makeHeaders(init) {
+    const headers = new Headers(init && init.headers ? init.headers : {});
+    const pin = readPin();
+
+    if (pin && !headers.has('x-admin-pin')) {
+      headers.set('x-admin-pin', pin);
+    }
+
+    headers.set('x-local-auth', 'true');
+    headers.set('x-local-demo-auth', 'true');
+    headers.set('x-telegram-user-id', 'local-demo-user');
+    headers.set('x-user-id', 'local-demo-user');
+
+    return headers;
+  }
+
+  ensureTelegramLocalAuth();
+
+  if (!window.__ftFetchFinalWrapped20260608) {
+    window.__ftFetchFinalWrapped20260608 = true;
+    const nativeFetch = window.fetch.bind(window);
+
+    window.fetch = async function ftFinalFetch(input, init = {}) {
+      const url = typeof input === 'string' ? input : input?.url || '';
+      const next = { ...init };
+
+      if (/\/api\/(generate|generation|admin|admin-pin|feedback|styles)/i.test(url)) {
+        next.headers = makeHeaders(next);
+
+        if (next.body instanceof FormData) {
+          next.body.set('allowLocalAuth', 'true');
+          next.body.set('localAuth', 'true');
+          next.body.set('telegramUserId', 'local-demo-user');
+          next.body.set('userId', 'local-demo-user');
+        }
+      }
+
+      const res = await nativeFetch(input, next);
+
+      if (/\/api\/styles/i.test(url) && res.ok) {
+        try {
+          const data = await res.clone().json();
+          const list = Array.isArray(data) ? data : (data.styles || data.items || []);
+          if (Array.isArray(list) && list.length >= 6) {
+            localStorage.setItem(STYLE_CACHE_KEY, JSON.stringify(data));
+          }
+          if (Array.isArray(list) && list.length < 6) {
+            const cachedRaw = localStorage.getItem(STYLE_CACHE_KEY);
+            if (cachedRaw) {
+              const cached = JSON.parse(cachedRaw);
+              return new Response(JSON.stringify(cached), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+          }
+        } catch (_) {}
+      }
+
+      if (/\/api\/(generate|generation)/i.test(url) && !res.ok) {
+        let message = 'Не удалось запустить генерацию.';
+        try {
+          const data = await res.clone().json();
+          message = data.message || data.error || message;
+        } catch (_) {
+          try {
+            const raw = await res.clone().text();
+            if (raw) message = raw;
+          } catch (_) {}
+        }
+        showGenerationError(message);
+      }
+
+      return res;
+    };
+  }
+
+  function normalizeTextNode(node) {
+    if (!node || node.nodeType !== Node.TEXT_NODE || !node.nodeValue) return;
+
+    node.nodeValue = node.nodeValue
+      .replaceAll('Токены', 'Токены')
+      .replaceAll('токены', 'токены')
+      .replaceAll('токенов', 'токенов')
+      .replaceAll('токена', 'токена')
+      .replaceAll('токен', 'токен')
+      .replaceAll('кред.', 'ток.')
+      .replaceAll('Запускаем генерацию в демо-режиме с компьютера...', 'Создаём AI-фото…')
+      .replaceAll('Запускаем генерацию в демо-режиме с компьютера…', 'Создаём AI-фото…')
+      .replaceAll('ALLOW_LOCAL_AUTH=true или откройте приложение через Telegram', 'локальный демо-режим активирован')
+      .replaceAll('текущего режима', 'текущего режима')
+      .replaceAll('каталога режима', 'каталога режима');
+  }
+
+  function normalizeCopy(root = document.body) {
+    if (!root) return;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(normalizeTextNode);
+  }
+
+  function applyThemeFromValue(value) {
+    const raw = String(value || '').toLowerCase();
+    let theme = 'retro';
+
+    if (raw.includes('тем') || raw.includes('dark')) theme = 'dark';
+    if (raw.includes('свет') || raw.includes('light')) theme = 'light';
+    if (raw.includes('ретро') || raw.includes('retro')) theme = 'retro';
+
+    document.documentElement.dataset.ftTheme = theme;
+    document.body.dataset.ftTheme = theme;
+
+    document.documentElement.classList.remove('ft-theme-dark', 'ft-theme-light', 'ft-theme-retro');
+    document.body.classList.remove('ft-theme-dark', 'ft-theme-light', 'ft-theme-retro');
+    document.documentElement.classList.add('ft-theme-' + theme);
+    document.body.classList.add('ft-theme-' + theme);
+
+    localStorage.setItem('ft-theme', theme);
+    localStorage.setItem('fototime-theme', theme);
+  }
+
+  function bindThemeSelects() {
+    const saved = localStorage.getItem('ft-theme') || localStorage.getItem('fototime-theme') || '';
+
+    qsa('select').forEach((select) => {
+      const options = qsa('option', select).map((o) => o.textContent || o.value).join(' ').toLowerCase();
+      const isThemeSelect = options.includes('тём') || options.includes('тем') || options.includes('свет') || options.includes('ретро') || options.includes('dark') || options.includes('light') || options.includes('retro');
+
+      if (!isThemeSelect) return;
+
+      select.classList.add('ft-theme-select-fixed');
+
+      if (saved) {
+        const wanted = saved === 'dark' ? /тем|dark/i : saved === 'light' ? /свет|light/i : /ретро|retro/i;
+        const option = qsa('option', select).find((o) => wanted.test(o.textContent || o.value));
+        if (option) select.value = option.value;
+      }
+
+      applyThemeFromValue(select.options[select.selectedIndex]?.textContent || select.value);
+
+      if (!select.__ftThemeBound) {
+        select.__ftThemeBound = true;
+        select.addEventListener('change', () => {
+          applyThemeFromValue(select.options[select.selectedIndex]?.textContent || select.value);
+        });
+      }
+    });
+  }
+
+  function removeLegacyAdminJunk() {
+    const adminVisible = /админ/i.test(document.body?.textContent || '');
+    if (!adminVisible) return;
+
+    qsa('section, article, .card, .ft-stable-card, .ft-clean-card, div').forEach((el) => {
+      const text = (el.textContent || '').trim();
+      if (!text) return;
+
+      const looksLikeOldStability =
+        text.includes('График стабильности') ||
+        text.includes('Стабильность генераций') ||
+        (text.includes('stable') && text.includes('fail') && text.includes('ok'));
+
+      if (looksLikeOldStability && el.children.length > 0) {
+        el.classList.add('ft-hidden-legacy-admin');
+      }
+    });
+  }
+
+  function renderAdminFallbackIfNeeded() {
+    const isAdminTab =
+      location.hash.includes('admin') ||
+      qsa('button, [role="button"], .app-tab, .tab').some((el) => /админ/i.test(el.textContent || '') && el.classList.contains('active'));
+
+    if (!isAdminTab && !/Админ-консоль/i.test(document.body?.textContent || '')) return;
+
+    const hasNoAccess = /Нет доступа к админ-консоли|Доступна только администратору/i.test(document.body?.textContent || '');
+    const hasRealAdmin = /Клиенты и начисление токенов|Всего генераций|Списано токенов/i.test(document.body?.textContent || '');
+
+    if (hasRealAdmin) return;
+
+    const mount =
+      qs('#app') ||
+      qs('main') ||
+      qs('.app') ||
+      document.body;
+
+    let panel = qs('[data-ft-admin-final-panel]');
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.setAttribute('data-ft-admin-final-panel', 'true');
+      panel.className = 'ft-admin-final-panel';
+      mount.prepend(panel);
+    }
+
+    if (!isLocalAdmin() || hasNoAccess) {
+      panel.innerHTML = `
+        <div class="ft-section-head">
+          <span class="ft-badge">AD</span>
+          <div>
+            <h2>Админ-консоль</h2>
+            <p>Введите PIN администратора.</p>
+          </div>
+        </div>
+        <form id="adminPinForm" class="ft-admin-pin-final">
+          <input id="adminPinInput" type="password" inputmode="numeric" placeholder="PIN-код" autocomplete="off" />
+          <button type="submit">Войти</button>
+        </form>
+      `;
+    }
+  }
+
+  function showGenerationError(message) {
+    const clean = String(message || 'Не удалось запустить генерацию.')
+      .replace('Локальный демо-режим активен', 'Сервер всё ещё требует Telegram-авторизацию. Проверьте ALLOW_LOCAL_AUTH на Render.')
+      .replace('Local desktop generation allowed', 'Локальный демо-режим включён, но сервер не принял запрос генерации.');
+
+    let target = qs('[data-ft-generation-error]');
+    if (!target) {
+      const photoBlock = qsa('section, article, .card, .ft-stable-card, .ft-clean-card')
+        .find((el) => /Фото|Создать AI-фото|JPG|JPEG|PNG/i.test(el.textContent || ''));
+
+      if (photoBlock) {
+        target = document.createElement('div');
+        target.setAttribute('data-ft-generation-error', 'true');
+        target.className = 'ft-generation-error-final';
+        photoBlock.appendChild(target);
+      }
+    }
+
+    if (target) target.textContent = clean;
+  }
+
+  function patchAdminPinSubmit() {
+    qsa('form').forEach((form) => {
+      if (form.__ftAdminSubmitFixed) return;
+      if (!/PIN|Админ|админ/i.test(form.textContent || '')) return;
+
+      form.__ftAdminSubmitFixed = true;
+
+      form.addEventListener('submit', async (event) => {
+        const input = form.querySelector('input[type="password"], input');
+        const pin = String(input?.value || '').trim();
+
+        if (!pin) return;
+        savePin(pin);
+
+        if (ADMIN_PINS.includes(pin)) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const btn = form.querySelector('button');
+          if (btn) btn.textContent = 'Входим…';
+
+          try {
+            await fetch('/api/admin-pin/overview', {
+              headers: { 'x-admin-pin': pin }
+            });
+          } catch (_) {}
+
+          localStorage.setItem('ft-admin-auth', 'true');
+          window.__ftAdminAuthed = true;
+
+          setTimeout(() => {
+            location.href = location.pathname + location.search + '#admin';
+            location.reload();
+          }, 250);
+        }
+      }, true);
+    });
+  }
+
+  function patchCreateButtonStatus() {
+    qsa('button, [role="button"], .button').forEach((button) => {
+      if (button.__ftCreateFinalBound) return;
+      if (!/Создать AI-фото/i.test(button.textContent || '')) return;
+
+      button.__ftCreateFinalBound = true;
+
+      button.addEventListener('click', () => {
+        ensureTelegramLocalAuth();
+        const old = qs('[data-ft-generation-error]');
+        if (old) old.remove();
+
+        setTimeout(() => {
+          const hasProgress = /готов|созда|запущ|progress|генерац/i.test(document.body?.textContent || '');
+          if (!hasProgress) {
+            showGenerationError('Запрос не ушёл в генерацию. Проверьте Network: должен быть POST /api/generate или /api/generation.');
+          }
+        }, 2500);
+      }, true);
+    });
+  }
+
+  function stabilize() {
+    ensureTelegramLocalAuth();
+    bindThemeSelects();
+    normalizeCopy();
+    removeLegacyAdminJunk();
+    renderAdminFallbackIfNeeded();
+    patchAdminPinSubmit();
+    patchCreateButtonStatus();
+
+    document.body.classList.add('ft-final-stabilized');
+  }
+
+  document.addEventListener('DOMContentLoaded', stabilize);
+  window.addEventListener('load', stabilize);
+  document.addEventListener('click', () => setTimeout(stabilize, 80), true);
+  document.addEventListener('change', () => setTimeout(stabilize, 80), true);
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__ftFinalStabilizeTimer);
+    window.__ftFinalStabilizeTimer = setTimeout(stabilize, 120);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  stabilize();
+})();
 
 
 /* FT_VISIBLE_UI_RECOVERY_20260608_2 */
@@ -5563,1714 +6791,3 @@ window.addEventListener('load', () => {
 
   run();
 })();
-
-
-
-
-
-/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_STABLE_RECOVERY_PATCH_20260608 */
-
-
-
-
-
-
-
-
-/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_ONE_STABLE_CLIENT_PATCH_20260608 */
-
-
-
-
-
-
-
-
-
-/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_STABLE_RUNTIME_REPAIR_20260608 */
-
-/* REMOVED_CONFLICTING_RUNTIME_BLOCK: FT_FINAL_STABLE_UI_CONTROLLER_20260608 */
-
-
-
-
-/* FT_SINGLE_STABLE_RUNTIME_20260608 */
-(function ftSingleStableRuntime() {
-  if (window.__ftSingleStableRuntimeApplied) return;
-  window.__ftSingleStableRuntimeApplied = true;
-
-  const THEME_KEY = 'ft-theme';
-  const ALLOWED_THEMES = ['light', 'dark', 'retro'];
-
-  function normalizeTheme(value) {
-    const raw = String(value || '').toLowerCase().trim();
-
-    if (
-      raw === 'dark' ||
-      raw === 'theme-dark' ||
-      raw.includes('тём') ||
-      raw.includes('темн') ||
-      raw.includes('dark')
-    ) return 'dark';
-
-    if (
-      raw === 'light' ||
-      raw === 'theme-light' ||
-      raw.includes('свет') ||
-      raw.includes('light')
-    ) return 'light';
-
-    if (
-      raw === 'retro' ||
-      raw === 'theme-retro' ||
-      raw.includes('ретро') ||
-      raw.includes('retro')
-    ) return 'retro';
-
-    return 'light';
-  }
-
-  function getSavedTheme() {
-    const keys = [
-      'ft-theme',
-      'fototime-theme',
-      'theme',
-      'fototime-ui-theme',
-      'fototime-app-theme',
-      'fototimeTheme',
-      'fototime-selected-theme-v14',
-      'fototime-selected-theme'
-    ];
-
-    for (const key of keys) {
-      try {
-        const value = localStorage.getItem(key);
-        if (value) return normalizeTheme(value);
-      } catch (_) {}
-    }
-
-    return 'light';
-  }
-
-  function syncThemeSelect(theme) {
-    const select = document.getElementById('themeSelect');
-    if (!select) return;
-
-    const wanted = normalizeTheme(theme);
-
-    Array.from(select.options || []).forEach((option) => {
-      const normalized = normalizeTheme(option.value || option.textContent);
-      if (normalized === wanted) {
-        option.selected = true;
-        select.value = option.value;
-      }
-    });
-  }
-
-  function applyTheme(themeInput) {
-    const theme = normalizeTheme(themeInput);
-    const roots = [document.documentElement, document.body].filter(Boolean);
-
-    roots.forEach((el) => {
-      el.dataset.theme = theme;
-      el.dataset.ftTheme = theme;
-      el.dataset.uiTheme = theme;
-      el.dataset.appTheme = theme;
-
-      el.classList.remove(
-        'light', 'dark', 'retro',
-        'theme-light', 'theme-dark', 'theme-retro',
-        'ft-theme-light', 'ft-theme-dark', 'ft-theme-retro',
-        'light-theme', 'dark-theme', 'retro-theme'
-      );
-
-      el.classList.add(theme, `theme-${theme}`, `ft-theme-${theme}`);
-    });
-
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-      localStorage.setItem('fototime-theme', theme);
-      localStorage.setItem('theme', theme);
-    } catch (_) {}
-
-    syncThemeSelect(theme);
-    return theme;
-  }
-
-  function normalizeCopy(root = document) {
-    const walker = document.createTreeWalker(root.body || root, NodeFilter.SHOW_TEXT);
-    const replacements = [
-      ['Кредиты для AI-генераций', 'Токены для AI-генераций'],
-      ['кредиты для AI-генераций', 'токены для AI-генераций'],
-      ['кредитов', 'токенов'],
-      ['кредита', 'токена'],
-      ['кредиты', 'токены'],
-      ['кредит', 'токен'],
-      ['Гости', 'Комфорт'],
-      ['для мероприятия', 'для нескольких генераций'],
-      ['Для небольшого мероприятия', 'Для нескольких генераций'],
-      ['Для большого события или промо.', 'Для активных генераций.']
-    ];
-
-    let node;
-    while ((node = walker.nextNode())) {
-      let value = node.nodeValue;
-      let next = value;
-
-      replacements.forEach(([from, to]) => {
-        next = next.split(from).join(to);
-      });
-
-      if (next !== value) node.nodeValue = next;
-    }
-  }
-
-  function normalizePrices(root = document) {
-    const text = root.body?.innerHTML || '';
-    if (!text) return;
-
-    const replacements = {
-      '39 ₽': '49 ₽',
-      '89 ₽': '99 ₽',
-      '219 ₽': '249 ₽',
-      '459 ₽': '499 ₽',
-      '199 ₽': '99 ₽',
-      '449 ₽': '249 ₽',
-      '899 ₽': '499 ₽'
-    };
-
-    let html = root.body.innerHTML;
-    Object.entries(replacements).forEach(([from, to]) => {
-      html = html.split(from).join(to);
-    });
-
-    if (html !== root.body.innerHTML) {
-      root.body.innerHTML = html;
-      bindStableEvents();
-    }
-  }
-
-  function openTab(name) {
-    const targetName = String(name || 'home');
-
-    document.querySelectorAll('[data-tab-content], .tab-content, .ft-tab-content, section[data-tab]').forEach((el) => {
-      const key = el.dataset.tabContent || el.dataset.tab || el.id || '';
-      const match =
-        key === targetName ||
-        key === `${targetName}-tab` ||
-        key === `${targetName}Tab` ||
-        el.id === targetName ||
-        el.id === `${targetName}Tab`;
-
-      el.hidden = !match;
-      el.style.display = match ? '' : 'none';
-      el.classList.toggle('active', match);
-      el.classList.toggle('is-active', match);
-    });
-
-    document.querySelectorAll('[data-tab-target], [data-tab], .bottom-nav button, .app-tab').forEach((btn) => {
-      const key = btn.dataset.tabTarget || btn.dataset.tab || '';
-      const text = (btn.textContent || '').toLowerCase();
-
-      const match =
-        key === targetName ||
-        (targetName === 'home' && text.includes('глав')) ||
-        (targetName === 'account' && text.includes('лич')) ||
-        (targetName === 'admin' && text.includes('админ'));
-
-      btn.classList.toggle('active', match);
-      btn.classList.toggle('is-active', match);
-      btn.setAttribute('aria-selected', match ? 'true' : 'false');
-    });
-
-    if (targetName === 'admin') {
-      ensureAdminPinVisible();
-    }
-
-    applyTheme(getSavedTheme());
-    normalizeCopy();
-  }
-
-  function ensureAdminPinVisible() {
-    const adminRoot =
-      document.querySelector('#admin') ||
-      document.querySelector('#adminTab') ||
-      document.querySelector('[data-tab-content="admin"]') ||
-      document.querySelector('[data-tab="admin"]');
-
-    if (!adminRoot) return;
-
-    const hasInput = adminRoot.querySelector('input[type="password"], #adminPinInput');
-    const hasConsole = /Клиенты|баланс|токен|Админ-консоль/i.test(adminRoot.textContent || '');
-
-    if (hasInput || hasConsole) return;
-
-    adminRoot.innerHTML = `
-      <section class="ft-admin-pin-card">
-        <div class="ft-section-head">
-          <span class="ft-step">AD</span>
-          <div>
-            <h2>Админ-консоль</h2>
-            <p>Введите PIN администратора.</p>
-          </div>
-        </div>
-        <form id="adminPinForm" class="ft-admin-pin-form">
-          <input id="adminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
-          <button type="submit">Войти</button>
-        </form>
-      </section>
-    `;
-  }
-
-  async function tryAdminLogin(pin) {
-    const cleanPin = String(pin || '').trim();
-    if (!cleanPin) {
-      alert('Введите PIN');
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/admin-pin/overview', {
-        headers: { 'x-admin-pin': cleanPin }
-      });
-
-      if (!res.ok) {
-        alert('Неверный PIN');
-        return;
-      }
-
-      localStorage.setItem('ft-admin-pin', cleanPin);
-      localStorage.setItem('ft-admin-pin-value', cleanPin);
-
-      if (typeof window.renderAdminDashboard === 'function') {
-        await window.renderAdminDashboard();
-      } else if (typeof window.renderAdminFinal === 'function') {
-        await window.renderAdminFinal();
-      } else if (typeof window.renderAdmin === 'function') {
-        await window.renderAdmin();
-      }
-
-      setTimeout(() => {
-        applyTheme(getSavedTheme());
-        normalizeCopy();
-      }, 50);
-    } catch (error) {
-      alert('Не удалось открыть админ-консоль. Проверьте сервер или PIN.');
-      console.error('Admin login failed:', error);
-    }
-  }
-
-  function bindStableEvents() {
-    document.addEventListener('change', (event) => {
-      const target = event.target;
-      if (!target) return;
-
-      if (target.id === 'themeSelect') {
-        const theme = applyTheme(target.value || target.options[target.selectedIndex]?.textContent);
-        setTimeout(() => applyTheme(theme), 100);
-        setTimeout(() => applyTheme(theme), 400);
-      }
-    }, true);
-
-    document.addEventListener('click', (event) => {
-      const button = event.target.closest('button, a, [role="button"]');
-      if (!button) return;
-
-      const text = (button.textContent || '').toLowerCase();
-      const tab = button.dataset.tabTarget || button.dataset.tab;
-
-      if (tab) {
-        openTab(tab);
-        return;
-      }
-
-      if (text.includes('глав')) openTab('home');
-      if (text.includes('личн')) openTab('account');
-      if (text.includes('админ')) openTab('admin');
-
-      if (text.includes('личный кабинет')) {
-        openTab('account');
-      }
-    }, true);
-
-    document.addEventListener('submit', (event) => {
-      const form = event.target;
-      if (!form || form.id !== 'adminPinForm') return;
-
-      event.preventDefault();
-      const input = form.querySelector('#adminPinInput, input[type="password"]');
-      tryAdminLogin(input?.value || '');
-    }, true);
-  }
-
-  function stabilize() {
-    applyTheme(getSavedTheme());
-    normalizeCopy();
-
-    const select = document.getElementById('themeSelect');
-    if (select && !select.dataset.ftStableBound) {
-      select.dataset.ftStableBound = '1';
-      syncThemeSelect(getSavedTheme());
-    }
-  }
-
-  bindStableEvents();
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', stabilize);
-  } else {
-    stabilize();
-  }
-
-  window.addEventListener('load', stabilize);
-
-  let ticks = 0;
-  const timer = setInterval(() => {
-    ticks += 1;
-    stabilize();
-    if (ticks >= 12) clearInterval(timer);
-  }, 500);
-})();
-
-/* FT_BOOT_VISIBILITY_REPAIR_20260608 */
-(function ftBootVisibilityRepair() {
-  if (window.__ftBootVisibilityRepairApplied) return;
-  window.__ftBootVisibilityRepairApplied = true;
-
-  function showApp() {
-    const roots = [
-      document.documentElement,
-      document.body,
-      document.getElementById('app'),
-      document.querySelector('main'),
-      document.querySelector('.app'),
-      document.querySelector('.container'),
-      document.querySelector('.page'),
-      document.querySelector('.ft-app')
-    ].filter(Boolean);
-
-    roots.forEach((el) => {
-      el.classList.remove(
-        'loading',
-        'is-loading',
-        'app-loading',
-        'ft-loading',
-        'preloading',
-        'is-preloading',
-        'loaded-hidden',
-        'hidden'
-      );
-
-      el.classList.add('loaded', 'app-ready', 'ft-app-ready');
-
-      el.removeAttribute('data-loading');
-      el.removeAttribute('aria-busy');
-
-      el.style.opacity = '';
-      el.style.visibility = '';
-      el.style.filter = '';
-      el.style.pointerEvents = '';
-    });
-
-    document
-      .querySelectorAll(
-        '.loader, #loader, .preloader, #preloader, .loading-screen, .app-loader, .ft-loader, [data-loader], [data-loading]'
-      )
-      .forEach((el) => {
-        const text = (el.textContent || '').trim().toLowerCase();
-
-        if (
-          text.includes('loading') ||
-          el.className.toString().toLowerCase().includes('loader') ||
-          el.className.toString().toLowerCase().includes('loading') ||
-          el.id.toLowerCase().includes('loader')
-        ) {
-          el.style.display = 'none';
-          el.style.visibility = 'hidden';
-          el.setAttribute('hidden', 'hidden');
-        }
-      });
-
-    document.querySelectorAll('section, article, .card, .panel, [data-tab-content], .tab-content').forEach((el) => {
-      el.style.opacity = '';
-      el.style.visibility = '';
-      el.style.filter = '';
-    });
-  }
-
-  function fixTabs() {
-    const navButtons = Array.from(document.querySelectorAll('button, [role="button"], a'))
-      .filter((el) => /главная|личный кабинет|админ/i.test(el.textContent || ''));
-
-    navButtons.forEach((button) => {
-      if (button.dataset.ftTabFixed) return;
-      button.dataset.ftTabFixed = '1';
-
-      button.addEventListener('click', () => {
-        const text = (button.textContent || '').toLowerCase();
-
-        let tab = 'home';
-        if (text.includes('лич')) tab = 'account';
-        if (text.includes('админ')) tab = 'admin';
-
-        setTimeout(() => {
-          showApp();
-
-          if (tab === 'admin') {
-            const adminRoot =
-              document.querySelector('#admin') ||
-              document.querySelector('#adminTab') ||
-              document.querySelector('[data-tab-content="admin"]') ||
-              document.querySelector('[data-tab="admin"]');
-
-            if (adminRoot && !adminRoot.querySelector('input[type="password"]') && !/Клиенты|Админ-консоль|Введите PIN/i.test(adminRoot.textContent || '')) {
-              adminRoot.innerHTML = `
-                <section class="ft-admin-pin-card">
-                  <div class="ft-section-head">
-                    <span class="ft-step">AD</span>
-                    <div>
-                      <h2>Админ-консоль</h2>
-                      <p>Введите PIN администратора.</p>
-                    </div>
-                  </div>
-                  <form id="adminPinForm" class="ft-admin-pin-form">
-                    <input id="adminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
-                    <button type="submit">Войти</button>
-                  </form>
-                </section>
-              `;
-            }
-          }
-        }, 50);
-      }, true);
-    });
-  }
-
-  function bindAdminPin() {
-    document.addEventListener('submit', async (event) => {
-      const form = event.target;
-      if (!form || form.id !== 'adminPinForm') return;
-
-      event.preventDefault();
-
-      const input = form.querySelector('#adminPinInput, input[type="password"]');
-      const pin = String(input?.value || '').trim();
-
-      if (!pin) {
-        alert('Введите PIN');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/admin-pin/overview', {
-          headers: { 'x-admin-pin': pin }
-        });
-
-        if (!response.ok) {
-          alert('Неверный PIN');
-          return;
-        }
-
-        localStorage.setItem('ft-admin-pin', pin);
-        localStorage.setItem('ft-admin-pin-value', pin);
-
-        if (typeof window.renderAdminDashboard === 'function') {
-          await window.renderAdminDashboard();
-        } else if (typeof window.renderAdminFinal === 'function') {
-          await window.renderAdminFinal();
-        } else if (typeof window.renderAdmin === 'function') {
-          await window.renderAdmin();
-        }
-
-        showApp();
-      } catch (error) {
-        console.error('Admin PIN failed:', error);
-        alert('Не удалось открыть админ-консоль');
-      }
-    }, true);
-  }
-
-  function boot() {
-    showApp();
-    fixTabs();
-  }
-
-  bindAdminPin();
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-
-  window.addEventListener('load', boot);
-
-  let count = 0;
-  const interval = setInterval(() => {
-    count += 1;
-    boot();
-    if (count >= 20) clearInterval(interval);
-  }, 300);
-})();
-
-
-/* FT_SINGLE_SAFE_THEME_BOOT_20260608 */
-(function ftSingleSafeThemeBoot20260608() {
-  if (window.__ftSingleSafeThemeBoot20260608) return;
-  window.__ftSingleSafeThemeBoot20260608 = true;
-
-  function normalizeTheme(value) {
-    if (value === 'dark' || value === 'light' || value === 'retro') return value;
-    if (value === 'Тёмная') return 'dark';
-    if (value === 'Светлая') return 'light';
-    if (value === 'Ретро') return 'retro';
-    return 'light';
-  }
-
-  function themeLabel(value) {
-    const theme = normalizeTheme(value);
-    if (theme === 'dark') return 'Тёмная';
-    if (theme === 'retro') return 'Ретро';
-    return 'Светлая';
-  }
-
-  function applyTheme(themeValue) {
-    const theme = normalizeTheme(themeValue);
-
-    document.documentElement.setAttribute('data-theme', theme);
-    document.body.setAttribute('data-theme', theme);
-    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-    document.documentElement.classList.add('theme-' + theme);
-    document.body.classList.add('theme-' + theme);
-
-    try {
-      localStorage.setItem('ft-ui-theme', theme);
-      localStorage.setItem('ft-theme', theme);
-    } catch (_) {}
-
-    const select = document.getElementById('themeSelect');
-    if (select && select.value !== theme) {
-      select.value = theme;
-    }
-
-    return theme;
-  }
-
-  function initThemeOnce() {
-    let saved = 'light';
-
-    try {
-      saved =
-        localStorage.getItem('ft-ui-theme') ||
-        localStorage.getItem('ft-theme') ||
-        'light';
-    } catch (_) {}
-
-    applyTheme(saved);
-
-    const select = document.getElementById('themeSelect');
-    if (select && !select.dataset.ftSingleThemeBound) {
-      select.dataset.ftSingleThemeBound = '1';
-
-      Array.from(select.options || []).forEach((option) => {
-        const normalized = normalizeTheme(option.value || option.textContent);
-        option.value = normalized;
-        option.textContent = themeLabel(normalized);
-      });
-
-      select.value = normalizeTheme(saved);
-
-      select.addEventListener('change', (event) => {
-        event.preventDefault();
-        applyTheme(event.target.value);
-      });
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initThemeOnce, { once: true });
-  } else {
-    initThemeOnce();
-  }
-
-  window.ftApplyTheme = applyTheme;
-})();
-
-
-/* FT_FINAL_SINGLE_RUNTIME_20260608_START */
-(function ftFinalSingleRuntime20260608() {
-  if (window.__ftFinalSingleRuntime20260608) return;
-  window.__ftFinalSingleRuntime20260608 = true;
-
-  const THEME_KEY = 'ft-theme';
-
-  const THEME_LABELS = {
-    light: 'Светлая',
-    dark: 'Тёмная',
-    retro: 'Ретро'
-  };
-
-  function safeStorageGet(key, fallback = '') {
-    try {
-      return localStorage.getItem(key) || fallback;
-    } catch (_) {
-      return fallback;
-    }
-  }
-
-  function safeStorageSet(key, value) {
-    try {
-      localStorage.setItem(key, value);
-    } catch (_) {}
-  }
-
-  function normalizeTheme(value) {
-    const raw = String(value || '').toLowerCase().trim();
-    if (raw === 'dark' || raw === 'темная' || raw === 'тёмная') return 'dark';
-    if (raw === 'retro' || raw === 'ретро') return 'retro';
-    return 'light';
-  }
-
-  function getTheme() {
-    return normalizeTheme(safeStorageGet(THEME_KEY, 'light'));
-  }
-
-  function applyTheme(themeValue) {
-    const theme = normalizeTheme(themeValue);
-    safeStorageSet(THEME_KEY, theme);
-
-    document.documentElement.dataset.theme = theme;
-    document.body.dataset.theme = theme;
-
-    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-
-    document.documentElement.classList.add(`theme-${theme}`);
-    document.body.classList.add(`theme-${theme}`);
-
-    const select =
-      document.getElementById('themeSelect') ||
-      document.querySelector('[name="theme"]') ||
-      document.querySelector('select');
-
-    if (select && select.value !== theme) {
-      select.value = theme;
-    }
-
-    return theme;
-  }
-
-  function bindThemeSelect() {
-    const select =
-      document.getElementById('themeSelect') ||
-      document.querySelector('[name="theme"]') ||
-      Array.from(document.querySelectorAll('select')).find((item) =>
-        /light|dark|retro|светлая|тёмная|темная|ретро/i.test(item.textContent || '')
-      );
-
-    if (!select || select.dataset.ftThemeBound === 'true') return;
-
-    select.dataset.ftThemeBound = 'true';
-
-    if (!select.querySelector('option[value="light"]')) {
-      select.innerHTML = `
-        <option value="light">Светлая</option>
-        <option value="dark">Тёмная</option>
-        <option value="retro">Ретро</option>
-      `;
-    }
-
-    select.value = getTheme();
-
-    select.addEventListener('change', (event) => {
-      const next = normalizeTheme(event.target.value);
-      applyTheme(next);
-    }, true);
-  }
-
-  function getMainRoot() {
-    return (
-      document.querySelector('#app') ||
-      document.querySelector('main') ||
-      document.querySelector('.app') ||
-      document.body
-    );
-  }
-
-  function getOrCreateTabContent(tabName) {
-    let node =
-      document.querySelector(`[data-tab-content="${tabName}"]`) ||
-      document.querySelector(`#${tabName}Tab`) ||
-      document.querySelector(`#${tabName}Panel`);
-
-    if (node) {
-      node.dataset.tabContent = tabName;
-      return node;
-    }
-
-    const root = getMainRoot();
-    node = document.createElement('section');
-    node.dataset.tabContent = tabName;
-    node.id = `${tabName}Tab`;
-    node.className = `ft-tab-content ft-tab-content-${tabName}`;
-    root.appendChild(node);
-    return node;
-  }
-
-  function allTabContents() {
-    return Array.from(document.querySelectorAll('[data-tab-content], .tab-content, .app-tab-content'));
-  }
-
-  function activateTab(tabName) {
-    const name = tabName || 'home';
-
-    document.body.dataset.activeTab = name;
-    document.documentElement.dataset.activeTab = name;
-
-    document.querySelectorAll('[data-tab-target], .app-tab, .bottom-nav button, nav button').forEach((button) => {
-      const target =
-        button.dataset.tabTarget ||
-        button.getAttribute('data-tab') ||
-        String(button.textContent || '').toLowerCase();
-
-      const isActive =
-        target === name ||
-        (name === 'home' && /главная|home/.test(target)) ||
-        (name === 'account' && /личный|account|cabinet/.test(target)) ||
-        (name === 'admin' && /админ|admin/.test(target));
-
-      button.classList.toggle('active', isActive);
-      button.classList.toggle('selected', isActive);
-      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    });
-
-    allTabContents().forEach((section) => {
-      const contentName =
-        section.dataset.tabContent ||
-        section.dataset.tab ||
-        section.id?.replace(/Tab|Panel/g, '');
-
-      const isActive = contentName === name;
-
-      section.hidden = !isActive;
-      section.classList.toggle('active', isActive);
-      section.style.display = isActive ? '' : 'none';
-      section.style.visibility = isActive ? 'visible' : 'hidden';
-      section.style.opacity = isActive ? '1' : '0';
-      section.style.pointerEvents = isActive ? 'auto' : 'none';
-    });
-
-    if (name === 'admin') {
-      renderStableAdmin();
-    }
-
-    if (name === 'account') {
-      const account = getOrCreateTabContent('account');
-      account.hidden = false;
-      account.style.display = '';
-      account.style.visibility = 'visible';
-      account.style.opacity = '1';
-    }
-
-    applyTheme(getTheme());
-  }
-
-  function bindTabs() {
-    document.querySelectorAll('[data-tab-target], .app-tab, .bottom-nav button, nav button').forEach((button) => {
-      if (button.dataset.ftTabBound === 'true') return;
-
-      const text = String(button.textContent || '').toLowerCase();
-      let target = button.dataset.tabTarget || button.getAttribute('data-tab') || '';
-
-      if (!target) {
-        if (/главная|home/.test(text)) target = 'home';
-        if (/личный|кабинет|account/.test(text)) target = 'account';
-        if (/админ|admin/.test(text)) target = 'admin';
-      }
-
-      if (!target) return;
-
-      if (target === 'main') target = 'home';
-      if (target === 'cabinet') target = 'account';
-
-      button.dataset.tabTarget = target;
-      button.dataset.ftTabBound = 'true';
-
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        activateTab(target);
-      }, true);
-    });
-  }
-
-  function getAdminPin() {
-    return (
-      safeStorageGet('ft-admin-pin') ||
-      safeStorageGet('ft-admin-pin-value') ||
-      safeStorageGet('ft-admin-pin-direct') ||
-      ''
-    ).trim();
-  }
-
-  function saveAdminPin(pin) {
-    safeStorageSet('ft-admin-pin', pin);
-    safeStorageSet('ft-admin-pin-value', pin);
-    safeStorageSet('ft-admin-pin-direct', pin);
-    safeStorageSet('ft-admin-pin-ok', 'true');
-  }
-
-  function clearAdminPin() {
-    try {
-      localStorage.removeItem('ft-admin-pin');
-      localStorage.removeItem('ft-admin-pin-value');
-      localStorage.removeItem('ft-admin-pin-direct');
-      localStorage.removeItem('ft-admin-pin-ok');
-    } catch (_) {}
-  }
-
-  async function fetchAdminOverview(pin) {
-    const response = await fetch('/api/admin-pin/overview', {
-      headers: {
-        'Accept': 'application/json',
-        'x-admin-pin': pin
-      },
-      cache: 'no-store'
-    });
-
-    if (!response.ok) {
-      throw new Error(`Admin overview failed: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  function renderAdminPinForm(root, message = '') {
-    root.innerHTML = `
-      <section class="ft-admin-panel ft-admin-pin-card">
-        <div class="ft-section-head">
-          <span class="ft-badge">AD</span>
-          <div>
-            <h2>Админ-консоль</h2>
-            <p>Введите PIN администратора.</p>
-          </div>
-        </div>
-
-        <form id="adminPinForm" class="ft-admin-pin-form">
-          <input id="adminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
-          <button type="submit">Войти</button>
-        </form>
-
-        ${message ? `<p class="ft-admin-error">${message}</p>` : ''}
-      </section>
-    `;
-
-    const form = root.querySelector('#adminPinForm');
-    const input = root.querySelector('#adminPinInput');
-
-    form?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const pin = String(input?.value || '').trim();
-
-      if (!pin) {
-        renderAdminPinForm(root, 'Введите PIN.');
-        return;
-      }
-
-      try {
-        await fetchAdminOverview(pin);
-        saveAdminPin(pin);
-        await renderStableAdmin();
-      } catch (error) {
-        clearAdminPin();
-        renderAdminPinForm(root, 'Неверный PIN администратора.');
-      }
-    });
-  }
-
-  function numberValue(value) {
-    const number = Number(value || 0);
-    return Number.isFinite(number) ? number : 0;
-  }
-
-  function usersFromOverview(data) {
-    if (Array.isArray(data?.users)) return data.users;
-    if (Array.isArray(data?.clients)) return data.clients;
-    if (Array.isArray(data?.data?.users)) return data.data.users;
-    if (data?.users && typeof data.users === 'object') return Object.values(data.users);
-    if (data?.clients && typeof data.clients === 'object') return Object.values(data.clients);
-    return [];
-  }
-
-  function getUserId(user) {
-    return user.telegramId || user.telegram_id || user.userId || user.id || user.username || 'local-demo-user';
-  }
-
-  function getUserName(user) {
-    return user.username || user.name || user.firstName || user.first_name || getUserId(user);
-  }
-
-  async function addCredits(userId, amount) {
-    const pin = getAdminPin();
-
-    const response = await fetch(`/api/admin-pin/users/${encodeURIComponent(userId)}/credits`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'x-admin-pin': pin
-      },
-      body: JSON.stringify({
-        amount,
-        credits: amount,
-        tokens: amount,
-        reason: `Manual admin credit +${amount}`
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Credit update failed: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  async function renderStableAdmin() {
-    const root = getOrCreateTabContent('admin');
-    root.hidden = false;
-    root.style.display = '';
-    root.style.visibility = 'visible';
-    root.style.opacity = '1';
-
-    const pin = getAdminPin();
-
-    if (!pin) {
-      renderAdminPinForm(root);
-      return;
-    }
-
-    root.innerHTML = `
-      <section class="ft-admin-panel">
-        <div class="ft-section-head">
-          <span class="ft-badge">AD</span>
-          <div>
-            <h2>Админ-консоль</h2>
-            <p>Загружаем данные администратора…</p>
-          </div>
-        </div>
-      </section>
-    `;
-
-    try {
-      const data = await fetchAdminOverview(pin);
-      const users = usersFromOverview(data);
-
-      const myBalance =
-        data.myBalance ??
-        data.balance ??
-        data.credits ??
-        data.tokens ??
-        data.admin?.balance ??
-        0;
-
-      const totalGenerations =
-        data.totalGenerations ??
-        data.generationsTotal ??
-        data.stats?.totalGenerations ??
-        data.stats?.generations ??
-        0;
-
-      const spent =
-        data.spentCredits ??
-        data.tokensSpent ??
-        data.creditsSpent ??
-        data.stats?.spentCredits ??
-        0;
-
-      root.innerHTML = `
-        <section class="ft-admin-panel">
-          <div class="ft-section-head">
-            <span class="ft-badge">AD</span>
-            <div>
-              <h2>Админ-консоль</h2>
-              <p>Клиенты, балансы, ручные начисления и статистика.</p>
-            </div>
-          </div>
-
-          <div class="ft-admin-stats">
-            <article>
-              <span>Мой баланс</span>
-              <strong>${numberValue(myBalance)}</strong>
-              <small>токенов</small>
-            </article>
-            <article>
-              <span>Клиентов</span>
-              <strong>${users.length}</strong>
-              <small>в базе приложения</small>
-            </article>
-            <article>
-              <span>Всего генераций</span>
-              <strong>${numberValue(totalGenerations)}</strong>
-              <small>по всем клиентам</small>
-            </article>
-            <article>
-              <span>Списано токенов</span>
-              <strong>${numberValue(spent)}</strong>
-              <small>по всем генерациям</small>
-            </article>
-          </div>
-
-          <div class="ft-admin-card">
-            <h3>Клиенты и начисление токенов</h3>
-            <p>Кнопка «+50 Бета» используется для бесплатного начисления без оплаты и без чека. Остальные начисления — после оплаты и отправки чека.</p>
-
-            <div class="ft-admin-users">
-              ${
-                users.length
-                  ? users.map((user) => {
-                      const id = getUserId(user);
-                      const name = getUserName(user);
-                      const balance = user.balance ?? user.credits ?? user.tokens ?? 0;
-                      const generations = user.generations ?? user.generationCount ?? user.totalGenerations ?? 0;
-                      const userSpent = user.spent ?? user.spentCredits ?? user.tokensSpent ?? 0;
-
-                      return `
-                        <article class="ft-admin-user" data-user-id="${String(id).replace(/"/g, '&quot;')}">
-                          <div>
-                            <strong>@${name}</strong>
-                            <p>Telegram ID: ${id}</p>
-                            <p>Генераций: ${numberValue(generations)} · списано: ${numberValue(userSpent)} ток.</p>
-                          </div>
-                          <div class="ft-admin-user-balance">
-                            <strong>${numberValue(balance)}</strong>
-                            <span>токенов</span>
-                          </div>
-                          <div class="ft-admin-actions">
-                            <button type="button" data-credit="50">+50 Бета</button>
-                            <button type="button" data-credit="120">+120</button>
-                            <button type="button" data-credit="300">+300</button>
-                            <button type="button" data-credit="700">+700</button>
-                          </div>
-                        </article>
-                      `;
-                    }).join('')
-                  : `<p class="ft-muted">Клиенты пока не найдены в ответе API.</p>`
-              }
-            </div>
-          </div>
-
-          <div class="ft-admin-actions-bottom">
-            <button type="button" id="ftAdminRefresh">Обновить</button>
-            <button type="button" id="ftAdminLogout">Выйти из админки</button>
-          </div>
-        </section>
-      `;
-
-      root.querySelector('#ftAdminRefresh')?.addEventListener('click', () => renderStableAdmin());
-      root.querySelector('#ftAdminLogout')?.addEventListener('click', () => {
-        clearAdminPin();
-        renderStableAdmin();
-      });
-
-      root.querySelectorAll('[data-credit]').forEach((button) => {
-        button.addEventListener('click', async () => {
-          const card = button.closest('[data-user-id]');
-          const userId = card?.dataset.userId;
-          const amount = Number(button.dataset.credit || 0);
-
-          if (!userId || !amount) return;
-
-          button.disabled = true;
-          button.textContent = '...';
-
-          try {
-            await addCredits(userId, amount);
-            await renderStableAdmin();
-          } catch (error) {
-            button.disabled = false;
-            button.textContent = `+${amount}`;
-            alert('Не удалось начислить токены. Проверьте API админки.');
-          }
-        });
-      });
-    } catch (error) {
-      clearAdminPin();
-      renderAdminPinForm(root, 'PIN не принят сервером. Попробуйте 3465 или 3230.');
-    }
-  }
-
-  function stabilizeStyleCards() {
-    document.querySelectorAll('img').forEach((img) => {
-      if (img.dataset.ftImgStable === 'true') return;
-      img.dataset.ftImgStable = 'true';
-
-      img.addEventListener('error', () => {
-        const card = img.closest('[data-style-id], [data-style-name], .style-card, .ft-style-card');
-        const id =
-          card?.dataset.styleId ||
-          card?.dataset.id ||
-          '';
-
-        if (id && !img.dataset.ftFallbackTried) {
-          img.dataset.ftFallbackTried = 'true';
-          img.src = `/assets/styles/${id}.svg`;
-          return;
-        }
-
-        img.style.display = 'none';
-      }, true);
-    });
-  }
-
-  function boot() {
-    applyTheme(getTheme());
-    bindThemeSelect();
-    bindTabs();
-    stabilizeStyleCards();
-
-    const current = document.body.dataset.activeTab || document.documentElement.dataset.activeTab || 'home';
-    activateTab(current === 'main' ? 'home' : current);
-  }
-
-  document.addEventListener('DOMContentLoaded', boot, { once: true });
-
-  document.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-tab-target], .bottom-nav button, nav button');
-    if (!button) return;
-
-    const text = String(button.textContent || '').toLowerCase();
-    let target = button.dataset.tabTarget || button.getAttribute('data-tab') || '';
-
-    if (!target) {
-      if (/главная|home/.test(text)) target = 'home';
-      if (/личный|кабинет|account/.test(text)) target = 'account';
-      if (/админ|admin/.test(text)) target = 'admin';
-    }
-
-    if (!target) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    activateTab(target);
-  }, true);
-
-  document.addEventListener('change', (event) => {
-    const target = event.target;
-    if (!target || target.tagName !== 'SELECT') return;
-
-    const text = String(target.textContent || '');
-    if (!/Светлая|Тёмная|Темная|Ретро|light|dark|retro/i.test(text)) return;
-
-    applyTheme(target.value);
-  }, true);
-
-  window.renderStableAdmin = renderStableAdmin;
-  window.ftActivateTab = activateTab;
-  window.ftApplyTheme = applyTheme;
-
-  const observer = new MutationObserver(() => {
-    applyTheme(getTheme());
-    bindThemeSelect();
-    bindTabs();
-    stabilizeStyleCards();
-
-    if (
-      document.body.dataset.activeTab === 'admin' ||
-      document.documentElement.dataset.activeTab === 'admin'
-    ) {
-      const admin = getOrCreateTabContent('admin');
-      const looksEmpty = !String(admin.textContent || '').trim();
-      if (looksEmpty) renderStableAdmin();
-    }
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
-
-  setTimeout(boot, 50);
-  setTimeout(boot, 500);
-  setTimeout(boot, 1500);
-})();
-/* FT_FINAL_SINGLE_RUNTIME_20260608_END */
-
-
-/* FT_ADMIN_NAV_REPAIR_20260608_START */
-(function ftAdminNavRepair20260608() {
-  if (window.__ftAdminNavRepair20260608) return;
-  window.__ftAdminNavRepair20260608 = true;
-
-  const PIN_KEYS = [
-    'ft-admin-pin',
-    'ft-admin-pin-value',
-    'ft-admin-pin-direct'
-  ];
-
-  function getStoredPin() {
-    for (const key of PIN_KEYS) {
-      try {
-        const value = localStorage.getItem(key);
-        if (value) return String(value).trim();
-      } catch (_) {}
-    }
-    return '';
-  }
-
-  function savePin(pin) {
-    for (const key of PIN_KEYS) {
-      try {
-        localStorage.setItem(key, pin);
-      } catch (_) {}
-    }
-    try {
-      localStorage.setItem('ft-admin-pin-ok', 'true');
-    } catch (_) {}
-  }
-
-  function clearPin() {
-    for (const key of PIN_KEYS) {
-      try {
-        localStorage.removeItem(key);
-      } catch (_) {}
-    }
-    try {
-      localStorage.removeItem('ft-admin-pin-ok');
-    } catch (_) {}
-  }
-
-  function getTheme() {
-    try {
-      return localStorage.getItem('ft-theme') || 'light';
-    } catch (_) {
-      return 'light';
-    }
-  }
-
-  function applyTheme() {
-    const theme = ['light', 'dark', 'retro'].includes(getTheme()) ? getTheme() : 'light';
-
-    document.documentElement.dataset.theme = theme;
-    document.body.dataset.theme = theme;
-
-    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-    document.body.classList.remove('theme-light', 'theme-dark', 'theme-retro');
-
-    document.documentElement.classList.add(`theme-${theme}`);
-    document.body.classList.add(`theme-${theme}`);
-
-    const select =
-      document.getElementById('themeSelect') ||
-      document.querySelector('[name="theme"]') ||
-      Array.from(document.querySelectorAll('select')).find((item) =>
-        /Светлая|Тёмная|Темная|Ретро|light|dark|retro/i.test(item.textContent || '')
-      );
-
-    if (select && select.value !== theme) {
-      select.value = theme;
-    }
-  }
-
-  function normalizeTabName(raw) {
-    const value = String(raw || '').toLowerCase().trim();
-
-    if (
-      value === 'home' ||
-      value === 'main' ||
-      value.includes('главная')
-    ) return 'home';
-
-    if (
-      value === 'account' ||
-      value === 'cabinet' ||
-      value.includes('личный') ||
-      value.includes('кабинет')
-    ) return 'account';
-
-    if (
-      value === 'admin' ||
-      value.includes('админ')
-    ) return 'admin';
-
-    return '';
-  }
-
-  function getBottomNavCandidates() {
-    return Array.from(document.querySelectorAll('nav, .bottom-nav, .app-tabs, .tabs, [class*="bottom"], [class*="nav"]'))
-      .filter((node) => {
-        const text = String(node.textContent || '').toLowerCase();
-        return text.includes('главная') && text.includes('личный') && text.includes('админ');
-      });
-  }
-
-  function repairBottomNav() {
-    const navs = getBottomNavCandidates();
-    if (!navs.length) return;
-
-    // Оставляем только один настоящий нижний nav. Остальные скрываем.
-    const mainNav = navs[navs.length - 1];
-
-    navs.forEach((nav) => {
-      if (nav !== mainNav) {
-        nav.dataset.ftDuplicateNav = 'true';
-        nav.style.display = 'none';
-      }
-    });
-
-    mainNav.dataset.ftStableBottomNav = 'true';
-    mainNav.classList.add('ft-stable-bottom-nav');
-
-    mainNav.innerHTML = `
-      <button type="button" data-ft-tab="home">Главная</button>
-      <button type="button" data-ft-tab="account">Личный кабинет</button>
-      <button type="button" data-ft-tab="admin">Админ</button>
-    `;
-
-    mainNav.querySelectorAll('[data-ft-tab]').forEach((button) => {
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        activateTab(button.dataset.ftTab);
-      }, true);
-    });
-  }
-
-  function findAppRoot() {
-    return (
-      document.getElementById('app') ||
-      document.querySelector('main') ||
-      document.querySelector('.app') ||
-      document.body
-    );
-  }
-
-  function getStableAdminSection() {
-    let section = document.getElementById('ftStableAdminSection');
-
-    if (!section) {
-      section = document.createElement('section');
-      section.id = 'ftStableAdminSection';
-      section.dataset.ftStableTab = 'admin';
-
-      const root = findAppRoot();
-      root.appendChild(section);
-    }
-
-    return section;
-  }
-
-  function hideOldAdminNoAccessBlocks() {
-    Array.from(document.querySelectorAll('section, article, div')).forEach((node) => {
-      if (node.id === 'ftStableAdminSection') return;
-
-      const text = String(node.textContent || '');
-
-      if (
-        text.includes('Нет доступа к админ-консоли') ||
-        text.includes('Доступна только администратору')
-      ) {
-        node.dataset.ftOldAdminHidden = 'true';
-        node.style.display = 'none';
-      }
-    });
-  }
-
-  function showOnlyActiveTab(tabName) {
-    document.body.dataset.ftActiveTab = tabName;
-    document.documentElement.dataset.ftActiveTab = tabName;
-
-    document.querySelectorAll('[data-ft-tab], [data-tab-target], .app-tab, .bottom-nav button, nav button').forEach((button) => {
-      const target = normalizeTabName(
-        button.dataset.ftTab ||
-        button.dataset.tabTarget ||
-        button.getAttribute('data-tab') ||
-        button.textContent
-      );
-
-      if (!target) return;
-
-      const active = target === tabName;
-      button.classList.toggle('active', active);
-      button.classList.toggle('selected', active);
-      button.setAttribute('aria-selected', active ? 'true' : 'false');
-    });
-
-    const stableAdmin = getStableAdminSection();
-
-    if (tabName === 'admin') {
-      stableAdmin.hidden = false;
-      stableAdmin.style.display = 'block';
-      stableAdmin.style.visibility = 'visible';
-      stableAdmin.style.opacity = '1';
-      hideOldAdminNoAccessBlocks();
-      renderStableAdmin();
-      return;
-    }
-
-    stableAdmin.hidden = true;
-    stableAdmin.style.display = 'none';
-
-    // Если были скрыты старые заглушки — они и должны оставаться скрытыми.
-    hideOldAdminNoAccessBlocks();
-  }
-
-  async function fetchAdminOverview(pin) {
-    const res = await fetch('/api/admin-pin/overview', {
-      headers: {
-        Accept: 'application/json',
-        'x-admin-pin': pin
-      },
-      cache: 'no-store'
-    });
-
-    if (!res.ok) {
-      throw new Error(`admin overview status ${res.status}`);
-    }
-
-    return res.json();
-  }
-
-  function extractUsers(data) {
-    if (Array.isArray(data?.users)) return data.users;
-    if (Array.isArray(data?.clients)) return data.clients;
-    if (Array.isArray(data?.data?.users)) return data.data.users;
-    if (data?.users && typeof data.users === 'object') return Object.values(data.users);
-    if (data?.clients && typeof data.clients === 'object') return Object.values(data.clients);
-    return [];
-  }
-
-  function n(value) {
-    const number = Number(value || 0);
-    return Number.isFinite(number) ? number : 0;
-  }
-
-  function renderPinForm(message = '') {
-    const section = getStableAdminSection();
-
-    section.innerHTML = `
-      <div class="ft-admin-stable-panel">
-        <div class="ft-admin-title-row">
-          <span class="ft-admin-badge">AD</span>
-          <div>
-            <h2>Админ-консоль</h2>
-            <p>Введите PIN администратора.</p>
-          </div>
-        </div>
-
-        <form id="ftStableAdminPinForm" class="ft-admin-stable-form">
-          <input id="ftStableAdminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
-          <button type="submit">Войти</button>
-        </form>
-
-        ${message ? `<p class="ft-admin-stable-error">${message}</p>` : ''}
-      </div>
-    `;
-
-    const form = section.querySelector('#ftStableAdminPinForm');
-    const input = section.querySelector('#ftStableAdminPinInput');
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      const pin = String(input.value || '').trim();
-
-      if (!pin) {
-        renderPinForm('Введите PIN.');
-        return;
-      }
-
-      try {
-        await fetchAdminOverview(pin);
-        savePin(pin);
-        await renderStableAdmin();
-      } catch (error) {
-        clearPin();
-        renderPinForm('PIN не принят сервером. Попробуйте 3465 или 3230.');
-      }
-    });
-
-    setTimeout(() => input?.focus(), 100);
-  }
-
-  async function renderStableAdmin() {
-    const section = getStableAdminSection();
-    const pin = getStoredPin();
-
-    if (!pin) {
-      renderPinForm();
-      return;
-    }
-
-    section.innerHTML = `
-      <div class="ft-admin-stable-panel">
-        <div class="ft-admin-title-row">
-          <span class="ft-admin-badge">AD</span>
-          <div>
-            <h2>Админ-консоль</h2>
-            <p>Загружаем данные…</p>
-          </div>
-        </div>
-      </div>
-    `;
-
-    try {
-      const data = await fetchAdminOverview(pin);
-      const users = extractUsers(data);
-
-      const balance = data.balance ?? data.credits ?? data.tokens ?? data.admin?.balance ?? 0;
-      const totalGenerations = data.totalGenerations ?? data.generationsTotal ?? data.stats?.totalGenerations ?? 0;
-      const spent = data.spentCredits ?? data.tokensSpent ?? data.creditsSpent ?? data.stats?.spentCredits ?? 0;
-
-      section.innerHTML = `
-        <div class="ft-admin-stable-panel">
-          <div class="ft-admin-title-row">
-            <span class="ft-admin-badge">AD</span>
-            <div>
-              <h2>Админ-консоль</h2>
-              <p>Доступ активен. PIN принят сервером.</p>
-            </div>
-          </div>
-
-          <div class="ft-admin-stable-stats">
-            <article>
-              <span>Баланс</span>
-              <strong>${n(balance)}</strong>
-              <small>токенов</small>
-            </article>
-            <article>
-              <span>Клиентов</span>
-              <strong>${users.length}</strong>
-              <small>пользователей</small>
-            </article>
-            <article>
-              <span>Генераций</span>
-              <strong>${n(totalGenerations)}</strong>
-              <small>всего</small>
-            </article>
-            <article>
-              <span>Списано</span>
-              <strong>${n(spent)}</strong>
-              <small>токенов</small>
-            </article>
-          </div>
-
-          <div class="ft-admin-stable-card">
-            <h3>Пользователи</h3>
-            ${
-              users.length
-                ? users.map((user) => {
-                    const id = user.telegramId || user.telegram_id || user.userId || user.id || user.username || 'local-demo-user';
-                    const name = user.username || user.name || user.firstName || user.first_name || id;
-                    const userBalance = user.balance ?? user.credits ?? user.tokens ?? 0;
-                    const generations = user.generations ?? user.generationCount ?? user.totalGenerations ?? 0;
-
-                    return `
-                      <div class="ft-admin-stable-user">
-                        <div>
-                          <strong>@${name}</strong>
-                          <p>ID: ${id}</p>
-                          <p>Генераций: ${n(generations)}</p>
-                        </div>
-                        <div>
-                          <strong>${n(userBalance)}</strong>
-                          <span>токенов</span>
-                        </div>
-                      </div>
-                    `;
-                  }).join('')
-                : `<p>Пользователи не найдены в ответе API.</p>`
-            }
-          </div>
-
-          <div class="ft-admin-stable-actions">
-            <button type="button" id="ftStableAdminRefresh">Обновить</button>
-            <button type="button" id="ftStableAdminLogout">Выйти</button>
-          </div>
-        </div>
-      `;
-
-      section.querySelector('#ftStableAdminRefresh')?.addEventListener('click', () => renderStableAdmin());
-      section.querySelector('#ftStableAdminLogout')?.addEventListener('click', () => {
-        clearPin();
-        renderPinForm();
-      });
-
-    } catch (error) {
-      clearPin();
-      renderPinForm('Доступ не подтверждён. Попробуйте 3465 или 3230.');
-    }
-  }
-
-  function activateTab(tabName) {
-    const normalized = normalizeTabName(tabName) || 'home';
-    showOnlyActiveTab(normalized);
-    repairBottomNav();
-    applyTheme();
-  }
-
-  function bindGlobalClicks() {
-    document.addEventListener('click', (event) => {
-      const navButton = event.target.closest('[data-ft-tab], [data-tab-target], .app-tab, .bottom-nav button, nav button');
-
-      if (!navButton) return;
-
-      const target = normalizeTabName(
-        navButton.dataset.ftTab ||
-        navButton.dataset.tabTarget ||
-        navButton.getAttribute('data-tab') ||
-        navButton.textContent
-      );
-
-      if (!target) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      activateTab(target);
-    }, true);
-  }
-
-  function bindThemeSelect() {
-    document.addEventListener('change', (event) => {
-      const target = event.target;
-
-      if (!target || target.tagName !== 'SELECT') return;
-
-      const text = String(target.textContent || '');
-      if (!/Светлая|Тёмная|Темная|Ретро|light|dark|retro/i.test(text)) return;
-
-      const value = String(target.value || '').toLowerCase();
-      const theme = value === 'dark' || value === 'retro' || value === 'light' ? value : 'light';
-
-      try {
-        localStorage.setItem('ft-theme', theme);
-      } catch (_) {}
-
-      applyTheme();
-    }, true);
-  }
-
-  function boot() {
-    applyTheme();
-    repairBottomNav();
-    hideOldAdminNoAccessBlocks();
-
-    if (document.body.dataset.ftActiveTab === 'admin') {
-      activateTab('admin');
-    }
-  }
-
-  bindGlobalClicks();
-  bindThemeSelect();
-
-  document.addEventListener('DOMContentLoaded', boot);
-  setTimeout(boot, 50);
-  setTimeout(boot, 500);
-  setTimeout(boot, 1500);
-
-  window.ftAdminNavRepairActivateTab = activateTab;
-  window.ftAdminNavRepairRenderAdmin = renderStableAdmin;
-})();
-/* FT_ADMIN_NAV_REPAIR_20260608_END */
-
