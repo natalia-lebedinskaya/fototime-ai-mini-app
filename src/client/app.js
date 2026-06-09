@@ -3655,7 +3655,7 @@ window.addEventListener('load', () => {
 
     setTimeout(() => {
       if (tab.dataset.tabTarget === 'profile') ensureFeedback();
-      if (tab.dataset.tabTarget === 'admin') renderAdminDashboard();
+      // legacy disabled: // legacy disabled: renderAdminDashboard();
       ensureAuthStatus();
       fixFooterGap();
     }, 500);
