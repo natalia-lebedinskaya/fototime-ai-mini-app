@@ -1,4 +1,171 @@
 
+/* FT_PROVIDER_FILTER_GUARD_20260609_START */
+(function ftProviderFilterGuard() {
+  if (window.__ftProviderFilterGuard) return;
+  window.__ftProviderFilterGuard = true;
+
+  function refreshSelectedProviders() {
+    state.selectedProviders = Array.from(
+      document.querySelectorAll('.provider-filter-checkbox:checked')
+    ).map((input) => input.value);
+  }
+
+  window.addEventListener('click', function handleProviderFilterClick(event) {
+    const filter = event.target.closest('.provider-filter');
+    if (!filter) return;
+
+    const input = filter.querySelector('.provider-filter-checkbox');
+    if (!input) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.stopImmediatePropagation) {
+      event.stopImmediatePropagation();
+    }
+
+    input.checked = !input.checked;
+    refreshSelectedProviders();
+
+    if (typeof visibleStylesPage === 'number') {
+      visibleStylesPage = 0;
+    }
+
+    renderStyles();
+    validateForm();
+  }, true);
+})();
+/* FT_PROVIDER_FILTER_GUARD_20260609_END */
+
+
+/* FT_GENERATION_STYLE_MODE_GUARD_20260609_START */
+(function ftGenerationStyleModeGuard() {
+  if (window.__ftGenerationStyleModeGuard) return;
+  window.__ftGenerationStyleModeGuard = true;
+
+  function normalizeMode(mode) {
+    const value = String(mode || '').trim();
+    const lower = value.toLowerCase();
+
+    if (!value) return '';
+    if (lower === 'sdxl' || lower === 'style_sdxl_zero') return 'style_sdxl_zero';
+    if (lower === 'nano banana' || lower === 'nano-banana') return 'nano-banana';
+    if (lower === 'nano banana 2' || lower === 'nano-banana2') return 'nano-banana2';
+    if (lower === 'flux.2' || lower === 'flux2' || lower === 'flux' || lower === 'edit2') return 'edit2';
+    if (lower === 'замена головы' || lower === 'headswapv2') return 'headswapV2';
+
+    return value;
+  }
+
+  function getModeFromCatalog(styleId) {
+    const id = String(styleId || '').trim();
+    const styles = [
+      ...(state?.cyberStyles || []),
+      ...(state?.eventConfig?.styles || [])
+    ];
+
+    const style = styles.find((item) => {
+      return String(item.id) === id || String(item.providerStyleId) === id;
+    });
+
+    if (!style) return '';
+
+    return normalizeMode(getStylePrimaryModeName(style));
+  }
+
+  function getSelectedCard() {
+    return (
+      document.querySelector('#stylesGrid .style-card.selected') ||
+      document.querySelector('#stylesGrid .style-card.active') ||
+      document.querySelector('#stylesGrid .style-card[aria-selected="true"]')
+    );
+  }
+
+  function resolveMode(body) {
+    const styleId =
+      body.get('styleId') ||
+      body.get('style') ||
+      state?.selectedStyleId ||
+      getSelectedCard()?.dataset?.styleId ||
+      '';
+
+    return normalizeMode(
+      getModeFromCatalog(styleId) ||
+      state?.selectedStyle?.styleMode ||
+      state?.selectedStyle?.provider ||
+      getSelectedCard()?.dataset?.styleMode ||
+      getSelectedCard()?.dataset?.styleProvider ||
+      body.get('styleMode') ||
+      body.get('styleProvider') ||
+      body.get('provider') ||
+      ''
+    );
+  }
+
+  const previousFetch = window.fetch.bind(window);
+
+  window.fetch = function ftFetchWithGenerationStyleMode(input, init = {}) {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (/\/api\/generate/i.test(String(url)) && init?.body instanceof FormData) {
+      const body = init.body;
+      const mode = resolveMode(body);
+
+      const styleId =
+        body.get('styleId') ||
+        body.get('style') ||
+        state?.selectedStyleId ||
+        getSelectedCard()?.dataset?.styleId ||
+        '';
+
+      if (styleId) {
+        body.set('styleId', styleId);
+        body.set('style', styleId);
+      }
+
+      if (mode) {
+        body.set('styleMode', mode);
+        body.set('styleProvider', mode);
+        body.set('provider', mode);
+      }
+
+      console.info('[FOTOTIME generate payload]', {
+        styleId: body.get('styleId'),
+        styleMode: body.get('styleMode'),
+        participantId: body.get('participantId') || body.get('participant')
+      });
+    }
+
+    return previousFetch(input, init);
+  };
+})();
+/* FT_GENERATION_STYLE_MODE_GUARD_20260609_END */
+
+
+
+
+/* FT_PUBLIC_STYLES_FETCH_ALIAS_20260609_START */
+(function ftPublicStylesFetchAlias() {
+  if (window.__ftPublicStylesFetchAlias) return;
+  window.__ftPublicStylesFetchAlias = true;
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = function ftFetchWithPublicStylesAlias(input, init) {
+    const url = typeof input === 'string' ? input : input && input.url;
+
+    if (url && /(^|\/)(assets\/)?public-styles\.json(\?|$)/.test(String(url))) {
+      return nativeFetch('/api/styles/public', init);
+    }
+
+    return nativeFetch(input, init);
+  };
+})();
+/* FT_PUBLIC_STYLES_FETCH_ALIAS_20260609_END */
+
+
+
+
 /* FT_BOTTOM_NAV_FORCE_TAB_STATE_START */
 (function forceBottomNavTabState() {
   if (window.__ftBottomNavForceTabState) return;
@@ -477,7 +644,8 @@ async function runGeneration() {
   formData.append('participantId', state.selectedParticipantId);
   formData.append('styleId', state.selectedStyleId);
   formData.append('styleTitle', state.selectedStyleId || '');
-  formData.append('styleProvider', state.selectedStyle?.providers?.[0] || '');
+  formData.append('styleProvider', state.selectedStyle?.styleMode || state.selectedStyle?.provider || state.selectedStyle?.providers?.[0] || '');
+  formData.append('styleMode', state.selectedStyle?.styleMode || state.selectedStyle?.provider || '');
   formData.append('stylePreviewUrl', state.selectedStyle?.previewUrl || '');
   formData.append('photo', state.selectedPhoto);
 
@@ -797,31 +965,77 @@ function getStyleTitle(style) {
   return style.displayNameRu || style.displayNameEn || style.name || style.id;
 }
 
-function getStyleProviders(style) {
-  const rawModes = Array.isArray(style.modes) ? style.modes : [];
+function normalizeProviderModeName(mode) {
+  const value = String(mode || '').trim();
+  const lower = value.toLowerCase();
 
-  const providers = rawModes
+  if (!value) return '';
+  if (lower === 'sdxl' || lower === 'style_sdxl_zero') return 'style_sdxl_zero';
+  if (lower === 'nano banana' || lower === 'nano-banana') return 'nano-banana';
+  if (lower === 'nano banana 2' || lower === 'nano-banana2') return 'nano-banana2';
+  if (lower === 'flux.2' || lower === 'flux2' || lower === 'flux' || lower === 'edit2') return 'edit2';
+  if (lower === 'замена головы' || lower === 'headswapv2') return 'headswapV2';
+
+  return value;
+}
+
+function getStylePrimaryModeName(style) {
+  const modes = Array.isArray(style?.modes) ? style.modes : [];
+  const firstMode = modes.find(Boolean);
+
+  if (firstMode) {
+    if (typeof firstMode === 'string') {
+      return normalizeProviderModeName(firstMode);
+    }
+
+    return normalizeProviderModeName(
+      firstMode.name ||
+      firstMode.id ||
+      firstMode.mode ||
+      firstMode.value ||
+      firstMode.displayName ||
+      firstMode.display_name
+    );
+  }
+
+  return normalizeProviderModeName(style?.styleMode || style?.provider || style?.styleProvider || style?.network || '');
+}
+
+function getStyleProviders(style) {
+  const modes = Array.isArray(style?.modes) ? style.modes : [];
+
+  const providers = modes
     .map((mode) => {
+      if (!mode) return null;
+
       if (typeof mode === 'string') {
         return mode;
       }
 
       return (
-        mode.display_name ||
         mode.displayName ||
+        mode.display_name ||
+        mode.title ||
+        mode.label ||
         mode.name ||
-        mode.provider ||
-        mode.engine ||
-        mode.model ||
-        mode.type ||
-        ''
+        mode.id ||
+        mode.mode ||
+        null
       );
     })
-    .filter(Boolean)
-    .map((item) => String(item).trim());
+    .filter(Boolean);
 
-  return [...new Set(providers)];
+  if (providers.length) {
+    return [...new Set(providers)];
+  }
+
+  if (style?.category) return [style.category];
+  if (style?.network) return [style.network];
+
+  return [];
 }
+
+window.getStylePrimaryModeName = getStylePrimaryModeName;
 
 function getAvailableProviders(styles) {
   const providers = styles.flatMap((style) => getStyleProviders(style));
@@ -976,17 +1190,21 @@ function renderStyles() {
     emptyStylesState.classList.add('hidden');
   }
 
-  const totalPages = Math.max(1, Math.ceil(filteredStyles.length / INITIAL_VISIBLE_STYLES));
-  visibleStylesPage = Math.min(visibleStylesPage, totalPages - 1);
+  const totalPages = 1;
+  visibleStylesPage = 0;
 
-  const startIndex = visibleStylesPage * INITIAL_VISIBLE_STYLES;
-  const endIndex = startIndex + INITIAL_VISIBLE_STYLES;
-  const visibleStyles = filteredStyles.slice(startIndex, endIndex);
+  const startIndex = 0;
+  const endIndex = filteredStyles.length;
+  const visibleStyles = filteredStyles;
 
   visibleStyles.forEach((style) => {
     const card = document.createElement('button');
     card.className = getStyleClass(style.id);
     card.dataset.styleId = style.id;
+    card.dataset.styleMode = getStylePrimaryModeName(style);
+    card.dataset.styleProvider = getStylePrimaryModeName(style);
+    card.dataset.styleMode = getStylePrimaryModeName(style);
+    card.dataset.styleProvider = getStylePrimaryModeName(style);
 
     const styleTitle = getStyleTitle(style);
     const providers = getStyleProviders(style);
@@ -1014,6 +1232,8 @@ function renderStyles() {
         id: style.id,
         title: styleTitle,
         providers,
+        styleMode: getStylePrimaryModeName(style),
+        provider: getStylePrimaryModeName(style),
         previewUrl: style.previewUrl || '',
         raw: style
       };
@@ -1030,7 +1250,7 @@ function renderStyles() {
     oldPagination.remove();
   }
 
-  if (filteredStyles.length > INITIAL_VISIBLE_STYLES) {
+  if (false && filteredStyles.length > INITIAL_VISIBLE_STYLES) {
     const pagination = document.createElement('div');
     pagination.id = 'stylesPagination';
     pagination.className = 'styles-pagination';
@@ -1049,8 +1269,31 @@ function renderStyles() {
     `;
 
     pagination.querySelectorAll('.styles-page-button').forEach((button) => {
-      button.addEventListener('click', () => {
+      let handledAt = 0;
+
+      const handlePageAction = (event) => {
+        const now = Date.now();
+
+        if (event.type === 'click' && now - handledAt < 450) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+
+        handledAt = now;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (event.stopImmediatePropagation) {
+          event.stopImmediatePropagation();
+        }
+
         const action = button.dataset.pageAction;
+
+        if (button.disabled) {
+          return;
+        }
 
         if (action === 'prev') {
           visibleStylesPage = Math.max(0, visibleStylesPage - 1);
@@ -1066,7 +1309,10 @@ function renderStyles() {
         if (stylesSection) {
           stylesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      });
+      };
+
+      button.addEventListener('pointerdown', handlePageAction);
+      button.addEventListener('click', handlePageAction);
     });
 
     stylesGrid.insertAdjacentElement('afterend', pagination);
@@ -4024,7 +4270,8 @@ window.addEventListener('load', () => {
     formData.append('participantId', s.participantId);
     formData.append('styleId', s.styleId);
     formData.append('styleTitle', s.style?.title || s.styleId);
-    formData.append('styleProvider', s.style?.provider || s.style?.providers?.[0] || '');
+    formData.append('styleProvider', s.style?.styleMode || s.style?.provider || s.style?.providers?.[0] || '');
+    formData.append('styleMode', s.style?.styleMode || s.style?.provider || '');
     formData.append('photo', s.photo);
 
     const oldText = button.textContent;
@@ -4813,7 +5060,8 @@ window.addEventListener('load', () => {
     formData.append('participantId', participantId);
     formData.append('styleId', style.id);
     formData.append('styleTitle', style.title || style.id);
-    formData.append('styleProvider', style.provider || '');
+    formData.append('styleProvider', style.styleMode || style.provider || '');
+    formData.append('styleMode', style.styleMode || style.provider || '');
     formData.append('photo', photo);
 
     const oldText = button.textContent;
@@ -7861,3 +8109,6 @@ window.addEventListener('load', () => {
   }, true);
 })();
 /* FT_CLEAR_STYLE_ON_PARTICIPANT_CHANGE_20260609_END */
+
+
+

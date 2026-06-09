@@ -1,3 +1,36 @@
+
+
+
+
+
+
+
+/* FT_CPB_MODE_RESOLVER_20260609_START */
+function normalizeCyberPhotoBoothMode(mode) {
+  const value = String(mode || '').trim();
+  const lower = value.toLowerCase();
+
+  if (!value) return '';
+  if (lower === 'style_sdxl_zero' || lower === 'sdxl') return 'style_sdxl_zero';
+  if (lower === 'nano-banana' || lower === 'nano banana') return 'nano-banana';
+  if (lower === 'nano-banana2' || lower === 'nano banana 2') return 'nano-banana2';
+  if (lower === 'edit2' || lower === 'flux.2' || lower === 'flux2' || lower === 'flux') return 'edit2';
+  if (lower === 'headswapv2' || lower === 'замена головы') return 'headswapV2';
+
+  return value;
+}
+
+function resolveCyberPhotoBoothModeFromPayload(payload, config) {
+  return (
+    normalizeCyberPhotoBoothMode(payload?.styleMode) ||
+    normalizeCyberPhotoBoothMode(payload?.styleProvider) ||
+    normalizeCyberPhotoBoothMode(payload?.provider) ||
+    normalizeCyberPhotoBoothMode(config?.mode) ||
+    'style_sdxl_zero'
+  );
+}
+/* FT_CPB_MODE_RESOLVER_20260609_END */
+
 const DEFAULT_API_URL = 'https://api.cyberphotobooth.ru/api';
 
 function getCyberPhotoBoothConfig() {
@@ -39,7 +72,8 @@ function getBase64FromFile(file) {
   return file.buffer.toString('base64');
 }
 
-async function submitGenerationJob({ file, participantId, cyberPhotoBoothStyle }) {
+async function submitGenerationJob({ file, participantId, cyberPhotoBoothStyle }, payload = {}) {
+
   const config = getCyberPhotoBoothConfig();
 
   const styleConfig = cyberPhotoBoothStyle || {
@@ -48,7 +82,7 @@ async function submitGenerationJob({ file, participantId, cyberPhotoBoothStyle }
   };
 
   const body = {
-    mode: config.mode,
+    mode: resolveCyberPhotoBoothModeFromPayload(payload, config),
     return_s3_link: false,
     params: {
       Sex: mapParticipantToSex(participantId),

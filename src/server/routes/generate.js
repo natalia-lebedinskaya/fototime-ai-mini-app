@@ -131,6 +131,13 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
 
     const provider = process.env.GENERATION_PROVIDER || 'mock';
 
+    console.log('[FOTOTIME server generation payload]', {
+      styleId: generationPayload.styleId,
+      styleMode: generationPayload.styleMode,
+      styleProvider: generationPayload.styleProvider,
+      participantId: generationPayload.participantId
+    });
+
     const generationResult = provider === 'cyberphotobooth'
       ? await generateCyberPhotoBoothImage(generationPayload)
       : await generateMockImage(generationPayload);
