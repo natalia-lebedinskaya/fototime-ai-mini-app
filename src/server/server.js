@@ -76,6 +76,12 @@ app.use(express.static(path.join(__dirname, '../client')));
 app.use('/api/health', healthRoute);
 app.use('/api/event-config', configRoute);
 app.use('/api/generate', generateRoute);
+
+/* FT_PUBLIC_STYLES_SERVER_ALIAS_20260609_START */
+app.use('/public-styles.json', stylesRoute);
+app.use('/assets/public-styles.json', stylesRoute);
+/* FT_PUBLIC_STYLES_SERVER_ALIAS_20260609_END */
+
 app.use('/api/styles', stylesRoute);
 app.use('/api/user', userRoute);
 app.use('/api/admin-pin', require('./routes/adminPin'));

@@ -1,4 +1,24 @@
 
+/* FT_PUBLIC_STYLES_FETCH_ALIAS_20260609_START */
+(function ftPublicStylesFetchAlias() {
+  if (window.__ftPublicStylesFetchAlias) return;
+  window.__ftPublicStylesFetchAlias = true;
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = function ftFetchWithPublicStylesAlias(input, init) {
+    const url = typeof input === 'string' ? input : input && input.url;
+
+    if (url && /(^|\/)(assets\/)?public-styles\.json(\?|$)/.test(String(url))) {
+      return nativeFetch('/api/styles/public', init);
+    }
+
+    return nativeFetch(input, init);
+  };
+})();
+/* FT_PUBLIC_STYLES_FETCH_ALIAS_20260609_END */
+
+
 /* FT_BOTTOM_NAV_FORCE_TAB_STATE_START */
 (function forceBottomNavTabState() {
   if (window.__ftBottomNavForceTabState) return;
@@ -976,12 +996,12 @@ function renderStyles() {
     emptyStylesState.classList.add('hidden');
   }
 
-  const totalPages = Math.max(1, Math.ceil(filteredStyles.length / INITIAL_VISIBLE_STYLES));
-  visibleStylesPage = Math.min(visibleStylesPage, totalPages - 1);
+  const totalPages = 1;
+  visibleStylesPage = 0;
 
-  const startIndex = visibleStylesPage * INITIAL_VISIBLE_STYLES;
-  const endIndex = startIndex + INITIAL_VISIBLE_STYLES;
-  const visibleStyles = filteredStyles.slice(startIndex, endIndex);
+  const startIndex = 0;
+  const endIndex = filteredStyles.length;
+  const visibleStyles = filteredStyles;
 
   visibleStyles.forEach((style) => {
     const card = document.createElement('button');
@@ -1030,7 +1050,7 @@ function renderStyles() {
     oldPagination.remove();
   }
 
-  if (filteredStyles.length > INITIAL_VISIBLE_STYLES) {
+  if (false && filteredStyles.length > INITIAL_VISIBLE_STYLES) {
     const pagination = document.createElement('div');
     pagination.id = 'stylesPagination';
     pagination.className = 'styles-pagination';
@@ -1049,8 +1069,31 @@ function renderStyles() {
     `;
 
     pagination.querySelectorAll('.styles-page-button').forEach((button) => {
-      button.addEventListener('click', () => {
+      let handledAt = 0;
+
+      const handlePageAction = (event) => {
+        const now = Date.now();
+
+        if (event.type === 'click' && now - handledAt < 450) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+
+        handledAt = now;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (event.stopImmediatePropagation) {
+          event.stopImmediatePropagation();
+        }
+
         const action = button.dataset.pageAction;
+
+        if (button.disabled) {
+          return;
+        }
 
         if (action === 'prev') {
           visibleStylesPage = Math.max(0, visibleStylesPage - 1);
@@ -1066,7 +1109,10 @@ function renderStyles() {
         if (stylesSection) {
           stylesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      });
+      };
+
+      button.addEventListener('pointerdown', handlePageAction);
+      button.addEventListener('click', handlePageAction);
     });
 
     stylesGrid.insertAdjacentElement('afterend', pagination);
@@ -7861,3 +7907,6 @@ window.addEventListener('load', () => {
   }, true);
 })();
 /* FT_CLEAR_STYLE_ON_PARTICIPANT_CHANGE_20260609_END */
+
+
+
