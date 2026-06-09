@@ -1,3 +1,194 @@
+
+/* FT_BOTTOM_NAV_FORCE_TAB_STATE_START */
+(function forceBottomNavTabState() {
+  if (window.__ftBottomNavForceTabState) return;
+  window.__ftBottomNavForceTabState = true;
+
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('.bottom-nav button, .app-tab, [data-tab-target]');
+    if (!button) return;
+
+    const raw = String(button.dataset?.tabTarget || button.textContent || '').toLowerCase();
+
+    let tab = null;
+    if (raw.includes('глав') || raw.includes('main') || raw.includes('home')) tab = 'main';
+    if (raw.includes('лич') || raw.includes('кабинет') || raw.includes('profile')) tab = 'profile';
+    if (raw.includes('админ') || raw.includes('admin')) tab = 'admin';
+
+    if (!tab) return;
+
+    document.body.dataset.activeTab = tab;
+
+    if (tab !== 'admin') {
+      document.querySelectorAll('#ftAdminStableRoot, #adminPanel, #adminTab, [data-tab-panel="admin"], [data-tab-content="admin"]').forEach((node) => {
+        node.hidden = true;
+        node.classList.add('hidden');
+        node.classList.remove('active');
+        node.style.display = 'none';
+      });
+    }
+
+    if (tab === 'admin' && typeof window.renderAdminStable === 'function') {
+      if (document.body.dataset.activeTab === 'admin') setTimeout(() => window.renderAdminStable(), 0);
+    }
+  }, true);
+})();
+/* FT_BOTTOM_NAV_FORCE_TAB_STATE_END */
+
+
+/* FT_ADMIN_VISIBILITY_CSS_FIX_START */
+(function fixAdminVisibilityByCss() {
+  if (window.__ftAdminVisibilityCssFix) return;
+  window.__ftAdminVisibilityCssFix = true;
+
+  const style = document.createElement('style');
+  style.id = 'ftAdminVisibilityCssFix';
+  style.textContent = `
+    body:not([data-active-tab="admin"]) #ftAdminStableRoot,
+    body:not([data-active-tab="admin"]) #adminPanel,
+    body:not([data-active-tab="admin"]) #adminTab,
+    body:not([data-active-tab="admin"]) [data-tab-panel="admin"],
+    body:not([data-active-tab="admin"]) [data-tab-content="admin"] {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      height: 0 !important;
+      overflow: hidden !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    body[data-active-tab="admin"] #ftAdminStableRoot {
+      display: block !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+/* FT_ADMIN_VISIBILITY_CSS_FIX_END */
+
+
+/* FT_SINGLE_TAB_ROUTER_GUARD_START */
+(function installSingleTabRouterGuard() {
+  if (window.__ftSingleTabRouterGuardInstalled) return;
+  window.__ftSingleTabRouterGuardInstalled = true;
+
+  function resolveTabFromElement(element) {
+    const node = element?.closest?.('[data-tab-target], [data-ft-tab], .app-tab, .bottom-nav button, nav button, button');
+    if (!node) return null;
+
+    const raw = String(
+      node.dataset?.tabTarget ||
+      node.dataset?.ftTab ||
+      node.textContent ||
+      ''
+    ).toLowerCase();
+
+    if (raw.includes('admin') || raw.includes('админ')) return 'admin';
+    if (raw.includes('profile') || raw.includes('account') || raw.includes('лич') || raw.includes('кабинет')) return 'profile';
+    if (raw.includes('main') || raw.includes('home') || raw.includes('глав')) return 'main';
+
+    return null;
+  }
+
+  window.ftStableNavigate = function ftStableNavigate(target = 'main') {
+    const tab = target === 'admin' || target === 'profile' ? target : 'main';
+
+    const stableAdminRoot = document.querySelector('#ftAdminStableRoot');
+    if (stableAdminRoot && tab !== 'admin') {
+      stableAdminRoot.hidden = true;
+      stableAdminRoot.classList.add('hidden');
+      stableAdminRoot.classList.remove('active');
+      stableAdminRoot.style.display = 'none';
+    }
+
+    document.body.dataset.activeTab = tab;
+
+    if (tab !== 'admin') {
+      document.querySelectorAll('#ftAdminStableRoot, #adminPanel, #adminTab, [data-tab-panel="admin"], [data-tab-content="admin"]').forEach((node) => {
+        node.hidden = true;
+        node.classList.add('hidden');
+        node.classList.remove('active');
+        node.style.display = 'none';
+      });
+    }
+
+
+    document.querySelectorAll('[data-tab-target], [data-ft-tab], .app-tab, .bottom-nav button, nav button').forEach((button) => {
+      const resolved = resolveTabFromElement(button);
+      const active = resolved === tab;
+      button.classList.toggle('active', active);
+      button.classList.toggle('selected', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    const mainPanel = document.querySelector('[data-tab-panel="main"], main#content, main');
+    const profilePanel = document.querySelector('[data-tab-panel="profile"], #profilePanel');
+    const adminPanel = document.querySelector('#ftAdminStableRoot, [data-tab-panel="admin"], #adminPanel, #adminTab');
+
+    [
+      ['main', mainPanel],
+      ['profile', profilePanel],
+      ['admin', adminPanel]
+    ].forEach(([name, panel]) => {
+      if (!panel) return;
+      const show = name === tab;
+      panel.hidden = !show;
+      panel.classList.toggle('hidden', !show);
+      panel.classList.toggle('active', show);
+      panel.style.display = show ? '' : 'none';
+    });
+
+    if (tab === 'admin' && typeof window.renderAdminStable === 'function') {
+      if (document.body.dataset.activeTab === 'admin') setTimeout(() => window.renderAdminStable(), 0);
+    }
+
+    if (tab === 'profile') {
+      if (typeof window.renderGeneratedHistory === 'function') window.renderGeneratedHistory();
+      if (typeof window.renderBalanceUi === 'function') window.renderBalanceUi();
+    }
+  };
+
+  const nativeAddEventListener = Document.prototype.addEventListener;
+
+  Document.prototype.addEventListener = function patchedDocumentAddEventListener(type, listener, options) {
+    if (this === document && type === 'click' && typeof listener === 'function') {
+      const source = String(listener);
+
+      if (
+        source.includes('data-tab-target') ||
+        source.includes('data-ft-tab') ||
+        source.includes('.app-tab') ||
+        source.includes('bottom-nav') ||
+        source.includes('forceAppTab') ||
+        source.includes('switchTab') ||
+        source.includes('setActiveTab')
+      ) {
+        const wrapped = function stableTabClickWrapper(event) {
+          const target = resolveTabFromElement(event.target);
+
+          if (target) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            window.ftStableNavigate(target);
+            return;
+          }
+
+          return listener.call(this, event);
+        };
+
+        return nativeAddEventListener.call(this, type, wrapped, options);
+      }
+    }
+
+    return nativeAddEventListener.call(this, type, listener, options);
+  };
+})();
+/* FT_SINGLE_TAB_ROUTER_GUARD_END */
+
 const tg = window.Telegram?.WebApp;
 
 if (tg) {
@@ -3685,7 +3876,7 @@ window.addEventListener('load', () => {
     setTimeout(() => {
       ensureAuthStatus();
       ensureFeedback();
-      renderAdminStable();
+      if (document.body.dataset.activeTab === 'admin') renderAdminStable();
       fixFooterGap();
     }, 1000);
   });
@@ -7208,6 +7399,16 @@ window.addEventListener('load', () => {
   }
 
   function getAdminRoot() {
+    document.querySelectorAll('#adminPanel, #adminTab, [data-tab-content="admin"], [data-tab-panel="admin"]').forEach((node) => {
+      if (node.id !== 'ftAdminStableRoot') {
+        node.hidden = true;
+        node.classList.add('hidden');
+        node.classList.remove('active');
+        node.style.display = 'none';
+        node.innerHTML = '';
+      }
+    });
+
     let root = document.querySelector('#ftAdminStableRoot');
 
     if (!root) {
@@ -7385,7 +7586,7 @@ window.addEventListener('load', () => {
       event.preventDefault();
       const pin = document.querySelector('#ftStableAdminPinInput')?.value || '';
       saveAdminPin(pin);
-      await renderAdminStable();
+      if (document.body.dataset.activeTab === 'admin') await renderAdminStable();
     });
 
     document.addEventListener('click', async (event) => {
@@ -7404,7 +7605,7 @@ window.addEventListener('load', () => {
       }
 
       if (event.target.closest('#ftStableAdminRetry')) {
-        await renderAdminStable();
+        if (document.body.dataset.activeTab === 'admin') await renderAdminStable();
       }
     });
   }
@@ -7415,7 +7616,7 @@ window.addEventListener('load', () => {
     if (!adminTab) return;
 
     setTimeout(() => {
-      renderAdminStable();
+      if (document.body.dataset.activeTab === 'admin') renderAdminStable();
     }, 50);
   });
 
@@ -7428,7 +7629,7 @@ window.addEventListener('load', () => {
     updatePhotoUi();
 
     if (getCurrentTabName() === 'admin') {
-      renderAdminStable();
+      if (document.body.dataset.activeTab === 'admin') renderAdminStable();
     }
 
     setTimeout(() => {
