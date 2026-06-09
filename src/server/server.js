@@ -33,6 +33,17 @@ app.use('/assets', express.static(path.join(__dirname, '..', 'client', 'assets')
   fallthrough: true
 }));
 
+
+// FT_STATIC_ASSETS_FIX_20260609_START
+app.use('/assets', express.static(path.join(__dirname, '../client/assets'), {
+  etag: false,
+  maxAge: 0,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store');
+  }
+}));
+// FT_STATIC_ASSETS_FIX_20260609_END
+
 app.use(express.json());
 app.use('/api/image-proxy', require('./routes/imageProxy'));
 app.use('/api/generation-logs', require('./routes/generationLogs'));

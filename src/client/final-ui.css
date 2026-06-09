@@ -4917,3 +4917,22 @@ body[data-active-tab="admin"] [data-admin-logout] {
 }
 
 /* FT_ADMIN_ROOT_ROUTER_CSS_20260609_END */
+
+
+
+
+/* FT_HIDE_FAKE_STYLE_PREVIEWS_20260609_START */
+#stylesGrid .style-card img,
+#stylesGrid .style-card .style-preview,
+#stylesGrid .style-card .style-preview-empty {
+  display: none !important;
+}
+
+#stylesGrid .style-card {
+  min-height: auto !important;
+}
+
+#stylesGrid .style-card .style-name {
+  display: block !important;
+}
+/* FT_HIDE_FAKE_STYLE_PREVIEWS_20260609_END */

@@ -2,92 +2,94 @@ const express = require('express');
 
 const router = express.Router();
 
+const PARTICIPANTS = ['male', 'female', 'couple', 'boy', 'girl', 'family'];
+
 const STYLES = [
   {
-    id: 'atlantida',
-    title: 'Атлантида',
-    name: 'Атлантида',
+    id: 'ns-astral',
+    title: 'Астрал',
+    name: 'Астрал',
     network: 'SDXL',
-    category: 'SDXL',
-    participant: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
-    imageUrl: '/assets/styles/ns-astral.svg',
-    previewUrl: '/assets/styles/ns-astral.svg',
-    thumbnail: '/assets/styles/ns-astral.svg'
+    category: 'Фэнтези',
+    participant: PARTICIPANTS,
+    imageUrl: null,
+    previewUrl: null,
+    thumbnail: null
   },
   {
-    id: 'barbie',
-    title: 'Барби',
-    name: 'Барби',
+    id: 'ns-valentine-01',
+    title: 'Кафтаны',
+    name: 'Кафтаны',
     network: 'SDXL',
-    category: 'SDXL',
-    participant: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
-    imageUrl: '/assets/styles/ns-valentine-01.svg',
-    previewUrl: '/assets/styles/ns-valentine-01.svg',
-    thumbnail: '/assets/styles/ns-valentine-01.svg'
+    category: 'Портрет',
+    participant: PARTICIPANTS,
+    imageUrl: null,
+    previewUrl: null,
+    thumbnail: null
   },
   {
-    id: 'bubblegum',
-    title: 'Баблгам',
-    name: 'Баблгам',
+    id: 'ns-spring-city',
+    title: 'Весенний город',
+    name: 'Весенний город',
     network: 'SDXL',
-    category: 'SDXL',
-    participant: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
-    imageUrl: '/assets/styles/ns-spring-city.svg',
-    previewUrl: '/assets/styles/ns-spring-city.svg',
-    thumbnail: '/assets/styles/ns-spring-city.svg'
+    category: 'Городской стиль',
+    participant: PARTICIPANTS,
+    imageUrl: null,
+    previewUrl: null,
+    thumbnail: null
   },
   {
-    id: 'business',
-    title: 'Бизнес',
-    name: 'Бизнес',
+    id: 'ns-dryad-01',
+    title: 'Дриада',
+    name: 'Дриада',
     network: 'SDXL',
-    category: 'SDXL',
-    participant: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
-    imageUrl: '/assets/styles/ns-dryad-01.svg',
-    previewUrl: '/assets/styles/ns-dryad-01.svg',
-    thumbnail: '/assets/styles/ns-dryad-01.svg'
+    category: 'Фэнтези',
+    participant: PARTICIPANTS,
+    imageUrl: null,
+    previewUrl: null,
+    thumbnail: null
   },
   {
-    id: 'christmas',
-    title: 'Рождество',
-    name: 'Рождество',
+    id: 'ns-hogwarts-stairs',
+    title: 'Хогвартс',
+    name: 'Хогвартс',
     network: 'SDXL',
-    category: 'SDXL',
-    participant: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
-    imageUrl: '/assets/styles/ns-hogwarts-stairs.svg',
-    previewUrl: '/assets/styles/ns-hogwarts-stairs.svg',
-    thumbnail: '/assets/styles/ns-hogwarts-stairs.svg'
+    category: 'Магический стиль',
+    participant: PARTICIPANTS,
+    imageUrl: null,
+    previewUrl: null,
+    thumbnail: null
   },
   {
     id: 'comic',
     title: 'Комикс',
     name: 'Комикс',
     network: 'SDXL',
-    category: 'SDXL',
-    participant: ['male', 'female', 'couple', 'boy', 'girl', 'family'],
-    imageUrl: '/assets/mock-result.svg',
-    previewUrl: '/assets/mock-result.svg',
-    thumbnail: '/assets/mock-result.svg'
+    category: 'Иллюстрация',
+    participant: PARTICIPANTS,
+    imageUrl: null,
+    previewUrl: null,
+    thumbnail: null
   }
 ];
 
-router.get('/', (req, res) => {
+router.get('/', (_req, res) => {
   res.set('Cache-Control', 'no-store');
   res.json({
     styles: STYLES,
     items: STYLES,
     count: STYLES.length,
-    source: 'stable-local-styles'
+    source: 'real-mapped-local-styles-no-fake-previews'
   });
 });
 
-router.get('/public', (req, res) => {
+router.get('/public', (_req, res) => {
   res.set('Cache-Control', 'no-store');
   res.json({
     styles: STYLES,
     items: STYLES,
     count: STYLES.length,
-    source: 'stable-local-styles'
+    source: 'real-mapped-local-styles-no-fake-previews'
   });
 });
 
