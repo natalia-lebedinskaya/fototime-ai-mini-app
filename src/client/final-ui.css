@@ -4865,3 +4865,55 @@ nav.bottom-nav,
   }
 }
 /* FT_CLIENT_STABILITY_REPAIR_20260609_END */
+
+
+
+/* FT_ADMIN_ROOT_ROUTER_CSS_20260609_START */
+
+body:not([data-active-tab="admin"]) #ftAdminStableRoot,
+body:not([data-active-tab="admin"]) #adminPanel,
+body:not([data-active-tab="admin"]) #adminTab,
+body:not([data-active-tab="admin"]) [data-tab-content="admin"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
+
+body[data-active-tab="admin"] #adminPanel,
+body[data-active-tab="admin"] #adminTab {
+  display: none !important;
+}
+
+body[data-active-tab="admin"] #ftAdminStableRoot {
+  display: block !important;
+  visibility: visible !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  margin: 0 auto 120px !important;
+  padding: 16px !important;
+  max-width: 640px !important;
+}
+
+body[data-active-tab="admin"] .ft-admin-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+body[data-active-tab="admin"] #ftStableAdminLogout,
+body[data-active-tab="admin"] #adminLogoutButton,
+body[data-active-tab="admin"] [data-admin-logout] {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  align-self: flex-start !important;
+}
+
+/* FT_ADMIN_ROOT_ROUTER_CSS_20260609_END */

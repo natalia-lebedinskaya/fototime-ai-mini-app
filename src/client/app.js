@@ -7644,3 +7644,179 @@ window.addEventListener('load', () => {
   }, 700);
 })();
 /* FT_CLIENT_STABILITY_REPAIR_20260609_END */
+
+
+
+/* FT_ADMIN_ROOT_ROUTER_FIX_20260609_START */
+(function adminRootRouterFix() {
+  if (window.__ftAdminRootRouterFix) return;
+  window.__ftAdminRootRouterFix = true;
+
+  const PIN_KEYS = [
+    'ft-admin-pin',
+    'ft-admin-pin-value',
+    'ft-admin-pin-v2',
+    'ft-admin-pin-direct',
+    'ft-admin-pin-ok'
+  ];
+
+  function clearPins() {
+    PIN_KEYS.forEach((key) => localStorage.removeItem(key));
+  }
+
+  function hasPin() {
+    return Boolean(
+      localStorage.getItem('ft-admin-pin') ||
+      localStorage.getItem('ft-admin-pin-value') ||
+      localStorage.getItem('ft-admin-pin-v2')
+    );
+  }
+
+  function ensureAdminRoot() {
+    let root = document.querySelector('#ftAdminStableRoot');
+
+    if (!root) {
+      root = document.createElement('section');
+      root.id = 'ftAdminStableRoot';
+      root.dataset.tabPanel = 'admin';
+      root.className = 'app-tab-panel active';
+      document.body.appendChild(root);
+    }
+
+    root.hidden = false;
+    root.classList.remove('hidden');
+    root.classList.add('active');
+    root.style.display = 'block';
+    root.style.visibility = 'visible';
+    root.style.height = 'auto';
+    root.style.maxHeight = 'none';
+    root.style.overflow = 'visible';
+    root.style.pointerEvents = 'auto';
+
+    return root;
+  }
+
+  function hideAdminRoots() {
+    document.querySelectorAll('#ftAdminStableRoot, #adminPanel, #adminTab, [data-tab-content="admin"]').forEach((node) => {
+      node.hidden = true;
+      node.classList.add('hidden');
+      node.classList.remove('active');
+      node.style.display = 'none';
+    });
+  }
+
+  function showPinForm() {
+    document.body.dataset.activeTab = 'admin';
+    const root = ensureAdminRoot();
+
+    root.innerHTML = `
+      <section class="ft-admin-stable-panel card">
+        <div class="ft-admin-head">
+          <div>
+            <div class="step-badge">AD</div>
+            <h2>Админ-консоль</h2>
+            <p>Введите PIN администратора.</p>
+          </div>
+        </div>
+
+        <form id="ftStableAdminPinForm" class="ft-admin-pin-form">
+          <input id="ftStableAdminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN-код" />
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+    `;
+  }
+
+  function setTab(tab) {
+    const target = tab === 'admin' || tab === 'profile' ? tab : 'main';
+    document.body.dataset.activeTab = target;
+
+    const main = document.querySelector('#content');
+    const profile = document.querySelector('#profilePanel, [data-tab-panel="profile"]');
+
+    if (main) {
+      main.hidden = target !== 'main';
+      main.classList.toggle('hidden', target !== 'main');
+      main.style.display = target === 'main' ? '' : 'none';
+    }
+
+    if (profile) {
+      profile.hidden = target !== 'profile';
+      profile.classList.toggle('hidden', target !== 'profile');
+      profile.classList.toggle('active', target === 'profile');
+      profile.style.display = target === 'profile' ? '' : 'none';
+    }
+
+    document.querySelectorAll('.app-tab, [data-tab-target]').forEach((button) => {
+      const active = button.dataset?.tabTarget === target;
+      button.classList.toggle('active', active);
+      button.classList.toggle('selected', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    if (target !== 'admin') {
+      hideAdminRoots();
+      return;
+    }
+
+    ensureAdminRoot();
+
+    if (!hasPin()) {
+      showPinForm();
+      return;
+    }
+
+    if (typeof window.renderAdminStable === 'function') {
+      window.renderAdminStable();
+    }
+  }
+
+  window.addEventListener('click', (event) => {
+    const logout = event.target.closest('#ftStableAdminLogout, #adminLogoutButton, [data-admin-logout]');
+    if (logout) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      clearPins();
+      showPinForm();
+      return;
+    }
+
+    const tab = event.target.closest('.app-tab, [data-tab-target]');
+    if (!tab?.dataset?.tabTarget) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    setTab(tab.dataset.tabTarget);
+  }, true);
+
+  window.addEventListener('submit', (event) => {
+    const form = event.target.closest('#ftStableAdminPinForm, #adminPinForm');
+    if (!form) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const input = form.querySelector('input');
+    const pin = String(input?.value || '').trim();
+
+    if (pin) {
+      localStorage.setItem('ft-admin-pin', pin);
+      localStorage.setItem('ft-admin-pin-value', pin);
+      localStorage.setItem('ft-admin-pin-v2', pin);
+    }
+
+    setTab('admin');
+  }, true);
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const tab = document.body.dataset.activeTab || 'main';
+      setTab(tab === 'admin' ? 'admin' : tab);
+    }, 150);
+  });
+
+  window.ftCleanSetTab = setTab;
+})();
+/* FT_ADMIN_ROOT_ROUTER_FIX_20260609_END */
