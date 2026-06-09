@@ -79,7 +79,7 @@ router.get('/', (_req, res) => {
     styles: STYLES,
     items: STYLES,
     count: STYLES.length,
-    source: 'real-mapped-local-styles-no-fake-previews'
+    source: 'real-mapped-local-styles-no-previews'
   });
 });
 
@@ -89,7 +89,7 @@ router.get('/public', (_req, res) => {
     styles: STYLES,
     items: STYLES,
     count: STYLES.length,
-    source: 'real-mapped-local-styles-no-fake-previews'
+    source: 'real-mapped-local-styles-no-previews'
   });
 });
 

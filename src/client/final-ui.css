@@ -4936,3 +4936,85 @@ body[data-active-tab="admin"] [data-admin-logout] {
   display: block !important;
 }
 /* FT_HIDE_FAKE_STYLE_PREVIEWS_20260609_END */
+
+/* FT_TEXT_STYLE_CARDS_20260609_START */
+
+/* Убираем фейковые/пустые превью */
+#stylesGrid .style-card img,
+#stylesGrid .style-card .style-preview,
+#stylesGrid .style-card .style-preview-empty {
+  display: none !important;
+}
+
+/* Стабильная сетка стилей */
+#stylesGrid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+  gap: 12px !important;
+  overflow: visible !important;
+}
+
+/* Текстовая карточка стиля */
+#stylesGrid .style-card,
+#stylesGrid .style-card.ft-button-v5 {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  min-height: 118px !important;
+  height: auto !important;
+  padding: 14px !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+  isolation: isolate !important;
+}
+
+/* Убираем декоративные слои, которые перекрывали контент */
+#stylesGrid .style-card::before,
+#stylesGrid .style-card::after,
+#stylesGrid .style-card.ft-button-v5::before,
+#stylesGrid .style-card.ft-button-v5::after {
+  display: none !important;
+  content: none !important;
+}
+
+#stylesGrid .style-card .style-name {
+  display: block !important;
+  position: relative !important;
+  z-index: 3 !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+}
+
+#stylesGrid .style-card .style-badges {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  position: relative !important;
+  z-index: 3 !important;
+  margin-top: 10px !important;
+}
+
+#stylesGrid .style-card .style-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 24px !important;
+  padding: 4px 8px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  opacity: 0.9 !important;
+}
+
+/* Видимое выбранное состояние */
+#stylesGrid .style-card.selected,
+#stylesGrid .style-card.active,
+#stylesGrid .style-card[aria-selected="true"] {
+  outline: 2px solid currentColor !important;
+  outline-offset: 2px !important;
+}
+
+/* FT_TEXT_STYLE_CARDS_20260609_END */
