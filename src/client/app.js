@@ -476,7 +476,7 @@ async function runGeneration() {
   const formData = new FormData();
   formData.append('participantId', state.selectedParticipantId);
   formData.append('styleId', state.selectedStyleId);
-  formData.append('styleTitle', state.selectedStyle?.title || getStyleTitleById(state.selectedStyleId) || '');
+  formData.append('styleTitle', state.selectedStyleId || '');
   formData.append('styleProvider', state.selectedStyle?.providers?.[0] || '');
   formData.append('stylePreviewUrl', state.selectedStyle?.previewUrl || '');
   formData.append('photo', state.selectedPhoto);
@@ -753,7 +753,7 @@ function normalizeCyberStyleForApp(style) {
     name: title,
     displayNameRu: style.displayNameRu || title,
     displayNameEn: style.displayNameEn || title,
-    previewUrl: style.previewUrl || null,
+    previewUrl: style.previewUrl || style.imageUrl || style.thumbnail || style.coverUrl || style.image || style.cover || null,
     modes: Array.isArray(style.modes) ? style.modes : [],
     participantType: state.selectedParticipantId || 'male',
     isAvailable: true,
@@ -764,7 +764,7 @@ function normalizeCyberStyleForApp(style) {
 
 async function loadCyberStylesCatalog() {
   try {
-    const response = await fetch('/api/styles');
+    const response = await fetch('/api/styles/public');
 
     if (!response.ok) {
       throw new Error('Не удалось загрузить каталог стилей');
@@ -7820,3 +7820,44 @@ window.addEventListener('load', () => {
   window.ftCleanSetTab = setTab;
 })();
 /* FT_ADMIN_ROOT_ROUTER_FIX_20260609_END */
+
+
+
+
+
+/* FT_CLEAR_STYLE_ON_PARTICIPANT_CHANGE_20260609_START */
+(function clearStyleOnParticipantChange() {
+  if (window.__ftClearStyleOnParticipantChange) return;
+  window.__ftClearStyleOnParticipantChange = true;
+
+  function clearSelectedStyle() {
+    if (window.state) {
+      window.state.selectedStyleId = null;
+      window.state.selectedStyle = null;
+    }
+
+    document.querySelectorAll('.style-card, [data-style-id], [data-style]').forEach((card) => {
+      card.classList.remove('active', 'selected');
+      card.setAttribute('aria-selected', 'false');
+    });
+
+    const button = document.querySelector('#generateButton, .generate-button');
+    if (button) {
+      button.disabled = true;
+      button.setAttribute('aria-disabled', 'true');
+    }
+
+    const message = document.querySelector('#message, .message');
+    if (message) {
+      message.textContent = 'Выберите стиль для выбранного участника.';
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    const participant = event.target.closest('[data-participant-id], [data-participant], .participant-option, .participant-button');
+    if (!participant) return;
+
+    setTimeout(clearSelectedStyle, 0);
+  }, true);
+})();
+/* FT_CLEAR_STYLE_ON_PARTICIPANT_CHANGE_20260609_END */
