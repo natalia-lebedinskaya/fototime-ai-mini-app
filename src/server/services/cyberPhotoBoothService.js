@@ -1,3 +1,94 @@
+
+/* FT_CPB_MODE_RESOLVER_20260609_START */
+const CYBERPHOTOBOOTH_PUBLIC_STYLES_URL_FOR_MODE =
+  process.env.CYBERPHOTOBOOTH_PUBLIC_STYLES_URL ||
+  'https://api.cyberphotobooth.ru/api/public/styles';
+
+let ftModeCatalogCache = null;
+let ftModeCatalogCachedAt = 0;
+const FT_MODE_CATALOG_TTL_MS = 5 * 60 * 1000;
+
+function normalizeCyberPhotoBoothMode(mode) {
+  const value = String(mode || '').trim();
+
+  if (!value) return '';
+
+  const lower = value.toLowerCase();
+
+  if (lower === 'style_sdxl_zero' || lower === 'sdxl') return 'style_sdxl_zero';
+  if (lower === 'nano-banana' || lower === 'nano banana') return 'nano-banana';
+  if (lower === 'nano-banana2' || lower === 'nano banana 2') return 'nano-banana2';
+  if (lower === 'edit2' || lower === 'flux.2' || lower === 'flux2' || lower === 'flux') return 'edit2';
+  if (lower === 'headswapv2' || lower === 'замена головы') return 'headswapV2';
+
+  return value;
+}
+
+function getModeNameFromStyle(style) {
+  const modes = Array.isArray(style?.modes) ? style.modes : [];
+  const first = modes.find(Boolean);
+
+  if (!first) return '';
+
+  if (typeof first === 'string') {
+    return normalizeCyberPhotoBoothMode(first);
+  }
+
+  return normalizeCyberPhotoBoothMode(first.name || first.id || first.mode || first.value || first.display_name || first.displayName);
+}
+
+async function getCyberPhotoBoothModeByStyleId(styleId) {
+  const normalizedStyleId = String(styleId || '').trim();
+
+  if (!normalizedStyleId) return '';
+
+  const now = Date.now();
+
+  if (!ftModeCatalogCache || now - ftModeCatalogCachedAt > FT_MODE_CATALOG_TTL_MS) {
+    const response = await fetch(CYBERPHOTOBOOTH_PUBLIC_STYLES_URL_FOR_MODE);
+
+    if (!response.ok) {
+      return '';
+    }
+
+    const data = await response.json();
+
+    ftModeCatalogCache = Array.isArray(data)
+      ? data
+      : data.styles || data.items || data.data?.styles || data.data || [];
+
+    ftModeCatalogCachedAt = now;
+  }
+
+  const style = ftModeCatalogCache.find((item) => {
+    return String(item.style_id || item.id || item.slug || '').trim() === normalizedStyleId;
+  });
+
+  return getModeNameFromStyle(style);
+}
+
+async function resolveCyberPhotoBoothMode(payload, config) {
+  const explicitMode = normalizeCyberPhotoBoothMode(
+    payload?.styleMode ||
+    payload?.mode ||
+    payload?.styleProvider ||
+    payload?.provider
+  );
+
+  if (explicitMode) {
+    return explicitMode;
+  }
+
+  const catalogMode = await getCyberPhotoBoothModeByStyleId(payload?.styleId || payload?.providerStyleId);
+
+  if (catalogMode) {
+    return catalogMode;
+  }
+
+  return config.mode;
+}
+/* FT_CPB_MODE_RESOLVER_20260609_END */
+
 const DEFAULT_API_URL = 'https://api.cyberphotobooth.ru/api';
 
 function getCyberPhotoBoothConfig() {
@@ -48,7 +139,7 @@ async function submitGenerationJob({ file, participantId, cyberPhotoBoothStyle }
   };
 
   const body = {
-    mode: config.mode,
+    mode: await resolveCyberPhotoBoothMode(payload, config),
     return_s3_link: false,
     params: {
       Sex: mapParticipantToSex(participantId),

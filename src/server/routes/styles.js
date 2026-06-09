@@ -6,8 +6,7 @@ const CYBERPHOTOBOOTH_PUBLIC_STYLES_URL =
   process.env.CYBERPHOTOBOOTH_PUBLIC_STYLES_URL ||
   'https://api.cyberphotobooth.ru/api/public/styles';
 
-const STYLE_LIMIT = Number(process.env.CYBERPHOTOBOOTH_STYLE_LIMIT || 60);
-
+const STYLE_LIMIT = Number(process.env.CYBERPHOTOBOOTH_STYLE_LIMIT || 0);
 const PARTICIPANTS = ['male', 'female', 'couple', 'boy', 'girl', 'family'];
 
 let cachedStyles = [];
@@ -20,54 +19,93 @@ function normalizeMode(mode) {
   if (typeof mode === 'string') {
     return {
       name: mode,
+      displayName: mode,
       display_name: mode
     };
   }
 
+  const name =
+    mode.name ||
+    mode.id ||
+    mode.mode ||
+    mode.value ||
+    '';
+
+  const displayName =
+    mode.display_name ||
+    mode.displayName ||
+    mode.title ||
+    mode.label ||
+    name;
+
+  if (!name && !displayName) return null;
+
   return {
-    name: mode.name || mode.id || mode.mode || 'style_sdxl_zero',
-    display_name: mode.display_name || mode.displayName || mode.name || mode.id || mode.mode || 'style_sdxl_zero'
+    name: String(name || displayName),
+    displayName: String(displayName || name),
+    display_name: String(displayName || name)
   };
 }
 
+function getPreviewUrl(style) {
+  return (
+    style.preview_url ||
+    style.previewUrl ||
+    style.preview_url_thumb ||
+    style.preview_thumb_url ||
+    style.thumbnail_url ||
+    style.thumbnailUrl ||
+    style.thumbnail ||
+    style.image_url ||
+    style.imageUrl ||
+    style.cover_url ||
+    style.coverUrl ||
+    style.assets?.[0]?.url ||
+    style.assets?.[0]?.webp_url ||
+    style.assets?.[0]?.webpUrl ||
+    null
+  );
+}
+
 function normalizeCyberStyle(style) {
-  const id = String(style.style_id || style.id || '').trim();
+  const id = String(style.style_id || style.id || style.slug || '').trim();
 
   const title =
     style.display_name_ru ||
+    style.displayNameRu ||
     style.display_name_en ||
+    style.displayNameEn ||
     style.name ||
     style.title ||
     id;
 
-  const previewUrl =
-    style.preview_url ||
-    style.previewUrl ||
-    style.preview_url_thumb ||
-    style.thumbnail ||
-    style.imageUrl ||
-    style.assets?.[0]?.url ||
-    style.assets?.[0]?.webp_url ||
-    null;
-
   const modes = Array.isArray(style.modes)
     ? style.modes.map(normalizeMode).filter(Boolean)
-    : [{ name: 'style_sdxl_zero', display_name: 'style_sdxl_zero' }];
+    : [];
+
+  const previewUrl = getPreviewUrl(style);
+  const primaryMode = modes[0] || {
+    name: 'style_sdxl_zero',
+    displayName: 'SDXL',
+    display_name: 'SDXL'
+  };
 
   return {
     id,
+    providerStyleId: id,
     title,
     name: title,
-    displayNameRu: style.display_name_ru || title,
-    displayNameEn: style.display_name_en || title,
-    network: 'CyberPhotoBooth',
-    category: modes[0]?.display_name || modes[0]?.name || 'CyberPhotoBooth',
+    displayNameRu: style.display_name_ru || style.displayNameRu || title,
+    displayNameEn: style.display_name_en || style.displayNameEn || title,
+    network: primaryMode.displayName || primaryMode.display_name || primaryMode.name || 'CyberPhotoBooth',
+    category: primaryMode.displayName || primaryMode.display_name || primaryMode.name || 'CyberPhotoBooth',
     participant: PARTICIPANTS,
+    participantType: null,
+    isAvailable: true,
     imageUrl: previewUrl,
     previewUrl,
     thumbnail: previewUrl,
-    modes,
-    providerStyleId: id,
+    modes: modes.length ? modes : [primaryMode],
     source: 'cyberphotobooth-public-catalog'
   };
 }
@@ -76,16 +114,20 @@ function fallbackStyles() {
   return [
     {
       id: '1002',
+      providerStyleId: '1002',
       title: 'Атлантида',
       name: 'Атлантида',
-      network: 'CyberPhotoBooth',
-      category: 'style_sdxl_zero',
+      displayNameRu: 'Атлантида',
+      displayNameEn: 'Atlantis',
+      network: 'SDXL',
+      category: 'SDXL',
       participant: PARTICIPANTS,
+      participantType: null,
+      isAvailable: true,
       imageUrl: null,
       previewUrl: null,
       thumbnail: null,
-      modes: [{ name: 'style_sdxl_zero', display_name: 'style_sdxl_zero' }],
-      providerStyleId: '1002',
+      modes: [{ name: 'style_sdxl_zero', displayName: 'SDXL', display_name: 'SDXL' }],
       source: 'fallback'
     }
   ];
@@ -110,10 +152,13 @@ async function loadStyles() {
     ? data
     : data.styles || data.items || data.data?.styles || data.data || [];
 
-  const styles = rawStyles
+  let styles = rawStyles
     .map(normalizeCyberStyle)
-    .filter((style) => style.id && style.title)
-    .slice(0, STYLE_LIMIT);
+    .filter((style) => style.id && style.title);
+
+  if (STYLE_LIMIT > 0) {
+    styles = styles.slice(0, STYLE_LIMIT);
+  }
 
   cachedStyles = styles.length ? styles : fallbackStyles();
   cachedAt = now;

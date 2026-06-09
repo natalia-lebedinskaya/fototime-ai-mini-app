@@ -19,6 +19,8 @@
 /* FT_PUBLIC_STYLES_FETCH_ALIAS_20260609_END */
 
 
+
+
 /* FT_BOTTOM_NAV_FORCE_TAB_STATE_START */
 (function forceBottomNavTabState() {
   if (window.__ftBottomNavForceTabState) return;
@@ -497,7 +499,8 @@ async function runGeneration() {
   formData.append('participantId', state.selectedParticipantId);
   formData.append('styleId', state.selectedStyleId);
   formData.append('styleTitle', state.selectedStyleId || '');
-  formData.append('styleProvider', state.selectedStyle?.providers?.[0] || '');
+  formData.append('styleProvider', state.selectedStyle?.styleMode || state.selectedStyle?.provider || state.selectedStyle?.providers?.[0] || '');
+  formData.append('styleMode', state.selectedStyle?.styleMode || state.selectedStyle?.provider || '');
   formData.append('stylePreviewUrl', state.selectedStyle?.previewUrl || '');
   formData.append('photo', state.selectedPhoto);
 
@@ -817,30 +820,68 @@ function getStyleTitle(style) {
   return style.displayNameRu || style.displayNameEn || style.name || style.id;
 }
 
+function getStylePrimaryModeName(style) {
+  const modes = Array.isArray(style?.modes) ? style.modes : [];
+
+  const firstMode = modes.find(Boolean);
+
+  if (!firstMode) {
+    return style?.provider || style?.styleProvider || style?.network || '';
+  }
+
+  if (typeof firstMode === 'string') {
+    return firstMode;
+  }
+
+  return (
+    firstMode.name ||
+    firstMode.id ||
+    firstMode.mode ||
+    firstMode.value ||
+    style?.provider ||
+    style?.styleProvider ||
+    style?.network ||
+    ''
+  );
+}
+
 function getStyleProviders(style) {
-  const rawModes = Array.isArray(style.modes) ? style.modes : [];
+  const rawModes = Array.isArray(style?.modes) ? style.modes : [];
 
   const providers = rawModes
     .map((mode) => {
+      if (!mode) return null;
+
       if (typeof mode === 'string') {
         return mode;
       }
 
       return (
-        mode.display_name ||
         mode.displayName ||
+        mode.display_name ||
+        mode.title ||
+        mode.label ||
         mode.name ||
-        mode.provider ||
-        mode.engine ||
-        mode.model ||
-        mode.type ||
-        ''
+        mode.id ||
+        mode.mode ||
+        null
       );
     })
-    .filter(Boolean)
-    .map((item) => String(item).trim());
+    .filter(Boolean);
 
-  return [...new Set(providers)];
+  if (providers.length) {
+    return [...new Set(providers)];
+  }
+
+  if (style?.category) {
+    return [style.category];
+  }
+
+  if (style?.network) {
+    return [style.network];
+  }
+
+  return [];
 }
 
 function getAvailableProviders(styles) {
@@ -1034,6 +1075,8 @@ function renderStyles() {
         id: style.id,
         title: styleTitle,
         providers,
+        styleMode: getStylePrimaryModeName(style),
+        provider: getStylePrimaryModeName(style),
         previewUrl: style.previewUrl || '',
         raw: style
       };
@@ -4070,7 +4113,8 @@ window.addEventListener('load', () => {
     formData.append('participantId', s.participantId);
     formData.append('styleId', s.styleId);
     formData.append('styleTitle', s.style?.title || s.styleId);
-    formData.append('styleProvider', s.style?.provider || s.style?.providers?.[0] || '');
+    formData.append('styleProvider', s.style?.styleMode || s.style?.provider || s.style?.providers?.[0] || '');
+    formData.append('styleMode', s.style?.styleMode || s.style?.provider || '');
     formData.append('photo', s.photo);
 
     const oldText = button.textContent;
@@ -4859,7 +4903,8 @@ window.addEventListener('load', () => {
     formData.append('participantId', participantId);
     formData.append('styleId', style.id);
     formData.append('styleTitle', style.title || style.id);
-    formData.append('styleProvider', style.provider || '');
+    formData.append('styleProvider', style.styleMode || style.provider || '');
+    formData.append('styleMode', style.styleMode || style.provider || '');
     formData.append('photo', photo);
 
     const oldText = button.textContent;

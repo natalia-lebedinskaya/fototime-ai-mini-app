@@ -4924,10 +4924,12 @@ body[data-active-tab="admin"] [data-admin-logout] {
 
 
 
+
+
 /* FT_REAL_STYLE_PREVIEWS_20260609_START */
 #stylesGrid {
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)) !important;
   gap: 12px !important;
   overflow: visible !important;
 }
@@ -4940,7 +4942,7 @@ body[data-active-tab="admin"] [data-admin-logout] {
   align-items: stretch !important;
   justify-content: flex-start !important;
   gap: 8px !important;
-  min-height: 210px !important;
+  min-height: 205px !important;
   height: auto !important;
   padding: 10px !important;
   overflow: hidden !important;
@@ -4961,8 +4963,8 @@ body[data-active-tab="admin"] [data-admin-logout] {
   position: relative !important;
   z-index: 2 !important;
   width: 100% !important;
-  height: 145px !important;
-  min-height: 145px !important;
+  height: 132px !important;
+  min-height: 132px !important;
   object-fit: cover !important;
   object-position: center !important;
   opacity: 1 !important;
@@ -4980,13 +4982,15 @@ body[data-active-tab="admin"] [data-admin-logout] {
   z-index: 3 !important;
   font-size: 13px !important;
   font-weight: 800 !important;
-  line-height: 1.2 !important;
+  line-height: 1.15 !important;
   color: inherit !important;
+  text-align: center !important;
 }
 
 #stylesGrid .style-card .style-badges {
   display: flex !important;
   flex-wrap: wrap !important;
+  justify-content: center !important;
   gap: 6px !important;
   position: relative !important;
   z-index: 3 !important;
