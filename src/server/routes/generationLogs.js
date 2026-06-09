@@ -68,14 +68,9 @@ function ftFinalPinOk(req) {
   return Boolean(pin) && ftFinalAdminPins().includes(pin);
 }
 
-/* FT_ADMIN_PIN_BYPASS_PATCH_20260607 */
 const express = require('express');
-const {
-  getIdentityFromRequest,
-  getOrCreateUser,
-  getAdminOverview,
-  creditUser
-} = require('../services/userStoreService');
+const fs = require('fs');
+const path = require('path');
 
 
 function getAllowedAdminPins() {
@@ -128,6 +123,8 @@ function isAdminPinValid(req) {
 }
 
 
+const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
+const LOGS_FILE = path.join(DATA_DIR, 'generation-errors.json');
 
 
 
@@ -135,76 +132,44 @@ function isAdminPinValid(req) {
 
 
 
-function isValidAdminPin(req) {
-  const provided = String(
-    req.headers['x-admin-pin'] ||
-    req.body?.pin ||
-    req.query?.pin ||
-    ''
-  ).trim();
 
-  const allowedPins = [
-    process.env.ADMIN_PIN,
-    '3465',
-    '3230'
-  ]
-    .filter(Boolean)
-    .map((pin) => String(pin).trim());
-
-  return Boolean(provided && allowedPins.includes(provided));
-}
-
-
-function requireAdmin(req, res) {
-  const identity = getIdentityFromRequest(req);
-  const admin = getOrCreateUser(identity);
-
-  const pinOk = isValidAdminPin(req);
-
-  if (!pinOk) {
-    res.status(403).json({
-      code: 'ADMIN_REQUIRED',
-      message: 'Доступно только администратору'
-    });
-    return null;
+function readStore() {
+  try {
+    return JSON.parse(fs.readFileSync(LOGS_FILE, 'utf8'));
+  } catch {
+    return { items: [] };
   }
-
-  return admin;
 }
 
-router.get('/overview', (req, res) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
+function writeStore(data) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(LOGS_FILE, JSON.stringify(data, null, 2));
+}
 
-  res.json(getAdminOverview());
+router.post('/', express.json(), (req, res) => {
+  const store = readStore();
+
+  store.items.unshift({
+    id: `err_${Date.now()}`,
+    message: req.body.message || 'Unknown error',
+    stack: req.body.stack || '',
+    source: req.body.source || 'client',
+    userAgent: req.headers['user-agent'] || '',
+    createdAt: new Date().toISOString()
+  });
+
+  store.items = store.items.slice(0, 100);
+  writeStore(store);
+
+  res.json({ ok: true });
 });
 
-router.post('/users/:userId/credits', (req, res) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
-
-  const { amount, reason, note } = req.body;
-
-  const value = Number(amount);
-
-  if (!Number.isFinite(value) || value <= 0) {
-    return res.status(400).json({
-      code: 'INVALID_AMOUNT',
-      message: 'Укажите положительное количество токенов'
-    });
+router.get('/admin', (req, res) => {
+  if (!isAdminPinValid(req)) {
+    return res.status(403).json({ message: 'Неверный PIN' });
   }
 
-  const updatedUser = creditUser(
-    req.params.userId,
-    value,
-    reason || 'manual_credit',
-    note || null,
-    admin.id
-  );
-
-  res.json({
-    user: updatedUser
-  });
+  res.json(readStore());
 });
 
 module.exports = router;

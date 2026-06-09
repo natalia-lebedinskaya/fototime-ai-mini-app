@@ -11,3 +11,7 @@ yarn-error.log*
 
 # Local generated files
 storage/
+
+_local_checkpoints/
+src/client/app.before_restore_*.js
+*.bak

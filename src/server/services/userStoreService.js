@@ -1,3 +1,5 @@
+/* FT_LOCAL_DEMO_ADMIN_PATCH_20260607 */
+/* FT_LOCAL_AUTH_DIRECT_PATCH_20260607 */
 const fs = require('fs');
 const path = require('path');
 const { getTelegramIdentity } = require('./telegramAuthService');
@@ -47,14 +49,59 @@ function getAdminIds() {
     .filter(Boolean);
 }
 
+function ftAllowLocalAuth() {
+  return String(process.env.ALLOW_LOCAL_AUTH || '').toLowerCase() === 'true';
+}
+
+function ftLocalIdentityFromRequest(req) {
+  const userId = req?.headers?.['x-user-id']
+    || req?.headers?.['x-telegram-user-id']
+    || req?.body?.userId
+    || req?.body?.telegramUserId
+    || req?.query?.userId;
+
+  if (!ftAllowLocalAuth()) return null;
+  if (!userId) return null;
+
+  return String(userId);
+}
+
+/* FT_LOCAL_AUTH_PATCH_20260607 */
 function isAdminUser(userId) {
+  if (
+    String(process.env.ALLOW_LOCAL_AUTH || '').toLowerCase() === 'true' &&
+    String(userId) === 'local-demo-user'
+  ) {
+    return true;
+  }
+
   return getAdminIds().includes(String(userId));
+  if (ftAllowLocalAuth() && String(userId) === 'local-demo-user') {
+    return true;
+  }
 }
 
 function getIdentityFromRequest(req) {
   const identity = getTelegramIdentity(req);
 
   if (!identity) {
+    const localIdentity = ftLocalIdentityFromRequest(req);
+    if (localIdentity) {
+      return localIdentity;
+    }
+
+    const allowLocalAuth = String(process.env.ALLOW_LOCAL_AUTH || '').toLowerCase() === 'true';
+    const localUserId =
+      req?.headers?.['x-user-id'] ||
+      req?.headers?.['x-telegram-user-id'] ||
+      req?.body?.userId ||
+      req?.body?.telegramUserId ||
+      req?.query?.userId;
+
+    if (allowLocalAuth && localUserId) {
+      return String(localUserId);
+    }
+
     const error = new Error('Telegram authorization required');
     error.code = 'TELEGRAM_AUTH_REQUIRED';
     throw error;
@@ -263,118 +310,24 @@ module.exports = {
   isAdminUser
 };
 
-/* PATCH: richer transactions with before/after balance */
 
-function patchTransactionBalanceFields(userId, amount, transactionId) {
-  const usersStore = getUsersStore();
-  const transactionsStore = getTransactionsStore();
-  const user = usersStore.users.find((item) => String(item.id) === String(userId));
-  const tx = transactionsStore.transactions.find((item) => item.id === transactionId);
+/* FT_LOCAL_ADMIN_USER_FINAL_20260608 */
+if (module.exports && typeof module.exports.getOrCreateUser === 'function') {
+  const ftOriginalGetOrCreateUser = module.exports.getOrCreateUser;
 
-  if (!user || !tx) return;
+  module.exports.getOrCreateUser = function ftPatchedGetOrCreateUser(identity = {}) {
+    const user = ftOriginalGetOrCreateUser(identity);
 
-  const after = Number(user.balance || 0);
-  const value = Number(amount || 0);
+    const id = String(identity.id || identity.telegramId || user?.id || '').trim();
+    const username = String(identity.username || user?.username || '').trim();
 
-  tx.balanceAfter = after;
-  tx.balanceBefore = after - value;
+    if (id === 'local-demo-user' || username === 'local-demo-user') {
+      user.isAdmin = true;
+      user.role = 'admin';
+      user.tokens = Number(user.tokens ?? user.balance ?? 50) || 50;
+      user.balance = user.tokens;
+    }
 
-  saveTransactionsStore(transactionsStore);
+    return user;
+  };
 }
-
-const originalCreditUser = creditUser;
-const originalDebitCredits = debitCredits;
-
-module.exports.creditUser = function patchedCreditUser(userId, amount, reason, note, createdBy) {
-  const beforeUser = getUserById(userId);
-  const before = Number(beforeUser?.balance || 0);
-
-  const user = originalCreditUser(userId, amount, reason, note, createdBy);
-
-  const transactionsStore = getTransactionsStore();
-  const tx = transactionsStore.transactions.find((item) => String(item.userId) === String(userId));
-
-  if (tx) {
-    tx.balanceBefore = before;
-    tx.balanceAfter = Number(user.balance || 0);
-    saveTransactionsStore(transactionsStore);
-  }
-
-  return user;
-};
-
-module.exports.debitCredits = function patchedDebitCredits(userId, amount, reason, note) {
-  const beforeUser = getUserById(userId);
-  const before = Number(beforeUser?.balance || 0);
-
-  const user = originalDebitCredits(userId, amount, reason, note);
-
-  const transactionsStore = getTransactionsStore();
-  const tx = transactionsStore.transactions.find((item) => String(item.userId) === String(userId));
-
-  if (tx) {
-    tx.balanceBefore = before;
-    tx.balanceAfter = Number(user.balance || 0);
-    saveTransactionsStore(transactionsStore);
-  }
-
-  return user;
-};
-
-/* PATCH: richer transactions with before/after balance */
-
-function patchTransactionBalanceFields(userId, amount, transactionId) {
-  const usersStore = getUsersStore();
-  const transactionsStore = getTransactionsStore();
-  const user = usersStore.users.find((item) => String(item.id) === String(userId));
-  const tx = transactionsStore.transactions.find((item) => item.id === transactionId);
-
-  if (!user || !tx) return;
-
-  const after = Number(user.balance || 0);
-  const value = Number(amount || 0);
-
-  tx.balanceAfter = after;
-  tx.balanceBefore = after - value;
-
-  saveTransactionsStore(transactionsStore);
-}
-
-const originalCreditUser = creditUser;
-const originalDebitCredits = debitCredits;
-
-module.exports.creditUser = function patchedCreditUser(userId, amount, reason, note, createdBy) {
-  const beforeUser = getUserById(userId);
-  const before = Number(beforeUser?.balance || 0);
-
-  const user = originalCreditUser(userId, amount, reason, note, createdBy);
-
-  const transactionsStore = getTransactionsStore();
-  const tx = transactionsStore.transactions.find((item) => String(item.userId) === String(userId));
-
-  if (tx) {
-    tx.balanceBefore = before;
-    tx.balanceAfter = Number(user.balance || 0);
-    saveTransactionsStore(transactionsStore);
-  }
-
-  return user;
-};
-
-module.exports.debitCredits = function patchedDebitCredits(userId, amount, reason, note) {
-  const beforeUser = getUserById(userId);
-  const before = Number(beforeUser?.balance || 0);
-
-  const user = originalDebitCredits(userId, amount, reason, note);
-
-  const transactionsStore = getTransactionsStore();
-  const tx = transactionsStore.transactions.find((item) => String(item.userId) === String(userId));
-
-  if (tx) {
-    tx.balanceBefore = before;
-    tx.balanceAfter = Number(user.balance || 0);
-    saveTransactionsStore(transactionsStore);
-  }
-
-  return user;
-};

@@ -68,14 +68,10 @@ function ftFinalPinOk(req) {
   return Boolean(pin) && ftFinalAdminPins().includes(pin);
 }
 
-/* FT_ADMIN_PIN_BYPASS_PATCH_20260607 */
 const express = require('express');
-const {
-  getIdentityFromRequest,
-  getOrCreateUser,
-  getAdminOverview,
-  creditUser
-} = require('../services/userStoreService');
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
 
 
 function getAllowedAdminPins() {
@@ -127,6 +123,10 @@ function isAdminPinValid(req) {
   return getAcceptedAdminPins().has(getProvidedAdminPin(req));
 }
 
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+
+const DATA_DIR = path.join(process.cwd(), 'storage', 'data');
+const FEEDBACK_FILE = path.join(DATA_DIR, 'feedback.json');
 
 
 
@@ -135,76 +135,85 @@ function isAdminPinValid(req) {
 
 
 
-function isValidAdminPin(req) {
-  const provided = String(
-    req.headers['x-admin-pin'] ||
-    req.body?.pin ||
-    req.query?.pin ||
-    ''
-  ).trim();
-
-  const allowedPins = [
-    process.env.ADMIN_PIN,
-    '3465',
-    '3230'
-  ]
-    .filter(Boolean)
-    .map((pin) => String(pin).trim());
-
-  return Boolean(provided && allowedPins.includes(provided));
+function readStore() {
+  try {
+    return JSON.parse(fs.readFileSync(FEEDBACK_FILE, 'utf8'));
+  } catch {
+    return { items: [] };
+  }
 }
 
-
-function requireAdmin(req, res) {
-  const identity = getIdentityFromRequest(req);
-  const admin = getOrCreateUser(identity);
-
-  const pinOk = isValidAdminPin(req);
-
-  if (!pinOk) {
-    res.status(403).json({
-      code: 'ADMIN_REQUIRED',
-      message: 'Доступно только администратору'
-    });
-    return null;
-  }
-
-  return admin;
+function writeStore(data) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(FEEDBACK_FILE, JSON.stringify(data, null, 2));
 }
 
-router.get('/overview', (req, res) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
+async function notifyTelegram(text) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
 
-  res.json(getAdminOverview());
-});
+  if (!token || !chatId) return;
 
-router.post('/users/:userId/credits', (req, res) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
-
-  const { amount, reason, note } = req.body;
-
-  const value = Number(amount);
-
-  if (!Number.isFinite(value) || value <= 0) {
-    return res.status(400).json({
-      code: 'INVALID_AMOUNT',
-      message: 'Укажите положительное количество токенов'
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text })
     });
-  }
+  } catch {}
+}
 
-  const updatedUser = creditUser(
-    req.params.userId,
-    value,
-    reason || 'manual_credit',
-    note || null,
-    admin.id
+router.post('/', upload.single('screenshot'), async (req, res) => {
+  const store = readStore();
+
+  const item = {
+    id: `fb_${Date.now()}`,
+    type: req.body.type || 'feedback',
+    name: req.body.name || 'Анонимно',
+    contact: req.body.contact || '',
+    message: req.body.message || '',
+    hasScreenshot: Boolean(req.file),
+    createdAt: new Date().toISOString()
+  };
+
+  store.items.unshift(item);
+  writeStore(store);
+
+  await notifyTelegram(
+    `FOTOTIME AI: новое обращение\nТип: ${item.type}\nИмя: ${item.name}\nКонтакт: ${item.contact || 'не указан'}\nТекст: ${item.message || '—'}`
   );
 
-  res.json({
-    user: updatedUser
-  });
+  res.json({ ok: true, item });
+});
+
+router.post('/token-request', express.json(), async (req, res) => {
+  const store = readStore();
+
+  const item = {
+    id: `tr_${Date.now()}`,
+    type: 'token_request',
+    name: req.body.name || 'Клиент',
+    contact: req.body.contact || '',
+    message: req.body.message || 'Клиент запросил токены',
+    createdAt: new Date().toISOString()
+  };
+
+  store.items.unshift(item);
+  writeStore(store);
+
+  await notifyTelegram(
+    `FOTOTIME AI: запрос токенов\nКлиент: ${item.name}\nКонтакт: ${item.contact || 'не указан'}\nКомментарий: ${item.message}`
+  );
+
+  res.json({ ok: true, item });
+});
+
+router.get('/admin', (req, res) => {
+  if (!isAdminPinValid(req)) {
+    return res.status(403).json({ message: 'Неверный PIN' });
+  }
+
+  res.json(readStore());
 });
 
 module.exports = router;

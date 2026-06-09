@@ -1,6 +1,10 @@
 const DEFAULT_CYBERPHOTOBOOTH_STYLE = process.env.CYBERPHOTOBOOTH_STYLE || '1029';
 
 const STYLE_MAPPING = {
+  comic: {
+    type: 'style',
+    value: DEFAULT_CYBERPHOTOBOOTH_STYLE
+  },
   'ns-valentine-01': {
     type: 'style',
     value: 'Kaftan'
@@ -24,13 +28,11 @@ const STYLE_MAPPING = {
 };
 
 function getCyberPhotoBoothStyleMapping(styleId) {
-  const mappedStyle = STYLE_MAPPING[styleId];
-
-  if (mappedStyle) {
-    return mappedStyle;
-  }
-
   const normalizedStyleId = String(styleId || '').trim();
+
+  if (STYLE_MAPPING[normalizedStyleId]) {
+    return STYLE_MAPPING[normalizedStyleId];
+  }
 
   if (/^\d+$/.test(normalizedStyleId)) {
     return {
