@@ -149,6 +149,55 @@ const HOST = process.env.HOST || '0.0.0.0';
 /* FT_RENDER_PORT_BIND_FINAL_20260608 */
 const PORT = Number(process.env.PORT || 3000);
 /* FT_RENDER_SINGLE_PORT_20260608_V5 */
+
+
+/* FT_V16_FILE_STATIC_START */
+try {
+  const path = require("path");
+  const fs = require("fs");
+
+  const publicDir = path.join(process.cwd(), "public");
+  const uploadDir = path.join(publicDir, "uploads", "fototime");
+  const resultDir = path.join(publicDir, "results", "fototime");
+
+  fs.mkdirSync(uploadDir, { recursive: true });
+  fs.mkdirSync(resultDir, { recursive: true });
+
+  if (typeof app !== "undefined" && app && typeof app.use === "function") {
+    app.use("/uploads/fototime", express.static(uploadDir));
+    app.use("/results/fototime", express.static(resultDir));
+
+    app.get("/api/fototime/file/:bucket/:name", (req, res) => {
+      const bucket = String(req.params.bucket || "");
+      const name = path.basename(String(req.params.name || ""));
+      const dir = bucket === "uploads" ? uploadDir : bucket === "results" ? resultDir : null;
+
+      if (!dir || !name) {
+        return res.status(404).send("Not found");
+      }
+
+      const file = path.join(dir, name);
+
+      if (!fs.existsSync(file)) {
+        return res.status(404).send("Not found");
+      }
+
+      res.sendFile(file);
+    });
+
+    app.get("/api/fototime/version", (_req, res) => {
+      res.json({
+        ok: true,
+        version: "fototime-prod-20260610-173500-v16-polish",
+        updatedAt: new Date().toISOString()
+      });
+    });
+  }
+} catch (error) {
+  console.error("[FOTOTIME] file static patch failed", error);
+}
+/* FT_V16_FILE_STATIC_END */
+
 app.listen(PORT, HOST, () => {
   console.log(`FOTOTIME AI server is listening on http://${HOST}:${PORT}`);
 });
