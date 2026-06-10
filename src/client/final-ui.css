@@ -5013,3 +5013,91 @@ body[data-active-tab="admin"] [data-admin-logout] {
   outline-offset: 2px !important;
 }
 /* FT_REAL_STYLE_PREVIEWS_20260609_END */
+
+
+/* FT_COMPACT_REAL_STYLE_GRID_20260609_START */
+body #stylesGrid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+}
+
+body #stylesGrid .style-card,
+body #stylesGrid .style-card.ft-button-v5 {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 8px !important;
+  border-radius: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  overflow: hidden !important;
+}
+
+body #stylesGrid .style-card img.style-preview,
+body #stylesGrid .style-card > img {
+  display: block !important;
+  width: 100% !important;
+  height: 96px !important;
+  min-height: 96px !important;
+  max-height: 96px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 12px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+body #stylesGrid .style-card .style-name {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.12 !important;
+  text-align: center !important;
+  min-height: 27px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+body #stylesGrid .style-card .style-badges {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  flex-wrap: wrap !important;
+}
+
+body #stylesGrid .style-card .style-badge {
+  font-size: 9px !important;
+  line-height: 1 !important;
+  padding: 3px 6px !important;
+  min-height: 17px !important;
+}
+
+@media (max-width: 380px) {
+  body #stylesGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body #stylesGrid .style-card img.style-preview,
+  body #stylesGrid .style-card > img {
+    height: 104px !important;
+    min-height: 104px !important;
+    max-height: 104px !important;
+  }
+}
+
+@media (min-width: 720px) {
+  body #stylesGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+/* FT_COMPACT_REAL_STYLE_GRID_20260609_END */
