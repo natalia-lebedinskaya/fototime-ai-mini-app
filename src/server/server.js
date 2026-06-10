@@ -25,6 +25,55 @@ dotenv.config();
 
 const app = express();
 
+/* FT_DEPLOY_CACHE_BUST_V1 */
+const FT_DEPLOY_VERSION = process.env.FT_DEPLOY_VERSION || "fototime-prod-20260610-141454";
+
+app.use((req, res, next) => {
+  const noCachePaths = [
+    "/",
+    "/index.html",
+    "/api/fototime/version"
+  ];
+
+  const noCacheExtensions = [
+    ".html",
+    ".js",
+    ".css",
+    ".json",
+    ".map"
+  ];
+
+  const shouldNoCache =
+    noCachePaths.includes(req.path) ||
+    noCacheExtensions.some((ext) => req.path.endsWith(ext));
+
+  if (shouldNoCache) {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.setHeader("Surrogate-Control", "no-store");
+  }
+
+  next();
+});
+
+app.get("/api/fototime/version", (req, res) => {
+  res.json({
+    ok: true,
+    version: FT_DEPLOY_VERSION,
+    commit: process.env.RENDER_GIT_COMMIT || process.env.COMMIT_SHA || null,
+    branch: process.env.RENDER_GIT_BRANCH || null,
+    nodeEnv: process.env.NODE_ENV || null,
+    time: new Date().toISOString()
+  });
+});
+
+
+const fototimeStableRouter = require('./routes/fototimeStable');
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+app.use('/api/fototime', fototimeStableRouter);
+app.use('/api/ft', require('./routes/ftStable'));
+
 app.use(cors());
 
 /* FT_STATIC_ASSETS_STABLE_20260608 */

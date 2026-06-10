@@ -1,3 +1,39 @@
+
+/* FT_CLEAN_V10_GENERATE_FILE_NORMALIZER_START */
+function ftNormalizeUploadedFile(req) {
+  if (!req) return null;
+  if ((req.file || (Array.isArray(req.files) ? req.files[0] : null))) return (req.file || (Array.isArray(req.files) ? req.files[0] : null));
+
+  if (Array.isArray(req.files) && req.files.length) {
+    const preferred = req.files.find((file) => {
+      return ['photo', 'image', 'file', 'media', 'upload'].includes(file.fieldname);
+    });
+    req.file = preferred || (Array.isArray(req.files) ? req.files[0] : null);
+    return (req.file || (Array.isArray(req.files) ? req.files[0] : null));
+  }
+
+  if (req.files && typeof req.files === 'object') {
+    const files = Object.values(req.files).flat().filter(Boolean);
+    if (files.length) {
+      req.file = files[0];
+      return (req.file || (Array.isArray(req.files) ? req.files[0] : null));
+    }
+  }
+
+  return null;
+}
+/* FT_CLEAN_V10_GENERATE_FILE_NORMALIZER_END */
+
+
+
+
+
+
+
+
+
+
+
 /* FT_FORCE_ALLOW_LOCAL_GENERATION_20260608 */
 process.env.ALLOW_LOCAL_AUTH = 'true';
 const express = require('express');
@@ -20,6 +56,16 @@ const {
   requireEnoughCredits,
   debitCredits
 } = require('../services/userStoreService');
+
+function normalizeFototimeUploadedFile(req, res, next) {
+  if (!req.file && Array.isArray(req.files) && req.files.length) {
+    const preferred = req.files.find((file) =>
+      ["photo", "image", "file", "upload", "source"].includes(String(file.fieldname || "").toLowerCase())
+    );
+    req.file = preferred || req.files[0];
+  }
+  next();
+}
 
 const router = express.Router();
 
@@ -48,6 +94,56 @@ function resolveStyle(styleId, participantId, styleTitle, styleProvider, stylePr
     isExternal: true
   };
 }
+
+
+/* FT_ACCEPT_FILE_FIELD_20260610_START */
+function normalizeUploadedPhoto(req, res, next) {
+  const filesObject = req.files && !Array.isArray(req.files) ? req.files : null;
+  const filesArray = Array.isArray(req.files) ? req.files : [];
+
+  const photoFromFields =
+    filesObject?.photo?.[0] ||
+    filesObject?.file?.[0] ||
+    filesObject?.image?.[0] ||
+    null;
+
+  const photoFromArray =
+    filesArray.find((file) => file.fieldname === 'photo') ||
+    filesArray.find((file) => file.fieldname === 'file') ||
+    filesArray.find((file) => file.fieldname === 'image') ||
+    filesArray[0] ||
+    null;
+
+  req.file = (req.file || (Array.isArray(req.files) ? req.files[0] : null)) || photoFromFields || photoFromArray || null;
+  next();
+}
+/* FT_ACCEPT_FILE_FIELD_20260610_END */
+
+
+/* FT_ACCEPT_MULTIPLE_PHOTO_FIELDS_20260610_START */
+function ftNormalizeUploadedPhoto(req, res, next) {
+  const filesObject = req.files && !Array.isArray(req.files) ? req.files : null;
+  const filesArray = Array.isArray(req.files) ? req.files : [];
+
+  const fromFields =
+    filesObject?.photo?.[0] ||
+    filesObject?.file?.[0] ||
+    filesObject?.image?.[0] ||
+    filesObject?.upload?.[0] ||
+    null;
+
+  const fromArray =
+    filesArray.find((file) => file.fieldname === 'photo') ||
+    filesArray.find((file) => file.fieldname === 'file') ||
+    filesArray.find((file) => file.fieldname === 'image') ||
+    filesArray.find((file) => file.fieldname === 'upload') ||
+    filesArray[0] ||
+    null;
+
+  req.file = (req.file || (Array.isArray(req.files) ? req.files[0] : null)) || fromFields || fromArray || null;
+  next();
+}
+/* FT_ACCEPT_MULTIPLE_PHOTO_FIELDS_20260610_END */
 
 router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
   try {
@@ -80,7 +176,7 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       });
     }
 
-    if (!req.file) {
+    if (!(req.file || (Array.isArray(req.files) ? req.files[0] : null))) {
       return res.status(400).json({
         code: 'PHOTO_REQUIRED',
         message: 'Фото не загружено'
@@ -113,12 +209,12 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
     }
 
     const generationId = createGenerationId();
-    const originalPhoto = await saveOriginalPhoto(req.file, generationId);
+    const originalPhoto = await saveOriginalPhoto((req.file || (Array.isArray(req.files) ? req.files[0] : null)), generationId);
 
     const cyberPhotoBoothStyle = getCyberPhotoBoothStyleMapping(styleId);
 
     const generationPayload = {
-      file: req.file,
+      file: (req.file || (Array.isArray(req.files) ? req.files[0] : null)),
       participantId,
       styleId: String(style.id),
       styleName: style.name,
@@ -126,7 +222,7 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       styleProvider: styleProvider || null,
       stylePreviewUrl: stylePreviewUrl || style.previewUrl || null,
       cyberPhotoBoothStyle,
-      originalFileName: req.file.originalname
+      originalFileName: (req.file || (Array.isArray(req.files) ? req.files[0] : null)).originalname
     };
 
     const provider = process.env.GENERATION_PROVIDER || 'mock';
@@ -174,7 +270,7 @@ router.post('/', uploadMiddleware.single('photo'), async (req, res, next) => {
       styleName: style.name,
       styleTitle: styleTitle || style.name || styleId,
       styleProvider: styleProvider || null,
-      originalFileName: req.file.originalname,
+      originalFileName: (req.file || (Array.isArray(req.files) ? req.files[0] : null)).originalname,
       originalPhoto: originalPhoto.relativePath,
       resultImage: resultImage?.relativePath || null,
       resultUrl: resultImage?.relativePath ? `/${resultImage.relativePath}` : normalizedGenerationResult.resultUrl,
