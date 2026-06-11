@@ -2549,3 +2549,201 @@ window.addEventListener("DOMContentLoaded", () => {
 
   init();
 })();
+
+
+/* CHATGPT_LAYOUT_WIDTH_FIX_20260611_START */
+(() => {
+  if (window.__CHATGPT_LAYOUT_WIDTH_FIX_20260611__) return;
+  window.__CHATGPT_LAYOUT_WIDTH_FIX_20260611__ = true;
+
+  function applySafeLayoutFix() {
+    const body = document.body;
+    const html = document.documentElement;
+    if (!body || !html) return;
+
+    html.style.width = '100%';
+    html.style.maxWidth = 'none';
+    html.style.minWidth = '0';
+    html.style.transform = 'none';
+    html.style.zoom = '1';
+
+    body.style.width = '100%';
+    body.style.maxWidth = 'none';
+    body.style.minWidth = '0';
+    body.style.margin = '0';
+    body.style.padding = '0';
+    body.style.transform = 'none';
+    body.style.zoom = '1';
+    body.style.overflowX = 'hidden';
+
+    const selectors = [
+      '#app', '.app', '.app-shell', '.app-root', 'main',
+      '.page', '.page-shell', '.ft-app', '.ft-shell', '.ft-page', '.ft-layout'
+    ];
+
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        el.style.width = '100%';
+        el.style.minWidth = '0';
+        el.style.maxWidth = window.innerWidth <= 430 ? '100%' : '430px';
+        el.style.marginLeft = 'auto';
+        el.style.marginRight = 'auto';
+        el.style.left = 'auto';
+        el.style.right = 'auto';
+        el.style.transform = 'none';
+        el.style.zoom = '1';
+        el.style.boxSizing = 'border-box';
+      });
+    });
+
+    document.querySelectorAll('[style]').forEach((el) => {
+      const style = el.getAttribute('style') || '';
+      if (/scale\s*\(|zoom\s*:/.test(style)) {
+        el.style.transform = 'none';
+        el.style.zoom = '1';
+      }
+    });
+  }
+
+  window.addEventListener('load', applySafeLayoutFix);
+  window.addEventListener('resize', applySafeLayoutFix);
+  document.addEventListener('DOMContentLoaded', applySafeLayoutFix);
+
+  const observer = new MutationObserver(() => applySafeLayoutFix());
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
+  applySafeLayoutFix();
+})();
+/* CHATGPT_LAYOUT_WIDTH_FIX_20260611_END */
+
+
+/* CHATGPT_SAFE_MOBILE_CLEANUP_20260611_START */
+(() => {
+  if (window.__CHATGPT_SAFE_MOBILE_CLEANUP_20260611__) return;
+  window.__CHATGPT_SAFE_MOBILE_CLEANUP_20260611__ = true;
+
+  const ADMIN_PIN = '3654';
+  const SESSION_KEY = 'ft_admin_unlocked_20260611';
+
+  function isUnlocked() {
+    try {
+      return sessionStorage.getItem(SESSION_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function setLockedState() {
+    document.body.classList.toggle('ft-admin-locked', !isUnlocked());
+    document.body.classList.toggle('ft-admin-unlocked', isUnlocked());
+  }
+
+  function unlockAdmin() {
+    const value = window.prompt('Введите PIN для админки');
+    if (value === null) return false;
+    if (String(value).trim() === ADMIN_PIN) {
+      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (_) {}
+      setLockedState();
+      window.dispatchEvent(new CustomEvent('ft-admin-unlocked'));
+      return true;
+    }
+    alert('Неверный PIN');
+    return false;
+  }
+
+  function textOf(el) {
+    return (el?.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function looksLikeAdminEntry(el) {
+    const t = textOf(el);
+    if (!t) return false;
+    return t === 'админ' || t.includes('админ') || t.includes('admin');
+  }
+
+  function looksLikeAdminPanel(el) {
+    const t = textOf(el);
+    const cls = ((el.className && String(el.className)) || '').toLowerCase();
+    const ds = JSON.stringify(el.dataset || {}).toLowerCase();
+    return (
+      t.includes('админ-консоль') ||
+      t.includes('критичные ошибки') ||
+      t.includes('пользователи') ||
+      cls.includes('admin') ||
+      ds.includes('admin')
+    );
+  }
+
+  function protectAdminEntries() {
+    const all = document.querySelectorAll('button, a, [role="button"], .tab, .nav-item, .menu-item, .bottom-nav button, .bottom-nav a');
+    all.forEach((el) => {
+      if (!looksLikeAdminEntry(el)) return;
+      if (el.dataset.ftAdminProtected === '1') return;
+      el.dataset.ftAdminProtected = '1';
+
+      el.addEventListener('click', (e) => {
+        if (isUnlocked()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation?.();
+        unlockAdmin();
+      }, true);
+    });
+  }
+
+  function hideAdminPanelsWhenLocked() {
+    if (isUnlocked()) return;
+    const all = document.querySelectorAll('section, div, article, aside');
+    all.forEach((el) => {
+      if (!looksLikeAdminPanel(el)) return;
+      if (el.closest('.ft-admin-allow')) return;
+      el.style.display = 'none';
+    });
+  }
+
+  function hideOverlays() {
+    const selectors = [
+      '.fot-ai-version-footer',
+      '.ft-version-footer',
+      '.ft-version-pill',
+      '.version-pill',
+      '.version-badge',
+      '.app-version',
+      '[data-version-badge]',
+      '[data-app-version]',
+      '.ft-floating-balance',
+      '.floating-balance',
+      '.balance-floating',
+      '[data-floating-balance]',
+      '[data-balance-chip-floating]',
+      '.ft-sticky-balance',
+      '.ft-balance-chip--floating'
+    ];
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+      });
+    });
+  }
+
+  function run() {
+    setLockedState();
+    protectAdminEntries();
+    hideAdminPanelsWhenLocked();
+    hideOverlays();
+  }
+
+  document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('load', run);
+  window.addEventListener('resize', run);
+
+  const mo = new MutationObserver(run);
+  mo.observe(document.documentElement, { childList: true, subtree: true });
+
+  run();
+})();
+/* CHATGPT_SAFE_MOBILE_CLEANUP_20260611_END */
+

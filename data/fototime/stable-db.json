@@ -7,7 +7,7 @@
       "name": "local-demo-user",
       "balance": 180,
       "createdAt": "2026-06-10T11:36:20.448Z",
-      "updatedAt": "2026-06-11T16:42:56.190Z"
+      "updatedAt": "2026-06-11T18:55:26.660Z"
     }
   },
   "generations": [
@@ -9963,6 +9963,218 @@
           "createdAt": "2026-06-11T16:14:21.026Z"
         }
       ]
+    },
+    "session_1781200102199_b31868": {
+      "id": "session_1781200102199_b31868",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "startedAt": "2026-06-11T17:48:28.284Z",
+      "updatedAt": "2026-06-11T17:48:28.284Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 20
+          },
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-11T17:48:28.284Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1781201166412_3a5a53": {
+      "id": "session_1781201166412_3a5a53",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "startedAt": "2026-06-11T18:06:11.870Z",
+      "updatedAt": "2026-06-11T18:06:11.870Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 20
+          },
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-11T18:06:11.870Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1781201912926_611c04": {
+      "id": "session_1781201912926_611c04",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "startedAt": "2026-06-11T18:18:41.500Z",
+      "updatedAt": "2026-06-11T18:18:41.500Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 20
+          },
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-11T18:18:41.500Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1781203333336_38b751": {
+      "id": "session_1781203333336_38b751",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "startedAt": "2026-06-11T18:42:17.591Z",
+      "updatedAt": "2026-06-11T18:55:41.257Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 20
+          },
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-11T18:55:41.257Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-11T18:51:24.378Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-11T18:51:18.614Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 20
+          },
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-11T18:50:50.012Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 20
+          },
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-11T18:50:35.921Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 20
+          },
+          "user": {
+            "id": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-11T18:42:17.591Z"
+        }
+      ],
+      "errors": []
     }
   },
   "activeGenerations": {
@@ -9983,5 +10195,5 @@
       "resultUrl": ""
     }
   },
-  "updatedAt": "2026-06-11T16:43:21.663Z"
+  "updatedAt": "2026-06-11T18:55:41.282Z"
 }

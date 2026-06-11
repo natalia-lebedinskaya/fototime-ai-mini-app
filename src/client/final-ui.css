@@ -909,7 +909,7 @@ select {
 
 /* FT_V16_POLISH_START */
 :root {
-  --ft-version-label: "fototime-prod-20260611-131500-v26-stable-final-fixed";
+  --ft-version-label: "fot-ai-prod-20260611-v28-stable";
 }
 
 .ft-version-card,
@@ -1185,7 +1185,7 @@ body[data-ui-theme="dark"] .ft-helper-bubble {
 
 /* FT_V17_RUNTIME_UI_START */
 :root {
-  --ft-runtime-version: "fototime-prod-20260611-131500-v26-stable-final-fixed";
+  --ft-runtime-version: "fot-ai-prod-20260611-v28-stable";
 }
 
 html,
@@ -2634,3 +2634,489 @@ body[data-theme="dark"] .ft-v26-spent {
 }
 
 /* FT_V26_STABLE_FINAL_CSS_END */
+
+
+
+
+
+
+/* CHATGPT_FOT_AI_SAFE_UI_20260611_START */
+
+/* Общий масштаб приложения - примерно минус 40% */
+html, body {
+  overflow-x: hidden !important;
+}
+
+body .ft-app,
+body #app,
+body main#app {
+  transform: scale(0.6);
+  transform-origin: top center;
+  width: 166.6667%;
+  min-height: 166.6667vh;
+}
+
+@media (max-width: 900px) {
+  body .ft-app,
+  body #app,
+  body main#app {
+    transform: scale(0.6);
+    transform-origin: top left;
+    width: 166.6667%;
+    min-height: 166.6667vh;
+  }
+}
+
+.fot-ai-tips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0 24px;
+}
+
+.fot-ai-tip {
+  position: relative;
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(120,120,120,.18);
+  background: linear-gradient(135deg, rgba(255,244,178,.55), rgba(171,255,226,.45));
+  box-shadow: 0 10px 30px rgba(0,0,0,.05);
+  transition: transform .24s ease, box-shadow .24s ease;
+}
+
+.fot-ai-tip:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgba(0,0,0,.08);
+}
+
+.fot-ai-tip__label {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: .7;
+  margin-bottom: 6px;
+}
+
+.fot-ai-tip__title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.fot-ai-tip__text {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.fot-ai-tip--accent::after {
+  content: '✨';
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 20px;
+  animation: fot-ai-float 2s ease-in-out infinite;
+}
+
+.fot-ai-nick-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  background: linear-gradient(90deg, rgba(255,233,74,.7), rgba(103,241,214,.55));
+  border: 1px solid rgba(0,0,0,.08);
+}
+
+.fot-ai-chat-card {
+  margin: 18px 0 24px;
+  padding: 18px;
+  border-radius: 28px;
+  border: 1px solid rgba(120,120,120,.18);
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,245,230,.7));
+  box-shadow: 0 12px 34px rgba(0,0,0,.06);
+}
+
+.fot-ai-chat-card__header h3 {
+  margin: 2px 0 4px;
+  font-size: 28px;
+}
+
+.fot-ai-chat-card__header p,
+.fot-ai-chat-card__kicker {
+  margin: 0;
+  opacity: .76;
+}
+
+.fot-ai-chat-card__kicker {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px;
+}
+
+.fot-ai-chat {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.fot-ai-chat__contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fot-ai-contact {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 46px 1fr 14px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(120,120,120,.16);
+  border-radius: 18px;
+  background: rgba(255,255,255,.62);
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.fot-ai-contact:hover,
+.fot-ai-contact.is-active {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.88);
+  box-shadow: 0 10px 24px rgba(0,0,0,.07);
+}
+
+.fot-ai-contact__avatar,
+.fot-ai-dialog-user .fot-ai-contact__avatar {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffe75a, #75f4d7);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+}
+
+.fot-ai-contact__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.fot-ai-contact__name {
+  font-weight: 900;
+}
+
+.fot-ai-contact__handle,
+.fot-ai-contact__status,
+.fot-ai-dialog-user div:last-child {
+  font-size: 13px;
+  opacity: .72;
+}
+
+.fot-ai-contact__status {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.fot-ai-contact__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d2d2d2;
+}
+
+.fot-ai-contact__dot.is-online {
+  background: #40d97d;
+  box-shadow: 0 0 0 4px rgba(64,217,125,.16);
+}
+
+.fot-ai-chat__dialog {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 420px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(120,120,120,.16);
+  background: rgba(255,255,255,.66);
+}
+
+.fot-ai-chat__dialog-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(120,120,120,.12);
+  background: rgba(255,255,255,.8);
+}
+
+.fot-ai-dialog-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fot-ai-chat__messages {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 250px;
+  max-height: 420px;
+  overflow: auto;
+  background:
+    radial-gradient(circle at top left, rgba(255,232,94,.18), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(103,241,214,.18), transparent 28%),
+    rgba(255,255,255,.42);
+}
+
+.fot-ai-message {
+  display: flex;
+}
+
+.fot-ai-message.is-mine {
+  justify-content: flex-end;
+}
+
+.fot-ai-message__bubble {
+  max-width: min(78%, 480px);
+  padding: 12px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 6px 18px rgba(0,0,0,.05);
+}
+
+.fot-ai-message.is-mine .fot-ai-message__bubble {
+  background: linear-gradient(135deg, rgba(255,233,74,.88), rgba(103,241,214,.72));
+}
+
+.fot-ai-chat__composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 14px;
+  border-top: 1px solid rgba(120,120,120,.12);
+  background: rgba(255,255,255,.85);
+}
+
+.fot-ai-chat__composer input {
+  min-width: 0;
+  border-radius: 16px;
+  border: 1px solid rgba(120,120,120,.18);
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.fot-ai-chat__composer button {
+  border: 0;
+  border-radius: 16px;
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ffe75a, #75f4d7);
+}
+
+.fot-ai-animated {
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.fot-ai-animated:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.03);
+}
+
+.fot-ai-confetti-host {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.fot-ai-confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ffe75a, #75f4d7);
+  animation: fot-ai-confetti-burst 1.8s ease-out forwards;
+}
+
+.fot-ai-confetti-piece:nth-child(3n) { background: linear-gradient(180deg, #ff8fd0, #ffd86b); }
+.fot-ai-confetti-piece:nth-child(3n+1) { background: linear-gradient(180deg, #75f4d7, #7ec9ff); }
+
+@keyframes fot-ai-confetti-burst {
+  from {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(.7);
+    opacity: 0;
+  }
+}
+
+@keyframes fot-ai-float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@media (max-width: 980px) {
+  .fot-ai-tips {
+    grid-template-columns: 1fr;
+  }
+
+  .fot-ai-chat {
+    grid-template-columns: 1fr;
+  }
+
+  .fot-ai-chat__dialog {
+    min-height: 360px;
+  }
+}
+/* CHATGPT_FOT_AI_SAFE_UI_20260611_END */
+
+
+/* CHATGPT_LAYOUT_WIDTH_FIX_20260611_START */
+html, body {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  zoom: 1 !important;
+  transform: none !important;
+}
+
+body {
+  display: block !important;
+}
+
+#app,
+.app,
+.app-shell,
+.app-root,
+main,
+.page,
+.page-shell,
+.ft-app,
+.ft-shell,
+.ft-page,
+.ft-layout {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 430px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+  zoom: 1 !important;
+  left: auto !important;
+  right: auto !important;
+}
+
+@media (max-width: 430px) {
+  #app,
+  .app,
+  .app-shell,
+  .app-root,
+  main,
+  .page,
+  .page-shell,
+  .ft-app,
+  .ft-shell,
+  .ft-page,
+  .ft-layout {
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+/* убираем глобальные уменьшения, если они были навешаны inline/js */
+body *[style*="scale("],
+body *[style*="zoom:"],
+body *[style*="transform: scale"],
+body *[style*="transform:scale"] {
+  transform: none !important;
+  zoom: 1 !important;
+}
+
+/* служебная версия — аккуратно внизу, не по центру экрана */
+.fot-ai-version-footer {
+  position: fixed !important;
+  left: 12px !important;
+  right: 12px !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px) !important;
+  width: auto !important;
+  max-width: 430px !important;
+  margin: 0 auto !important;
+  z-index: 9998 !important;
+  pointer-events: none !important;
+}
+/* CHATGPT_LAYOUT_WIDTH_FIX_20260611_END */
+
+
+/* CHATGPT_SAFE_MOBILE_CLEANUP_20260611_START */
+
+/* 1) убираем назойливую плашку версии */
+.fot-ai-version-footer,
+.ft-version-footer,
+.ft-version-pill,
+.version-pill,
+.version-badge,
+.app-version,
+[data-version-badge],
+[data-app-version] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 2) убираем плавающий баланс-оверлей на мобильном */
+@media (max-width: 768px) {
+  .ft-floating-balance,
+  .floating-balance,
+  .balance-floating,
+  [data-floating-balance],
+  [data-balance-chip-floating],
+  .ft-sticky-balance,
+  .ft-balance-chip--floating {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+/* 3) пока админка не разблокирована — скрываем её панели */
+body.ft-admin-locked .admin-panel,
+body.ft-admin-locked .admin-console,
+body.ft-admin-locked .admin-root,
+body.ft-admin-locked [data-admin-panel],
+body.ft-admin-locked [data-page="admin"],
+body.ft-admin-locked .page-admin,
+body.ft-admin-locked .ft-admin-page {
+  display: none !important;
+}
+
+/* 4) чуть аккуратнее мобильные отступы */
+@media (max-width: 768px) {
+  #app, .app, .app-root, .app-shell, main, .page, .ft-page, .ft-shell {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* CHATGPT_SAFE_MOBILE_CLEANUP_20260611_END */
+
