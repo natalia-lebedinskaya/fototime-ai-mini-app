@@ -1,0 +1,2418 @@
+{
+  "users": {
+    "local-demo-user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user",
+      "balance": 51,
+      "createdAt": "2026-06-10T11:06:48.651Z",
+      "updatedAt": "2026-06-10T11:23:05.268Z"
+    }
+  },
+  "feedback": [],
+  "audit": [
+    {
+      "id": "audit_1781090585270_fd90461bd624b",
+      "title": "Переход: home",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:23:05.270Z"
+    },
+    {
+      "id": "audit_1781090579184_3be232f0308f48",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:59.184Z"
+    },
+    {
+      "id": "audit_1781090569873_7b8e3ed513459",
+      "title": "Переход: profile",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "profile",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:49.873Z"
+    },
+    {
+      "id": "audit_1781090565338_72f6b637e7ae2",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "selected": {
+          "id": "fallback_0",
+          "title": "Атлантида",
+          "provider": "SDXL"
+        },
+        "file": {
+          "name": "барби-09-июня--13-24.jpg",
+          "size": 505035,
+          "type": "image/jpeg"
+        }
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:45.338Z"
+    },
+    {
+      "id": "audit_1781090565333_9a96954b2eff9",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "id": "active_1781090565333_f393c0ca2ae668",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "styleTitle": "Атлантида",
+        "styleProvider": "SDXL",
+        "step": "Запуск генерации",
+        "createdAt": "2026-06-10T11:22:45.333Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:45.333Z"
+    },
+    {
+      "id": "audit_1781090565328_cc9235f784a91",
+      "title": "Исходное фото загружено",
+      "level": "info",
+      "type": "photo_source",
+      "message": "",
+      "details": {
+        "id": "source_1781090565328_5a14cd789abdb",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "beforeUrl": "/uploads/fototime/1781090565323-6d44b7b8c99888---09----13-24.jpg.jpg",
+        "afterUrl": "",
+        "styleTitle": "Атлантида",
+        "styleProvider": "SDXL",
+        "status": "source_uploaded",
+        "unread": false,
+        "createdAt": "2026-06-10T11:22:45.328Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:45.328Z"
+    },
+    {
+      "id": "audit_1781090565307_8b1d572dc95998",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:45.308Z"
+    },
+    {
+      "id": "audit_1781090563213_a8bf94d9b18128",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "selected": {
+          "id": "fallback_0",
+          "title": "Атлантида",
+          "provider": "SDXL"
+        },
+        "file": {
+          "name": "барби-09-июня--13-24.jpg",
+          "size": 505035,
+          "type": "image/jpeg"
+        }
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:43.213Z"
+    },
+    {
+      "id": "audit_1781090563209_8e017a18aade58",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "id": "active_1781090563209_4a664c476da6",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "styleTitle": "Атлантида",
+        "styleProvider": "SDXL",
+        "step": "Запуск генерации",
+        "createdAt": "2026-06-10T11:22:43.209Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:43.209Z"
+    },
+    {
+      "id": "audit_1781090563204_c83218492b702",
+      "title": "Исходное фото загружено",
+      "level": "info",
+      "type": "photo_source",
+      "message": "",
+      "details": {
+        "id": "source_1781090563204_a1e2b3d47373b8",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "beforeUrl": "/uploads/fototime/1781090563201-4d4565f563023---09----13-24.jpg.jpg",
+        "afterUrl": "",
+        "styleTitle": "Атлантида",
+        "styleProvider": "SDXL",
+        "status": "source_uploaded",
+        "unread": false,
+        "createdAt": "2026-06-10T11:22:43.204Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:43.204Z"
+    },
+    {
+      "id": "audit_1781090563187_069e4a03cdacc8",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:43.187Z"
+    },
+    {
+      "id": "audit_1781090560775_c491ef54add138",
+      "title": "Фото выбрано",
+      "level": "info",
+      "type": "photo_selected",
+      "message": "",
+      "details": {
+        "name": "барби-09-июня--13-24.jpg",
+        "size": 505035,
+        "type": "image/jpeg"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:40.775Z"
+    },
+    {
+      "id": "audit_1781090557611_bb94db0f6d221",
+      "title": "Стиль выбран",
+      "level": "info",
+      "type": "style_selected",
+      "message": "",
+      "details": {
+        "id": "fallback_0",
+        "title": "Атлантида",
+        "provider": "SDXL"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:37.611Z"
+    },
+    {
+      "id": "audit_1781090556093_dae10297f494",
+      "title": "Участник выбран",
+      "level": "info",
+      "type": "participant_selected",
+      "message": "",
+      "details": {
+        "participant": "female"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:36.093Z"
+    },
+    {
+      "id": "audit_1781090549328_cb283736edb718",
+      "title": "Auth-buttons patch active",
+      "level": "info",
+      "type": "system_patch",
+      "message": "",
+      "details": {
+        "version": "v13"
+      },
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:29.328Z"
+    },
+    {
+      "id": "audit_1781090549312_a3d84e3161e35",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:29.312Z"
+    },
+    {
+      "id": "audit_1781090544775_a8bea5653ee078",
+      "title": "Участник выбран",
+      "level": "info",
+      "type": "participant_selected",
+      "message": "",
+      "details": {
+        "participant": "female"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:24.775Z"
+    },
+    {
+      "id": "audit_1781090543457_aab75f870b83e8",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_help_open",
+      "message": "",
+      "details": {},
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:23.457Z"
+    },
+    {
+      "id": "audit_1781090541977_5d2e1d4b73ce08",
+      "title": "Открыта подсказка “Авторизация и бонусы”",
+      "level": "info",
+      "type": "bonus_help_open",
+      "message": "",
+      "details": {},
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:21.977Z"
+    },
+    {
+      "id": "audit_1781090540977_20c0999a77f63",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:20.977Z"
+    },
+    {
+      "id": "audit_1781090539088_cb046a3db635d",
+      "title": "Auth-buttons patch active",
+      "level": "info",
+      "type": "system_patch",
+      "message": "",
+      "details": {
+        "version": "v13"
+      },
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:19.088Z"
+    },
+    {
+      "id": "audit_1781090539075_0a6d711b5a8ad",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:19.075Z"
+    },
+    {
+      "id": "audit_1781090537839_3551cf6afecca",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_help_open",
+      "message": "",
+      "details": {},
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:17.839Z"
+    },
+    {
+      "id": "audit_1781090535022_f17d66768db6f8",
+      "title": "Переход: home",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:22:15.022Z"
+    },
+    {
+      "id": "audit_1781090513159_f6362cc22dae78",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:21:53.159Z"
+    },
+    {
+      "id": "audit_1781090511357_637bd0b9adc9d",
+      "title": "Auth-buttons patch active",
+      "level": "info",
+      "type": "system_patch",
+      "message": "",
+      "details": {
+        "version": "v13"
+      },
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:21:51.357Z"
+    },
+    {
+      "id": "audit_1781090511341_251e3f50472898",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:21:51.341Z"
+    },
+    {
+      "id": "audit_1781090509791_4f482ecb9a6c1",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:21:49.791Z"
+    },
+    {
+      "id": "audit_1781090508011_de7c2c78bb744",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:21:48.011Z"
+    },
+    {
+      "id": "audit_1781090501555_d7cf99429b15",
+      "title": "Открыта подсказка “Авторизация и бонусы”",
+      "level": "info",
+      "type": "bonus_help_open",
+      "message": "",
+      "details": {},
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:21:41.555Z"
+    },
+    {
+      "id": "audit_1781090498276_633cb21b046e8",
+      "title": "Открыта подсказка “Авторизация и бонусы”",
+      "level": "info",
+      "type": "bonus_help_open",
+      "message": "",
+      "details": {},
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:21:38.276Z"
+    },
+    {
+      "id": "audit_1781090492307_eb1439c4a937f8",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_help_open",
+      "message": "",
+      "details": {},
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:21:32.307Z"
+    },
+    {
+      "id": "audit_1781090488188_45951e1f7c809",
+      "title": "Auth-buttons patch active",
+      "level": "info",
+      "type": "system_patch",
+      "message": "",
+      "details": {
+        "version": "v13"
+      },
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:21:28.188Z"
+    },
+    {
+      "id": "audit_1781090488174_e65d77b6276428",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:21:28.174Z"
+    },
+    {
+      "id": "audit_1781090481133_8b0eba87c7ba88",
+      "title": "Auth-buttons patch active",
+      "level": "info",
+      "type": "system_patch",
+      "message": "",
+      "details": {
+        "version": "v13"
+      },
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:21:21.133Z"
+    },
+    {
+      "id": "audit_1781090481118_db389c9dd3b34",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:21:21.118Z"
+    },
+    {
+      "id": "audit_1781090474974_d8f9733dca6738",
+      "title": "Auth-buttons patch active",
+      "level": "info",
+      "type": "system_patch",
+      "message": "",
+      "details": {
+        "version": "v13"
+      },
+      "page": "/",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:21:14.974Z"
+    },
+    {
+      "id": "audit_1781090474954_2c75aefa2c2468",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:21:14.954Z"
+    },
+    {
+      "id": "audit_1781090328528_bf5c04024e24d8",
+      "title": "Переход: profile",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "profile",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:18:48.528Z"
+    },
+    {
+      "id": "audit_1781090325196_023eb0a0911308",
+      "title": "Переход: home",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:18:45.196Z"
+    },
+    {
+      "id": "audit_1781090310032_16a850de6ceb5",
+      "title": "Уведомление о чеке отправлено",
+      "level": "info",
+      "type": "receipt_note",
+      "message": "",
+      "details": {
+        "userId": "local-demo-user",
+        "user": {
+          "id": "local-demo-user",
+          "username": "local-demo-user",
+          "name": "local-demo-user",
+          "balance": 51,
+          "createdAt": "2026-06-10T11:06:48.651Z",
+          "updatedAt": "2026-06-10T11:18:07.608Z"
+        }
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:18:30.032Z"
+    },
+    {
+      "id": "audit_1781090287610_5410d2d5efe2c",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:18:07.610Z"
+    },
+    {
+      "id": "audit_1781090283045_04764a49724cf",
+      "title": "Переход в соцсеть: site",
+      "level": "info",
+      "type": "social_click",
+      "message": "",
+      "details": {
+        "url": "https://fototime323.lpmotortest.com"
+      },
+      "page": "profile",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:18:03.045Z"
+    },
+    {
+      "id": "audit_1781090264156_d833df99deccc8",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_info",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:44.156Z"
+    },
+    {
+      "id": "audit_1781090263499_8f77e96214f22",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_info",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:43.499Z"
+    },
+    {
+      "id": "audit_1781090263222_733ac58fd52ba",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_info",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:43.222Z"
+    },
+    {
+      "id": "audit_1781090262753_41bca0b999635",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_info",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:42.753Z"
+    },
+    {
+      "id": "audit_1781090261673_d2f254ac034fa8",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_info",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:41.673Z"
+    },
+    {
+      "id": "audit_1781090259661_19d5c7616b5da",
+      "title": "Переход: home",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:39.661Z"
+    },
+    {
+      "id": "audit_1781090251900_8574895730cd3",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:31.900Z"
+    },
+    {
+      "id": "audit_1781090243742_e0d43859008c",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "selected": {
+          "id": "fallback_4",
+          "title": "Рождество",
+          "provider": "SDXL"
+        },
+        "file": {
+          "name": "1781089806200-887c7a74520c5---------3.jpg.jpg",
+          "size": 444647,
+          "type": "image/jpeg"
+        }
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:23.742Z"
+    },
+    {
+      "id": "audit_1781090243737_e728cdadf219f8",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "id": "active_1781090243737_2b7cd5e6ac8ac",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "step": "Запуск генерации",
+        "createdAt": "2026-06-10T11:17:23.737Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:23.737Z"
+    },
+    {
+      "id": "audit_1781090243731_1aad0c56148f",
+      "title": "Исходное фото загружено",
+      "level": "info",
+      "type": "photo_source",
+      "message": "",
+      "details": {
+        "id": "source_1781090243731_c287f0c2d8854",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "beforeUrl": "/uploads/fototime/1781090243727-f320a3f40d9c98-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+        "afterUrl": "",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "status": "source_uploaded",
+        "unread": false,
+        "createdAt": "2026-06-10T11:17:23.731Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:23.731Z"
+    },
+    {
+      "id": "audit_1781090243710_50cb405c8201e8",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:23.710Z"
+    },
+    {
+      "id": "audit_1781090243058_c25a1790b93e2",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "selected": {
+          "id": "fallback_4",
+          "title": "Рождество",
+          "provider": "SDXL"
+        },
+        "file": {
+          "name": "1781089806200-887c7a74520c5---------3.jpg.jpg",
+          "size": 444647,
+          "type": "image/jpeg"
+        }
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:23.058Z"
+    },
+    {
+      "id": "audit_1781090243053_925f701655b528",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "id": "active_1781090243053_9859fdb0ea17b8",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "step": "Запуск генерации",
+        "createdAt": "2026-06-10T11:17:23.053Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:23.053Z"
+    },
+    {
+      "id": "audit_1781090243048_012c1bac6c1dd8",
+      "title": "Исходное фото загружено",
+      "level": "info",
+      "type": "photo_source",
+      "message": "",
+      "details": {
+        "id": "source_1781090243048_4100cdd4b6bbf8",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "beforeUrl": "/uploads/fototime/1781090243043-961ab30ad034c-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+        "afterUrl": "",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "status": "source_uploaded",
+        "unread": false,
+        "createdAt": "2026-06-10T11:17:23.048Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:23.048Z"
+    },
+    {
+      "id": "audit_1781090243028_3d4176a840b69",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:23.028Z"
+    },
+    {
+      "id": "audit_1781090241759_ac96694294c4f8",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "selected": {
+          "id": "fallback_4",
+          "title": "Рождество",
+          "provider": "SDXL"
+        },
+        "file": {
+          "name": "1781089806200-887c7a74520c5---------3.jpg.jpg",
+          "size": 444647,
+          "type": "image/jpeg"
+        }
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:21.759Z"
+    },
+    {
+      "id": "audit_1781090241754_f13c900de7bcb",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "id": "active_1781090241754_fce09de2afc2c8",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "step": "Запуск генерации",
+        "createdAt": "2026-06-10T11:17:21.754Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:21.754Z"
+    },
+    {
+      "id": "audit_1781090241749_0b2fa86e53733",
+      "title": "Исходное фото загружено",
+      "level": "info",
+      "type": "photo_source",
+      "message": "",
+      "details": {
+        "id": "source_1781090241749_0698d232969938",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "beforeUrl": "/uploads/fototime/1781090241744-3a9eddc44a24b8-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+        "afterUrl": "",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "status": "source_uploaded",
+        "unread": false,
+        "createdAt": "2026-06-10T11:17:21.749Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:21.749Z"
+    },
+    {
+      "id": "audit_1781090241728_254d4c8d505dc8",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:21.728Z"
+    },
+    {
+      "id": "audit_1781090241057_ffed12c59b7e3",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "selected": {
+          "id": "fallback_4",
+          "title": "Рождество",
+          "provider": "SDXL"
+        },
+        "file": {
+          "name": "1781089806200-887c7a74520c5---------3.jpg.jpg",
+          "size": 444647,
+          "type": "image/jpeg"
+        }
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:21.057Z"
+    },
+    {
+      "id": "audit_1781090241051_1e1bbe5a0ee7e",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "id": "active_1781090241051_833b5d12dd99c",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "step": "Запуск генерации",
+        "createdAt": "2026-06-10T11:17:21.051Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:21.051Z"
+    },
+    {
+      "id": "audit_1781090241046_b0278915adfd88",
+      "title": "Исходное фото загружено",
+      "level": "info",
+      "type": "photo_source",
+      "message": "",
+      "details": {
+        "id": "source_1781090241046_ba721de361fe08",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "beforeUrl": "/uploads/fototime/1781090241042-80837765af6c88-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+        "afterUrl": "",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "status": "source_uploaded",
+        "unread": false,
+        "createdAt": "2026-06-10T11:17:21.046Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:21.046Z"
+    },
+    {
+      "id": "audit_1781090241027_cb41b041f83dd8",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:21.027Z"
+    },
+    {
+      "id": "audit_1781090239885_39877b09185d68",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "selected": {
+          "id": "fallback_4",
+          "title": "Рождество",
+          "provider": "SDXL"
+        },
+        "file": {
+          "name": "1781089806200-887c7a74520c5---------3.jpg.jpg",
+          "size": 444647,
+          "type": "image/jpeg"
+        }
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:19.886Z"
+    },
+    {
+      "id": "audit_1781090239880_ab912040bee208",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "id": "active_1781090239880_169a2b51ca2868",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "step": "Запуск генерации",
+        "createdAt": "2026-06-10T11:17:19.880Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:19.880Z"
+    },
+    {
+      "id": "audit_1781090239876_9d543ff77e62a8",
+      "title": "Исходное фото загружено",
+      "level": "info",
+      "type": "photo_source",
+      "message": "",
+      "details": {
+        "id": "source_1781090239876_232b5f8b58f748",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "beforeUrl": "/uploads/fototime/1781090239872-45c06254681338-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+        "afterUrl": "",
+        "styleTitle": "Рождество",
+        "styleProvider": "SDXL",
+        "status": "source_uploaded",
+        "unread": false,
+        "createdAt": "2026-06-10T11:17:19.876Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:19.876Z"
+    },
+    {
+      "id": "audit_1781090239856_a3473528126ba8",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:19.856Z"
+    },
+    {
+      "id": "audit_1781090238727_9ee8e0566b4b3",
+      "title": "Стиль выбран",
+      "level": "info",
+      "type": "style_selected",
+      "message": "",
+      "details": {
+        "id": "fallback_4",
+        "title": "Рождество",
+        "provider": "SDXL"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:18.727Z"
+    },
+    {
+      "id": "audit_1781090234271_a2e682ee7d7d18",
+      "title": "Участник выбран",
+      "level": "info",
+      "type": "participant_selected",
+      "message": "",
+      "details": {
+        "participant": "female"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:14.271Z"
+    },
+    {
+      "id": "audit_1781090232557_c7a551c6bdc258",
+      "title": "Фото выбрано",
+      "level": "info",
+      "type": "photo_selected",
+      "message": "",
+      "details": {
+        "name": "1781089806200-887c7a74520c5---------3.jpg.jpg",
+        "size": 444647,
+        "type": "image/jpeg"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:12.557Z"
+    },
+    {
+      "id": "audit_1781090229861_ff57992551c1e8",
+      "title": "Стиль выбран",
+      "level": "info",
+      "type": "style_selected",
+      "message": "",
+      "details": {
+        "id": "fallback_8",
+        "title": "Лесная сказка",
+        "provider": "SDXL"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": true,
+      "createdAt": "2026-06-10T11:17:09.861Z"
+    },
+    {
+      "id": "audit_1781090191556_91e2df37fab4c",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:16:31.556Z"
+    },
+    {
+      "id": "audit_1781090187721_fb34d68c7408",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:16:27.721Z"
+    },
+    {
+      "id": "audit_1781090180587_3ab8db37ed82e",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:16:20.587Z"
+    },
+    {
+      "id": "audit_1781090172590_b6667ae1416a2",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:16:12.591Z"
+    },
+    {
+      "id": "audit_1781090072108_7110ca1f53ff3",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:14:32.108Z"
+    },
+    {
+      "id": "audit_1781090070826_070e1f6a2a1f78",
+      "title": "Переход: home",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:14:30.826Z"
+    },
+    {
+      "id": "audit_1781090048357_85fa756aceb14",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:14:08.357Z"
+    },
+    {
+      "id": "audit_1781089861530_2c43549a20816",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:11:01.530Z"
+    },
+    {
+      "id": "audit_1781089859713_3a965dbbc8f6d",
+      "title": "Переход: profile",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "profile",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:59.713Z"
+    },
+    {
+      "id": "audit_1781089839534_17a9725b3c732",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:39.534Z"
+    },
+    {
+      "id": "audit_1781089837144_d775022211c7b",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:37.144Z"
+    },
+    {
+      "id": "audit_1781089835562_f3faff5795e43",
+      "title": "Переход: profile",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "profile",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:35.562Z"
+    },
+    {
+      "id": "audit_1781089829476_cd130ac0ecf47",
+      "title": "Переход: home",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:29.476Z"
+    },
+    {
+      "id": "audit_1781089828097_fd104cf1082a9",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:28.097Z"
+    },
+    {
+      "id": "audit_1781089806212_7174a1366735d8",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "selected": {
+          "id": "fallback_0",
+          "title": "Атлантида",
+          "provider": "SDXL"
+        },
+        "file": {
+          "name": "скачать-изображение-поделиться-создать-3.jpg",
+          "size": 444647,
+          "type": "image/jpeg"
+        }
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:06.212Z"
+    },
+    {
+      "id": "audit_1781089806208_1fee5f238e09e",
+      "title": "Генерация запущена",
+      "level": "info",
+      "type": "generation_start",
+      "message": "",
+      "details": {
+        "id": "active_1781089806208_f5a911ddbec6d8",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "styleTitle": "Атлантида",
+        "styleProvider": "SDXL",
+        "step": "Запуск генерации",
+        "createdAt": "2026-06-10T11:10:06.208Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:06.208Z"
+    },
+    {
+      "id": "audit_1781089806204_7b800d2614e278",
+      "title": "Исходное фото загружено",
+      "level": "info",
+      "type": "photo_source",
+      "message": "",
+      "details": {
+        "id": "source_1781089806204_60f672327dff3",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "username": "local-demo-user",
+        "beforeUrl": "/uploads/fototime/1781089806200-887c7a74520c5---------3.jpg.jpg",
+        "afterUrl": "",
+        "styleTitle": "Атлантида",
+        "styleProvider": "SDXL",
+        "status": "source_uploaded",
+        "unread": false,
+        "createdAt": "2026-06-10T11:10:06.204Z"
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:06.204Z"
+    },
+    {
+      "id": "audit_1781089806185_f1b4cb1993383",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:06.185Z"
+    },
+    {
+      "id": "audit_1781089805544_d94f19d7c5c5d",
+      "title": "Фото выбрано",
+      "level": "info",
+      "type": "photo_selected",
+      "message": "",
+      "details": {
+        "name": "скачать-изображение-поделиться-создать-3.jpg",
+        "size": 444647,
+        "type": "image/jpeg"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:05.544Z"
+    },
+    {
+      "id": "audit_1781089795151_1b516b3029c21",
+      "title": "Фильтр стилей сброшен",
+      "level": "info",
+      "type": "styles_filter",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:09:55.151Z"
+    },
+    {
+      "id": "audit_1781089794031_97083d66693598",
+      "title": "Фильтр стилей: FLUX.2",
+      "level": "info",
+      "type": "styles_filter",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:09:54.031Z"
+    },
+    {
+      "id": "audit_1781089792835_4e2a5ed3aba708",
+      "title": "Участник выбран",
+      "level": "info",
+      "type": "participant_selected",
+      "message": "",
+      "details": {
+        "participant": "female"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:09:52.835Z"
+    },
+    {
+      "id": "audit_1781089790548_64df788fe8f238",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_info",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:09:50.548Z"
+    },
+    {
+      "id": "audit_1781089788818_44396ac285a5c8",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_info",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:09:48.818Z"
+    },
+    {
+      "id": "audit_1781089782577_7262f1e0ffc17",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:09:42.577Z"
+    },
+    {
+      "id": "audit_1781089779633_bf5544937514a8",
+      "title": "Переход: home",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:09:39.633Z"
+    },
+    {
+      "id": "audit_1781089764320_67113e9adf0e6",
+      "title": "Баланс пользователя изменён",
+      "level": "info",
+      "type": "admin_balance_update",
+      "message": "",
+      "details": {
+        "userId": "local-demo-user",
+        "balance": 51
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:09:24.320Z"
+    },
+    {
+      "id": "audit_1781089738749_74a9bc71141568",
+      "title": "Уведомление о чеке отправлено",
+      "level": "info",
+      "type": "receipt_note",
+      "message": "",
+      "details": {
+        "userId": "local-demo-user",
+        "user": {
+          "id": "local-demo-user",
+          "username": "local-demo-user",
+          "name": "local-demo-user",
+          "balance": 50,
+          "createdAt": "2026-06-10T11:06:48.651Z",
+          "updatedAt": "2026-06-10T11:08:37.062Z"
+        }
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:08:58.749Z"
+    },
+    {
+      "id": "audit_1781089717063_d719fc0545aa4",
+      "title": "Переход: admin",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "admin",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:08:37.063Z"
+    },
+    {
+      "id": "audit_1781089702752_043afa02cb803",
+      "title": "Переход: profile",
+      "level": "info",
+      "type": "navigation",
+      "message": "",
+      "details": {},
+      "page": "profile",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:08:22.752Z"
+    },
+    {
+      "id": "audit_1781089693546_3f87808f8e8918",
+      "title": "Фильтр стилей: SDXL",
+      "level": "info",
+      "type": "styles_filter",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:08:13.546Z"
+    },
+    {
+      "id": "audit_1781089683953_d40f2129ad2478",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:08:03.953Z"
+    },
+    {
+      "id": "audit_1781089676501_abbf462f6f4c68",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:07:56.501Z"
+    },
+    {
+      "id": "audit_1781089674854_11bb6812890d48",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:07:54.854Z"
+    },
+    {
+      "id": "audit_1781089670249_21cedd737a9018",
+      "title": "Участник выбран",
+      "level": "info",
+      "type": "participant_selected",
+      "message": "",
+      "details": {
+        "participant": "female"
+      },
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:07:50.249Z"
+    },
+    {
+      "id": "audit_1781089659339_c7df7d5572b2b",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:07:39.339Z"
+    },
+    {
+      "id": "audit_1781089658047_924b4ad34938d",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:07:38.047Z"
+    },
+    {
+      "id": "audit_1781089637280_efc8732cf31088",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:07:17.280Z"
+    },
+    {
+      "id": "audit_1781089634432_c8093512710cf8",
+      "title": "Баланс синхронизирован",
+      "level": "info",
+      "type": "balance_refresh",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:07:14.432Z"
+    },
+    {
+      "id": "audit_1781089624669_407b33fb3a5db8",
+      "title": "Открыта подсказка авторизации",
+      "level": "info",
+      "type": "auth_info",
+      "message": "",
+      "details": {},
+      "page": "home",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:07:04.669Z"
+    },
+    {
+      "id": "audit_1781089612732_6a224da7e90eb8",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:06:52.732Z"
+    },
+    {
+      "id": "audit_1781089608651_779ba6c6d5d75",
+      "title": "Состояние приложения загружено",
+      "level": "info",
+      "type": "state",
+      "message": "",
+      "details": {
+        "balance": 50
+      },
+      "page": "",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "unread": false,
+      "createdAt": "2026-06-10T11:06:48.651Z"
+    }
+  ],
+  "photos": [
+    {
+      "id": "source_1781090565328_5a14cd789abdb",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "beforeUrl": "/uploads/fototime/1781090565323-6d44b7b8c99888---09----13-24.jpg.jpg",
+      "afterUrl": "",
+      "styleTitle": "Атлантида",
+      "styleProvider": "SDXL",
+      "status": "source_uploaded",
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:45.328Z"
+    },
+    {
+      "id": "source_1781090563204_a1e2b3d47373b8",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "beforeUrl": "/uploads/fototime/1781090563201-4d4565f563023---09----13-24.jpg.jpg",
+      "afterUrl": "",
+      "styleTitle": "Атлантида",
+      "styleProvider": "SDXL",
+      "status": "source_uploaded",
+      "unread": false,
+      "createdAt": "2026-06-10T11:22:43.204Z"
+    },
+    {
+      "id": "source_1781090243731_c287f0c2d8854",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "beforeUrl": "/uploads/fototime/1781090243727-f320a3f40d9c98-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+      "afterUrl": "",
+      "styleTitle": "Рождество",
+      "styleProvider": "SDXL",
+      "status": "source_uploaded",
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:23.731Z"
+    },
+    {
+      "id": "source_1781090243048_4100cdd4b6bbf8",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "beforeUrl": "/uploads/fototime/1781090243043-961ab30ad034c-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+      "afterUrl": "",
+      "styleTitle": "Рождество",
+      "styleProvider": "SDXL",
+      "status": "source_uploaded",
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:23.048Z"
+    },
+    {
+      "id": "source_1781090241749_0698d232969938",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "beforeUrl": "/uploads/fototime/1781090241744-3a9eddc44a24b8-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+      "afterUrl": "",
+      "styleTitle": "Рождество",
+      "styleProvider": "SDXL",
+      "status": "source_uploaded",
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:21.749Z"
+    },
+    {
+      "id": "source_1781090241046_ba721de361fe08",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "beforeUrl": "/uploads/fototime/1781090241042-80837765af6c88-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+      "afterUrl": "",
+      "styleTitle": "Рождество",
+      "styleProvider": "SDXL",
+      "status": "source_uploaded",
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:21.046Z"
+    },
+    {
+      "id": "source_1781090239876_232b5f8b58f748",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "beforeUrl": "/uploads/fototime/1781090239872-45c06254681338-1781089806200-887c7a74520c5---------3.jpg.jpg.jpg",
+      "afterUrl": "",
+      "styleTitle": "Рождество",
+      "styleProvider": "SDXL",
+      "status": "source_uploaded",
+      "unread": false,
+      "createdAt": "2026-06-10T11:17:19.876Z"
+    },
+    {
+      "id": "source_1781089806204_60f672327dff3",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "beforeUrl": "/uploads/fototime/1781089806200-887c7a74520c5---------3.jpg.jpg",
+      "afterUrl": "",
+      "styleTitle": "Атлантида",
+      "styleProvider": "SDXL",
+      "status": "source_uploaded",
+      "unread": false,
+      "createdAt": "2026-06-10T11:10:06.204Z"
+    }
+  ],
+  "notifications": {
+    "local-demo-user": [
+      {
+        "id": "notice_1781090310031_a0b914a28f56e",
+        "title": "Информация по оплате",
+        "message": "Платёж принят. Чек будет отправлен после подтверждения оплаты.",
+        "type": "receipt",
+        "read": false,
+        "createdAt": "2026-06-10T11:18:30.031Z"
+      },
+      {
+        "id": "notice_1781089764320_7e381fdeebaac8",
+        "title": "Баланс обновлён",
+        "message": "Администратор обновил баланс: 51 кредитов.",
+        "type": "balance",
+        "read": false,
+        "createdAt": "2026-06-10T11:09:24.320Z"
+      },
+      {
+        "id": "notice_1781089738748_4004070cd8b5b",
+        "title": "Информация по оплате",
+        "message": "Платёж принят. Чек будет отправлен после подтверждения оплаты.",
+        "type": "receipt",
+        "read": false,
+        "createdAt": "2026-06-10T11:08:58.748Z"
+      },
+      {
+        "id": "notice_1781089608651_c7e3b4d38faa6",
+        "title": "Сервис настраивается",
+        "message": "Мы улучшаем приложение и будем благодарны за обратную связь в личном кабинете.",
+        "type": "info",
+        "read": false,
+        "createdAt": "2026-06-10T11:06:48.651Z"
+      }
+    ]
+  },
+  "activeGenerations": [
+    {
+      "id": "active_1781090565333_f393c0ca2ae668",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "username": "local-demo-user",
+      "styleTitle": "Атлантида",
+      "styleProvider": "SDXL",
+      "step": "Запуск генерации",
+      "createdAt": "2026-06-10T11:22:45.333Z"
+    }
+  ]
+}

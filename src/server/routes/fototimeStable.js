@@ -3,6 +3,7 @@ const multer = require('multer');
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
+const crypto = require('crypto');
 
 const router = express.Router();
 const upload = multer({
@@ -74,6 +75,20 @@ function publicUrl(absPath) {
   if (rel.startsWith('uploads/fototime/')) {
     return `/api/fototime/file/uploads/${encodeURIComponent(file)}`;
   }
+
+
+function ftHardFixHash(buffer) {
+  return crypto.createHash('sha256').update(buffer).digest('hex');
+}
+
+function ftHardFixLooksDemo(buffer) {
+  try {
+    const text = buffer.toString('latin1').toLowerCase();
+    return /adobe stock|adobestock|stock\.adobe|shutterstock|depositphotos|demo version|watermark/.test(text);
+  } catch (_) {
+    return false;
+  }
+}
 
   if (rel.startsWith('results/fototime/')) {
     return `/api/fototime/file/results/${encodeURIComponent(file)}`;
@@ -808,6 +823,62 @@ router.post('/generate', upload.any(), async (req, res) => {
     // Стабильный локальный контур: пока внешний provider-adapter не подключён,
     // результатом будет копия исходного фото. UI, баланс, история, аудит и админка работают стабильно.
     await fsp.writeFile(resultAbs, source.buffer);
+
+  try {
+    const resultBufferCheck = await fsp.readFile(resultAbs);
+    const sourceHashCheck = ftHardFixHash(source.buffer);
+    const resultHashCheck = ftHardFixHash(resultBufferCheck);
+
+    if (sourceHashCheck === resultHashCheck || ftHardFixLooksDemo(resultBufferCheck)) {
+      const entry = await addAudit(db, {
+        ...user,
+        title: 'Ошибка генерации',
+        level: 'error',
+        type: 'generation_error',
+        important: true,
+        details: {
+          message: 'Провайдер вернул исходник или demo/stock результат',
+          selected,
+          participant,
+          fileName: source?.originalname || '',
+          resultUrl,
+          sourceUrl,
+        },
+      });
+
+      await saveDb(db);
+
+      return res.status(502).json({
+        ok: false,
+        code: 'GENERATION_RESULT_INVALID',
+        message: 'Провайдер вернул исходник или demo/stock изображение. Ложный успех отключён. Кредиты не списаны.',
+        audit: entry,
+        balance,
+      });
+    }
+  } catch (e) {
+    const entry = await addAudit(db, {
+      ...user,
+      title: 'Ошибка генерации',
+      level: 'error',
+      type: 'generation_error',
+      important: true,
+      details: {
+        message: 'Не удалось проверить результат генерации',
+        error: e.message,
+      },
+    });
+
+    await saveDb(db);
+
+    return res.status(502).json({
+      ok: false,
+      code: 'GENERATION_RESULT_CHECK_FAILED',
+      message: 'Не удалось проверить результат генерации. Кредиты не списаны.',
+      audit: entry,
+      balance,
+    });
+  }
 
     user.balance = Math.max(0, balance - BALANCE_COST);
     user.updatedAt = nowIso();

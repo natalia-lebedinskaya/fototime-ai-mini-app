@@ -1,0 +1,800 @@
+[
+  {
+    "id": "audit_1781088411939_13a453b102a12",
+    "title": "Обратная связь отправлена",
+    "level": "info",
+    "details": {
+      "ok": true,
+      "item": {
+        "id": "feedback_1781088411934_4079851dffc22",
+        "type": "feedback",
+        "kind": "Отзыв",
+        "name": "а",
+        "contact": "а",
+        "message": "а",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "fileName": "ÑÐºÐ°ÑÐ°ÑÑ-Ð¸Ð·Ð¾Ð±ÑÐ°Ð¶ÐµÐ½Ð¸Ðµ-Ð¿Ð¾Ð´ÐµÐ»Ð¸ÑÑÑÑ-ÑÐ¾Ð·Ð´Ð°ÑÑ-7.jpg",
+        "fileUrl": "/api/ft/uploads/1781088411932---------7.jpg",
+        "createdAt": "2026-06-10T10:46:51.934Z"
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:51.939Z"
+  },
+  {
+    "id": "audit_1781088411934_8b5ce38cafcb6",
+    "title": "Обратная связь: Отзыв",
+    "level": "info",
+    "details": {
+      "id": "feedback_1781088411934_4079851dffc22",
+      "type": "feedback",
+      "kind": "Отзыв",
+      "name": "а",
+      "contact": "а",
+      "message": "а",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "fileName": "ÑÐºÐ°ÑÐ°ÑÑ-Ð¸Ð·Ð¾Ð±ÑÐ°Ð¶ÐµÐ½Ð¸Ðµ-Ð¿Ð¾Ð´ÐµÐ»Ð¸ÑÑÑÑ-ÑÐ¾Ð·Ð´Ð°ÑÑ-7.jpg",
+      "fileUrl": "/api/ft/uploads/1781088411932---------7.jpg",
+      "createdAt": "2026-06-10T10:46:51.934Z"
+    },
+    "user": {
+      "id": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:51.934Z"
+  },
+  {
+    "id": "audit_1781088404202_0d72a5b746779",
+    "title": "Обратная связь отправлена",
+    "level": "info",
+    "details": {
+      "ok": true,
+      "item": {
+        "id": "feedback_1781088404196_152553dca57b28",
+        "type": "feedback",
+        "kind": "Отзыв",
+        "name": "а",
+        "contact": "а",
+        "message": "а",
+        "userId": "local-demo-user",
+        "userName": "local-demo-user",
+        "fileName": "",
+        "fileUrl": "",
+        "createdAt": "2026-06-10T10:46:44.196Z"
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:44.202Z"
+  },
+  {
+    "id": "audit_1781088404197_c3f4a6f9659bf8",
+    "title": "Обратная связь: Отзыв",
+    "level": "info",
+    "details": {
+      "id": "feedback_1781088404196_152553dca57b28",
+      "type": "feedback",
+      "kind": "Отзыв",
+      "name": "а",
+      "contact": "а",
+      "message": "а",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "fileName": "",
+      "fileUrl": "",
+      "createdAt": "2026-06-10T10:46:44.196Z"
+    },
+    "user": {
+      "id": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:44.197Z"
+  },
+  {
+    "id": "audit_1781088367275_aa63677f0236c8",
+    "title": "Ошибка генерации",
+    "level": "error",
+    "details": {
+      "message": "Недостаточно токенов. Нужно 40, доступно 30. Пополните баланс в личном кабинете.",
+      "status": 402,
+      "payload": {
+        "code": "NOT_ENOUGH_CREDITS",
+        "message": "Недостаточно токенов. Нужно 40, доступно 30. Пополните баланс в личном кабинете.",
+        "balance": 30,
+        "generationCost": 40
+      },
+      "selected": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:07.275Z"
+  },
+  {
+    "id": "audit_1781088367274_5114f4a75330a",
+    "title": "Ошибка генерации",
+    "level": "error",
+    "details": {
+      "status": "error",
+      "title": "Ошибка генерации",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "style": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      },
+      "error": "Недостаточно токенов. Нужно 40, доступно 30. Пополните баланс в личном кабинете."
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:07.274Z"
+  },
+  {
+    "id": "audit_1781088367271_44f682597db6e8",
+    "title": "Фото пользователя загружено",
+    "level": "info",
+    "details": {
+      "id": "photo_1781088367270_464befe037ddb8",
+      "type": "source",
+      "url": "/api/ft/uploads/1781088367256---------7.jpg",
+      "fileName": "ÑÐºÐ°ÑÐ°ÑÑ-Ð¸Ð·Ð¾Ð±ÑÐ°Ð¶ÐµÐ½Ð¸Ðµ-Ð¿Ð¾Ð´ÐµÐ»Ð¸ÑÑÑÑ-ÑÐ¾Ð·Ð´Ð°ÑÑ-7.jpg",
+      "title": "Исходное фото · FLUX.2",
+      "styleTitle": "FLUX.2",
+      "styleProvider": "edit2",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "user": {
+        "id": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "createdAt": "2026-06-10T10:46:07.270Z"
+    },
+    "user": {
+      "id": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:07.271Z"
+  },
+  {
+    "id": "audit_1781088367263_2e0382f8b6863",
+    "title": "Генерация в процессе",
+    "level": "info",
+    "details": {
+      "status": "processing",
+      "title": "Генерация в процессе",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "style": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:07.263Z"
+  },
+  {
+    "id": "audit_1781088367259_ca0b300e4a24b8",
+    "title": "Генерация запущена",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      },
+      "participantId": "female",
+      "file": {
+        "name": "скачать-изображение-поделиться-создать-7.jpg",
+        "size": 363126,
+        "type": "image/jpeg"
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:07.259Z"
+  },
+  {
+    "id": "audit_1781088365370_2091cfa59726d",
+    "title": "Стиль выбран",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:46:05.370Z"
+  },
+  {
+    "id": "audit_1781088357488_edbf8b6be9d92",
+    "title": "Баланс синхронизирован",
+    "level": "info",
+    "details": {
+      "balance": 50
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:57.488Z"
+  },
+  {
+    "id": "audit_1781088326884_1fe5aeb1d6fb1",
+    "title": "Стиль выбран",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1248:1248:FLUX.2:0",
+        "styleId": "1248",
+        "localStyleId": "1248",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1248%2Fpreview.jpg%3Fv%3D1777478011",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:26.884Z"
+  },
+  {
+    "id": "audit_1781088319897_47aee568c6343",
+    "title": "Баланс синхронизирован",
+    "level": "info",
+    "details": {
+      "balance": 50
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:19.897Z"
+  },
+  {
+    "id": "audit_1781088310343_00a015c41c6b5",
+    "title": "Ошибка генерации",
+    "level": "error",
+    "details": {
+      "status": "error",
+      "title": "Ошибка генерации",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "style": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      },
+      "error": "Недостаточно токенов. Нужно 40, доступно 30. Пополните баланс в личном кабинете."
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:10.343Z"
+  },
+  {
+    "id": "audit_1781088310341_f36d93519c63b8",
+    "title": "Ошибка генерации",
+    "level": "error",
+    "details": {
+      "message": "Недостаточно токенов. Нужно 40, доступно 30. Пополните баланс в личном кабинете.",
+      "status": 402,
+      "payload": {
+        "code": "NOT_ENOUGH_CREDITS",
+        "message": "Недостаточно токенов. Нужно 40, доступно 30. Пополните баланс в личном кабинете.",
+        "balance": 30,
+        "generationCost": 40
+      },
+      "selected": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:10.341Z"
+  },
+  {
+    "id": "audit_1781088310339_11c3c255525bb8",
+    "title": "Фото пользователя загружено",
+    "level": "info",
+    "details": {
+      "id": "photo_1781088310338_4a604d0c898ea8",
+      "type": "source",
+      "url": "/api/ft/uploads/1781088310320---------7.jpg",
+      "fileName": "ÑÐºÐ°ÑÐ°ÑÑ-Ð¸Ð·Ð¾Ð±ÑÐ°Ð¶ÐµÐ½Ð¸Ðµ-Ð¿Ð¾Ð´ÐµÐ»Ð¸ÑÑÑÑ-ÑÐ¾Ð·Ð´Ð°ÑÑ-7.jpg",
+      "title": "Исходное фото · FLUX.2",
+      "styleTitle": "FLUX.2",
+      "styleProvider": "edit2",
+      "userId": "local-demo-user",
+      "userName": "local-demo-user",
+      "user": {
+        "id": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "createdAt": "2026-06-10T10:45:10.338Z"
+    },
+    "user": {
+      "id": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:10.339Z"
+  },
+  {
+    "id": "audit_1781088310327_710abf23a2023",
+    "title": "Генерация в процессе",
+    "level": "info",
+    "details": {
+      "status": "processing",
+      "title": "Генерация в процессе",
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "style": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:10.327Z"
+  },
+  {
+    "id": "audit_1781088310323_5df59d0d0b04a",
+    "title": "Генерация запущена",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      },
+      "participantId": "female",
+      "file": {
+        "name": "скачать-изображение-поделиться-создать-7.jpg",
+        "size": 363126,
+        "type": "image/jpeg"
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:10.323Z"
+  },
+  {
+    "id": "audit_1781088307592_5a6c8a38349bb",
+    "title": "Фото выбрано",
+    "level": "info",
+    "details": {
+      "name": "скачать-изображение-поделиться-создать-7.jpg",
+      "size": 363126,
+      "type": "image/jpeg"
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:07.592Z"
+  },
+  {
+    "id": "audit_1781088303981_811cf8cbb3131",
+    "title": "Стиль выбран",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1232:1232:FLUX.2:0",
+        "styleId": "1232",
+        "localStyleId": "1232",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1232%2Fpreview.jpg%3Fv%3D1777477875",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:03.981Z"
+  },
+  {
+    "id": "audit_1781088303384_c76a1c309fc69",
+    "title": "Стиль выбран",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1231:1231:FLUX.2:0",
+        "styleId": "1231",
+        "localStyleId": "1231",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1231%2Fpreview.jpg%3Fv%3D1777475669",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:03.385Z"
+  },
+  {
+    "id": "audit_1781088300121_23af1f23adf2a",
+    "title": "Стиль выбран",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1255:1255:FLUX.2:0",
+        "styleId": "1255",
+        "localStyleId": "1255",
+        "styleMode": "FLUX.2",
+        "title": "FLUX.2",
+        "provider": "edit2",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1255%2Fpreview.jpg%3Fv%3D1777476138",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:45:00.121Z"
+  },
+  {
+    "id": "audit_1781088116232_fc8a8fc1894fe",
+    "title": "Стиль выбран",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1003:1003:SDXL:0",
+        "styleId": "1003",
+        "localStyleId": "1003",
+        "styleMode": "SDXL",
+        "title": "SDXL",
+        "provider": "SDXL",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1003%2Fpreview.jpg%3Fv%3D1777321700",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:41:56.232Z"
+  },
+  {
+    "id": "audit_1781088113715_4ef330b0ae27c8",
+    "title": "Стиль выбран",
+    "level": "info",
+    "details": {
+      "style": {
+        "key": "1003:1003:SDXL:0",
+        "styleId": "1003",
+        "localStyleId": "1003",
+        "styleMode": "SDXL",
+        "title": "SDXL",
+        "provider": "SDXL",
+        "imageUrl": "https://cyberphotobooth.ru/gallery-api/preview/proxy?url=https%3A%2F%2Ffcc4654d-0cf9-4f75-8465-072e7c3a5e8e.selstorage.ru%2Fstyle_previews%2F1003%2Fpreview.jpg%3Fv%3D1777321700",
+        "participant": [
+          "male",
+          "female",
+          "couple",
+          "boy",
+          "girl",
+          "family"
+        ]
+      }
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:41:53.715Z"
+  },
+  {
+    "id": "audit_1781088109770_52bd16b43fbc18",
+    "title": "Баланс синхронизирован",
+    "level": "info",
+    "details": {
+      "balance": 50
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:41:49.770Z"
+  },
+  {
+    "id": "audit_1781088109769_44193ea749f498",
+    "title": "Каталог стилей загружен",
+    "level": "info",
+    "details": {
+      "count": 90
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:41:49.769Z"
+  },
+  {
+    "id": "audit_1781088109767_4cbbf25f84db78",
+    "title": "Stable V10 active",
+    "level": "info",
+    "details": {
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "theme": "light"
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:41:49.767Z"
+  },
+  {
+    "id": "audit_1781088084354_5b063d7859a678",
+    "title": "Stable V10 active",
+    "level": "info",
+    "details": {
+      "user": {
+        "id": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user"
+      },
+      "theme": "light"
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:41:24.354Z"
+  },
+  {
+    "id": "audit_1781088084352_387f93333d82e8",
+    "title": "Каталог стилей загружен",
+    "level": "info",
+    "details": {
+      "count": 90
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:41:24.352Z"
+  },
+  {
+    "id": "audit_1781088083395_df550eec37e268",
+    "title": "Баланс синхронизирован",
+    "level": "info",
+    "details": {
+      "balance": 50
+    },
+    "user": {
+      "id": "local-demo-user",
+      "username": "local-demo-user",
+      "name": "local-demo-user"
+    },
+    "createdAt": "2026-06-10T10:41:23.395Z"
+  }
+]

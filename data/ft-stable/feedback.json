@@ -1,0 +1,28 @@
+[
+  {
+    "id": "feedback_1781088411934_4079851dffc22",
+    "type": "feedback",
+    "kind": "Отзыв",
+    "name": "а",
+    "contact": "а",
+    "message": "а",
+    "userId": "local-demo-user",
+    "userName": "local-demo-user",
+    "fileName": "ÑÐºÐ°ÑÐ°ÑÑ-Ð¸Ð·Ð¾Ð±ÑÐ°Ð¶ÐµÐ½Ð¸Ðµ-Ð¿Ð¾Ð´ÐµÐ»Ð¸ÑÑÑÑ-ÑÐ¾Ð·Ð´Ð°ÑÑ-7.jpg",
+    "fileUrl": "/api/ft/uploads/1781088411932---------7.jpg",
+    "createdAt": "2026-06-10T10:46:51.934Z"
+  },
+  {
+    "id": "feedback_1781088404196_152553dca57b28",
+    "type": "feedback",
+    "kind": "Отзыв",
+    "name": "а",
+    "contact": "а",
+    "message": "а",
+    "userId": "local-demo-user",
+    "userName": "local-demo-user",
+    "fileName": "",
+    "fileUrl": "",
+    "createdAt": "2026-06-10T10:46:44.196Z"
+  }
+]
