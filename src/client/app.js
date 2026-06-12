@@ -517,8 +517,8 @@
 
       if (Array.isArray(json.generations)) {
         json.generations = json.generations.filter((g) => {
-          const u = String(g?.resultUrl || '');
-          return u && !u.includes('');
+          const u = String(g?.resultUrl || '').trim();
+          return Boolean(u);
         });
       }
 
@@ -594,8 +594,10 @@ window.addEventListener("DOMContentLoaded", () => {
     participant: 'male',
     styleFilter: 'Все',
     search: '',
-    view: 'grid',
-    perPage: Number(localStorage.getItem('fototime-per-page-v14') || 12),
+    view: localStorage.getItem('fototime-view-v14') || 'grid',
+    perPage: [6, 9, 12].includes(Number(localStorage.getItem('fototime-per-page-v14')))
+      ? Number(localStorage.getItem('fototime-per-page-v14'))
+      : 6,
     pageIndex: 0,
     file: null,
     filePreview: '',
@@ -750,12 +752,144 @@ window.addEventListener("DOMContentLoaded", () => {
     if (Array.isArray(data.notifications)) state.notifications = data.notifications;
   }
 
+
+  async function ftEnsureFullCatalog() {
+    try {
+      const res = await fetch('https://api.cyberphotobooth.ru/api/public/styles', {
+        headers: { Accept: 'application/json' },
+        cache: 'no-store'
+      });
+
+      const data = await res.json().catch(() => []);
+      const raw = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.styles)
+          ? data.styles
+          : Array.isArray(data?.items)
+            ? data.items
+            : Array.isArray(data?.data?.styles)
+              ? data.data.styles
+              : [];
+
+      const fullCatalog = raw
+        .map((style, index) => {
+          const title =
+            style?.display_name_ru ||
+            style?.display_name_en ||
+            style?.name ||
+            style?.title ||
+            '';
+
+          const modeRaw = String(
+            style?.styleMode ||
+            style?.mode ||
+            style?.network ||
+            style?.model ||
+            style?.provider ||
+            style?.type ||
+            ''
+          ).toLowerCase();
+
+          let provider = 'Другое';
+          let mode = modeRaw || 'other';
+
+          if (modeRaw.includes('nano banana 2') || modeRaw.includes('nano-banana2')) {
+            provider = 'Nano Banana 2';
+            mode = 'nano-banana-2';
+          } else if (modeRaw.includes('nano banana') || modeRaw.includes('nano-banana')) {
+            provider = 'Nano Banana';
+            mode = 'nano-banana';
+          } else if (modeRaw.includes('flux.2') || modeRaw.includes('flux2') || modeRaw.includes('edit2')) {
+            provider = 'FLUX.2';
+            mode = 'flux-2';
+          } else if (modeRaw.includes('headswap') || modeRaw.includes('замена')) {
+            provider = 'Замена Головы';
+            mode = 'headswap';
+          } else if (modeRaw.includes('sdxl') || modeRaw.includes('style_sdxl_zero')) {
+            provider = 'SDXL';
+            mode = 'sdxl';
+          }
+
+          return {
+            id: String(style?.id || style?.style_id || style?.name || `public-${index}`),
+            title,
+            provider,
+            preview:
+              style?.preview_url_female ||
+              style?.preview_url_male ||
+              style?.preview_url ||
+              '',
+            mode
+          };
+        })
+        .filter((style) => style.id && style.title);
+
+      if (fullCatalog.length > (Array.isArray(state.styles) ? state.styles.length : 0)) {
+        state.styles = fullCatalog;
+        state.pageIndex = 0;
+
+        await audit('Полный каталог стилей загружен', {
+          oldCount: Array.isArray(state.styles) ? state.styles.length : 0,
+          newCount: fullCatalog.length
+        });
+      }
+    } catch (error) {
+      console.error('[FOTOTIME] full catalog fetch failed', error);
+    }
+  }
+
+
+
+  async function ftLoadFullStylesFromApi() {
+    try {
+      const payload = await apiGet('/styles');
+      const styles = Array.isArray(payload?.styles)
+        ? payload.styles
+        : Array.isArray(payload?.items)
+          ? payload.items
+          : [];
+
+      if (styles.length) {
+        state.styles = styles;
+        state.pageIndex = 0;
+      }
+
+      await audit('Принудительно загружен полный каталог стилей', {
+        styles: styles.length,
+        source: payload?.source || 'api/fototime/styles'
+      });
+    } catch (error) {
+      console.error('[FOTOTIME] ftLoadFullStylesFromApi failed', error);
+      await audit(
+        'Ошибка принудительной загрузки полного каталога',
+        { message: error.message },
+        'error',
+        'styles_force_error'
+      );
+    }
+  }
+
+
   async function loadState() {
     try {
       const data = await apiGet('/state');
-
       syncFromServer(data);
+      await ftLoadFullStylesFromApi();
 
+await ftEnsureFullCatalog();
+try {
+        const stylesData = await apiGet('/styles');
+        const fullStyles =
+          Array.isArray(stylesData?.styles) ? stylesData.styles :
+          Array.isArray(stylesData?.items) ? stylesData.items :
+          [];
+
+        if (fullStyles.length) {
+          state.styles = fullStyles;
+        }
+      } catch (stylesError) {
+        console.warn('[FOTOTIME] styles route failed, keep /state styles', stylesError);
+      }
 
       await audit('Состояние приложения загружено', {
         balance: state.balance,
@@ -772,8 +906,9 @@ window.addEventListener("DOMContentLoaded", () => {
       );
 
       state.styles = fallbackStyles();
-
-    }
+    
+      await ftLoadFullStylesFromApi();
+}
   }
 
   function fallbackStyles() {
@@ -809,18 +944,25 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function pageStyles() {
     const list = filteredStyles();
-    const per = Math.max(6, Math.min(12, Number(state.perPage) || 12));
+
+    const gridPer = [6, 9, 12].includes(Number(state.perPage))
+      ? Number(state.perPage)
+      : 6;
+
+    const per = state.view === 'carousel' ? 3 : gridPer;
     const maxPage = Math.max(0, Math.ceil(list.length / per) - 1);
 
     if (state.pageIndex > maxPage) state.pageIndex = maxPage;
+    if (state.pageIndex < 0) state.pageIndex = 0;
 
     const start = state.pageIndex * per;
+    const end = Math.min(start + per, list.length);
 
     return {
       list,
-      items: list.slice(start, start + per),
+      items: list.slice(start, end),
       start,
-      end: Math.min(start + per, list.length),
+      end,
       per,
       maxPage,
     };
@@ -875,15 +1017,38 @@ window.addEventListener("DOMContentLoaded", () => {
     const unread = state.notifications.filter((n) => n.unread).length;
 
     return `
-      <div class="ft-topbar">
-        <button class="ft-balance-pill" data-action="refresh-balance" type="button" title="Обновить баланс">
-          <span class="ft-token-icon">FT</span>
-          <span>Баланс</span>
-          <b>${state.balance}</b>
-          <span>кредитов</span>
-          <span class="ft-refresh-icon">↻</span>
+      <div class="ft-topbar ft-topbar-v2">
+        <button class="ft-balance-pill ft-balance-pill-v2" data-action="refresh-balance" type="button" title="Обновить баланс">
+          <span class="ft-token-icon ft-token-icon-v2" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <defs>
+                <linearGradient id="ftTopBarMarkGradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#baff14"></stop>
+                  <stop offset="100%" stop-color="#5ee7d0"></stop>
+                </linearGradient>
+              </defs>
+              <rect x="4" y="4" width="16" height="16" rx="4.5" fill="url(#ftTopBarMarkGradient)"></rect>
+              <path d="M8 12h8M12 8v8" stroke="#18342f" stroke-width="2.1" stroke-linecap="round"></path>
+              <circle cx="12" cy="12" r="2.1" fill="#18342f"></circle>
+            </svg>
+          </span>
+
+          <span class="ft-balance-copy">
+            <span class="ft-balance-label">Баланс</span>
+            <span class="ft-balance-value"><b>${state.balance}</b> <span>кредитов</span></span>
+          </span>
+
+          <span class="ft-refresh-icon ft-refresh-icon-v2" aria-hidden="true">↻</span>
         </button>
-        <button class="ft-notify-pill" data-action="show-notifications" type="button">${unread ? `+${unread}` : '0'}</button>
+
+        <button class="ft-bell-pill" data-action="show-notifications" type="button" title="Уведомления" aria-label="Уведомления">
+          <span class="ft-bell-icon" aria-hidden="true">🔔</span>
+          ${unread ? `<span class="ft-bell-count">${unread}</span>` : ``}
+        </button>
+
+        <button class="ft-notify-pill ft-notify-pill-v2" data-action="show-notifications" type="button" title="Новые уведомления">
+          ${unread ? `+${unread}` : '+0'}
+        </button>
       </div>
     `;
   }
@@ -892,8 +1057,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return `
       <header class="ft-hero">
         <div class="ft-hero-row">
-          <span class="ft-brand">FOTOTIME323</span>
-          <span class="ft-active">ACTIVE EVENT</span>
+          <span class="ft-brand">FOT AI</span>
         </div>
 
         <label class="ft-theme-label">
@@ -905,7 +1069,7 @@ window.addEventListener("DOMContentLoaded", () => {
           </select>
         </label>
 
-        <h1>FOTOTIME AI</h1>
+        <h1>FOT AI</h1>
         <p>Выберите участника, стиль обработки и загрузите фото. Приложение покажет только стили, доступные для текущего режима.</p>
       </header>
     `;
@@ -988,7 +1152,7 @@ window.addEventListener("DOMContentLoaded", () => {
       </section>
 
       <section class="ft-card">
-        ${cardHeader('01', 'Участник', 'Тестовое мероприятие FOTOTIME323')}
+        ${cardHeader('01', 'Участник', 'Тестовое мероприятие FOT AI')}
 
         <div class="ft-participants">
           ${['male:Мужчина', 'female:Женщина', 'couple:Пара', 'boy:Мальчик', 'girl:Девочка', 'family:Семья']
@@ -1037,7 +1201,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return `
       <div class="ft-filter-box">
         <div class="ft-search-row">
-          <span>⌕</span>
+          <span class="ft-search-icon" aria-hidden="true">⌕</span>
           <input
             id="ft-style-search"
             data-action="search"
@@ -1148,7 +1312,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     return `
       <section class="ft-card">
-        ${cardHeader('LK', `@${esc(state.user.username || state.user.name)}`, 'Личный кабинет FOTOTIME323')}
+        ${cardHeader('LK', `@${esc(state.user.username || state.user.name)}`, 'Личный кабинет FOT AI')}
 
         <div class="ft-balance-grid">
           <div class="ft-metric">
@@ -1233,7 +1397,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     return `
       <section class="ft-card">
-        ${cardHeader('FT', 'FOTOTIME323', 'Поддержка, соцсети и пополнение баланса.')}
+        ${cardHeader('FT', 'FOT AI', 'Поддержка, соцсети и пополнение баланса.')}
 
         <div class="ft-social-grid">
           ${links
@@ -1552,7 +1716,7 @@ window.addEventListener("DOMContentLoaded", () => {
     modal(
       'Как авторизоваться?',
       `
-        <p><b>1.</b> Откройте Telegram-бота FOTOTIME323.</p>
+        <p><b>1.</b> Откройте Telegram-бота FOT AI.</p>
         <p><b>2.</b> Запустите приложение внутри Telegram.</p>
         <p><b>3.</b> Баланс, история и бонусы будут закреплены за вашим профилем.</p>
       `,
@@ -2144,7 +2308,7 @@ window.addEventListener("DOMContentLoaded", () => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'FOTOTIME AI',
+          title: 'FOT AI',
           url: full,
         });
       } else {
@@ -2319,7 +2483,7 @@ window.addEventListener("DOMContentLoaded", () => {
     card.className = "ft-version-card";
     card.innerHTML = `
       <strong>Версия приложения</strong>
-      <span>Публичная сборка FOTOTIME323.</span>
+      <span>Публичная сборка FOT AI.</span>
       <code>${FT_VERSION}</code>
     `;
 
@@ -2413,7 +2577,7 @@ window.addEventListener("DOMContentLoaded", () => {
         share.addEventListener("click", async () => {
           try {
             if (navigator.share) {
-              await navigator.share({ title: "FOTOTIME323", text: "Моё AI-фото", url: src });
+              await navigator.share({ title: "FOT AI", text: "Моё AI-фото", url: src });
             } else {
               await navigator.clipboard.writeText(src);
               window.ftToast?.("Ссылка скопирована") || alert("Ссылка скопирована");
@@ -2551,6 +2715,7 @@ window.addEventListener("DOMContentLoaded", () => {
 })();
 
 
+<<<<<<< HEAD
 /* CHATGPT_LAYOUT_WIDTH_FIX_20260611_START */
 (() => {
   if (window.__CHATGPT_LAYOUT_WIDTH_FIX_20260611__) return;
@@ -2746,4 +2911,6 @@ window.addEventListener("DOMContentLoaded", () => {
   run();
 })();
 /* CHATGPT_SAFE_MOBILE_CLEANUP_20260611_END */
+=======
+>>>>>>> 08fc01a (release: FOT AI stable mobile UI update)
 

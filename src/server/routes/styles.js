@@ -6,7 +6,7 @@ const CYBERPHOTOBOOTH_PUBLIC_STYLES_URL =
   process.env.CYBERPHOTOBOOTH_PUBLIC_STYLES_URL ||
   'https://api.cyberphotobooth.ru/api/public/styles';
 
-const STYLE_LIMIT = Number(process.env.CYBERPHOTOBOOTH_STYLE_LIMIT || 90);
+const STYLE_LIMIT = 0;
 const PARTICIPANTS = ['male', 'female', 'couple', 'boy', 'girl', 'family'];
 
 let cachedStyles = [];
@@ -156,9 +156,6 @@ async function loadStyles() {
     .map(normalizeCyberStyle)
     .filter((style) => style.id && style.title);
 
-  if (STYLE_LIMIT > 0) {
-    styles = ftCurateStylesForClient(styles, STYLE_LIMIT);
-  }
 
   cachedStyles = styles.length ? styles : fallbackStyles();
   cachedAt = now;
@@ -175,8 +172,7 @@ async function sendStyles(_req, res) {
       styles,
       items: styles,
       count: styles.length,
-      source: 'cyberphotobooth-public-catalog',
-      limit: STYLE_LIMIT
+      source: 'cyberphotobooth-public-catalog'
     });
   } catch (error) {
     console.error('Styles catalog error:', error);
@@ -196,61 +192,7 @@ async function sendStyles(_req, res) {
 
 
 
-/* FT_PRODUCT_LITE_SERVER_STYLE_CURATOR_20260610_START */
-function ftGetStyleModeName(style) {
-  const modes = Array.isArray(style?.modes) ? style.modes : [];
-  const mode = modes[0] || {};
-  const raw =
-    style?.styleMode ||
-    style?.mode ||
-    style?.network ||
-    mode?.displayName ||
-    mode?.display_name ||
-    mode?.name ||
-    mode?.id ||
-    '';
 
-  const text = String(raw).trim().toLowerCase();
-
-  if (text.includes('nano banana 2') || text.includes('nano-banana2')) return 'Nano Banana 2';
-  if (text.includes('nano banana') || text.includes('nano-banana')) return 'Nano Banana';
-  if (text.includes('flux.2') || text.includes('flux2') || text.includes('edit2')) return 'FLUX.2';
-  if (text.includes('headswap') || text.includes('замена')) return 'Замена Головы';
-  if (text.includes('sdxl') || text.includes('style_sdxl_zero')) return 'SDXL';
-
-  return raw || 'Другое';
-}
-
-function ftCurateStylesForClient(styles, limit = 90) {
-  if (!Array.isArray(styles)) return [];
-
-  const safeLimit = Math.max(15, Math.min(Number(limit) || 90, 180));
-  const preferredModes = ['SDXL', 'Nano Banana', 'FLUX.2', 'Nano Banana 2', 'Замена Головы'];
-
-  const groups = new Map();
-
-  styles.forEach((style) => {
-    const mode = ftGetStyleModeName(style);
-    if (!groups.has(mode)) groups.set(mode, []);
-    groups.get(mode).push(style);
-  });
-
-  const result = [];
-  const perPreferredMode = Math.max(8, Math.floor(safeLimit / Math.max(preferredModes.length, 1)));
-
-  preferredModes.forEach((mode) => {
-    const group = groups.get(mode) || [];
-    group.slice(0, perPreferredMode).forEach((style) => result.push(style));
-  });
-
-  styles.forEach((style) => {
-    if (result.length >= safeLimit) return;
-    if (!result.includes(style)) result.push(style);
-  });
-
-  return result.slice(0, safeLimit);
-}
-/* FT_PRODUCT_LITE_SERVER_STYLE_CURATOR_20260610_END */
 router.get('/', sendStyles);
 router.get('/public', sendStyles);
 

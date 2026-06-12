@@ -2112,3 +2112,164 @@ body[data-season="autumn"] .season-orb {
   }
 }
 
+
+
+
+
+
+
+
+/* === FOTO AI STEP 4/10 CLEAN TOPBAR === */
+.ft-topbar-v2{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.ft-balance-pill-v2{
+  flex:1 1 auto;
+  min-width:0;
+  min-height:54px;
+  padding:8px 12px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.ft-token-icon-v2{
+  flex:0 0 34px;
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  overflow:hidden;
+  font-size:0;
+  line-height:0;
+}
+
+.ft-token-icon-v2 svg{
+  width:34px;
+  height:34px;
+  display:block;
+}
+
+.ft-balance-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  align-items:flex-start;
+}
+
+.ft-balance-label{
+  font-weight:700;
+  opacity:.9;
+  line-height:1;
+}
+
+.ft-balance-value{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  min-width:0;
+  white-space:nowrap;
+  line-height:1;
+}
+
+.ft-balance-value b{
+  font-size:1.05em;
+}
+
+.ft-refresh-icon-v2{
+  margin-left:auto;
+  flex:0 0 auto;
+}
+
+.ft-bell-pill{
+  position:relative;
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  border:none;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg, rgba(186,255,20,.96), rgba(94,231,208,.92));
+  color:#17342f;
+  cursor:pointer;
+}
+
+.ft-bell-icon{
+  font-size:18px;
+  line-height:1;
+}
+
+.ft-bell-count{
+  position:absolute;
+  top:-4px;
+  right:-3px;
+  min-width:18px;
+  height:18px;
+  padding:0 4px;
+  border-radius:999px;
+  background:#fff;
+  color:#17342f;
+  font-size:11px;
+  font-weight:900;
+  line-height:18px;
+  text-align:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.12);
+}
+
+.ft-notify-pill-v2{
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+}
+
+@media (max-width: 640px){
+  .ft-topbar-v2{
+    gap:8px;
+    margin-bottom:12px;
+  }
+
+  .ft-balance-pill-v2{
+    min-height:46px;
+    padding:7px 10px;
+    gap:8px;
+  }
+
+  .ft-token-icon-v2,
+  .ft-token-icon-v2 svg{
+    width:28px;
+    height:28px;
+  }
+
+  .ft-balance-label{
+    font-size:12px;
+  }
+
+  .ft-balance-value{
+    gap:4px;
+    font-size:13px;
+  }
+
+  .ft-bell-pill,
+  .ft-notify-pill-v2{
+    flex:0 0 40px;
+    width:40px;
+    height:40px;
+  }
+
+  .ft-bell-icon{
+    font-size:16px;
+  }
+}
+

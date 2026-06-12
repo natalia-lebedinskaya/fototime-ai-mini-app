@@ -220,94 +220,96 @@ function fallbackStyles() {
 }
 
 async function readStyles() {
-  const candidates = [
-    path.join(PUBLIC_DIR, 'public-styles.json'),
-    path.join(PUBLIC_DIR, 'styles.json'),
-    path.join(ROOT, 'src', 'client', 'public-styles.json'),
-    path.join(ROOT, 'src', 'client', 'styles.json'),
-  ];
+  try {
+    const response = await fetch('https://api.cyberphotobooth.ru/api/public/styles', {
+      headers: { Accept: 'application/json' }
+    });
 
-  let raw = null;
+    if (!response.ok) {
+      throw new Error(`CyberPhotoBooth public styles failed: ${response.status}`);
+    }
 
-  for (const p of candidates) {
-    try {
-      raw = JSON.parse(await fsp.readFile(p, 'utf8'));
-      break;
-    } catch (_) {}
+    const raw = await response.json();
+
+    const list = Array.isArray(raw)
+      ? raw
+      : Array.isArray(raw?.styles)
+        ? raw.styles
+        : Array.isArray(raw?.items)
+          ? raw.items
+          : Array.isArray(raw?.data?.styles)
+            ? raw.data.styles
+            : Array.isArray(raw?.data)
+              ? raw.data
+              : [];
+
+    const normalized = list
+      .map((item, index) => {
+        const provider = normalizeProvider(
+          item.provider ||
+          item.styleProvider ||
+          item.network ||
+          item.neuralNetwork ||
+          item.mode ||
+          item.styleMode ||
+          item.category ||
+          item.modes?.[0]?.display_name ||
+          item.modes?.[0]?.displayName ||
+          item.modes?.[0]?.name
+        );
+
+        const title = cleanText(
+          item.display_name_ru ||
+          item.displayNameRu ||
+          item.display_name_en ||
+          item.displayNameEn ||
+          item.title ||
+          item.name ||
+          item.style_name,
+          `Style ${index + 1}`
+        );
+
+        const id = cleanText(
+          item.id ||
+          item.style_id ||
+          item.styleId ||
+          item.slug ||
+          `${index + 1}`
+        );
+
+        const preview = cleanText(
+          item.preview ||
+          item.preview_url ||
+          item.previewUrl ||
+          item.preview_url_thumb ||
+          item.preview_url_female ||
+          item.preview_url_male ||
+          item.assets?.[0]?.url ||
+          '',
+          ''
+        );
+
+        return {
+          id,
+          title,
+          provider,
+          preview,
+          mode: provider.toLowerCase().replace(/[^a-zа-я0-9]+/gi, '-'),
+        };
+      })
+      .filter((style) => style.id && style.title);
+
+    if (normalized.length) {
+      return normalized;
+    }
+
+    return fallbackStyles();
+  } catch (error) {
+    console.error('[FOTOTIME] readStyles error:', error);
+    return fallbackStyles();
   }
-
-  const list = Array.isArray(raw)
-    ? raw
-    : Array.isArray(raw?.styles)
-      ? raw.styles
-      : Array.isArray(raw?.items)
-        ? raw.items
-        : [];
-
-  const normalized = list
-    .map((item, index) => {
-      const provider = normalizeProvider(
-        item.provider ||
-        item.styleProvider ||
-        item.network ||
-        item.neuralNetwork ||
-        item.mode ||
-        item.styleMode ||
-        item.category
-      );
-
-      const title = cleanText(
-        item.title ||
-        item.name ||
-        item.label ||
-        item.styleName ||
-        item.promptName,
-        `${provider} ${index + 1}`
-      );
-
-      let preview = cleanText(
-        item.preview ||
-        item.previewUrl ||
-        item.image ||
-        item.imageUrl ||
-        item.cover ||
-        item.icon ||
-        item.thumbnail ||
-        item.thumb,
-        ''
-      );
-
-      if (
-        preview &&
-        !preview.startsWith('http') &&
-        !preview.startsWith('/') &&
-        !preview.startsWith('data:')
-      ) {
-        preview = `/${preview.replace(/^public\//, '')}`;
-      }
-
-      return {
-        id: String(item.id || item.styleId || item.localStyleId || item.nsId || item.code || index + 1),
-        title,
-        provider,
-        preview,
-        mode: cleanText(item.mode || item.styleMode || item.styleProvider || provider, provider),
-        raw: item,
-      };
-    })
-    .filter((item) => item.id && item.title);
-
-  const seen = new Set();
-
-  const unique = normalized.filter((item) => {
-    const key = `${item.id}:${item.title}:${item.provider}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  return unique.length ? unique : fallbackStyles();
 }
+
 
 async function getDb() {
   const db = await readJson('stable-db.json', null);
