@@ -7,7 +7,38 @@
       "name": "local-demo-user",
       "balance": 180,
       "createdAt": "2026-06-10T11:36:20.448Z",
-      "updatedAt": "2026-06-11T18:55:26.660Z"
+      "updatedAt": "2026-06-28T08:30:11.716Z",
+      "telegramId": "local-demo-user",
+      "photoUrl": "",
+      "avatarEmoji": "✨",
+      "avatarGradient": "lime",
+      "authProvider": "telegram"
+    },
+    "local-1781333178551_e0eb577b": {
+      "id": "local-1781333178551_e0eb577b",
+      "telegramId": "local-1781333178551_e0eb577b",
+      "username": "guest-eb577b",
+      "name": "Гость",
+      "photoUrl": "",
+      "avatarEmoji": "✨",
+      "avatarGradient": "lime",
+      "authProvider": "local",
+      "balance": 50,
+      "createdAt": "2026-06-13T06:46:18.587Z",
+      "updatedAt": "2026-06-13T07:31:57.529Z"
+    },
+    "local-1781333950489_f74f2f7a": {
+      "id": "local-1781333950489_f74f2f7a",
+      "telegramId": "local-1781333950489_f74f2f7a",
+      "username": "guest-4f2f7a",
+      "name": "Гость",
+      "photoUrl": "",
+      "avatarEmoji": "✨",
+      "avatarGradient": "lime",
+      "authProvider": "local",
+      "balance": 50,
+      "createdAt": "2026-06-13T06:59:10.500Z",
+      "updatedAt": "2026-06-13T07:00:09.656Z"
     }
   },
   "generations": [
@@ -93,6 +124,71 @@
     }
   ],
   "feedback": [
+    {
+      "id": "feedback_1781333412096_7627ad16",
+      "type": "Запрос токенов",
+      "name": "Гость",
+      "contact": "guest-eb577b",
+      "message": "Клиент запросил токены",
+      "userId": "local-1781333178551_e0eb577b",
+      "userName": "guest-eb577b",
+      "fileName": "",
+      "fileUrl": "",
+      "unread": true,
+      "createdAt": "2026-06-13T06:50:12.096Z"
+    },
+    {
+      "id": "feedback_1781333411574_155ced90",
+      "type": "Запрос токенов",
+      "name": "Гость",
+      "contact": "guest-eb577b",
+      "message": "Клиент запросил токены",
+      "userId": "local-1781333178551_e0eb577b",
+      "userName": "guest-eb577b",
+      "fileName": "",
+      "fileUrl": "",
+      "unread": true,
+      "createdAt": "2026-06-13T06:50:11.575Z"
+    },
+    {
+      "id": "feedback_1781333411076_997eec15",
+      "type": "Запрос токенов",
+      "name": "Гость",
+      "contact": "guest-eb577b",
+      "message": "Клиент запросил токены",
+      "userId": "local-1781333178551_e0eb577b",
+      "userName": "guest-eb577b",
+      "fileName": "",
+      "fileUrl": "",
+      "unread": true,
+      "createdAt": "2026-06-13T06:50:11.076Z"
+    },
+    {
+      "id": "feedback_1781333410418_c6258637",
+      "type": "Запрос токенов",
+      "name": "Гость",
+      "contact": "guest-eb577b",
+      "message": "Клиент запросил токены",
+      "userId": "local-1781333178551_e0eb577b",
+      "userName": "guest-eb577b",
+      "fileName": "",
+      "fileUrl": "",
+      "unread": true,
+      "createdAt": "2026-06-13T06:50:10.418Z"
+    },
+    {
+      "id": "feedback_1781333408602_6ae4acf9",
+      "type": "Запрос токенов",
+      "name": "Гость",
+      "contact": "guest-eb577b",
+      "message": "Клиент запросил токены",
+      "userId": "local-1781333178551_e0eb577b",
+      "userName": "guest-eb577b",
+      "fileName": "",
+      "fileUrl": "",
+      "unread": true,
+      "createdAt": "2026-06-13T06:50:08.602Z"
+    },
     {
       "id": "feedback_1781175891902_736fd5e3",
       "type": "Отзыв",
@@ -10175,6 +10271,5908 @@
         }
       ],
       "errors": []
+    },
+    "session_1781283331516_c0a531": {
+      "id": "session_1781283331516_c0a531",
+      "user": {
+        "id": "local-demo-user",
+        "telegramId": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "telegram"
+      },
+      "startedAt": "2026-06-13T06:46:20.926Z",
+      "updatedAt": "2026-06-13T11:50:02.674Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:50:02.674Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:49:55.059Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T11:43:07.068Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T11:42:58.158Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:42:33.612Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:42:28.899Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T11:10:02.114Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:09:45.441Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:09:41.776Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T11:07:36.848Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T11:07:26.860Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T11:07:13.353Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:59:29.609Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:59:19.176Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:53:08.964Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T10:52:55.965Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T10:52:43.927Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:52:24.510Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:52:20.832Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T10:36:43.358Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:36:18.303Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:36:14.373Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T10:31:05.877Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:27:31.384Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:27:27.240Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T10:21:47.877Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:21:45.310Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:21:41.465Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T10:16:48.458Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Стиль выбран",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styleId": "1003",
+            "title": "Барби",
+            "provider": "SDXL"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:16:41.917Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Участник выбран",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "participant": "female"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:16:39.544Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:16:34.912Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Баланс синхронизирован",
+          "level": "info",
+          "type": "balance_refresh",
+          "details": {
+            "balance": 180
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "",
+          "unread": false,
+          "createdAt": "2026-06-10T11:36:20.448Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T10:16:23.543Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T10:12:07.098Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:11:54.109Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:11:50.032Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:58:53.295Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T09:58:49.462Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T09:58:41.528Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T09:58:36.872Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:58:23.725Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:58:20.096Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:53:57.616Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T09:53:32.196Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T09:53:13.313Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:53:09.328Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:53:04.331Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T09:50:24.735Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T09:50:19.739Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T09:49:15.634Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:49:10.661Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:49:04.357Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T09:41:08.695Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T09:40:51.494Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T09:40:46.579Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:40:36.320Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T09:40:27.413Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:40:24.716Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:40:20.320Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 50,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T07:32:03.974Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T07:32:00.612Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 50,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:09.924Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:05.328Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:58:43.223Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:50:16.385Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:49:32.343Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Тема изменена: dark",
+          "level": "info",
+          "type": "event",
+          "details": {},
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T06:49:31.193Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Тема изменена: light",
+          "level": "info",
+          "type": "event",
+          "details": {},
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T06:49:29.382Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T06:48:33.100Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Тема изменена: retro",
+          "level": "info",
+          "type": "event",
+          "details": {},
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:47:34.930Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Тема изменена: dark",
+          "level": "info",
+          "type": "event",
+          "details": {},
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:46:41.650Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 50,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:46:23.101Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:46:20.926Z"
+        }
+      ],
+      "errors": []
+    },
+    "local-1781333178551_e0eb577b_2026-06-13": {
+      "id": "local-1781333178551_e0eb577b_2026-06-13",
+      "user": {
+        "id": "local-1781333178551_e0eb577b",
+        "telegramId": "local-1781333178551_e0eb577b",
+        "username": "guest-eb577b",
+        "name": "Гость",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "local"
+      },
+      "startedAt": "2026-06-13T06:46:18.587Z",
+      "updatedAt": "2026-06-13T06:46:18.587Z",
+      "unread": true,
+      "entries": [
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Запрос токенов",
+          "level": "info",
+          "type": "token_request",
+          "details": {
+            "id": "feedback_1781333412096_7627ad16",
+            "type": "Запрос токенов",
+            "name": "Гость",
+            "contact": "guest-eb577b",
+            "message": "Клиент запросил токены",
+            "userId": "local-1781333178551_e0eb577b",
+            "userName": "guest-eb577b",
+            "fileName": "",
+            "fileUrl": "",
+            "unread": true,
+            "createdAt": "2026-06-13T06:50:12.096Z"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "",
+          "unread": true,
+          "createdAt": "2026-06-13T06:46:18.587Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Запрос токенов",
+          "level": "info",
+          "type": "token_request",
+          "details": {
+            "id": "feedback_1781333411574_155ced90",
+            "type": "Запрос токенов",
+            "name": "Гость",
+            "contact": "guest-eb577b",
+            "message": "Клиент запросил токены",
+            "userId": "local-1781333178551_e0eb577b",
+            "userName": "guest-eb577b",
+            "fileName": "",
+            "fileUrl": "",
+            "unread": true,
+            "createdAt": "2026-06-13T06:50:11.575Z"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "",
+          "unread": true,
+          "createdAt": "2026-06-13T06:46:18.587Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Запрос токенов",
+          "level": "info",
+          "type": "token_request",
+          "details": {
+            "id": "feedback_1781333411076_997eec15",
+            "type": "Запрос токенов",
+            "name": "Гость",
+            "contact": "guest-eb577b",
+            "message": "Клиент запросил токены",
+            "userId": "local-1781333178551_e0eb577b",
+            "userName": "guest-eb577b",
+            "fileName": "",
+            "fileUrl": "",
+            "unread": true,
+            "createdAt": "2026-06-13T06:50:11.076Z"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "",
+          "unread": true,
+          "createdAt": "2026-06-13T06:46:18.587Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Запрос токенов",
+          "level": "info",
+          "type": "token_request",
+          "details": {
+            "id": "feedback_1781333410418_c6258637",
+            "type": "Запрос токенов",
+            "name": "Гость",
+            "contact": "guest-eb577b",
+            "message": "Клиент запросил токены",
+            "userId": "local-1781333178551_e0eb577b",
+            "userName": "guest-eb577b",
+            "fileName": "",
+            "fileUrl": "",
+            "unread": true,
+            "createdAt": "2026-06-13T06:50:10.418Z"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "",
+          "unread": true,
+          "createdAt": "2026-06-13T06:46:18.587Z"
+        },
+        {
+          "id": "local-1781333178551_e0eb577b",
+          "title": "Запрос токенов",
+          "level": "info",
+          "type": "token_request",
+          "details": {
+            "id": "feedback_1781333408602_6ae4acf9",
+            "type": "Запрос токенов",
+            "name": "Гость",
+            "contact": "guest-eb577b",
+            "message": "Клиент запросил токены",
+            "userId": "local-1781333178551_e0eb577b",
+            "userName": "guest-eb577b",
+            "fileName": "",
+            "fileUrl": "",
+            "unread": true,
+            "createdAt": "2026-06-13T06:50:08.602Z"
+          },
+          "user": {
+            "id": "local-1781333178551_e0eb577b",
+            "telegramId": "local-1781333178551_e0eb577b",
+            "username": "guest-eb577b",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "",
+          "unread": true,
+          "createdAt": "2026-06-13T06:46:18.587Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1781333950473_877fc4": {
+      "id": "session_1781333950473_877fc4",
+      "user": {
+        "id": "local-1781333950489_f74f2f7a",
+        "telegramId": "local-1781333950489_f74f2f7a",
+        "username": "guest-4f2f7a",
+        "name": "Гость",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "local"
+      },
+      "startedAt": "2026-06-13T06:59:12.716Z",
+      "updatedAt": "2026-06-13T06:59:42.725Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 50,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:42.725Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:39.892Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 50,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:16.066Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:12.716Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1781333987715_fedb34": {
+      "id": "session_1781333987715_fedb34",
+      "user": {
+        "id": "local-demo-user",
+        "telegramId": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "telegram"
+      },
+      "startedAt": "2026-06-13T06:59:51.419Z",
+      "updatedAt": "2026-06-13T09:55:11.284Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:55:11.284Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T09:55:07.252Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 50,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T07:00:15.487Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T07:00:13.068Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 50,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T07:00:04.801Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T07:00:02.019Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 50,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:58.677Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:55.438Z"
+        },
+        {
+          "id": "local-1781333950489_f74f2f7a",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-1781333950489_f74f2f7a",
+            "telegramId": "local-1781333950489_f74f2f7a",
+            "username": "guest-4f2f7a",
+            "name": "Гость",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "local"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T06:59:51.419Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1781346496316_0916e4": {
+      "id": "session_1781346496316_0916e4",
+      "user": {
+        "id": "local-demo-user",
+        "telegramId": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "telegram"
+      },
+      "startedAt": "2026-06-13T10:28:19.223Z",
+      "updatedAt": "2026-06-13T11:49:59.596Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:49:59.596Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:49:56.679Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T11:42:38.180Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:42:29.928Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:42:27.747Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T11:09:48.964Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T11:09:41.400Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T11:07:23.196Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:59:20.546Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:59:16.710Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T10:52:36.381Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:52:21.841Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:52:20.153Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:42:19.838Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T10:36:50.001Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T10:36:49.165Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:36:15.144Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:36:13.313Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-13T10:31:34.314Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-13T10:31:10.378Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 527
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:28:20.273Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 527,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-13T10:28:19.223Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1782067791007_7724a2": {
+      "id": "session_1782067791007_7724a2",
+      "user": {
+        "id": "local-demo-user",
+        "telegramId": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "telegram"
+      },
+      "startedAt": "2026-06-21T18:49:52.563Z",
+      "updatedAt": "2026-06-26T06:39:29.134Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-26T06:39:29.134Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-26T06:39:26.442Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 606
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-21T18:49:54.031Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 606,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-21T18:49:52.563Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1782072988870_254a0a": {
+      "id": "session_1782072988870_254a0a",
+      "user": {
+        "id": "local-demo-user",
+        "telegramId": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "telegram"
+      },
+      "startedAt": "2026-06-21T20:16:30.819Z",
+      "updatedAt": "2026-06-28T08:31:00.182Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T08:31:00.182Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-28T08:30:55.618Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:30:14.387Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:30:13.271Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:28:19.869Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:28:18.842Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:25:46.729Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:25:45.780Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:23:48.436Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:23:47.610Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:21:59.421Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:21:58.631Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:20:23.561Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:20:22.752Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T08:18:12.917Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:17:50.561Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:17:48.834Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:15:32.683Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:15:31.504Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:13:14.601Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:13:13.137Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T08:09:38.734Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:09:07.245Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:09:05.956Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T08:07:10.568Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:06:52.463Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T08:06:51.448Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T07:57:22.700Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:57:19.473Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:57:18.095Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T07:57:11.467Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-28T07:57:06.150Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:56:38.435Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:56:36.728Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:56:23.029Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:56:21.612Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:55:47.217Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:55:45.968Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:53:26.517Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T07:53:21.118Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-28T07:53:08.432Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T07:52:59.931Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:52:56.325Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:52:54.528Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:49:31.503Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:49:30.005Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-28T07:38:50.867Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-28T07:38:49.533Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:38:33.336Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:38:31.720Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:38:28.297Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-28T07:38:26.554Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T18:05:07.048Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T18:04:13.353Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T18:04:12.836Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T13:26:00.378Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T13:25:46.658Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:25:14.082Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:25:13.612Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:18:29.979Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:18:29.150Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:14:58.174Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:14:57.425Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:12:03.137Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:12:02.618Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:07:57.919Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:07:57.081Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:07:46.445Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T13:07:45.837Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:39:33.262Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:39:32.590Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:39:22.795Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:39:21.971Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T12:27:31.495Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T12:24:12.696Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:23:57.791Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T12:23:52.428Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:23:36.212Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:23:35.309Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:15:16.833Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:15:16.099Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:14:56.481Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:14:55.885Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:14:15.065Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:14:14.489Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:14:00.859Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:14:00.269Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T12:09:28.012Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T12:09:23.711Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:09:21.043Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T12:09:14.864Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:08:15.306Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:08:14.349Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T12:04:17.113Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Открыта подсказка бонусов",
+          "level": "info",
+          "type": "event",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:04:01.510Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:03:56.131Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:03:55.394Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:03:47.044Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T12:03:37.811Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T12:03:31.680Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:03:27.276Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T12:03:26.458Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T11:59:23.325Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T11:59:14.778Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T11:59:06.847Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:59:00.438Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:58:59.735Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T11:55:18.629Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:55:13.822Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:55:12.896Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T11:53:32.677Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T11:53:00.494Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:52:41.683Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:52:41.082Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:59.960Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:46.344Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Стиль выбран",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styleId": "1002",
+            "title": "Атлантида",
+            "provider": "SDXL"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:39.076Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Стиль выбран",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styleId": "1002",
+            "title": "Атлантида",
+            "provider": "SDXL"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:38.976Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Стиль выбран",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styleId": "1002",
+            "title": "Атлантида",
+            "provider": "SDXL"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:38.811Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:26.818Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:26.034Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:19.452Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:18.654Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:13.160Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:45:12.462Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:12:39.529Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T11:09:10.025Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: admin",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "admin",
+          "unread": false,
+          "createdAt": "2026-06-27T11:09:09.345Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: home",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:08:32.045Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Переход: profile",
+          "level": "info",
+          "type": "navigation",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "profile",
+          "unread": false,
+          "createdAt": "2026-06-27T11:08:13.178Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Тема изменена: light",
+          "level": "info",
+          "type": "event",
+          "details": {},
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:08:00.339Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:04:49.976Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:04:48.752Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:02:27.090Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-27T11:02:26.576Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 606
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-21T20:16:31.791Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 606,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-21T20:16:30.819Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1782111109968_515339": {
+      "id": "session_1782111109968_515339",
+      "user": {
+        "id": "local-demo-user",
+        "telegramId": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "telegram"
+      },
+      "startedAt": "2026-06-22T06:51:51.462Z",
+      "updatedAt": "2026-06-22T06:51:52.833Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 606
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-22T06:51:52.833Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 606,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-22T06:51:51.462Z"
+        }
+      ],
+      "errors": []
+    },
+    "session_1782462565389_6ccdf3": {
+      "id": "session_1782462565389_6ccdf3",
+      "user": {
+        "id": "local-demo-user",
+        "telegramId": "local-demo-user",
+        "username": "local-demo-user",
+        "name": "local-demo-user",
+        "photoUrl": "",
+        "avatarEmoji": "✨",
+        "avatarGradient": "lime",
+        "authProvider": "telegram"
+      },
+      "startedAt": "2026-06-26T08:29:27.214Z",
+      "updatedAt": "2026-06-26T08:29:28.742Z",
+      "unread": false,
+      "entries": [
+        {
+          "id": "local-demo-user",
+          "title": "Состояние приложения загружено",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "balance": 180,
+            "styles": 608
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-26T08:29:28.742Z"
+        },
+        {
+          "id": "local-demo-user",
+          "title": "Принудительно загружен полный каталог стилей",
+          "level": "info",
+          "type": "event",
+          "details": {
+            "styles": 608,
+            "source": "api/fototime/styles"
+          },
+          "user": {
+            "id": "local-demo-user",
+            "telegramId": "local-demo-user",
+            "username": "local-demo-user",
+            "name": "local-demo-user",
+            "photoUrl": "",
+            "avatarEmoji": "✨",
+            "avatarGradient": "lime",
+            "authProvider": "telegram"
+          },
+          "page": "home",
+          "unread": false,
+          "createdAt": "2026-06-26T08:29:27.214Z"
+        }
+      ],
+      "errors": []
     }
   },
   "activeGenerations": {
@@ -10195,5 +16193,5 @@
       "resultUrl": ""
     }
   },
-  "updatedAt": "2026-06-11T18:55:41.282Z"
+  "updatedAt": "2026-06-28T08:31:00.193Z"
 }

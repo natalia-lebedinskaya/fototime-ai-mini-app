@@ -1,4 +1,541 @@
 
+/* CHATGPT_FORCE_HISTORY_SYNC_20260611_START */
+(() => {
+  if (window.__FT_FORCE_HISTORY_SYNC_20260611__) return;
+  window.__FT_FORCE_HISTORY_SYNC_20260611__ = true;
+
+  const STORAGE_KEY = 'ft_saved_generations_v6';
+
+  function safeParse(value, fallback) {
+    try { return JSON.parse(value); } catch (_) { return fallback; }
+  }
+
+  function readSavedGenerations() {
+    return safeParse(localStorage.getItem(STORAGE_KEY) || '[]', []);
+  }
+
+  function writeSavedGenerations(items) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, 100)));
+  }
+
+  function saveGeneration(item) {
+    if (!item || !item.resultUrl) return;
+    if (String(item.resultUrl).includes('/assets/mock-result.svg')) return;
+
+    const list = readSavedGenerations();
+    const merged = [
+      item,
+      ...list.filter((x) => String(x.id) !== String(item.id) && String(x.resultUrl) !== String(item.resultUrl))
+    ].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+
+    writeSavedGenerations(merged);
+  }
+
+  function mergeGenerations(serverGenerations) {
+    const local = readSavedGenerations();
+    const map = new Map();
+
+    [...local, ...(Array.isArray(serverGenerations) ? serverGenerations : [])]
+      .filter((g) => g && g.resultUrl && !String(g.resultUrl).includes('/assets/mock-result.svg'))
+      .forEach((g) => {
+        const key = String(g.id || g.resultUrl);
+        if (!map.has(key)) map.set(key, g);
+      });
+
+    return [...map.values()].sort((a, b) =>
+      String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
+    );
+  }
+
+  async function fetchLatestGenerationFromState(ctx) {
+    try {
+      const params = new URLSearchParams({
+        id: 'local-demo-user',
+        username: 'local-demo-user',
+        name: 'local-demo-user'
+      });
+
+      const res = await window.__FT_ORIGINAL_FETCH__(`/api/fototime/state?${params.toString()}`);
+      const json = await res.json().catch(() => null);
+      if (!json || !Array.isArray(json.generations) || !json.generations.length) return null;
+
+      const matched = [...json.generations]
+        .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+        .find((g) => {
+          if (!g || !g.resultUrl) return false;
+          if (ctx.styleId && String(g.styleId || '') !== String(ctx.styleId)) return false;
+          return true;
+        }) || json.generations[0];
+
+      if (!matched || !matched.resultUrl) return null;
+
+      return {
+        id: matched.id || `state_${Date.now()}`,
+        styleId: matched.styleId || ctx.styleId || '',
+        styleTitle: matched.styleTitle || ctx.styleTitle || '',
+        provider: matched.provider || ctx.provider || 'AI',
+        participant: matched.participant || ctx.participant || '',
+        resultUrl: matched.resultUrl,
+        sourceUrl: matched.sourceUrl || '',
+        cost: Number(matched.cost || 40),
+        createdAt: matched.createdAt || new Date().toISOString(),
+        status: 'success'
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function buildGenerationFromResponse(json, ctx) {
+    const generation = json?.generation || {};
+    const resultUrl =
+      generation.resultUrl ||
+      json?.resultUrl ||
+      json?.url ||
+      json?.imageUrl ||
+      '';
+
+    if (!resultUrl || String(resultUrl).includes('/assets/mock-result.svg')) return null;
+
+    return {
+      id: generation.id || json?.generationId || `local_${Date.now()}`,
+      styleId: generation.styleId || ctx.styleId || '',
+      styleTitle: generation.styleTitle || ctx.styleTitle || '',
+      provider: generation.provider || ctx.provider || 'AI',
+      participant: generation.participant || ctx.participant || '',
+      resultUrl,
+      sourceUrl: generation.sourceUrl || '',
+      cost: Number(generation.cost || json?.cost || json?.costCredits || 40),
+      createdAt: generation.createdAt || json?.createdAt || new Date().toISOString(),
+      status: 'success'
+    };
+  }
+
+  if (!window.__FT_ORIGINAL_FETCH__) {
+    window.__FT_ORIGINAL_FETCH__ = window.fetch.bind(window);
+  }
+
+  window.fetch = async (input, init = {}) => {
+    const url = String(input?.url || input || '');
+    const method = String(init?.method || 'GET').toUpperCase();
+
+    if (url.includes('/api/generate') && method === 'POST' && init.body instanceof FormData) {
+      const fd = init.body;
+      const ctx = {
+        styleId: String(fd.get('styleId') || fd.get('style') || ''),
+        styleTitle: String(fd.get('styleTitle') || fd.get('title') || ''),
+        provider: String(fd.get('provider') || fd.get('styleProvider') || 'AI'),
+        participant: String(fd.get('participant') || fd.get('participantId') || ''),
+      };
+
+      const res = await window.__FT_ORIGINAL_FETCH__(input, init);
+
+      try {
+        const clone = res.clone();
+        const json = await clone.json().catch(() => null);
+
+        if (res.ok && json && json.ok !== false) {
+          let generation = buildGenerationFromResponse(json, ctx);
+
+          if (!generation) {
+            generation = await fetchLatestGenerationFromState(ctx);
+          }
+
+          if (generation) {
+            saveGeneration(generation);
+          }
+        }
+      } catch (_) {}
+
+      return res;
+    }
+
+    const res = await window.__FT_ORIGINAL_FETCH__(input, init);
+
+    if (url.includes('/api/fototime/state')) {
+      try {
+        const clone = res.clone();
+        const json = await clone.json().catch(() => null);
+        if (!json) return res;
+
+        json.generations = mergeGenerations(json.generations);
+
+        return new Response(JSON.stringify(json), {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers
+        });
+      } catch (_) {
+        return res;
+      }
+    }
+
+    return res;
+  };
+})();
+/* CHATGPT_FORCE_HISTORY_SYNC_20260611_END */
+
+
+
+/* CHATGPT_RUNTIME_FIX_20260611_START */
+(() => {
+  if (window.__FT_RUNTIME_FIX_20260611__) return;
+  window.__FT_RUNTIME_FIX_20260611__ = true;
+
+  const STORAGE_KEY = 'ft_saved_generations_v5';
+  const PUBLIC_STYLES_URL = 'https://api.cyberphotobooth.ru/api/public/styles';
+
+  const LOCAL_STYLE_META = {
+    '1001': { title: 'Атлантида', provider: 'Nano Banana', aliases: ['Atlantida', 'Atlantis', 'Атлантида Платона'] },
+    '1002': { title: 'Барби', provider: 'SDXL', aliases: ['Barbie'] },
+    '1003': { title: 'Баблгам', provider: 'SDXL', aliases: ['Bubblegum', 'Bablgam'] },
+    '1004': { title: 'Бизнес', provider: 'SDXL', aliases: ['Business'] },
+    '1005': { title: 'Рождество', provider: 'SDXL', aliases: ['Christmas', 'Рождество'] },
+    '1006': { title: 'Комикс', provider: 'SDXL', aliases: ['Comics', 'Comic'] },
+    '1007': { title: 'Киберпанк', provider: 'SDXL', aliases: ['Cyberpunk'] },
+    '1008': { title: 'Дубай', provider: 'SDXL', aliases: ['Dubai'] },
+    '1009': { title: 'Лесная сказка', provider: 'SDXL', aliases: ['Forest Tale', 'Fairy Forest'] },
+    '2001': { title: 'Поле боя', provider: 'FLUX.2', aliases: ['23FevrBattlefield', 'Battlefield', 'Поле боя'] },
+    '2002': { title: 'Кибернетика', provider: 'FLUX.2', aliases: ['Cybernetics', 'WhiteCybernetics', 'Кибернетика'] },
+    '2003': { title: 'Алхимик', provider: 'FLUX.2', aliases: ['Alchemist', 'Алхимик'] },
+    '2004': { title: 'Пираты', provider: 'FLUX.2', aliases: ['Pirates', 'Пираты'] },
+    '2005': { title: 'Кабаре', provider: 'FLUX.2', aliases: ['Cabaret', 'Кабаре'] },
+    '3001': { title: 'White rabbits', provider: 'Nano Banana', aliases: ['White rabbits'] },
+    '3002': { title: 'Diamonds', provider: 'Nano Banana', aliases: ['Diamonds'] },
+    '3003': { title: 'Luxor', provider: 'Nano Banana', aliases: ['Luxor'] },
+    '3004': { title: 'Biker NB', provider: 'Nano Banana', aliases: ['Biker NB', 'Biker'] },
+    '3005': { title: 'Business 001', provider: 'Nano Banana', aliases: ['Business 001', 'Business'] },
+    '3006': { title: 'Пустыня', provider: 'Nano Banana', aliases: ['desert', 'Desert', 'Пустыня'] }
+  };
+
+  let publicStylesCache = null;
+
+  function norm(v) {
+    return String(v || '').trim().toLowerCase().replace(/ё/g, 'е');
+  }
+
+  function safeParse(value, fallback) {
+    try { return JSON.parse(value); } catch (_) { return fallback; }
+  }
+
+  function readSavedGenerations() {
+    return safeParse(localStorage.getItem(STORAGE_KEY) || '[]', []);
+  }
+
+  function writeSavedGenerations(items) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, 100)));
+  }
+
+  function saveGeneration(item) {
+    if (!item || !item.resultUrl) return;
+    if (String(item.resultUrl).includes('/assets/mock-result.svg')) return;
+
+    const list = readSavedGenerations();
+    const merged = [
+      item,
+      ...list.filter((x) => String(x.id) !== String(item.id) && String(x.resultUrl) !== String(item.resultUrl))
+    ].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+
+    writeSavedGenerations(merged);
+  }
+
+  async function getPublicStyles() {
+    if (publicStylesCache) return publicStylesCache;
+    try {
+      const res = await fetch(PUBLIC_STYLES_URL, { headers: { Accept: 'application/json' } });
+      const data = await res.json().catch(() => []);
+      publicStylesCache = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.styles)
+          ? data.styles
+          : Array.isArray(data?.items)
+            ? data.items
+            : [];
+      return publicStylesCache;
+    } catch (_) {
+      publicStylesCache = [];
+      return publicStylesCache;
+    }
+  }
+
+  function findPublicStyle(localStyle, publicStyles) {
+    const meta = LOCAL_STYLE_META[String(localStyle?.id || '').trim()] || null;
+    const candidates = [];
+    if (localStyle?.title) candidates.push(localStyle.title);
+    if (meta?.title) candidates.push(meta.title);
+    if (Array.isArray(meta?.aliases)) candidates.push(...meta.aliases);
+
+    const needles = candidates.map(norm).filter(Boolean);
+
+    for (const needle of needles) {
+      const found =
+        publicStyles.find((s) => norm(s?.display_name_ru) === needle) ||
+        publicStyles.find((s) => norm(s?.display_name_en) === needle) ||
+        publicStyles.find((s) => norm(s?.name) === needle) ||
+        publicStyles.find((s) => {
+          const vals = [s?.display_name_ru, s?.display_name_en, s?.name].map(norm).filter(Boolean);
+          return vals.some((v) => v.includes(needle) || needle.includes(v));
+        });
+      if (found) return found;
+    }
+
+    return null;
+  }
+
+  function enrichStyle(style, publicStyles) {
+    const meta = LOCAL_STYLE_META[String(style?.id || '').trim()] || null;
+    const found = findPublicStyle(style, publicStyles);
+
+    const preview =
+      found?.preview_url_female ||
+      found?.preview_url_male ||
+      found?.preview_url ||
+      style.preview ||
+      '';
+
+    return {
+      ...style,
+      preview,
+      provider: meta?.provider || style.provider || ''
+    };
+  }
+
+  function mergeGenerations(serverGenerations) {
+    const local = readSavedGenerations();
+    const map = new Map();
+
+    [...local, ...(Array.isArray(serverGenerations) ? serverGenerations : [])]
+      .filter((g) => g && g.resultUrl && !String(g.resultUrl).includes('/assets/mock-result.svg'))
+      .forEach((g) => {
+        const key = String(g.id || g.resultUrl);
+        if (!map.has(key)) map.set(key, g);
+      });
+
+    return [...map.values()].sort((a, b) =>
+      String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
+    );
+  }
+
+  function buildGenerationFromResponse(json, ctx) {
+    const generation = json?.generation || {};
+    const resultUrl =
+      generation.resultUrl ||
+      json?.resultUrl ||
+      json?.url ||
+      json?.imageUrl ||
+      '';
+
+    if (!resultUrl || String(resultUrl).includes('/assets/mock-result.svg')) return null;
+
+    const meta = LOCAL_STYLE_META[String(ctx.styleId || generation.styleId || '').trim()] || null;
+
+    return {
+      id: generation.id || json?.generationId || `local_${Date.now()}`,
+      styleId: generation.styleId || ctx.styleId || '',
+      styleTitle: generation.styleTitle || ctx.styleTitle || meta?.title || '',
+      provider: meta?.provider || generation.provider || ctx.provider || 'AI',
+      participant: generation.participant || ctx.participant || '',
+      resultUrl,
+      sourceUrl: generation.sourceUrl || '',
+      cost: Number(generation.cost || json?.cost || json?.costCredits || 40),
+      createdAt: generation.createdAt || json?.createdAt || new Date().toISOString(),
+      status: 'success'
+    };
+  }
+
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = async (input, init = {}) => {
+    const url = String(input?.url || input || '');
+    const method = String(init?.method || 'GET').toUpperCase();
+
+    if (url.includes('/api/generate') && method === 'POST' && init.body instanceof FormData) {
+      const fd = init.body;
+      const ctx = {
+        styleId: String(fd.get('styleId') || fd.get('style') || ''),
+        styleTitle: String(fd.get('styleTitle') || fd.get('title') || ''),
+        provider: String(fd.get('provider') || fd.get('styleProvider') || ''),
+        participant: String(fd.get('participant') || fd.get('participantId') || ''),
+      };
+
+      const res = await originalFetch(input, init);
+
+      try {
+        const clone = res.clone();
+        const json = await clone.json().catch(() => null);
+        if (res.ok && json && json.ok !== false) {
+          const generation = buildGenerationFromResponse(json, ctx);
+          if (generation) saveGeneration(generation);
+        }
+      } catch (_) {}
+
+      return res;
+    }
+
+    const res = await originalFetch(input, init);
+
+    if (url.includes('/api/fototime/state')) {
+      try {
+        const clone = res.clone();
+        const json = await clone.json().catch(() => null);
+        if (!json) return res;
+
+        const publicStyles = await getPublicStyles();
+
+        if (Array.isArray(json.styles)) {
+          json.styles = json.styles.map((style) => enrichStyle(style, publicStyles));
+        }
+
+        json.generations = mergeGenerations(json.generations);
+
+        return new Response(JSON.stringify(json), {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers
+        });
+      } catch (_) {
+        return res;
+      }
+    }
+
+    return res;
+  };
+})();
+/* CHATGPT_RUNTIME_FIX_20260611_END */
+
+
+
+/* CHATGPT_PREVIEW_ENRICH_20260611_START */
+(() => {
+  if (window.__FT_PREVIEW_ENRICH_INSTALLED__) return;
+  window.__FT_PREVIEW_ENRICH_INSTALLED__ = true;
+
+  const FT_LOCAL_STYLE_PREVIEW_MAP = {
+    '1001': { title: 'Атлантида', aliases: ['Atlantida', 'Atlantis'] },
+    '1002': { title: 'Барби', aliases: ['Barbie'] },
+    '1003': { title: 'Баблгам', aliases: ['Bubblegum', 'Bablgam'] },
+    '1004': { title: 'Бизнес', aliases: ['Business'] },
+    '1005': { title: 'Рождество', aliases: ['Christmas', 'Рождество'] },
+    '1006': { title: 'Комикс', aliases: ['Comics', 'Comic'] },
+    '1007': { title: 'Киберпанк', aliases: ['Cyberpunk'] },
+    '1008': { title: 'Дубай', aliases: ['Dubai'] },
+    '1009': { title: 'Лесная сказка', aliases: ['Forest Tale', 'Fairy Forest'] },
+    '2001': { title: 'Поле боя', aliases: ['23FevrBattlefield', 'Battlefield', 'Поле боя'] },
+    '2002': { title: 'Кибернетика', aliases: ['Cybernetics', 'Кибернетика'] },
+    '2003': { title: 'Алхимик', aliases: ['Alchemist', 'Алхимик'] },
+    '2004': { title: 'Пираты', aliases: ['Pirates', 'Пираты'] },
+    '2005': { title: 'Кабаре', aliases: ['Cabaret', 'Кабаре'] },
+    '3001': { title: 'White rabbits', aliases: ['White rabbits'] },
+    '3002': { title: 'Diamonds', aliases: ['Diamonds'] },
+    '3003': { title: 'Luxor', aliases: ['Luxor'] },
+    '3004': { title: 'Biker NB', aliases: ['Biker NB', 'Biker'] },
+    '3005': { title: 'Business 001', aliases: ['Business 001', 'Business'] },
+    '3006': { title: 'Пустыня', aliases: ['desert', 'Desert', 'Пустыня'] }
+  };
+
+  let __ftPublicStylesCache = null;
+
+  function ftNorm(v) {
+    return String(v || '').trim().toLowerCase().replace(/ё/g, 'е');
+  }
+
+  async function getPublicStyles() {
+    if (__ftPublicStylesCache) return __ftPublicStylesCache;
+    try {
+      const res = await fetch('https://api.cyberphotobooth.ru/api/public/styles', {
+        headers: { Accept: 'application/json' }
+      });
+      const data = await res.json().catch(() => []);
+      __ftPublicStylesCache = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.styles)
+          ? data.styles
+          : Array.isArray(data?.items)
+            ? data.items
+            : [];
+      return __ftPublicStylesCache;
+    } catch (_) {
+      __ftPublicStylesCache = [];
+      return __ftPublicStylesCache;
+    }
+  }
+
+  function findPreview(style, publicStyles) {
+    const local = FT_LOCAL_STYLE_PREVIEW_MAP[String(style?.id || '').trim()] || null;
+    const candidates = [];
+    if (style?.title) candidates.push(style.title);
+    if (local?.title) candidates.push(local.title);
+    if (Array.isArray(local?.aliases)) candidates.push(...local.aliases);
+
+    const needles = candidates.map(ftNorm).filter(Boolean);
+
+    for (const needle of needles) {
+      const found =
+        publicStyles.find((s) => ftNorm(s?.display_name_ru) === needle) ||
+        publicStyles.find((s) => ftNorm(s?.display_name_en) === needle) ||
+        publicStyles.find((s) => ftNorm(s?.name) === needle) ||
+        publicStyles.find((s) => {
+          const vals = [s?.display_name_ru, s?.display_name_en, s?.name].map(ftNorm).filter(Boolean);
+          return vals.some((v) => v.includes(needle) || needle.includes(v));
+        });
+
+      if (found) {
+        return (
+          found.preview_url_female ||
+          found.preview_url_male ||
+          found.preview_url ||
+          style.preview ||
+          ''
+        );
+      }
+    }
+
+    return style.preview || '';
+  }
+
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = async (...args) => {
+    const res = await originalFetch(...args);
+
+    try {
+      const url = String(args?.[0]?.url || args?.[0] || '');
+      const isState = url.includes('/api/fototime/state');
+
+      if (!isState) return res;
+
+      const cloned = res.clone();
+      const json = await cloned.json().catch(() => null);
+      if (!json || !Array.isArray(json.styles)) return res;
+
+      const publicStyles = await getPublicStyles();
+
+      json.styles = json.styles.map((style) => ({
+        ...style,
+        preview: findPreview(style, publicStyles)
+      }));
+
+      if (Array.isArray(json.generations)) {
+        json.generations = json.generations.filter((g) => {
+          const u = String(g?.resultUrl || '');
+          return u && !u.includes('');
+        });
+      }
+
+      const body = JSON.stringify(json);
+      return new Response(body, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: res.headers
+      });
+    } catch (_) {
+      return res;
+    }
+  };
+})();
+/* CHATGPT_PREVIEW_ENRICH_20260611_END */
+
+
 
 /* FT_CLIENT_VERSION_BADGE_V1 */
 window.FT_DEPLOY_VERSION = "fototime-prod-20260611-140000-v27-clean-stable-front";
@@ -57,10 +594,8 @@ window.addEventListener("DOMContentLoaded", () => {
     participant: 'male',
     styleFilter: 'Все',
     search: '',
-    view: localStorage.getItem('fototime-view-v14') || 'grid',
-    perPage: [6, 9, 12].includes(Number(localStorage.getItem('fototime-per-page-v14')))
-      ? Number(localStorage.getItem('fototime-per-page-v14'))
-      : 6,
+    view: 'grid',
+    perPage: Number(localStorage.getItem('fototime-per-page-v14') || 12),
     pageIndex: 0,
     file: null,
     filePreview: '',
@@ -215,140 +750,12 @@ window.addEventListener("DOMContentLoaded", () => {
     if (Array.isArray(data.notifications)) state.notifications = data.notifications;
   }
 
-  async function ftEnsureFullCatalog() {
-    try {
-      const res = await fetch('https://api.cyberphotobooth.ru/api/public/styles', {
-        headers: { Accept: 'application/json' },
-        cache: 'no-store'
-      });
-
-      const data = await res.json().catch(() => []);
-      const raw = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.styles)
-          ? data.styles
-          : Array.isArray(data?.items)
-            ? data.items
-            : Array.isArray(data?.data?.styles)
-              ? data.data.styles
-              : [];
-
-      const fullCatalog = raw
-        .map((style, index) => {
-          const title =
-            style?.display_name_ru ||
-            style?.display_name_en ||
-            style?.name ||
-            style?.title ||
-            '';
-
-          const modeRaw = String(
-            style?.styleMode ||
-            style?.mode ||
-            style?.network ||
-            style?.model ||
-            style?.provider ||
-            style?.type ||
-            ''
-          ).toLowerCase();
-
-          let provider = 'Другое';
-          let mode = modeRaw || 'other';
-
-          if (modeRaw.includes('nano banana 2') || modeRaw.includes('nano-banana2')) {
-            provider = 'Nano Banana 2';
-            mode = 'nano-banana-2';
-          } else if (modeRaw.includes('nano banana') || modeRaw.includes('nano-banana')) {
-            provider = 'Nano Banana';
-            mode = 'nano-banana';
-          } else if (modeRaw.includes('flux.2') || modeRaw.includes('flux2') || modeRaw.includes('edit2')) {
-            provider = 'FLUX.2';
-            mode = 'flux-2';
-          } else if (modeRaw.includes('headswap') || modeRaw.includes('замена')) {
-            provider = 'Замена Головы';
-            mode = 'headswap';
-          } else if (modeRaw.includes('sdxl') || modeRaw.includes('style_sdxl_zero')) {
-            provider = 'SDXL';
-            mode = 'sdxl';
-          }
-
-          return {
-            id: String(style?.id || style?.style_id || style?.name || `public-${index}`),
-            title,
-            provider,
-            preview:
-              style?.preview_url_female ||
-              style?.preview_url_male ||
-              style?.preview_url ||
-              '',
-            mode
-          };
-        })
-        .filter((style) => style.id && style.title);
-
-      if (fullCatalog.length > (Array.isArray(state.styles) ? state.styles.length : 0)) {
-        state.styles = fullCatalog;
-        state.pageIndex = 0;
-
-        await audit('Полный каталог стилей загружен', {
-          oldCount: Array.isArray(state.styles) ? state.styles.length : 0,
-          newCount: fullCatalog.length
-        });
-      }
-    } catch (error) {
-      console.error('[FOTOTIME] full catalog fetch failed', error);
-    }
-  }
-
-  async function ftLoadFullStylesFromApi() {
-    try {
-      const payload = await apiGet('/styles');
-      const styles = Array.isArray(payload?.styles)
-        ? payload.styles
-        : Array.isArray(payload?.items)
-          ? payload.items
-          : [];
-
-      if (styles.length) {
-        state.styles = styles;
-        state.pageIndex = 0;
-      }
-
-      await audit('Принудительно загружен полный каталог стилей', {
-        styles: styles.length,
-        source: payload?.source || 'api/fototime/styles'
-      });
-    } catch (error) {
-      console.error('[FOTOTIME] ftLoadFullStylesFromApi failed', error);
-      await audit(
-        'Ошибка принудительной загрузки полного каталога',
-        { message: error.message },
-        'error',
-        'styles_force_error'
-      );
-    }
-  }
-
   async function loadState() {
     try {
       const data = await apiGet('/state');
+
       syncFromServer(data);
-      await ftLoadFullStylesFromApi();
 
-await ftEnsureFullCatalog();
-try {
-        const stylesData = await apiGet('/styles');
-        const fullStyles =
-          Array.isArray(stylesData?.styles) ? stylesData.styles :
-          Array.isArray(stylesData?.items) ? stylesData.items :
-          [];
-
-        if (fullStyles.length) {
-          state.styles = fullStyles;
-        }
-      } catch (stylesError) {
-        console.warn('[FOTOTIME] styles route failed, keep /state styles', stylesError);
-      }
 
       await audit('Состояние приложения загружено', {
         balance: state.balance,
@@ -365,9 +772,8 @@ try {
       );
 
       state.styles = fallbackStyles();
-    
-      await ftLoadFullStylesFromApi();
-}
+
+    }
   }
 
   function fallbackStyles() {
@@ -403,25 +809,18 @@ try {
 
   function pageStyles() {
     const list = filteredStyles();
-
-    const gridPer = [6, 9, 12].includes(Number(state.perPage))
-      ? Number(state.perPage)
-      : 6;
-
-    const per = state.view === 'carousel' ? 3 : gridPer;
+    const per = Math.max(6, Math.min(12, Number(state.perPage) || 12));
     const maxPage = Math.max(0, Math.ceil(list.length / per) - 1);
 
     if (state.pageIndex > maxPage) state.pageIndex = maxPage;
-    if (state.pageIndex < 0) state.pageIndex = 0;
 
     const start = state.pageIndex * per;
-    const end = Math.min(start + per, list.length);
 
     return {
       list,
-      items: list.slice(start, end),
+      items: list.slice(start, start + per),
       start,
-      end,
+      end: Math.min(start + per, list.length),
       per,
       maxPage,
     };
@@ -476,38 +875,15 @@ try {
     const unread = state.notifications.filter((n) => n.unread).length;
 
     return `
-      <div class="ft-topbar ft-topbar-v2">
-        <button class="ft-balance-pill ft-balance-pill-v2" data-action="refresh-balance" type="button" title="Обновить баланс">
-          <span class="ft-token-icon ft-token-icon-v2" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <defs>
-                <linearGradient id="ftTopBarMarkGradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#baff14"></stop>
-                  <stop offset="100%" stop-color="#5ee7d0"></stop>
-                </linearGradient>
-              </defs>
-              <rect x="4" y="4" width="16" height="16" rx="4.5" fill="url(#ftTopBarMarkGradient)"></rect>
-              <path d="M8 12h8M12 8v8" stroke="#18342f" stroke-width="2.1" stroke-linecap="round"></path>
-              <circle cx="12" cy="12" r="2.1" fill="#18342f"></circle>
-            </svg>
-          </span>
-
-          <span class="ft-balance-copy">
-            <span class="ft-balance-label">Баланс</span>
-            <span class="ft-balance-value"><b>${state.balance}</b> <span>кредитов</span></span>
-          </span>
-
-          <span class="ft-refresh-icon ft-refresh-icon-v2" aria-hidden="true">↻</span>
+      <div class="ft-topbar">
+        <button class="ft-balance-pill" data-action="refresh-balance" type="button" title="Обновить баланс">
+          <span class="ft-token-icon">FT</span>
+          <span>Баланс</span>
+          <b>${state.balance}</b>
+          <span>кредитов</span>
+          <span class="ft-refresh-icon">↻</span>
         </button>
-
-        <button class="ft-bell-pill" data-action="show-notifications" type="button" title="Уведомления" aria-label="Уведомления">
-          <span class="ft-bell-icon" aria-hidden="true">🔔</span>
-          ${unread ? `<span class="ft-bell-count">${unread}</span>` : ``}
-        </button>
-
-        <button class="ft-notify-pill ft-notify-pill-v2" data-action="show-notifications" type="button" title="Новые уведомления">
-          ${unread ? `+${unread}` : '+0'}
-        </button>
+        <button class="ft-notify-pill" data-action="show-notifications" type="button">${unread ? `+${unread}` : '0'}</button>
       </div>
     `;
   }
@@ -516,7 +892,8 @@ try {
     return `
       <header class="ft-hero">
         <div class="ft-hero-row">
-          <span class="ft-brand">FOT AI</span>
+          <span class="ft-brand">FOTOTIME323</span>
+          <span class="ft-active">ACTIVE EVENT</span>
         </div>
 
         <label class="ft-theme-label">
@@ -528,7 +905,7 @@ try {
           </select>
         </label>
 
-        <h1>FOT AI</h1>
+        <h1>FOTOTIME AI</h1>
         <p>Выберите участника, стиль обработки и загрузите фото. Приложение покажет только стили, доступные для текущего режима.</p>
       </header>
     `;
@@ -611,7 +988,7 @@ try {
       </section>
 
       <section class="ft-card">
-        ${cardHeader('01', 'Участник', 'Тестовое мероприятие FOT AI')}
+        ${cardHeader('01', 'Участник', 'Тестовое мероприятие FOTOTIME323')}
 
         <div class="ft-participants">
           ${['male:Мужчина', 'female:Женщина', 'couple:Пара', 'boy:Мальчик', 'girl:Девочка', 'family:Семья']
@@ -660,7 +1037,7 @@ try {
     return `
       <div class="ft-filter-box">
         <div class="ft-search-row">
-          <span class="ft-search-icon" aria-hidden="true">⌕</span>
+          <span>⌕</span>
           <input
             id="ft-style-search"
             data-action="search"
@@ -771,7 +1148,7 @@ try {
 
     return `
       <section class="ft-card">
-        ${cardHeader('LK', `@${esc(state.user.username || state.user.name)}`, 'Личный кабинет FOT AI')}
+        ${cardHeader('LK', `@${esc(state.user.username || state.user.name)}`, 'Личный кабинет FOTOTIME323')}
 
         <div class="ft-balance-grid">
           <div class="ft-metric">
@@ -856,7 +1233,7 @@ try {
 
     return `
       <section class="ft-card">
-        ${cardHeader('FT', 'FOT AI', 'Контакты и аренда по Краснодарскому краю.')}
+        ${cardHeader('FT', 'FOTOTIME323', 'Поддержка, соцсети и пополнение баланса.')}
 
         <div class="ft-social-grid">
           ${links
@@ -1175,7 +1552,7 @@ try {
     modal(
       'Как авторизоваться?',
       `
-        <p><b>1.</b> Откройте Telegram-бота FOT AI.</p>
+        <p><b>1.</b> Откройте Telegram-бота FOTOTIME323.</p>
         <p><b>2.</b> Запустите приложение внутри Telegram.</p>
         <p><b>3.</b> Баланс, история и бонусы будут закреплены за вашим профилем.</p>
       `,
@@ -1767,7 +2144,7 @@ try {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'FOT AI',
+          title: 'FOTOTIME AI',
           url: full,
         });
       } else {
@@ -1857,3 +2234,516 @@ try {
 
   init();
 })();
+
+
+/* FT_V16_POLISH_START */
+(() => {
+  const FT_VERSION = "fototime-prod-20260611-131500-v26-stable-final-fixed";
+  window.FOTOTIME_DEPLOY_VERSION = FT_VERSION;
+  console.info("[FOTOTIME DEPLOY VERSION]", FT_VERSION);
+
+  const LINKS = {
+    telegram: "https://t.me/fototime323",
+    vk: "https://vk.com/fototime323",
+    max: "https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U",
+    site: "https://fototime323.lpmotortest.com",
+    avito: ""
+  };
+
+  const SOCIAL_META = {
+    telegram: { label: "Telegram", icon: "✈" },
+    vk: { label: "VK", icon: "VK" },
+    max: { label: "MAX", icon: "M" },
+    site: { label: "Сайт", icon: "⌂" },
+    avito: { label: "Avito", icon: "A" }
+  };
+
+  function q(sel, root = document) {
+    return root.querySelector(sel);
+  }
+
+  function qa(sel, root = document) {
+    return Array.from(root.querySelectorAll(sel));
+  }
+
+  function textIncludes(el, text) {
+    return el && (el.textContent || "").toLowerCase().includes(String(text).toLowerCase());
+  }
+
+  function normalizeCurrencyText(root = document.body) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      let value = node.nodeValue;
+      if (!value) return;
+
+      value = value
+        .replace(/\bтокенов\b/gi, "кредитов")
+        .replace(/\bтокена\b/gi, "кредита")
+        .replace(/\bтокен\b/gi, "кредит")
+        .replace(/\bтокены\b/gi, "кредиты")
+        .replace(/\bкр\.\b/gi, "кредитов");
+
+      if (node.nodeValue !== value) node.nodeValue = value;
+    });
+  }
+
+  function fixGenerationEnoughText() {
+    qa("*").forEach((el) => {
+      if (el.childElementCount > 0) return;
+      const t = (el.textContent || "").trim();
+      if (t === "Хватит примерно") el.textContent = "Хватит на";
+      if (t === "генерация") el.textContent = "генерацию";
+      if (t === "генерации") el.textContent = "генераций";
+    });
+  }
+
+  function findProfileRoot() {
+    const headings = qa("h1,h2,h3,strong,b,div,section").filter((el) =>
+      textIncludes(el, "личный кабинет") || textIncludes(el, "пакеты кредитов") || textIncludes(el, "мои сгенерированные")
+    );
+    if (!headings.length) return null;
+    return headings[0].closest("section, article, main, .card, .ft-profile-card, .page, #app") || document.body;
+  }
+
+  function addVersionCard() {
+    if (q("#ftVersionCard")) return;
+
+    const profileRoot = findProfileRoot();
+    if (!profileRoot || !textIncludes(document.body, "личный кабинет")) return;
+
+    const card = document.createElement("section");
+    card.id = "ftVersionCard";
+    card.className = "ft-version-card";
+    card.innerHTML = `
+      <strong>Версия приложения</strong>
+      <span>Публичная сборка FOTOTIME323.</span>
+      <code>${FT_VERSION}</code>
+    `;
+
+    const nav = qa("button,a").find((el) => (el.textContent || "").trim() === "Админ");
+    const navRoot = nav ? nav.closest("nav, .bottom-nav, .tabs") : null;
+
+    if (navRoot && navRoot.parentElement) {
+      navRoot.parentElement.insertBefore(card, navRoot);
+    } else {
+      profileRoot.appendChild(card);
+    }
+  }
+
+  function enhanceSupportLinks() {
+    const candidates = qa("section,article,div").filter((el) =>
+      textIncludes(el, "fototime323") &&
+      (textIncludes(el, "поддержка") || textIncludes(el, "соцсети") || textIncludes(el, "пополнение"))
+    );
+
+    const card = candidates[candidates.length - 1];
+    if (!card || card.dataset.ftSocialEnhanced === "1") return;
+
+    const existingButtons = qa("a,button", card);
+    const labels = existingButtons.map((el) => (el.textContent || "").trim().toLowerCase());
+
+    const container = document.createElement("div");
+    container.className = "ft-social-grid ft-support-links";
+
+    const order = ["telegram", "vk", "max", "site", "avito"];
+    order.forEach((key) => {
+      const meta = SOCIAL_META[key];
+      const existing = existingButtons.find((el) => (el.textContent || "").toLowerCase().includes(meta.label.toLowerCase()));
+
+      let el = existing || document.createElement(LINKS[key] ? "a" : "button");
+      el.className = "ft-social-btn";
+      el.dataset.social = key;
+
+      if (LINKS[key]) {
+        el.setAttribute("href", LINKS[key]);
+        el.setAttribute("target", "_blank");
+        el.setAttribute("rel", "noopener noreferrer");
+      } else {
+        el.setAttribute("type", "button");
+        el.disabled = key === "avito";
+        el.title = key === "avito" ? "Добавим ссылку Avito после проверки профиля" : "";
+      }
+
+      el.innerHTML = `
+        <span class="ft-social-icon">${meta.icon}</span>
+        <span>${meta.label}</span>
+        <span class="ft-social-arrow">↗</span>
+      `;
+
+      container.appendChild(el);
+    });
+
+    existingButtons.forEach((el) => el.remove());
+    card.appendChild(container);
+    card.dataset.ftSocialEnhanced = "1";
+  }
+
+  function enhanceGeneratedCards() {
+    const blocks = qa("section,article,div").filter((el) =>
+      textIncludes(el, "мои сгенерированные фото") || textIncludes(el, "ai-фото") || textIncludes(el, "скачать")
+    );
+
+    blocks.forEach((block) => {
+      qa("img", block).forEach((img) => {
+        const card = img.closest("article, .card, div");
+        if (!card || card.dataset.ftGeneratedEnhanced === "1") return;
+
+        const src = img.currentSrc || img.src;
+        if (!src) return;
+
+        const cost = card.dataset.cost || "40";
+        const badge = document.createElement("div");
+        badge.className = "ft-cost-badge";
+        badge.textContent = `Списано: ${cost} кредитов`;
+
+        const actions = document.createElement("div");
+        actions.className = "ft-generated-actions";
+
+        const download = document.createElement("a");
+        download.href = src;
+        download.download = "";
+        download.textContent = "Скачать";
+
+        const share = document.createElement("button");
+        share.type = "button";
+        share.textContent = "Поделиться";
+        share.addEventListener("click", async () => {
+          try {
+            if (navigator.share) {
+              await navigator.share({ title: "FOTOTIME323", text: "Моё AI-фото", url: src });
+            } else {
+              await navigator.clipboard.writeText(src);
+              window.ftToast?.("Ссылка скопирована") || alert("Ссылка скопирована");
+            }
+          } catch (_) {}
+        });
+
+        actions.append(download, share);
+
+        if (!card.querySelector(".ft-cost-badge")) card.appendChild(badge);
+        if (!card.querySelector(".ft-generated-actions")) card.appendChild(actions);
+        card.dataset.ftGeneratedEnhanced = "1";
+      });
+    });
+  }
+
+  function addNotificationHelper() {
+    if (!q("#ftNotificationDot")) {
+      const btn = document.createElement("button");
+      btn.id = "ftNotificationDot";
+      btn.className = "ft-notification-dot";
+      btn.type = "button";
+      btn.dataset.count = "1";
+      btn.textContent = "i";
+      btn.addEventListener("click", () => {
+        const existing = q(".ft-notifications-modal, #ftNotificationsModal, [data-notifications-modal]");
+        if (existing) {
+          existing.style.display = "";
+          existing.classList.add("is-open");
+          existing.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          alert("Уведомления: сервис настраивается. Мы улучшаем приложение и будем благодарны за обратную связь в личном кабинете.");
+        }
+        btn.dataset.count = "0";
+      });
+      document.body.appendChild(btn);
+    }
+
+    if (!q("#ftHelperBubble")) {
+      const bubble = document.createElement("div");
+      bubble.id = "ftHelperBubble";
+      bubble.className = "ft-helper-bubble";
+      bubble.textContent = "Шаги простые: выберите участника, стиль, загрузите фото и нажмите «Создать AI-фото».";
+      document.body.appendChild(bubble);
+
+      setTimeout(() => bubble.classList.add("is-visible"), 900);
+      setTimeout(() => bubble.classList.remove("is-visible"), 6500);
+    }
+  }
+
+  function enhanceAdminUsers() {
+    const adminRoot = qa("section,article,div").find((el) =>
+      textIncludes(el, "админ-консоль") || textIncludes(el, "пользователи")
+    );
+
+    if (!adminRoot) return;
+
+    qa("input[type='number']", adminRoot).forEach((input) => {
+      const row = input.closest("section,article,div");
+      if (!row || row.dataset.ftTopupEnhanced === "1") return;
+
+      const actions = document.createElement("div");
+      actions.className = "ft-admin-user-actions";
+
+      [50, 120, 300, 700].forEach((amount) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = `+${amount}`;
+        b.addEventListener("click", () => {
+          const current = Number(input.value || 0);
+          input.value = String(current + amount);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        actions.appendChild(b);
+      });
+
+      const custom = document.createElement("input");
+      custom.type = "number";
+      custom.placeholder = "сумма";
+      custom.min = "0";
+
+      const add = document.createElement("button");
+      add.type = "button";
+      add.textContent = "Добавить";
+      add.addEventListener("click", () => {
+        const value = Number(custom.value || 0);
+        if (!value) return;
+        input.value = String(Number(input.value || 0) + value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+
+      actions.append(custom, add);
+      row.appendChild(actions);
+      row.dataset.ftTopupEnhanced = "1";
+    });
+  }
+
+  function retryBrokenFototimeImages() {
+    qa("img").forEach((img) => {
+      if (img.dataset.ftImageRetryBound === "1") return;
+      img.dataset.ftImageRetryBound = "1";
+
+      img.addEventListener("error", () => {
+        if (img.dataset.ftRetried === "1") return;
+
+        const src = img.getAttribute("src") || "";
+        const match = src.match(/\/(uploads|results)\/fototime\/([^?#]+)/);
+        if (!match) return;
+
+        img.dataset.ftRetried = "1";
+        img.src = `/api/fototime/file/${match[1]}/${encodeURIComponent(match[2])}`;
+      });
+    });
+  }
+
+  function markUnreadCards() {
+    qa("section,article,div").forEach((el) => {
+      const t = el.textContent || "";
+      if (/\bNEW\b|нов(ое|ых|ый)/i.test(t)) {
+        el.classList.add("ft-unread-card");
+      }
+    });
+  }
+
+  async function init() {
+    setTheme(state.theme);
+    await loadState();
+    render();
+    bindEvents();
+  }
+
+  init();
+})();
+
+
+/* CHATGPT_LAYOUT_WIDTH_FIX_20260611_START */
+(() => {
+  if (window.__CHATGPT_LAYOUT_WIDTH_FIX_20260611__) return;
+  window.__CHATGPT_LAYOUT_WIDTH_FIX_20260611__ = true;
+
+  function applySafeLayoutFix() {
+    const body = document.body;
+    const html = document.documentElement;
+    if (!body || !html) return;
+
+    html.style.width = '100%';
+    html.style.maxWidth = 'none';
+    html.style.minWidth = '0';
+    html.style.transform = 'none';
+    html.style.zoom = '1';
+
+    body.style.width = '100%';
+    body.style.maxWidth = 'none';
+    body.style.minWidth = '0';
+    body.style.margin = '0';
+    body.style.padding = '0';
+    body.style.transform = 'none';
+    body.style.zoom = '1';
+    body.style.overflowX = 'hidden';
+
+    const selectors = [
+      '#app', '.app', '.app-shell', '.app-root', 'main',
+      '.page', '.page-shell', '.ft-app', '.ft-shell', '.ft-page', '.ft-layout'
+    ];
+
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        el.style.width = '100%';
+        el.style.minWidth = '0';
+        el.style.maxWidth = window.innerWidth <= 430 ? '100%' : '430px';
+        el.style.marginLeft = 'auto';
+        el.style.marginRight = 'auto';
+        el.style.left = 'auto';
+        el.style.right = 'auto';
+        el.style.transform = 'none';
+        el.style.zoom = '1';
+        el.style.boxSizing = 'border-box';
+      });
+    });
+
+    document.querySelectorAll('[style]').forEach((el) => {
+      const style = el.getAttribute('style') || '';
+      if (/scale\s*\(|zoom\s*:/.test(style)) {
+        el.style.transform = 'none';
+        el.style.zoom = '1';
+      }
+    });
+  }
+
+  window.addEventListener('load', applySafeLayoutFix);
+  window.addEventListener('resize', applySafeLayoutFix);
+  document.addEventListener('DOMContentLoaded', applySafeLayoutFix);
+
+  const observer = new MutationObserver(() => applySafeLayoutFix());
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
+  applySafeLayoutFix();
+})();
+/* CHATGPT_LAYOUT_WIDTH_FIX_20260611_END */
+
+
+/* CHATGPT_SAFE_MOBILE_CLEANUP_20260611_START */
+(() => {
+  if (window.__CHATGPT_SAFE_MOBILE_CLEANUP_20260611__) return;
+  window.__CHATGPT_SAFE_MOBILE_CLEANUP_20260611__ = true;
+
+  const ADMIN_PIN = '3654';
+  const SESSION_KEY = 'ft_admin_unlocked_20260611';
+
+  function isUnlocked() {
+    try {
+      return sessionStorage.getItem(SESSION_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function setLockedState() {
+    document.body.classList.toggle('ft-admin-locked', !isUnlocked());
+    document.body.classList.toggle('ft-admin-unlocked', isUnlocked());
+  }
+
+  function unlockAdmin() {
+    const value = window.prompt('Введите PIN для админки');
+    if (value === null) return false;
+    if (String(value).trim() === ADMIN_PIN) {
+      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (_) {}
+      setLockedState();
+      window.dispatchEvent(new CustomEvent('ft-admin-unlocked'));
+      return true;
+    }
+    alert('Неверный PIN');
+    return false;
+  }
+
+  function textOf(el) {
+    return (el?.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function looksLikeAdminEntry(el) {
+    const t = textOf(el);
+    if (!t) return false;
+    return t === 'админ' || t.includes('админ') || t.includes('admin');
+  }
+
+  function looksLikeAdminPanel(el) {
+    const t = textOf(el);
+    const cls = ((el.className && String(el.className)) || '').toLowerCase();
+    const ds = JSON.stringify(el.dataset || {}).toLowerCase();
+    return (
+      t.includes('админ-консоль') ||
+      t.includes('критичные ошибки') ||
+      t.includes('пользователи') ||
+      cls.includes('admin') ||
+      ds.includes('admin')
+    );
+  }
+
+  function protectAdminEntries() {
+    const all = document.querySelectorAll('button, a, [role="button"], .tab, .nav-item, .menu-item, .bottom-nav button, .bottom-nav a');
+    all.forEach((el) => {
+      if (!looksLikeAdminEntry(el)) return;
+      if (el.dataset.ftAdminProtected === '1') return;
+      el.dataset.ftAdminProtected = '1';
+
+      el.addEventListener('click', (e) => {
+        if (isUnlocked()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation?.();
+        unlockAdmin();
+      }, true);
+    });
+  }
+
+  function hideAdminPanelsWhenLocked() {
+    if (isUnlocked()) return;
+    const all = document.querySelectorAll('section, div, article, aside');
+    all.forEach((el) => {
+      if (!looksLikeAdminPanel(el)) return;
+      if (el.closest('.ft-admin-allow')) return;
+      el.style.display = 'none';
+    });
+  }
+
+  function hideOverlays() {
+    const selectors = [
+      '.fot-ai-version-footer',
+      '.ft-version-footer',
+      '.ft-version-pill',
+      '.version-pill',
+      '.version-badge',
+      '.app-version',
+      '[data-version-badge]',
+      '[data-app-version]',
+      '.ft-floating-balance',
+      '.floating-balance',
+      '.balance-floating',
+      '[data-floating-balance]',
+      '[data-balance-chip-floating]',
+      '.ft-sticky-balance',
+      '.ft-balance-chip--floating'
+    ];
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+      });
+    });
+  }
+
+  function run() {
+    setLockedState();
+    protectAdminEntries();
+    hideAdminPanelsWhenLocked();
+    hideOverlays();
+  }
+
+  document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('load', run);
+  window.addEventListener('resize', run);
+
+  const mo = new MutationObserver(run);
+  mo.observe(document.documentElement, { childList: true, subtree: true });
+
+  run();
+})();
+/* CHATGPT_SAFE_MOBILE_CLEANUP_20260611_END */
+

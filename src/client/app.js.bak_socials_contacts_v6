@@ -856,7 +856,7 @@ try {
 
     return `
       <section class="ft-card">
-        ${cardHeader('FT', 'FOT AI', 'Контакты и аренда по Краснодарскому краю.')}
+        ${cardHeader('FT', 'FOT AI', 'Поддержка, соцсети и пополнение баланса.')}
 
         <div class="ft-social-grid">
           ${links
@@ -1857,3 +1857,672 @@ try {
 
   init();
 })();
+
+/* FT_V16_POLISH_START */
+(() => {
+  const FT_VERSION = "fototime-prod-20260611-131500-v26-stable-final-fixed";
+  window.FOTOTIME_DEPLOY_VERSION = FT_VERSION;
+  console.info("[FOTOTIME DEPLOY VERSION]", FT_VERSION);
+
+  const LINKS = {
+    telegram: "https://t.me/fototime323",
+    vk: "https://vk.com/fototime323",
+    max: "https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U",
+    site: "https://fototime323.lpmotortest.com",
+    avito: ""
+  };
+
+  const SOCIAL_META = {
+    telegram: { label: "Telegram", icon: "✈" },
+    vk: { label: "VK", icon: "VK" },
+    max: { label: "MAX", icon: "M" },
+    site: { label: "Сайт", icon: "⌂" },
+    avito: { label: "Avito", icon: "A" }
+  };
+
+  function q(sel, root = document) {
+    return root.querySelector(sel);
+  }
+
+  function qa(sel, root = document) {
+    return Array.from(root.querySelectorAll(sel));
+  }
+
+  function textIncludes(el, text) {
+    return el && (el.textContent || "").toLowerCase().includes(String(text).toLowerCase());
+  }
+
+  function normalizeCurrencyText(root = document.body) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      let value = node.nodeValue;
+      if (!value) return;
+
+      value = value
+        .replace(/\bтокенов\b/gi, "кредитов")
+        .replace(/\bтокена\b/gi, "кредита")
+        .replace(/\bтокен\b/gi, "кредит")
+        .replace(/\bтокены\b/gi, "кредиты")
+        .replace(/\bкр\.\b/gi, "кредитов");
+
+      if (node.nodeValue !== value) node.nodeValue = value;
+    });
+  }
+
+  function fixGenerationEnoughText() {
+    qa("*").forEach((el) => {
+      if (el.childElementCount > 0) return;
+      const t = (el.textContent || "").trim();
+      if (t === "Хватит примерно") el.textContent = "Хватит на";
+      if (t === "генерация") el.textContent = "генерацию";
+      if (t === "генерации") el.textContent = "генераций";
+    });
+  }
+
+  function findProfileRoot() {
+    const headings = qa("h1,h2,h3,strong,b,div,section").filter((el) =>
+      textIncludes(el, "личный кабинет") || textIncludes(el, "пакеты кредитов") || textIncludes(el, "мои сгенерированные")
+    );
+    if (!headings.length) return null;
+    return headings[0].closest("section, article, main, .card, .ft-profile-card, .page, #app") || document.body;
+  }
+
+  function addVersionCard() {
+    if (q("#ftVersionCard")) return;
+
+    const profileRoot = findProfileRoot();
+    if (!profileRoot || !textIncludes(document.body, "личный кабинет")) return;
+
+    const card = document.createElement("section");
+    card.id = "ftVersionCard";
+    card.className = "ft-version-card";
+    card.innerHTML = `
+      <strong>Версия приложения</strong>
+      <span>Публичная сборка FOT AI.</span>
+      <code>${FT_VERSION}</code>
+    `;
+
+    const nav = qa("button,a").find((el) => (el.textContent || "").trim() === "Админ");
+    const navRoot = nav ? nav.closest("nav, .bottom-nav, .tabs") : null;
+
+    if (navRoot && navRoot.parentElement) {
+      navRoot.parentElement.insertBefore(card, navRoot);
+    } else {
+      profileRoot.appendChild(card);
+    }
+  }
+
+  function enhanceSupportLinks() {
+    const candidates = qa("section,article,div").filter((el) =>
+      textIncludes(el, "fototime323") &&
+      (textIncludes(el, "поддержка") || textIncludes(el, "соцсети") || textIncludes(el, "пополнение"))
+    );
+
+    const card = candidates[candidates.length - 1];
+    if (!card || card.dataset.ftSocialEnhanced === "1") return;
+
+    const existingButtons = qa("a,button", card);
+    const labels = existingButtons.map((el) => (el.textContent || "").trim().toLowerCase());
+
+    const container = document.createElement("div");
+    container.className = "ft-social-grid ft-support-links";
+
+    const order = ["telegram", "vk", "max", "site", "avito"];
+    order.forEach((key) => {
+      const meta = SOCIAL_META[key];
+      const existing = existingButtons.find((el) => (el.textContent || "").toLowerCase().includes(meta.label.toLowerCase()));
+
+      let el = existing || document.createElement(LINKS[key] ? "a" : "button");
+      el.className = "ft-social-btn";
+      el.dataset.social = key;
+
+      if (LINKS[key]) {
+        el.setAttribute("href", LINKS[key]);
+        el.setAttribute("target", "_blank");
+        el.setAttribute("rel", "noopener noreferrer");
+      } else {
+        el.setAttribute("type", "button");
+        el.disabled = key === "avito";
+        el.title = key === "avito" ? "Добавим ссылку Avito после проверки профиля" : "";
+      }
+
+      el.innerHTML = `
+        <span class="ft-social-icon">${meta.icon}</span>
+        <span>${meta.label}</span>
+        <span class="ft-social-arrow">↗</span>
+      `;
+
+      container.appendChild(el);
+    });
+
+    existingButtons.forEach((el) => el.remove());
+    card.appendChild(container);
+    card.dataset.ftSocialEnhanced = "1";
+  }
+
+  function enhanceGeneratedCards() {
+    const blocks = qa("section,article,div").filter((el) =>
+      textIncludes(el, "мои сгенерированные фото") || textIncludes(el, "ai-фото") || textIncludes(el, "скачать")
+    );
+
+    blocks.forEach((block) => {
+      qa("img", block).forEach((img) => {
+        const card = img.closest("article, .card, div");
+        if (!card || card.dataset.ftGeneratedEnhanced === "1") return;
+
+        const src = img.currentSrc || img.src;
+        if (!src) return;
+
+        const cost = card.dataset.cost || "40";
+        const badge = document.createElement("div");
+        badge.className = "ft-cost-badge";
+        badge.textContent = `Списано: ${cost} кредитов`;
+
+        const actions = document.createElement("div");
+        actions.className = "ft-generated-actions";
+
+        const download = document.createElement("a");
+        download.href = src;
+        download.download = "";
+        download.textContent = "Скачать";
+
+        const share = document.createElement("button");
+        share.type = "button";
+        share.textContent = "Поделиться";
+        share.addEventListener("click", async () => {
+          try {
+            if (navigator.share) {
+              await navigator.share({ title: "FOT AI", text: "Моё AI-фото", url: src });
+            } else {
+              await navigator.clipboard.writeText(src);
+              window.ftToast?.("Ссылка скопирована") || alert("Ссылка скопирована");
+            }
+          } catch (_) {}
+        });
+
+        actions.append(download, share);
+
+        if (!card.querySelector(".ft-cost-badge")) card.appendChild(badge);
+        if (!card.querySelector(".ft-generated-actions")) card.appendChild(actions);
+        card.dataset.ftGeneratedEnhanced = "1";
+      });
+    });
+  }
+
+  function addNotificationHelper() {
+    if (!q("#ftNotificationDot")) {
+      const btn = document.createElement("button");
+      btn.id = "ftNotificationDot";
+      btn.className = "ft-notification-dot";
+      btn.type = "button";
+      btn.dataset.count = "1";
+      btn.textContent = "i";
+      btn.addEventListener("click", () => {
+        const existing = q(".ft-notifications-modal, #ftNotificationsModal, [data-notifications-modal]");
+        if (existing) {
+          existing.style.display = "";
+          existing.classList.add("is-open");
+          existing.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          alert("Уведомления: сервис настраивается. Мы улучшаем приложение и будем благодарны за обратную связь в личном кабинете.");
+        }
+        btn.dataset.count = "0";
+      });
+      document.body.appendChild(btn);
+    }
+
+    if (!q("#ftHelperBubble")) {
+      const bubble = document.createElement("div");
+      bubble.id = "ftHelperBubble";
+      bubble.className = "ft-helper-bubble";
+      bubble.textContent = "Шаги простые: выберите участника, стиль, загрузите фото и нажмите «Создать AI-фото».";
+      document.body.appendChild(bubble);
+
+      setTimeout(() => bubble.classList.add("is-visible"), 900);
+      setTimeout(() => bubble.classList.remove("is-visible"), 6500);
+    }
+  }
+
+  function enhanceAdminUsers() {
+    const adminRoot = qa("section,article,div").find((el) =>
+      textIncludes(el, "админ-консоль") || textIncludes(el, "пользователи")
+    );
+
+    if (!adminRoot) return;
+
+    qa("input[type='number']", adminRoot).forEach((input) => {
+      const row = input.closest("section,article,div");
+      if (!row || row.dataset.ftTopupEnhanced === "1") return;
+
+      const actions = document.createElement("div");
+      actions.className = "ft-admin-user-actions";
+
+      [50, 120, 300, 700].forEach((amount) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = `+${amount}`;
+        b.addEventListener("click", () => {
+          const current = Number(input.value || 0);
+          input.value = String(current + amount);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        actions.appendChild(b);
+      });
+
+      const custom = document.createElement("input");
+      custom.type = "number";
+      custom.placeholder = "сумма";
+      custom.min = "0";
+
+      const add = document.createElement("button");
+      add.type = "button";
+      add.textContent = "Добавить";
+      add.addEventListener("click", () => {
+        const value = Number(custom.value || 0);
+        if (!value) return;
+        input.value = String(Number(input.value || 0) + value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+
+      actions.append(custom, add);
+      row.appendChild(actions);
+      row.dataset.ftTopupEnhanced = "1";
+    });
+  }
+
+  function retryBrokenFototimeImages() {
+    qa("img").forEach((img) => {
+      if (img.dataset.ftImageRetryBound === "1") return;
+      img.dataset.ftImageRetryBound = "1";
+
+      img.addEventListener("error", () => {
+        if (img.dataset.ftRetried === "1") return;
+
+        const src = img.getAttribute("src") || "";
+        const match = src.match(/\/(uploads|results)\/fototime\/([^?#]+)/);
+        if (!match) return;
+
+        img.dataset.ftRetried = "1";
+        img.src = `/api/fototime/file/${match[1]}/${encodeURIComponent(match[2])}`;
+      });
+    });
+  }
+
+  function markUnreadCards() {
+    qa("section,article,div").forEach((el) => {
+      const t = el.textContent || "";
+      if (/\bNEW\b|нов(ое|ых|ый)/i.test(t)) {
+        el.classList.add("ft-unread-card");
+      }
+    });
+  }
+
+  async function init() {
+    setTheme(state.theme);
+    await loadState();
+    render();
+    bindEvents();
+  }
+
+  init();
+})();
+
+
+/* FT_SOCIALS_CONTACTS_V5_START */
+(() => {
+  if (window.__FT_SOCIALS_CONTACTS_V5__) return;
+  window.__FT_SOCIALS_CONTACTS_V5__ = true;
+
+  const LINKS = [
+    { key: 'telegram', label: 'Telegram', href: 'https://t.me/fototime323', icon: 'telegram' },
+    { key: 'vk',       label: 'VK',       href: 'https://vk.com/fototime323', icon: 'vk' },
+    { key: 'max',      label: 'MAX',      href: 'https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U', icon: 'max' },
+    { key: 'site',     label: 'Сайт',     href: 'https://fototime323.lpmotortest.com', icon: 'site' },
+    { key: 'avito',    label: 'Avito',    href: 'https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a', icon: 'avito' }
+  ];
+
+  function getText(el) {
+    return String(el?.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function injectStyles() {
+    if (document.getElementById('ft-socials-v5-style')) return;
+
+    const style = document.createElement('style');
+    style.id = 'ft-socials-v5-style';
+    style.textContent = `
+      .ft-socials-v5-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .ft-socials-v5-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        width: 100%;
+        min-height: 78px;
+        padding: 16px 18px;
+        border-radius: 22px;
+        text-decoration: none;
+        color: inherit;
+        overflow: hidden;
+        border: 1px solid rgba(190,255,110,.18);
+        background:
+          linear-gradient(135deg, rgba(219,255,38,.11) 0%, rgba(92,230,211,.10) 100%),
+          rgba(255,255,255,.045);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.05),
+          0 0 0 1px rgba(190,255,110,.03);
+        transition:
+          background-color .18s ease,
+          border-color .18s ease,
+          box-shadow .18s ease,
+          opacity .18s ease;
+        transform: none !important;
+        will-change: auto;
+        backface-visibility: hidden;
+      }
+
+      .ft-socials-v5-card::before {
+        content: '';
+        position: absolute;
+        inset: -30%;
+        background: radial-gradient(circle at 20% 30%, rgba(214,255,52,.18), transparent 35%),
+                    radial-gradient(circle at 80% 70%, rgba(95,226,255,.15), transparent 32%);
+        opacity: .7;
+        pointer-events: none;
+        animation: ftSocialsGlow 5.4s ease-in-out infinite;
+      }
+
+      .ft-socials-v5-card:hover,
+      .ft-socials-v5-card:focus,
+      .ft-socials-v5-card:active {
+        transform: none !important;
+        border-color: rgba(190,255,110,.34);
+        background:
+          linear-gradient(135deg, rgba(219,255,38,.14) 0%, rgba(92,230,211,.13) 100%),
+          rgba(255,255,255,.06);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.06),
+          0 0 0 1px rgba(190,255,110,.08),
+          0 10px 30px rgba(0,0,0,.08);
+      }
+
+      .ft-socials-v5-left,
+      .ft-socials-v5-arrow {
+        position: relative;
+        z-index: 1;
+      }
+
+      .ft-socials-v5-left {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .ft-socials-v5-icon-wrap {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #f3fff3;
+        background:
+          linear-gradient(135deg, rgba(214,255,52,.18) 0%, rgba(92,230,211,.16) 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.06),
+          0 0 0 1px rgba(190,255,110,.06);
+      }
+
+      .ft-socials-v5-icon-wrap svg {
+        width: 32px;
+        height: 32px;
+        display: block;
+      }
+
+      .ft-socials-v5-label {
+        font-size: 18px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+      }
+
+      .ft-socials-v5-arrow {
+        font-size: 24px;
+        line-height: 1;
+        font-weight: 900;
+        opacity: .96;
+        min-width: 20px;
+        text-align: right;
+      }
+
+      .ft-socials-v5-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        margin-top: 10px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: .02em;
+        border: 1px solid rgba(190,255,110,.18);
+        background: rgba(255,255,255,.04);
+        color: inherit;
+      }
+
+      @keyframes ftSocialsGlow {
+        0%, 100% { transform: translate3d(0,0,0) scale(1); opacity: .64; }
+        50% { transform: translate3d(1.5%, -1.5%, 0) scale(1.03); opacity: .92; }
+      }
+
+      @media (min-width: 820px) {
+        .ft-socials-v5-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function iconSvg(kind) {
+    if (kind === 'telegram') {
+      return `
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M28 16c0 6.627-5.373 12-12 12S4 22.627 4 16 9.373 4 16 4s12 5.373 12 12Z" fill="currentColor" opacity=".18"/>
+          <path d="M24.15 10.1 10.35 15.38c-.9.34-.87 1.58.04 1.87l3.57 1.09 1.27 3.92c.3.94 1.5 1.14 2.1.35l2.11-2.81 3.71 2.73c.69.51 1.66.17 1.88-.66l2.49-11.3c.24-1.05-.74-1.88-1.73-1.47Z" fill="currentColor"/>
+        </svg>
+      `;
+    }
+
+    if (kind === 'vk') {
+      return `
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M28 16c0 6.627-5.373 12-12 12S4 22.627 4 16 9.373 4 16 4s12 5.373 12 12Z" fill="currentColor" opacity=".18"/>
+          <path d="M9.1 10.6c.17 5.4 2.82 8.58 7.61 8.58h.26V16.2c1.67.18 2.77 1.1 3.36 2.98h2.5c-.72-2.45-2.37-3.87-3.54-4.42 1.11-.67 2.47-2.23 2.95-4.18h-2.27c-.55 1.5-1.8 2.92-2.77 3.1V10.6h-2.49v5.25c-1.19-.29-2.87-1.81-3.36-5.25H9.1Z" fill="currentColor"/>
+        </svg>
+      `;
+    }
+
+    if (kind === 'max') {
+      return `
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M28 16c0 6.627-5.373 12-12 12S4 22.627 4 16 9.373 4 16 4s12 5.373 12 12Z" fill="currentColor" opacity=".18"/>
+          <path d="M8.9 22.2V9.8h2.95L16 15.34l4.14-5.54H23v12.4h-2.85v-7.35L16 20.18l-4.15-5.33v7.35H8.9Z" fill="currentColor"/>
+        </svg>
+      `;
+    }
+
+    if (kind === 'site') {
+      return `
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 3.9c6.68 0 12.1 5.42 12.1 12.1S22.68 28.1 16 28.1 3.9 22.68 3.9 16 9.32 3.9 16 3.9Z" stroke="currentColor" stroke-width="2.15" opacity=".96"/>
+          <path d="M10.6 19.4h10.8a1.5 1.5 0 0 0 1.5-1.5v-5.5a1.5 1.5 0 0 0-1.5-1.5H10.6a1.5 1.5 0 0 0-1.5 1.5v5.5a1.5 1.5 0 0 0 1.5 1.5Z" stroke="currentColor" stroke-width="2.15" stroke-linejoin="round"/>
+          <circle cx="16" cy="15.1" r="3.45" stroke="currentColor" stroke-width="2.15"/>
+          <path d="M8 12.1c1.78-.12 2.85-.87 3.86-2.76M24 12.1c-1.78-.12-2.85-.87-3.86-2.76" stroke="currentColor" stroke-width="2.15" stroke-linecap="round"/>
+          <path d="M11.2 23h9.6" stroke="currentColor" stroke-width="2.15" stroke-linecap="round"/>
+        </svg>
+      `;
+    }
+
+    if (kind === 'avito') {
+      return `
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="11" cy="16" r="3.6" fill="#78E24A"/>
+          <circle cx="17.1" cy="10.7" r="3.6" fill="#5F89FF"/>
+          <circle cx="17.3" cy="21.3" r="3.6" fill="#FF4964"/>
+          <circle cx="22.7" cy="16" r="3.6" fill="#A864FF"/>
+        </svg>
+      `;
+    }
+
+    return `
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="16" cy="16" r="12" fill="currentColor" opacity=".18"/>
+      </svg>
+    `;
+  }
+
+  function buildCard(item) {
+    const a = document.createElement('a');
+    a.className = 'ft-socials-v5-card';
+    a.href = item.href;
+    a.target = '_blank';
+    a.rel = 'noreferrer noopener';
+    a.dataset.ftSocialKey = item.key;
+    a.innerHTML = `
+      <span class="ft-socials-v5-left">
+        <span class="ft-socials-v5-icon-wrap">${iconSvg(item.icon)}</span>
+        <span class="ft-socials-v5-label">${item.label}</span>
+      </span>
+      <span class="ft-socials-v5-arrow">↗</span>
+    `;
+    return a;
+  }
+
+  function findContactCard() {
+    const nodes = Array.from(document.querySelectorAll('section, article, div'));
+    return nodes.find((el) => {
+      const t = getText(el);
+      return t.includes('FOT AI') && (t.includes('Поддержка, соцсети и пополнение баланса') || t.includes('Telegram') || t.includes('VK') || t.includes('MAX') || t.includes('Сайт'));
+    });
+  }
+
+  function cleanupOld(card) {
+    card.querySelectorAll('.ft-socials-v2-grid, .ft-socials-v4-grid, .ft-socials-v5-grid').forEach((el) => el.remove());
+
+    card.querySelectorAll('[data-ft-social-key]').forEach((el) => el.remove());
+
+    card.querySelectorAll('a[href*="avito.ru"], a[href*="vk.com/fototime323"], a[href*="t.me/fototime323"], a[href*="max.ru/join"], a[href*="fototime323.lpmotortest.com"]').forEach((el) => {
+      if (!el.classList.contains('ft-socials-v5-card')) el.remove();
+    });
+
+    card.querySelectorAll('div,span,p').forEach((el) => {
+      const t = getText(el);
+      if (
+        t === 'Поддержка, соцсети и пополнение баланса.' ||
+        t === 'Поддержка, соцсети и пополнение баланса' ||
+        t === 'TelegramVKMAXСайт' ||
+        t === 'TelegramVKMAXСайтAvito'
+      ) {
+        el.remove();
+      }
+    });
+  }
+
+  function hasValidGrid(card) {
+    const grid = card.querySelector('.ft-socials-v5-grid');
+    if (!grid) return false;
+
+    const cards = Array.from(grid.querySelectorAll('.ft-socials-v5-card'));
+    if (cards.length !== LINKS.length) return false;
+
+    const labels = cards.map((x) => getText(x.querySelector('.ft-socials-v5-label')));
+    return JSON.stringify(labels) === JSON.stringify(LINKS.map((x) => x.label));
+  }
+
+  function ensureBadge(card) {
+    if (card.querySelector('.ft-socials-v5-badge')) return;
+
+    const badge = document.createElement('div');
+    badge.className = 'ft-socials-v5-badge';
+    badge.textContent = 'Контакты и аренда по Краснодарскому краю';
+
+    const titleHolder = Array.from(card.querySelectorAll('div,h2,h3,p,span')).find((el) => getText(el) === 'FOT AI');
+    if (titleHolder && titleHolder.parentElement) {
+      titleHolder.parentElement.insertAdjacentElement('afterend', badge);
+    } else {
+      card.prepend(badge);
+    }
+  }
+
+  function renderContacts() {
+    injectStyles();
+
+    const card = findContactCard();
+    if (!card) return;
+
+    if (hasValidGrid(card)) {
+      ensureBadge(card);
+      return;
+    }
+
+    cleanupOld(card);
+
+    const grid = document.createElement('div');
+    grid.className = 'ft-socials-v5-grid';
+    LINKS.forEach((item) => grid.appendChild(buildCard(item)));
+
+    const badgeAnchor = card.querySelector('.ft-socials-v5-badge');
+    if (badgeAnchor) {
+      badgeAnchor.insertAdjacentElement('afterend', grid);
+    } else {
+      card.appendChild(grid);
+    }
+
+    ensureBadge(card);
+  }
+
+  let scheduled = false;
+  function scheduleRender() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      renderContacts();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleRender);
+  } else {
+    scheduleRender();
+  }
+
+  window.addEventListener('load', scheduleRender);
+  window.addEventListener('hashchange', scheduleRender);
+
+  const observer = new MutationObserver(() => {
+    const card = findContactCard();
+    if (!card) return;
+    if (!hasValidGrid(card)) scheduleRender();
+  });
+
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+})();
+/* FT_SOCIALS_CONTACTS_V5_END */
+

@@ -57,10 +57,8 @@ window.addEventListener("DOMContentLoaded", () => {
     participant: 'male',
     styleFilter: 'Все',
     search: '',
-    view: localStorage.getItem('fototime-view-v14') || 'grid',
-    perPage: [6, 9, 12].includes(Number(localStorage.getItem('fototime-per-page-v14')))
-      ? Number(localStorage.getItem('fototime-per-page-v14'))
-      : 6,
+    view: 'grid',
+    perPage: Number(localStorage.getItem('fototime-per-page-v14') || 12),
     pageIndex: 0,
     file: null,
     filePreview: '',
@@ -215,140 +213,11 @@ window.addEventListener("DOMContentLoaded", () => {
     if (Array.isArray(data.notifications)) state.notifications = data.notifications;
   }
 
-  async function ftEnsureFullCatalog() {
-    try {
-      const res = await fetch('https://api.cyberphotobooth.ru/api/public/styles', {
-        headers: { Accept: 'application/json' },
-        cache: 'no-store'
-      });
-
-      const data = await res.json().catch(() => []);
-      const raw = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.styles)
-          ? data.styles
-          : Array.isArray(data?.items)
-            ? data.items
-            : Array.isArray(data?.data?.styles)
-              ? data.data.styles
-              : [];
-
-      const fullCatalog = raw
-        .map((style, index) => {
-          const title =
-            style?.display_name_ru ||
-            style?.display_name_en ||
-            style?.name ||
-            style?.title ||
-            '';
-
-          const modeRaw = String(
-            style?.styleMode ||
-            style?.mode ||
-            style?.network ||
-            style?.model ||
-            style?.provider ||
-            style?.type ||
-            ''
-          ).toLowerCase();
-
-          let provider = 'Другое';
-          let mode = modeRaw || 'other';
-
-          if (modeRaw.includes('nano banana 2') || modeRaw.includes('nano-banana2')) {
-            provider = 'Nano Banana 2';
-            mode = 'nano-banana-2';
-          } else if (modeRaw.includes('nano banana') || modeRaw.includes('nano-banana')) {
-            provider = 'Nano Banana';
-            mode = 'nano-banana';
-          } else if (modeRaw.includes('flux.2') || modeRaw.includes('flux2') || modeRaw.includes('edit2')) {
-            provider = 'FLUX.2';
-            mode = 'flux-2';
-          } else if (modeRaw.includes('headswap') || modeRaw.includes('замена')) {
-            provider = 'Замена Головы';
-            mode = 'headswap';
-          } else if (modeRaw.includes('sdxl') || modeRaw.includes('style_sdxl_zero')) {
-            provider = 'SDXL';
-            mode = 'sdxl';
-          }
-
-          return {
-            id: String(style?.id || style?.style_id || style?.name || `public-${index}`),
-            title,
-            provider,
-            preview:
-              style?.preview_url_female ||
-              style?.preview_url_male ||
-              style?.preview_url ||
-              '',
-            mode
-          };
-        })
-        .filter((style) => style.id && style.title);
-
-      if (fullCatalog.length > (Array.isArray(state.styles) ? state.styles.length : 0)) {
-        state.styles = fullCatalog;
-        state.pageIndex = 0;
-
-        await audit('Полный каталог стилей загружен', {
-          oldCount: Array.isArray(state.styles) ? state.styles.length : 0,
-          newCount: fullCatalog.length
-        });
-      }
-    } catch (error) {
-      console.error('[FOTOTIME] full catalog fetch failed', error);
-    }
-  }
-
-  async function ftLoadFullStylesFromApi() {
-    try {
-      const payload = await apiGet('/styles');
-      const styles = Array.isArray(payload?.styles)
-        ? payload.styles
-        : Array.isArray(payload?.items)
-          ? payload.items
-          : [];
-
-      if (styles.length) {
-        state.styles = styles;
-        state.pageIndex = 0;
-      }
-
-      await audit('Принудительно загружен полный каталог стилей', {
-        styles: styles.length,
-        source: payload?.source || 'api/fototime/styles'
-      });
-    } catch (error) {
-      console.error('[FOTOTIME] ftLoadFullStylesFromApi failed', error);
-      await audit(
-        'Ошибка принудительной загрузки полного каталога',
-        { message: error.message },
-        'error',
-        'styles_force_error'
-      );
-    }
-  }
-
   async function loadState() {
     try {
       const data = await apiGet('/state');
+
       syncFromServer(data);
-      await ftLoadFullStylesFromApi();
-
-await ftEnsureFullCatalog();
-try {
-        const stylesData = await apiGet('/styles');
-        const fullStyles =
-          Array.isArray(stylesData?.styles) ? stylesData.styles :
-          Array.isArray(stylesData?.items) ? stylesData.items :
-          [];
-
-        if (fullStyles.length) {
-          state.styles = fullStyles;
-        }
-      } catch (stylesError) {
-        console.warn('[FOTOTIME] styles route failed, keep /state styles', stylesError);
-      }
 
       await audit('Состояние приложения загружено', {
         balance: state.balance,
@@ -365,9 +234,8 @@ try {
       );
 
       state.styles = fallbackStyles();
-    
-      await ftLoadFullStylesFromApi();
-}
+
+    }
   }
 
   function fallbackStyles() {
@@ -403,25 +271,18 @@ try {
 
   function pageStyles() {
     const list = filteredStyles();
-
-    const gridPer = [6, 9, 12].includes(Number(state.perPage))
-      ? Number(state.perPage)
-      : 6;
-
-    const per = state.view === 'carousel' ? 3 : gridPer;
+    const per = Math.max(6, Math.min(12, Number(state.perPage) || 12));
     const maxPage = Math.max(0, Math.ceil(list.length / per) - 1);
 
     if (state.pageIndex > maxPage) state.pageIndex = maxPage;
-    if (state.pageIndex < 0) state.pageIndex = 0;
 
     const start = state.pageIndex * per;
-    const end = Math.min(start + per, list.length);
 
     return {
       list,
-      items: list.slice(start, end),
+      items: list.slice(start, start + per),
       start,
-      end,
+      end: Math.min(start + per, list.length),
       per,
       maxPage,
     };
@@ -476,38 +337,15 @@ try {
     const unread = state.notifications.filter((n) => n.unread).length;
 
     return `
-      <div class="ft-topbar ft-topbar-v2">
-        <button class="ft-balance-pill ft-balance-pill-v2" data-action="refresh-balance" type="button" title="Обновить баланс">
-          <span class="ft-token-icon ft-token-icon-v2" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <defs>
-                <linearGradient id="ftTopBarMarkGradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#baff14"></stop>
-                  <stop offset="100%" stop-color="#5ee7d0"></stop>
-                </linearGradient>
-              </defs>
-              <rect x="4" y="4" width="16" height="16" rx="4.5" fill="url(#ftTopBarMarkGradient)"></rect>
-              <path d="M8 12h8M12 8v8" stroke="#18342f" stroke-width="2.1" stroke-linecap="round"></path>
-              <circle cx="12" cy="12" r="2.1" fill="#18342f"></circle>
-            </svg>
-          </span>
-
-          <span class="ft-balance-copy">
-            <span class="ft-balance-label">Баланс</span>
-            <span class="ft-balance-value"><b>${state.balance}</b> <span>кредитов</span></span>
-          </span>
-
-          <span class="ft-refresh-icon ft-refresh-icon-v2" aria-hidden="true">↻</span>
+      <div class="ft-topbar">
+        <button class="ft-balance-pill" data-action="refresh-balance" type="button" title="Обновить баланс">
+          <span class="ft-token-icon">FT</span>
+          <span>Баланс</span>
+          <b>${state.balance}</b>
+          <span>кредитов</span>
+          <span class="ft-refresh-icon">↻</span>
         </button>
-
-        <button class="ft-bell-pill" data-action="show-notifications" type="button" title="Уведомления" aria-label="Уведомления">
-          <span class="ft-bell-icon" aria-hidden="true">🔔</span>
-          ${unread ? `<span class="ft-bell-count">${unread}</span>` : ``}
-        </button>
-
-        <button class="ft-notify-pill ft-notify-pill-v2" data-action="show-notifications" type="button" title="Новые уведомления">
-          ${unread ? `+${unread}` : '+0'}
-        </button>
+        <button class="ft-notify-pill" data-action="show-notifications" type="button">${unread ? `+${unread}` : '0'}</button>
       </div>
     `;
   }
@@ -517,6 +355,7 @@ try {
       <header class="ft-hero">
         <div class="ft-hero-row">
           <span class="ft-brand">FOT AI</span>
+          <span class="ft-active">ACTIVE EVENT</span>
         </div>
 
         <label class="ft-theme-label">
@@ -528,7 +367,7 @@ try {
           </select>
         </label>
 
-        <h1>FOT AI</h1>
+        <h1>FOTOTIME AI</h1>
         <p>Выберите участника, стиль обработки и загрузите фото. Приложение покажет только стили, доступные для текущего режима.</p>
       </header>
     `;
@@ -660,7 +499,7 @@ try {
     return `
       <div class="ft-filter-box">
         <div class="ft-search-row">
-          <span class="ft-search-icon" aria-hidden="true">⌕</span>
+          <span>⌕</span>
           <input
             id="ft-style-search"
             data-action="search"
@@ -1767,7 +1606,7 @@ try {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'FOT AI',
+          title: 'FOTOTIME AI',
           url: full,
         });
       } else {
@@ -1857,3 +1696,1317 @@ try {
 
   init();
 })();
+
+/* FT_V16_POLISH_START */
+(() => {
+  const FT_VERSION = "fototime-prod-20260611-131500-v26-stable-final-fixed";
+  window.FOTOTIME_DEPLOY_VERSION = FT_VERSION;
+  console.info("[FOTOTIME DEPLOY VERSION]", FT_VERSION);
+
+  const LINKS = {
+    telegram: "https://t.me/fototime323",
+    vk: "https://vk.com/fototime323",
+    max: "https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U",
+    site: "https://fototime323.lpmotortest.com",
+    avito: "https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a",
+    avito: "https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a",
+    avito: ""
+  };
+
+  const SOCIAL_META = {
+    telegram: { label: "Telegram", icon: "✈" },
+    vk: { label: "VK", icon: "VK" },
+    max: { label: "MAX", icon: "M" },
+    site: { label: "Сайт", icon: "⌂" },
+    avito: { label: "Avito", icon: "A" },
+    avito: { label: "Avito", icon: "A" },
+    avito: { label: "Avito", icon: "A" }
+  };
+
+  function q(sel, root = document) {
+    return root.querySelector(sel);
+  }
+
+  function qa(sel, root = document) {
+    return Array.from(root.querySelectorAll(sel));
+  }
+
+  function textIncludes(el, text) {
+    return el && (el.textContent || "").toLowerCase().includes(String(text).toLowerCase());
+  }
+
+  function normalizeCurrencyText(root = document.body) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      let value = node.nodeValue;
+      if (!value) return;
+
+      value = value
+        .replace(/\bтокенов\b/gi, "кредитов")
+        .replace(/\bтокена\b/gi, "кредита")
+        .replace(/\bтокен\b/gi, "кредит")
+        .replace(/\bтокены\b/gi, "кредиты")
+        .replace(/\bкр\.\b/gi, "кредитов");
+
+      if (node.nodeValue !== value) node.nodeValue = value;
+    });
+  }
+
+  function fixGenerationEnoughText() {
+    qa("*").forEach((el) => {
+      if (el.childElementCount > 0) return;
+      const t = (el.textContent || "").trim();
+      if (t === "Хватит примерно") el.textContent = "Хватит на";
+      if (t === "генерация") el.textContent = "генерацию";
+      if (t === "генерации") el.textContent = "генераций";
+    });
+  }
+
+  function findProfileRoot() {
+    const headings = qa("h1,h2,h3,strong,b,div,section").filter((el) =>
+      textIncludes(el, "личный кабинет") || textIncludes(el, "пакеты кредитов") || textIncludes(el, "мои сгенерированные")
+    );
+    if (!headings.length) return null;
+    return headings[0].closest("section, article, main, .card, .ft-profile-card, .page, #app") || document.body;
+  }
+
+  function addVersionCard() {
+    if (q("#ftVersionCard")) return;
+
+    const profileRoot = findProfileRoot();
+    if (!profileRoot || !textIncludes(document.body, "личный кабинет")) return;
+
+    const card = document.createElement("section");
+    card.id = "ftVersionCard";
+    card.className = "ft-version-card";
+    card.innerHTML = `
+      <strong>Версия приложения</strong>
+      <span>Публичная сборка FOT AI.</span>
+      <code>${FT_VERSION}</code>
+    `;
+
+    const nav = qa("button,a").find((el) => (el.textContent || "").trim() === "Админ");
+    const navRoot = nav ? nav.closest("nav, .bottom-nav, .tabs") : null;
+
+    if (navRoot && navRoot.parentElement) {
+      navRoot.parentElement.insertBefore(card, navRoot);
+    } else {
+      profileRoot.appendChild(card);
+    }
+  }
+
+  function enhanceSupportLinks() {
+    const candidates = qa("section,article,div").filter((el) =>
+      textIncludes(el, "fototime323") &&
+      (textIncludes(el, "поддержка") || textIncludes(el, "соцсети") || textIncludes(el, "пополнение"))
+    );
+
+    const card = candidates[candidates.length - 1];
+    if (!card || card.dataset.ftSocialEnhanced === "1") return;
+
+    const existingButtons = qa("a,button", card);
+    const labels = existingButtons.map((el) => (el.textContent || "").trim().toLowerCase());
+
+    const container = document.createElement("div");
+    container.className = "ft-social-grid ft-support-links";
+
+    const order = ["telegram", "vk", "max", "site", "avito"];
+    order.forEach((key) => {
+      const meta = SOCIAL_META[key];
+      const existing = existingButtons.find((el) => (el.textContent || "").toLowerCase().includes(meta.label.toLowerCase()));
+
+      let el = existing || document.createElement(LINKS[key] ? "a" : "button");
+      el.className = "ft-social-btn";
+      el.dataset.social = key;
+
+      if (LINKS[key]) {
+        el.setAttribute("href", LINKS[key]);
+        el.setAttribute("target", "_blank");
+        el.setAttribute("rel", "noopener noreferrer");
+      } else {
+        el.setAttribute("type", "button");
+        el.disabled = key === "avito";
+        el.title = key === "avito" ? "Добавим ссылку Avito после проверки профиля" : "";
+      }
+
+      el.innerHTML = `
+        <span class="ft-social-icon">${meta.icon}</span>
+        <span>${meta.label}</span>
+        <span class="ft-social-arrow">↗</span>
+      `;
+
+      container.appendChild(el);
+    });
+
+    existingButtons.forEach((el) => el.remove());
+    card.appendChild(container);
+    card.dataset.ftSocialEnhanced = "1";
+  }
+
+  function enhanceGeneratedCards() {
+    const blocks = qa("section,article,div").filter((el) =>
+      textIncludes(el, "мои сгенерированные фото") || textIncludes(el, "ai-фото") || textIncludes(el, "скачать")
+    );
+
+    blocks.forEach((block) => {
+      qa("img", block).forEach((img) => {
+        const card = img.closest("article, .card, div");
+        if (!card || card.dataset.ftGeneratedEnhanced === "1") return;
+
+        const src = img.currentSrc || img.src;
+        if (!src) return;
+
+        const cost = card.dataset.cost || "40";
+        const badge = document.createElement("div");
+        badge.className = "ft-cost-badge";
+        badge.textContent = `Списано: ${cost} кредитов`;
+
+        const actions = document.createElement("div");
+        actions.className = "ft-generated-actions";
+
+        const download = document.createElement("a");
+        download.href = src;
+        download.download = "";
+        download.textContent = "Скачать";
+
+        const share = document.createElement("button");
+        share.type = "button";
+        share.textContent = "Поделиться";
+        share.addEventListener("click", async () => {
+          try {
+            if (navigator.share) {
+              await navigator.share({ title: "FOT AI", text: "Моё AI-фото", url: src });
+            } else {
+              await navigator.clipboard.writeText(src);
+              window.ftToast?.("Ссылка скопирована") || alert("Ссылка скопирована");
+            }
+          } catch (_) {}
+        });
+
+        actions.append(download, share);
+
+        if (!card.querySelector(".ft-cost-badge")) card.appendChild(badge);
+        if (!card.querySelector(".ft-generated-actions")) card.appendChild(actions);
+        card.dataset.ftGeneratedEnhanced = "1";
+      });
+    });
+  }
+
+  function addNotificationHelper() {
+    if (!q("#ftNotificationDot")) {
+      const btn = document.createElement("button");
+      btn.id = "ftNotificationDot";
+      btn.className = "ft-notification-dot";
+      btn.type = "button";
+      btn.dataset.count = "1";
+      btn.textContent = "i";
+      btn.addEventListener("click", () => {
+        const existing = q(".ft-notifications-modal, #ftNotificationsModal, [data-notifications-modal]");
+        if (existing) {
+          existing.style.display = "";
+          existing.classList.add("is-open");
+          existing.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          alert("Уведомления: сервис настраивается. Мы улучшаем приложение и будем благодарны за обратную связь в личном кабинете.");
+        }
+        btn.dataset.count = "0";
+      });
+      document.body.appendChild(btn);
+    }
+
+    if (!q("#ftHelperBubble")) {
+      const bubble = document.createElement("div");
+      bubble.id = "ftHelperBubble";
+      bubble.className = "ft-helper-bubble";
+      bubble.textContent = "Шаги простые: выберите участника, стиль, загрузите фото и нажмите «Создать AI-фото».";
+      document.body.appendChild(bubble);
+
+      setTimeout(() => bubble.classList.add("is-visible"), 900);
+      setTimeout(() => bubble.classList.remove("is-visible"), 6500);
+    }
+  }
+
+  function enhanceAdminUsers() {
+    const adminRoot = qa("section,article,div").find((el) =>
+      textIncludes(el, "админ-консоль") || textIncludes(el, "пользователи")
+    );
+
+    if (!adminRoot) return;
+
+    qa("input[type='number']", adminRoot).forEach((input) => {
+      const row = input.closest("section,article,div");
+      if (!row || row.dataset.ftTopupEnhanced === "1") return;
+
+      const actions = document.createElement("div");
+      actions.className = "ft-admin-user-actions";
+
+      [50, 120, 300, 700].forEach((amount) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = `+${amount}`;
+        b.addEventListener("click", () => {
+          const current = Number(input.value || 0);
+          input.value = String(current + amount);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        actions.appendChild(b);
+      });
+
+      const custom = document.createElement("input");
+      custom.type = "number";
+      custom.placeholder = "сумма";
+      custom.min = "0";
+
+      const add = document.createElement("button");
+      add.type = "button";
+      add.textContent = "Добавить";
+      add.addEventListener("click", () => {
+        const value = Number(custom.value || 0);
+        if (!value) return;
+        input.value = String(Number(input.value || 0) + value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+
+      actions.append(custom, add);
+      row.appendChild(actions);
+      row.dataset.ftTopupEnhanced = "1";
+    });
+  }
+
+  function retryBrokenFototimeImages() {
+    qa("img").forEach((img) => {
+      if (img.dataset.ftImageRetryBound === "1") return;
+      img.dataset.ftImageRetryBound = "1";
+
+      img.addEventListener("error", () => {
+        if (img.dataset.ftRetried === "1") return;
+
+        const src = img.getAttribute("src") || "";
+        const match = src.match(/\/(uploads|results)\/fototime\/([^?#]+)/);
+        if (!match) return;
+
+        img.dataset.ftRetried = "1";
+        img.src = `/api/fototime/file/${match[1]}/${encodeURIComponent(match[2])}`;
+      });
+    });
+  }
+
+  function markUnreadCards() {
+    qa("section,article,div").forEach((el) => {
+      const t = el.textContent || "";
+      if (/\bNEW\b|нов(ое|ых|ый)/i.test(t)) {
+        el.classList.add("ft-unread-card");
+      }
+    });
+  }
+
+  async function init() {
+    setTheme(state.theme);
+    await loadState();
+    render();
+    bindEvents();
+  }
+
+  init();
+})();
+
+/* FT_FOUNDATION_ENTRY_ADMIN_V1_START */
+(() => {
+  if (window.__FT_FOUNDATION_ENTRY_ADMIN_V1__) return;
+  window.__FT_FOUNDATION_ENTRY_ADMIN_V1__ = true;
+
+  const ADMIN_PIN = '3465';
+  const TG_URL = 'https://t.me/fototime323Bot';
+
+  const MODE_KEY = 'ft_entry_mode_v1';
+  const EMOJI_KEY = 'ft_guest_emoji_v1';
+  const GRADIENT_KEY = 'ft_guest_gradient_v1';
+  const ADMIN_KEY = 'ft_admin_unlocked_v1';
+
+  const GUEST_EMOJIS = ['✨', '🎉', '😎', '🦊', '🌸', '📸'];
+  const GUEST_GRADIENTS = [
+    { id: 'lime',   css: 'linear-gradient(135deg,#d9ff43 0%,#69e7d0 100%)' },
+    { id: 'sunset', css: 'linear-gradient(135deg,#ffcc70 0%,#ff8177 100%)' },
+    { id: 'violet', css: 'linear-gradient(135deg,#9b8cff 0%,#6fe7ff 100%)' },
+    { id: 'peach',  css: 'linear-gradient(135deg,#ffd6a5 0%,#fdffb6 100%)' },
+    { id: 'mint',   css: 'linear-gradient(135deg,#b7ffbf 0%,#7de2d1 100%)' },
+    { id: 'sky',    css: 'linear-gradient(135deg,#8ec5ff 0%,#b6f0ff 100%)' },
+  ];
+
+  function qs(sel, root = document) {
+    return root.querySelector(sel);
+  }
+
+  function qsa(sel, root = document) {
+    return Array.from(root.querySelectorAll(sel));
+  }
+
+  function txt(el) {
+    return String(el?.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function storageGet(key, fallback = '') {
+    try {
+      return localStorage.getItem(key) || fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function storageSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (_) {}
+  }
+
+  function sessionGet(key, fallback = '') {
+    try {
+      return sessionStorage.getItem(key) || fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function sessionSet(key, value) {
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (_) {}
+  }
+
+  function isAdminUnlocked() {
+    return sessionGet(ADMIN_KEY) === '1';
+  }
+
+  function isTelegramWebApp() {
+    try {
+      return Boolean(window.Telegram?.WebApp?.initDataUnsafe?.user);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function getGuestEmoji() {
+    return storageGet(EMOJI_KEY, GUEST_EMOJIS[0]);
+  }
+
+  function getGuestGradientCss() {
+    const saved = storageGet(GRADIENT_KEY, GUEST_GRADIENTS[0].id);
+    const found = GUEST_GRADIENTS.find((x) => x.id === saved);
+    return (found || GUEST_GRADIENTS[0]).css;
+  }
+
+  function injectStyles() {
+    if (document.getElementById('ft-foundation-entry-admin-v1-style')) return;
+
+    const style = document.createElement('style');
+    style.id = 'ft-foundation-entry-admin-v1-style';
+    style.textContent = `
+      .ft-entry-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(3, 10, 10, 0.66);
+        backdrop-filter: blur(10px);
+      }
+
+      .ft-entry-modal {
+        width: min(100%, 540px);
+        max-height: calc(100vh - 36px);
+        overflow: auto;
+        border-radius: 28px;
+        padding: 22px;
+        color: #17342f;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,252,248,.97));
+        box-shadow:
+          0 18px 60px rgba(0,0,0,.24),
+          inset 0 1px 0 rgba(255,255,255,.7);
+      }
+
+      .ft-entry-kicker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(23,52,47,.12);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .ft-entry-title {
+        margin: 0 0 10px;
+        font-size: clamp(28px, 5vw, 40px);
+        line-height: 1.05;
+        font-weight: 900;
+        letter-spacing: -.03em;
+      }
+
+      .ft-entry-text {
+        margin: 0 0 18px;
+        font-size: 16px;
+        line-height: 1.45;
+        color: rgba(23,52,47,.78);
+        font-weight: 700;
+      }
+
+      .ft-entry-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 16px;
+      }
+
+      .ft-entry-card {
+        border: 1px solid rgba(23,52,47,.10);
+        border-radius: 24px;
+        padding: 18px;
+        background:
+          linear-gradient(135deg, rgba(217,255,67,.07) 0%, rgba(105,231,208,.08) 100%),
+          rgba(255,255,255,.82);
+      }
+
+      .ft-entry-card h3 {
+        margin: 0 0 8px;
+        font-size: 22px;
+        line-height: 1.1;
+        font-weight: 900;
+      }
+
+      .ft-entry-card p {
+        margin: 0 0 14px;
+        font-size: 14px;
+        line-height: 1.45;
+        color: rgba(23,52,47,.78);
+        font-weight: 700;
+      }
+
+      .ft-entry-label {
+        margin: 10px 0 8px;
+        font-size: 13px;
+        font-weight: 900;
+        opacity: .86;
+      }
+
+      .ft-entry-emoji-grid,
+      .ft-entry-gradient-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .ft-entry-emoji-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+
+      .ft-entry-gradient-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .ft-entry-emoji,
+      .ft-entry-gradient {
+        border: 1px solid rgba(23,52,47,.10);
+        background: rgba(255,255,255,.82);
+        border-radius: 18px;
+        cursor: pointer;
+        transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+      }
+
+      .ft-entry-emoji:hover,
+      .ft-entry-gradient:hover {
+        transform: translateY(-1px);
+      }
+
+      .ft-entry-emoji.is-active,
+      .ft-entry-gradient.is-active {
+        border-color: rgba(127, 226, 68, .75);
+        box-shadow: 0 0 0 2px rgba(185,255,85,.25);
+      }
+
+      .ft-entry-emoji {
+        height: 58px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+      }
+
+      .ft-entry-gradient {
+        height: 52px;
+      }
+
+      .ft-entry-preview {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 20px;
+        margin: 12px 0 6px;
+        background: rgba(23,52,47,.05);
+      }
+
+      .ft-entry-avatar {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        border-radius: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 900;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+      }
+
+      .ft-entry-preview-text {
+        font-size: 14px;
+        line-height: 1.35;
+        font-weight: 800;
+      }
+
+      .ft-entry-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .ft-entry-btn {
+        appearance: none;
+        border: none;
+        cursor: pointer;
+        border-radius: 18px;
+        padding: 14px 18px;
+        font-size: 15px;
+        line-height: 1.15;
+        font-weight: 900;
+        transition: transform .12s ease, filter .12s ease;
+      }
+
+      .ft-entry-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.02);
+      }
+
+      .ft-entry-btn--primary {
+        color: #132f2a;
+        background: linear-gradient(135deg,#e8f539 0%,#a9ff00 45%,#67e2d5 100%);
+      }
+
+      .ft-entry-btn--secondary {
+        color: #17342f;
+        background: rgba(23,52,47,.08);
+        border: 1px solid rgba(23,52,47,.10);
+      }
+
+      .ft-guest-badge {
+        position: fixed;
+        top: 86px;
+        left: 18px;
+        z-index: 9997;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 20px;
+        background: rgba(255,255,255,.12);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,.16);
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0,0,0,.16);
+      }
+
+      .ft-guest-badge[hidden] {
+        display: none !important;
+      }
+
+      .ft-guest-badge__avatar {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.38);
+      }
+
+      .ft-guest-badge__meta {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.08;
+      }
+
+      .ft-guest-badge__title {
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .ft-guest-badge__sub {
+        font-size: 11px;
+        opacity: .9;
+        font-weight: 700;
+      }
+
+      @media (max-width: 640px) {
+        .ft-entry-modal {
+          padding: 18px;
+          border-radius: 24px;
+        }
+
+        .ft-entry-emoji-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .ft-entry-gradient-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .ft-guest-badge {
+          top: 72px;
+          left: 12px;
+          padding: 8px 10px;
+        }
+
+        .ft-guest-badge__avatar {
+          width: 38px;
+          height: 38px;
+          min-width: 38px;
+          font-size: 20px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function renderGuestBadge() {
+    let badge = qs('.ft-guest-badge');
+    const mode = storageGet(MODE_KEY, '');
+
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'ft-guest-badge';
+      badge.innerHTML = `
+        <div class="ft-guest-badge__avatar"></div>
+        <div class="ft-guest-badge__meta">
+          <span class="ft-guest-badge__title">Гость</span>
+          <span class="ft-guest-badge__sub">Можно войти через Telegram позже</span>
+        </div>
+      `;
+      document.body.appendChild(badge);
+    }
+
+    const isGuest = mode === 'guest';
+    badge.hidden = !isGuest;
+
+    const avatar = qs('.ft-guest-badge__avatar', badge);
+    if (avatar) {
+      avatar.textContent = getGuestEmoji();
+      avatar.style.background = getGuestGradientCss();
+      avatar.style.color = '#17342f';
+    }
+  }
+
+  function getBootState() {
+    return {
+      mode: storageGet(MODE_KEY, ''),
+      emoji: getGuestEmoji(),
+      gradientId: storageGet(GRADIENT_KEY, GUEST_GRADIENTS[0].id),
+    };
+  }
+
+  function setBootState(next) {
+    if (next.mode) storageSet(MODE_KEY, next.mode);
+    if (next.emoji) storageSet(EMOJI_KEY, next.emoji);
+    if (next.gradientId) storageSet(GRADIENT_KEY, next.gradientId);
+  }
+
+  function removeOverlay() {
+    qs('.ft-entry-overlay')?.remove();
+  }
+
+  function openTelegramAuth() {
+    try {
+      window.open(TG_URL, '_blank', 'noopener,noreferrer');
+    } catch (_) {
+      location.href = TG_URL;
+    }
+  }
+
+  function renderEntryOverlay() {
+    const state = getBootState();
+    if (state.mode) return;
+
+    removeOverlay();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'ft-entry-overlay';
+
+    overlay.innerHTML = `
+      <div class="ft-entry-modal">
+        <div class="ft-entry-kicker">FOT AI</div>
+        <h2 class="ft-entry-title">Как хотите продолжить?</h2>
+        <p class="ft-entry-text">
+          Можно войти как гость и начать сразу. Авторизованный пользователь получает больше функций,
+          историю и удобную работу через Telegram.
+        </p>
+
+        <div class="ft-entry-grid">
+          <section class="ft-entry-card">
+            <h3>Я гость</h3>
+            <p>Быстрый вход без Telegram. Можно выбрать emoji-аватар и фон. Авторизоваться получится позже в любой момент.</p>
+
+            <div class="ft-entry-label">Emoji-аватар</div>
+            <div class="ft-entry-emoji-grid"></div>
+
+            <div class="ft-entry-label">Фон аватара</div>
+            <div class="ft-entry-gradient-grid"></div>
+
+            <div class="ft-entry-preview">
+              <div class="ft-entry-avatar"></div>
+              <div class="ft-entry-preview-text">
+                <div>Гостевой профиль</div>
+                <div style="opacity:.72;font-weight:700;">Локальный режим с быстрым стартом</div>
+              </div>
+            </div>
+
+            <div class="ft-entry-actions">
+              <button class="ft-entry-btn ft-entry-btn--primary" type="button" data-ft-entry-guest>Продолжить как гость</button>
+            </div>
+          </section>
+
+          <section class="ft-entry-card">
+            <h3>Открыть через Telegram</h3>
+            <p>Для авторизованного пользователя доступны история, бонусы, расширенные функции и более понятная персонализация.</p>
+            <div class="ft-entry-actions">
+              <button class="ft-entry-btn ft-entry-btn--secondary" type="button" data-ft-entry-tg>Открыть Telegram</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const emojiGrid = qs('.ft-entry-emoji-grid', overlay);
+    const gradientGrid = qs('.ft-entry-gradient-grid', overlay);
+    const avatar = qs('.ft-entry-avatar', overlay);
+
+    function updatePreview() {
+      const current = getBootState();
+      avatar.textContent = current.emoji;
+      avatar.style.background = (GUEST_GRADIENTS.find((x) => x.id === current.gradientId) || GUEST_GRADIENTS[0]).css;
+      avatar.style.color = '#17342f';
+
+      qsa('.ft-entry-emoji', overlay).forEach((el) => {
+        el.classList.toggle('is-active', el.dataset.emoji === current.emoji);
+      });
+
+      qsa('.ft-entry-gradient', overlay).forEach((el) => {
+        el.classList.toggle('is-active', el.dataset.gradientId === current.gradientId);
+      });
+    }
+
+    GUEST_EMOJIS.forEach((emoji) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ft-entry-emoji';
+      btn.dataset.emoji = emoji;
+      btn.textContent = emoji;
+      btn.addEventListener('click', () => {
+        setBootState({ emoji });
+        updatePreview();
+      });
+      emojiGrid.appendChild(btn);
+    });
+
+    GUEST_GRADIENTS.forEach((item) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ft-entry-gradient';
+      btn.dataset.gradientId = item.id;
+      btn.style.background = item.css;
+      btn.addEventListener('click', () => {
+        setBootState({ gradientId: item.id });
+        updatePreview();
+      });
+      gradientGrid.appendChild(btn);
+    });
+
+    qs('[data-ft-entry-guest]', overlay)?.addEventListener('click', () => {
+      setBootState({
+        mode: 'guest',
+        emoji: getGuestEmoji(),
+        gradientId: storageGet(GRADIENT_KEY, GUEST_GRADIENTS[0].id),
+      });
+      removeOverlay();
+      renderGuestBadge();
+      applyAdminVisibility();
+    });
+
+    qs('[data-ft-entry-tg]', overlay)?.addEventListener('click', () => {
+      setBootState({
+        mode: 'telegram_pending',
+        emoji: getGuestEmoji(),
+        gradientId: storageGet(GRADIENT_KEY, GUEST_GRADIENTS[0].id),
+      });
+      openTelegramAuth();
+    });
+
+    if (!storageGet(EMOJI_KEY)) storageSet(EMOJI_KEY, GUEST_EMOJIS[0]);
+    if (!storageGet(GRADIENT_KEY)) storageSet(GRADIENT_KEY, GUEST_GRADIENTS[0].id);
+    updatePreview();
+  }
+
+  function tryUnlockAdmin() {
+    const pin = window.prompt('Введите PIN-код для входа в админ-консоль');
+    if (pin === null) return;
+    if (String(pin).trim() === ADMIN_PIN) {
+      sessionSet(ADMIN_KEY, '1');
+      applyAdminVisibility();
+      window.alert('Админ-режим открыт');
+    } else {
+      window.alert('Неверный PIN-код');
+    }
+  }
+
+  function bindSecretAdminTrigger() {
+    const candidates = qsa('div,span,h1,h2,h3,p,a,button').filter((el) => {
+      const t = txt(el);
+      return t === 'FOT AI' || t === 'FOTOTIMEAI' || t === 'FOTOTIME323';
+    });
+
+    candidates.forEach((el) => {
+      if (el.dataset.ftAdminSecretBound === '1') return;
+      el.dataset.ftAdminSecretBound = '1';
+
+      let taps = 0;
+      let timer = null;
+
+      el.addEventListener('click', () => {
+        taps += 1;
+        clearTimeout(timer);
+        timer = setTimeout(() => { taps = 0; }, 1400);
+
+        if (taps >= 5) {
+          taps = 0;
+          tryUnlockAdmin();
+        }
+      });
+    });
+  }
+
+  function applyAdminVisibility() {
+    const unlocked = isAdminUnlocked();
+
+    qsa('a,button,[role="button"],div,span').forEach((el) => {
+      if (txt(el) === 'Админ') {
+        const rootButton =
+          el.closest('a,button,[role="button"]') ||
+          el;
+        if (rootButton) {
+          rootButton.style.display = unlocked ? '' : 'none';
+          rootButton.dataset.ftAdminHidden = unlocked ? '0' : '1';
+        }
+      }
+    });
+
+    qsa('section,article,div').forEach((el) => {
+      const t = txt(el);
+      if (t.includes('Админ-консоль') || t.includes('Аудит, обращения, пользователи и генерации')) {
+        el.style.display = unlocked ? '' : 'none';
+      }
+    });
+  }
+
+  function applyTelegramAutoMode() {
+    if (isTelegramWebApp()) {
+      storageSet(MODE_KEY, 'telegram');
+      renderGuestBadge();
+    }
+  }
+
+  function tick() {
+    injectStyles();
+    applyTelegramAutoMode();
+    renderGuestBadge();
+    renderEntryOverlay();
+    applyAdminVisibility();
+    bindSecretAdminTrigger();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tick);
+  } else {
+    tick();
+  }
+
+  window.addEventListener('load', tick);
+  window.addEventListener('hashchange', tick);
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__ftFoundationEntryAdminTick);
+    window.__ftFoundationEntryAdminTick = setTimeout(tick, 120);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+})();
+/* FT_FOUNDATION_ENTRY_ADMIN_V1_END */
+
+/* FT_POLISH_ADMIN_FOOTER_V1_START */
+(() => {
+  if (window.__FT_POLISH_ADMIN_FOOTER_V1__) return;
+  window.__FT_POLISH_ADMIN_FOOTER_V1__ = true;
+
+  const SEEN_USERS_BOOT_KEY = 'ft_seen_users_boot_v1';
+  const SEEN_USERS_KEY = 'ft_seen_users_v1';
+
+  function qs(sel, root = document) {
+    return root.querySelector(sel);
+  }
+
+  function qsa(sel, root = document) {
+    return Array.from(root.querySelectorAll(sel));
+  }
+
+  function txt(el) {
+    return String(el?.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function storageGet(key, fallback = '') {
+    try {
+      return localStorage.getItem(key) || fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function storageSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (_) {}
+  }
+
+  function injectStyles() {
+    if (document.getElementById('ft-polish-admin-footer-v1-style')) return;
+
+    const style = document.createElement('style');
+    style.id = 'ft-polish-admin-footer-v1-style';
+    style.textContent = `
+      .ft-guest-badge {
+        top: 76px !important;
+        left: 14px !important;
+        padding: 8px 10px !important;
+        gap: 8px !important;
+        border-radius: 16px !important;
+        background: rgba(255,255,255,.84) !important;
+        border: 1px solid rgba(23,52,47,.10) !important;
+        color: #17342f !important;
+        backdrop-filter: blur(10px) !important;
+        box-shadow: 0 10px 28px rgba(0,0,0,.16) !important;
+      }
+
+      .ft-guest-badge__avatar {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        border-radius: 12px !important;
+        font-size: 18px !important;
+      }
+
+      .ft-guest-badge__title {
+        font-size: 12px !important;
+        font-weight: 900 !important;
+      }
+
+      .ft-guest-badge__sub {
+        font-size: 10px !important;
+        opacity: .78 !important;
+        font-weight: 800 !important;
+      }
+
+      .ft-admin-user-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .ft-admin-user-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 24px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: .02em;
+        border: 1px solid rgba(255,255,255,.10);
+        background: rgba(255,255,255,.08);
+        color: rgba(255,255,255,.96);
+      }
+
+      .ft-admin-user-chip--guest {
+        background: rgba(255, 218, 102, .16);
+        border-color: rgba(255, 218, 102, .34);
+      }
+
+      .ft-admin-user-chip--telegram {
+        background: rgba(105, 231, 208, .16);
+        border-color: rgba(105, 231, 208, .34);
+      }
+
+      .ft-admin-user-chip--new {
+        background: rgba(185,255,85,.18);
+        border-color: rgba(185,255,85,.44);
+      }
+
+      .ft-admin-user-note {
+        margin: 6px 0 10px;
+        font-size: 12px;
+        line-height: 1.35;
+        font-weight: 800;
+        opacity: .78;
+      }
+
+      .ft-build-footer {
+        margin: 22px 0 10px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,.08);
+        background: rgba(255,255,255,.06);
+        backdrop-filter: blur(8px);
+      }
+
+      .ft-build-footer__label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        font-weight: 900;
+        opacity: .72;
+      }
+
+      .ft-build-footer__value {
+        display: block;
+        font-size: 12px;
+        line-height: 1.4;
+        font-weight: 900;
+        word-break: break-word;
+      }
+
+      @media (max-width: 640px) {
+        .ft-guest-badge {
+          top: 68px !important;
+          left: 10px !important;
+          padding: 7px 9px !important;
+        }
+
+        .ft-build-footer {
+          margin: 18px 0 8px;
+          padding: 12px 14px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function getBuildVersionText() {
+    const candidates = qsa('body *').map((el) => txt(el)).filter(Boolean);
+    const hit = candidates.find((t) => /fototime-prod-|fot-ai-prod-|v\d+-|stable-front/i.test(t));
+    return hit || '';
+  }
+
+  function ensureBuildFooter() {
+    const version = getBuildVersionText();
+    if (!version) return;
+
+    let host =
+      qsa('main, .ft-page, .ft-layout, .ft-app, #app').find(Boolean) ||
+      document.body;
+
+    let footer = qs('.ft-build-footer', host);
+    if (!footer) {
+      footer = document.createElement('section');
+      footer.className = 'ft-build-footer';
+      footer.innerHTML = `
+        <span class="ft-build-footer__label">Build version</span>
+        <span class="ft-build-footer__value"></span>
+      `;
+      host.appendChild(footer);
+    }
+
+    const value = qs('.ft-build-footer__value', footer);
+    if (value) value.textContent = version;
+  }
+
+  function classifyUser(text) {
+    const low = String(text || '').toLowerCase();
+    if (
+      low.includes('tg-') ||
+      low.includes('telegram') ||
+      low.includes('@') ||
+      /id[:\s]*\d{5,}/i.test(text || '')
+    ) {
+      return { label: 'Telegram', cls: 'telegram' };
+    }
+    return { label: 'Гость', cls: 'guest' };
+  }
+
+  function extractUserKey(card) {
+    const candidates = qsa('*', card)
+      .map((el) => txt(el))
+      .filter(Boolean);
+
+    const priority = candidates.find((t) =>
+      /^tg-\d+$/i.test(t) ||
+      /^@\S+$/i.test(t) ||
+      /^local-demo-user$/i.test(t) ||
+      /^guest[-_]/i.test(t) ||
+      /^local[-_]/i.test(t)
+    );
+    if (priority) return priority;
+
+    const candidate = candidates.find((t) =>
+      t.length >= 3 &&
+      t.length <= 80 &&
+      !t.includes('Баланс') &&
+      !t.includes('Сохранить') &&
+      !t.includes('Чек') &&
+      !t.includes('Оплата')
+    );
+    return candidate ? candidate.trim() : '';
+  }
+
+  function getSeenUsers() {
+    const raw = storageGet(SEEN_USERS_KEY, '[]');
+    try {
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function setSeenUsers(arr) {
+    storageSet(SEEN_USERS_KEY, JSON.stringify(Array.from(new Set(arr)).slice(-500)));
+  }
+
+  function polishAdminUsers() {
+    const adminRoot = qsa('section,article,div').find((el) => {
+      const t = txt(el);
+      return t.includes('Пользователи') && t.includes('Баланс');
+    });
+
+    if (!adminRoot) return;
+
+    const cards = qsa('section,article,div', adminRoot).filter((el) => {
+      const t = txt(el);
+      return t.includes('Баланс') && t.includes('Сохранить');
+    });
+
+    if (!cards.length) return;
+
+    const seen = getSeenUsers();
+    const bootstrapped = storageGet(SEEN_USERS_BOOT_KEY, '') === '1';
+    const nowSeen = new Set(seen);
+
+    cards.forEach((card) => {
+      const key = extractUserKey(card);
+      if (!key) return;
+
+      const cardText = txt(card);
+      const userType = classifyUser(cardText);
+
+      let meta = qs('.ft-admin-user-meta', card);
+      if (!meta) {
+        meta = document.createElement('div');
+        meta.className = 'ft-admin-user-meta';
+        card.insertAdjacentElement('afterbegin', meta);
+      } else {
+        meta.innerHTML = '';
+      }
+
+      const typeChip = document.createElement('span');
+      typeChip.className = `ft-admin-user-chip ft-admin-user-chip--${userType.cls}`;
+      typeChip.textContent = userType.label;
+      meta.appendChild(typeChip);
+
+      const idChip = document.createElement('span');
+      idChip.className = 'ft-admin-user-chip';
+      idChip.textContent = key.length > 22 ? key.slice(0, 22) + '…' : key;
+      meta.appendChild(idChip);
+
+      const isNew = bootstrapped ? !nowSeen.has(key) : false;
+      if (isNew) {
+        const newChip = document.createElement('span');
+        newChip.className = 'ft-admin-user-chip ft-admin-user-chip--new';
+        newChip.textContent = 'NEW';
+        meta.appendChild(newChip);
+      }
+
+      let note = qs('.ft-admin-user-note', card);
+      if (!note) {
+        note = document.createElement('div');
+        note.className = 'ft-admin-user-note';
+        meta.insertAdjacentElement('afterend', note);
+      }
+
+      note.textContent =
+        userType.label === 'Telegram'
+          ? 'Авторизованный пользователь. История и функции привязаны к Telegram.'
+          : 'Гостевой пользователь. Данные хранятся локально до авторизации.';
+
+      nowSeen.add(key);
+    });
+
+    if (!bootstrapped) {
+      storageSet(SEEN_USERS_BOOT_KEY, '1');
+    }
+    setSeenUsers(Array.from(nowSeen));
+  }
+
+  function tick() {
+    injectStyles();
+    polishAdminUsers();
+    ensureBuildFooter();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tick);
+  } else {
+    tick();
+  }
+
+  window.addEventListener('load', tick);
+  window.addEventListener('hashchange', tick);
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__ftPolishAdminFooterTick);
+    window.__ftPolishAdminFooterTick = setTimeout(tick, 120);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+})();
+/* FT_POLISH_ADMIN_FOOTER_V1_END */

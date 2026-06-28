@@ -1857,3 +1857,321 @@ try {
 
   init();
 })();
+
+/* FT_V16_POLISH_START */
+(() => {
+  const FT_VERSION = "fototime-prod-20260611-131500-v26-stable-final-fixed";
+  window.FOTOTIME_DEPLOY_VERSION = FT_VERSION;
+  console.info("[FOTOTIME DEPLOY VERSION]", FT_VERSION);
+
+  const LINKS = {
+    telegram: "https://t.me/fototime323",
+    vk: "https://vk.com/fototime323",
+    max: "https://max.ru/join/bRIUnVt_oVplSVIoptiXlMaLOUqGk0hUYwx9WUmBY1U",
+    site: "https://fototime323.lpmotortest.com",
+    avito: "https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a",
+    avito: "https://www.avito.ru/brands/2ea6fb10e03ed3afa712fab8a115e36a",
+    avito: ""
+  };
+
+  const SOCIAL_META = {
+    telegram: { label: "Telegram", icon: "✈" },
+    vk: { label: "VK", icon: "VK" },
+    max: { label: "MAX", icon: "M" },
+    site: { label: "Сайт", icon: "⌂" },
+    avito: { label: "Avito", icon: "A" },
+    avito: { label: "Avito", icon: "A" },
+    avito: { label: "Avito", icon: "A" }
+  };
+
+  function q(sel, root = document) {
+    return root.querySelector(sel);
+  }
+
+  function qa(sel, root = document) {
+    return Array.from(root.querySelectorAll(sel));
+  }
+
+  function textIncludes(el, text) {
+    return el && (el.textContent || "").toLowerCase().includes(String(text).toLowerCase());
+  }
+
+  function normalizeCurrencyText(root = document.body) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach((node) => {
+      let value = node.nodeValue;
+      if (!value) return;
+
+      value = value
+        .replace(/\bтокенов\b/gi, "кредитов")
+        .replace(/\bтокена\b/gi, "кредита")
+        .replace(/\bтокен\b/gi, "кредит")
+        .replace(/\bтокены\b/gi, "кредиты")
+        .replace(/\bкр\.\b/gi, "кредитов");
+
+      if (node.nodeValue !== value) node.nodeValue = value;
+    });
+  }
+
+  function fixGenerationEnoughText() {
+    qa("*").forEach((el) => {
+      if (el.childElementCount > 0) return;
+      const t = (el.textContent || "").trim();
+      if (t === "Хватит примерно") el.textContent = "Хватит на";
+      if (t === "генерация") el.textContent = "генерацию";
+      if (t === "генерации") el.textContent = "генераций";
+    });
+  }
+
+  function findProfileRoot() {
+    const headings = qa("h1,h2,h3,strong,b,div,section").filter((el) =>
+      textIncludes(el, "личный кабинет") || textIncludes(el, "пакеты кредитов") || textIncludes(el, "мои сгенерированные")
+    );
+    if (!headings.length) return null;
+    return headings[0].closest("section, article, main, .card, .ft-profile-card, .page, #app") || document.body;
+  }
+
+  function addVersionCard() {
+    if (q("#ftVersionCard")) return;
+
+    const profileRoot = findProfileRoot();
+    if (!profileRoot || !textIncludes(document.body, "личный кабинет")) return;
+
+    const card = document.createElement("section");
+    card.id = "ftVersionCard";
+    card.className = "ft-version-card";
+    card.innerHTML = `
+      <strong>Версия приложения</strong>
+      <span>Публичная сборка FOT AI.</span>
+      <code>${FT_VERSION}</code>
+    `;
+
+    const nav = qa("button,a").find((el) => (el.textContent || "").trim() === "Админ");
+    const navRoot = nav ? nav.closest("nav, .bottom-nav, .tabs") : null;
+
+    if (navRoot && navRoot.parentElement) {
+      navRoot.parentElement.insertBefore(card, navRoot);
+    } else {
+      profileRoot.appendChild(card);
+    }
+  }
+
+  function enhanceSupportLinks() {
+    const candidates = qa("section,article,div").filter((el) =>
+      textIncludes(el, "fototime323") &&
+      (textIncludes(el, "поддержка") || textIncludes(el, "соцсети") || textIncludes(el, "пополнение"))
+    );
+
+    const card = candidates[candidates.length - 1];
+    if (!card || card.dataset.ftSocialEnhanced === "1") return;
+
+    const existingButtons = qa("a,button", card);
+    const labels = existingButtons.map((el) => (el.textContent || "").trim().toLowerCase());
+
+    const container = document.createElement("div");
+    container.className = "ft-social-grid ft-support-links";
+
+    const order = ["telegram", "vk", "max", "site", "avito"];
+    order.forEach((key) => {
+      const meta = SOCIAL_META[key];
+      const existing = existingButtons.find((el) => (el.textContent || "").toLowerCase().includes(meta.label.toLowerCase()));
+
+      let el = existing || document.createElement(LINKS[key] ? "a" : "button");
+      el.className = "ft-social-btn";
+      el.dataset.social = key;
+
+      if (LINKS[key]) {
+        el.setAttribute("href", LINKS[key]);
+        el.setAttribute("target", "_blank");
+        el.setAttribute("rel", "noopener noreferrer");
+      } else {
+        el.setAttribute("type", "button");
+        el.disabled = key === "avito";
+        el.title = key === "avito" ? "Добавим ссылку Avito после проверки профиля" : "";
+      }
+
+      el.innerHTML = `
+        <span class="ft-social-icon">${meta.icon}</span>
+        <span>${meta.label}</span>
+        <span class="ft-social-arrow">↗</span>
+      `;
+
+      container.appendChild(el);
+    });
+
+    existingButtons.forEach((el) => el.remove());
+    card.appendChild(container);
+    card.dataset.ftSocialEnhanced = "1";
+  }
+
+  function enhanceGeneratedCards() {
+    const blocks = qa("section,article,div").filter((el) =>
+      textIncludes(el, "мои сгенерированные фото") || textIncludes(el, "ai-фото") || textIncludes(el, "скачать")
+    );
+
+    blocks.forEach((block) => {
+      qa("img", block).forEach((img) => {
+        const card = img.closest("article, .card, div");
+        if (!card || card.dataset.ftGeneratedEnhanced === "1") return;
+
+        const src = img.currentSrc || img.src;
+        if (!src) return;
+
+        const cost = card.dataset.cost || "40";
+        const badge = document.createElement("div");
+        badge.className = "ft-cost-badge";
+        badge.textContent = `Списано: ${cost} кредитов`;
+
+        const actions = document.createElement("div");
+        actions.className = "ft-generated-actions";
+
+        const download = document.createElement("a");
+        download.href = src;
+        download.download = "";
+        download.textContent = "Скачать";
+
+        const share = document.createElement("button");
+        share.type = "button";
+        share.textContent = "Поделиться";
+        share.addEventListener("click", async () => {
+          try {
+            if (navigator.share) {
+              await navigator.share({ title: "FOT AI", text: "Моё AI-фото", url: src });
+            } else {
+              await navigator.clipboard.writeText(src);
+              window.ftToast?.("Ссылка скопирована") || alert("Ссылка скопирована");
+            }
+          } catch (_) {}
+        });
+
+        actions.append(download, share);
+
+        if (!card.querySelector(".ft-cost-badge")) card.appendChild(badge);
+        if (!card.querySelector(".ft-generated-actions")) card.appendChild(actions);
+        card.dataset.ftGeneratedEnhanced = "1";
+      });
+    });
+  }
+
+  function addNotificationHelper() {
+    if (!q("#ftNotificationDot")) {
+      const btn = document.createElement("button");
+      btn.id = "ftNotificationDot";
+      btn.className = "ft-notification-dot";
+      btn.type = "button";
+      btn.dataset.count = "1";
+      btn.textContent = "i";
+      btn.addEventListener("click", () => {
+        const existing = q(".ft-notifications-modal, #ftNotificationsModal, [data-notifications-modal]");
+        if (existing) {
+          existing.style.display = "";
+          existing.classList.add("is-open");
+          existing.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          alert("Уведомления: сервис настраивается. Мы улучшаем приложение и будем благодарны за обратную связь в личном кабинете.");
+        }
+        btn.dataset.count = "0";
+      });
+      document.body.appendChild(btn);
+    }
+
+    if (!q("#ftHelperBubble")) {
+      const bubble = document.createElement("div");
+      bubble.id = "ftHelperBubble";
+      bubble.className = "ft-helper-bubble";
+      bubble.textContent = "Шаги простые: выберите участника, стиль, загрузите фото и нажмите «Создать AI-фото».";
+      document.body.appendChild(bubble);
+
+      setTimeout(() => bubble.classList.add("is-visible"), 900);
+      setTimeout(() => bubble.classList.remove("is-visible"), 6500);
+    }
+  }
+
+  function enhanceAdminUsers() {
+    const adminRoot = qa("section,article,div").find((el) =>
+      textIncludes(el, "админ-консоль") || textIncludes(el, "пользователи")
+    );
+
+    if (!adminRoot) return;
+
+    qa("input[type='number']", adminRoot).forEach((input) => {
+      const row = input.closest("section,article,div");
+      if (!row || row.dataset.ftTopupEnhanced === "1") return;
+
+      const actions = document.createElement("div");
+      actions.className = "ft-admin-user-actions";
+
+      [50, 120, 300, 700].forEach((amount) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = `+${amount}`;
+        b.addEventListener("click", () => {
+          const current = Number(input.value || 0);
+          input.value = String(current + amount);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        actions.appendChild(b);
+      });
+
+      const custom = document.createElement("input");
+      custom.type = "number";
+      custom.placeholder = "сумма";
+      custom.min = "0";
+
+      const add = document.createElement("button");
+      add.type = "button";
+      add.textContent = "Добавить";
+      add.addEventListener("click", () => {
+        const value = Number(custom.value || 0);
+        if (!value) return;
+        input.value = String(Number(input.value || 0) + value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+
+      actions.append(custom, add);
+      row.appendChild(actions);
+      row.dataset.ftTopupEnhanced = "1";
+    });
+  }
+
+  function retryBrokenFototimeImages() {
+    qa("img").forEach((img) => {
+      if (img.dataset.ftImageRetryBound === "1") return;
+      img.dataset.ftImageRetryBound = "1";
+
+      img.addEventListener("error", () => {
+        if (img.dataset.ftRetried === "1") return;
+
+        const src = img.getAttribute("src") || "";
+        const match = src.match(/\/(uploads|results)\/fototime\/([^?#]+)/);
+        if (!match) return;
+
+        img.dataset.ftRetried = "1";
+        img.src = `/api/fototime/file/${match[1]}/${encodeURIComponent(match[2])}`;
+      });
+    });
+  }
+
+  function markUnreadCards() {
+    qa("section,article,div").forEach((el) => {
+      const t = el.textContent || "";
+      if (/\bNEW\b|нов(ое|ых|ый)/i.test(t)) {
+        el.classList.add("ft-unread-card");
+      }
+    });
+  }
+
+  async function init() {
+    setTheme(state.theme);
+    await loadState();
+    render();
+    bindEvents();
+  }
+
+  init();
+})();
