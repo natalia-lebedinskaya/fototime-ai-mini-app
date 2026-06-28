@@ -167,78 +167,11 @@ function sendMissingImage(res, name) {
 }
 
 function normalizeUser(input = {}) {
-  const id = cleanText(input.id || input.userId || input.telegramId, DEMO_USER.id);
-  const telegramId = cleanText(input.telegramId || input.id || input.userId, '');
-  const username = cleanText(input.username || input.userName || input.login, DEMO_USER.username);
-  const name = cleanText(input.name || input.firstName || input.fullName || input.username, DEMO_USER.name);
-  const photoUrl = cleanText(input.photoUrl || input.photo_url || input.avatarUrl, '');
-  const avatarEmoji = cleanText(input.avatarEmoji, '✨');
-  const avatarGradient = cleanText(input.avatarGradient, 'lime');
-  const authProvider = cleanText(input.authProvider, telegramId ? 'telegram' : 'local');
-
   return {
-    id,
-    telegramId,
-    username,
-    name,
-    photoUrl,
-    avatarEmoji,
-    avatarGradient,
-    authProvider,
+    id: cleanText(input.id || input.userId || input.telegramId, DEMO_USER.id),
+    username: cleanText(input.username || input.userName || input.login, DEMO_USER.username),
+    name: cleanText(input.name || input.firstName || input.fullName || input.username, DEMO_USER.name),
   };
-}
-
-const ADMIN_USERNAMES = new Set(['naraliabedareva']);
-const ADMIN_EMAILS = new Set(['naraliabedareva@gmail.com']);
-const ADMIN_IDS = new Set(
-  String(process.env.FOTOTIME_ADMIN_IDS || '')
-    .split(',')
-    .map((v) => String(v || '').trim())
-    .filter(Boolean)
-);
-
-function isAdminUser(user = {}) {
-  const id = String(user.id || user.telegramId || '').trim();
-  const telegramId = String(user.telegramId || '').trim();
-  const username = String(user.username || '').trim().toLowerCase();
-  const email = String(user.email || user.username || '').trim().toLowerCase();
-
-  return Boolean(
-    (id && ADMIN_IDS.has(id)) ||
-    (telegramId && ADMIN_IDS.has(telegramId)) ||
-    (username && ADMIN_USERNAMES.has(username)) ||
-    (email && ADMIN_EMAILS.has(email))
-  );
-}
-
-function requireAdmin(req, res, next) {
-  const candidate = normalizeUser({
-    ...(req.query || {}),
-    ...(req.body || {}),
-  });
-
-  if (!isAdminUser(candidate)) {
-    return res.status(403).json({
-      ok: false,
-      message: 'FORBIDDEN',
-    });
-  }
-
-  req.ftAdminUser = candidate;
-  next();
-}
-
-function shouldShowOnHomeNotification(note = {}) {
-  const title = String(note.title || '').toLowerCase();
-  const message = String(note.message || '').toLowerCase();
-  const joined = `${title} ${message}`;
-
-  if (joined.includes('баланс обновл')) return false;
-  if (joined.includes('информация об оплате')) return false;
-  if (joined.includes('запрос токен')) return false;
-  if (joined.includes('чек')) return false;
-
-  return true;
 }
 
 function normalizeProvider(value) {
@@ -589,39 +522,19 @@ router.get('/file/:bucket/:name', async (req, res) => {
 router.get('/state', async (req, res) => {
   const db = await getDb();
   const user = getOrCreateUser(db, req.query || {});
-  const normalizedUser = normalizeUser({ ...user, ...(req.query || {}) });
-  Object.assign(user, normalizedUser);
-  user.updatedAt = nowIso();
-
   const styles = await readStyles();
-
-  const userGenerations = (db.generations || []).filter((g) => g.userId === user.id).slice(-50).reverse();
-  const allNotifications = (db.notifications || []).filter((n) => !n.userId || n.userId === user.id).slice(-100).reverse();
-  const homeNotifications = allNotifications.filter(shouldShowOnHomeNotification).slice(0, 8);
-  const activeGenerations = userGenerations.filter((g) => {
-    const status = String(g.status || g.state || '').toLowerCase();
-    return !['done', 'success', 'completed', 'failed', 'error', 'cancelled'].includes(status);
-  }).slice(0, 10);
 
   await saveDb(db);
 
   res.json({
     ok: true,
-    version: 'fot-ai-prod-20260613-v30-compact-secure',
-    isAdmin: isAdminUser(user),
+    version: 'stable-v14-clean',
     user,
-    avatar: {
-      photoUrl: user.photoUrl || '',
-      emoji: user.avatarEmoji || '✨',
-      gradient: user.avatarGradient || 'lime',
-    },
     balance: safeNumber(user.balance, 50),
     cost: BALANCE_COST,
     styles,
-    generations: userGenerations,
-    activeGenerations,
-    notifications: homeNotifications,
-    cabinetNotifications: allNotifications,
+    generations: (db.generations || []).filter((g) => g.userId === user.id).slice(-20).reverse(),
+    notifications: (db.notifications || []).filter((n) => !n.userId || n.userId === user.id).slice(-20).reverse(),
   });
 });
 
@@ -658,7 +571,7 @@ router.post('/balance/refresh', express.json({ limit: '1mb' }), async (req, res)
   });
 });
 
-router.post('/balance/set', requireAdmin, express.json({ limit: '1mb' }), async (req, res) => {
+router.post('/balance/set', express.json({ limit: '1mb' }), async (req, res) => {
   const db = await getDb();
   const user = getOrCreateUser(db, {
     id: req.body.userId,
@@ -694,7 +607,7 @@ router.post('/balance/set', requireAdmin, express.json({ limit: '1mb' }), async 
   res.json({ ok: true, user, notification: note });
 });
 
-router.post('/receipt/send', requireAdmin, express.json({ limit: '1mb' }), async (req, res) => {
+router.post('/receipt/send', express.json({ limit: '1mb' }), async (req, res) => {
   const db = await getDb();
   const user = getOrCreateUser(db, { id: req.body.userId });
 
