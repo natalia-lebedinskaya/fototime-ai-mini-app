@@ -910,17 +910,8 @@
     return `
       <div class="ft-topbar ft-topbar-v2">
         <button class="ft-balance-pill ft-balance-pill-v2" data-action="refresh-balance" type="button" title="Обновить баланс">
-          <span class="ft-token-icon ft-token-icon-v2" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <defs>
-                <linearGradient id="ftTopBarMarkGradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#baff14"></stop>
-                  <stop offset="100%" stop-color="#5ee7d0"></stop>
-                </linearGradient>
-              </defs>
-              <rect x="4" y="4" width="16" height="16" rx="4.5" fill="url(#ftTopBarMarkGradient)"></rect>
-              <path d="M8 7.5h8M9 8v8.5M9 12h6" stroke="#18342f" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
+          <span class="ft-token-icon ft-token-icon-v2 ft-topbar-brand" aria-hidden="true">
+            <i>F</i><em>FOT AI</em>
           </span>
 
           <span class="ft-balance-copy">
@@ -947,33 +938,35 @@
           <span class="ft-brand">FOT AI</span>
         </div>
 
-        <label class="ft-theme-label">
-          Сменить тему:
-          <select data-action="theme-select">
-            <option value="light" ${state.theme === 'light' ? 'selected' : ''}>Светлая</option>
-            <option value="dark" ${state.theme === 'dark' ? 'selected' : ''}>Тёмная</option>
-            <option value="retro" ${state.theme === 'retro' ? 'selected' : ''}>Ретро</option>
-            <option value="design" ${state.theme === 'design' ? 'selected' : ''}>Design</option>
-          </select>
-        </label>
+        <div class="ft-preferences" aria-label="Настройки отображения">
+          <label class="ft-theme-label">
+            <span>Тема</span>
+            <select data-action="theme-select">
+              <option value="light" ${state.theme === 'light' ? 'selected' : ''}>Светлая</option>
+              <option value="dark" ${state.theme === 'dark' ? 'selected' : ''}>Тёмная</option>
+              <option value="retro" ${state.theme === 'retro' ? 'selected' : ''}>Ретро</option>
+              <option value="design" ${state.theme === 'design' ? 'selected' : ''}>Design</option>
+            </select>
+          </label>
 
-        <label class="ft-theme-label">
-          Язык:
-          <select data-action="language-select">
-            <option value="ru" ${state.language === 'ru' ? 'selected' : ''}>RU</option>
-            <option value="en" ${state.language === 'en' ? 'selected' : ''}>EN</option>
-            <option value="vi" ${state.language === 'vi' ? 'selected' : ''}>VI</option>
-          </select>
-        </label>
+          <label class="ft-theme-label">
+            <span>Язык</span>
+            <select data-action="language-select">
+              <option value="ru" ${state.language === 'ru' ? 'selected' : ''}>RU</option>
+              <option value="en" ${state.language === 'en' ? 'selected' : ''}>EN</option>
+              <option value="vi" ${state.language === 'vi' ? 'selected' : ''}>VI</option>
+            </select>
+          </label>
 
-        <label class="ft-theme-label">
-          Валюта:
-          <select data-action="currency-select">
-            <option value="RUB" ${state.currency === 'RUB' ? 'selected' : ''}>RUB ₽</option>
-            <option value="USD" ${state.currency === 'USD' ? 'selected' : ''}>USD $</option>
-            <option value="VND" ${state.currency === 'VND' ? 'selected' : ''}>VND ₫</option>
-          </select>
-        </label>
+          <label class="ft-theme-label">
+            <span>Валюта</span>
+            <select data-action="currency-select">
+              <option value="RUB" ${state.currency === 'RUB' ? 'selected' : ''}>RUB ₽</option>
+              <option value="USD" ${state.currency === 'USD' ? 'selected' : ''}>USD $</option>
+              <option value="VND" ${state.currency === 'VND' ? 'selected' : ''}>VND ₫</option>
+            </select>
+          </label>
+        </div>
 
         <h1>FOT AI</h1>
         <p>Выберите участника, стиль обработки и загрузите фото. Приложение покажет только стили, доступные для текущего режима.</p>
