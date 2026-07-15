@@ -4511,3 +4511,20 @@ button {
   .ft-app, .ft-card, .ft-info-row, .ft-style-card.is-selected, .ft-bottom-nav button, .ft-install-hint, .ft-bell-pill, .ft-modal > *, .ft-dialog, .ft-progress-card { animation: none !important; }
   .ft-btn, .ft-mini, .ft-chip, .ft-choice, .ft-package, .ft-generate, .ft-style-card, .ft-bottom-nav button, .ft-round, .ft-icon-btn { transition: none !important; }
 }
+
+/* Mobile admin and metric repair: keep controls readable before the phone breakpoint. */
+@media (max-width: 820px) {
+  .ft-admin-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+  }
+  .ft-admin-row > * { width: 100%; }
+  .ft-admin-row input,
+  .ft-admin-row button,
+  .ft-admin-row select { width: 100%; max-width: 100%; }
+}
+@media (max-width: 600px) {
+  .ft-balance-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .ft-metric { min-height: 0 !important; }
+  .ft-metric span, .ft-metric small { overflow-wrap: normal !important; word-break: normal !important; }
+}
