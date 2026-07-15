@@ -6,6 +6,8 @@
 
 ![FOT AI feature walkthrough](docs/assets/demo/fot-ai-feature-tour.gif)
 
+[Watch the full product film](docs/assets/demo/fot-ai-product-film.mp4) — responsive workflow, a complete guest journey, style discovery, verified generation, language switching, the free Signature Design theme, and account recovery.
+
 ## Why this project exists
 
 FOT AI was created by a QA engineer to improve a real event-photo workflow: reduce the number of manual steps, make style discovery visual, expose clear validation and recovery states, and give the operator enough diagnostic information to support users without inspecting raw server logs.
