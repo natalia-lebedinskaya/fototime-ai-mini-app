@@ -80,6 +80,10 @@
   const TRANSLATIONS = {
     en: {
       'Сменить тему:': 'Theme:',
+      'Настройки отображения': 'Display settings',
+      Тема: 'Theme',
+      Язык: 'Language',
+      Валюта: 'Currency',
       Светлая: 'Light',
       Тёмная: 'Dark',
       Ретро: 'Retro',
@@ -214,14 +218,44 @@
       'Поиск по стилю или нейросети...': 'Search by style or model...',
       Плитка: 'Grid',
       Карусель: 'Carousel',
+      Лента: 'Carousel',
+      'Вид каталога': 'Catalog layout',
+      'Плитка или лента: выберите стиль, затем загрузите фото.':
+        'Grid or carousel: choose a style, then upload a photo.',
+      'Установка приложения': 'Install application',
       'JPG, JPEG или PNG до 10 МБ': 'JPG, JPEG or PNG up to 10 MB',
       'Добавьте FOT AI на экран': 'Add FOT AI to your home screen',
       'В браузере: «Поделиться» → «На экран Домой» или «Установить приложение».':
         'In your browser: Share → Add to Home Screen or Install app.',
       'Добро пожаловать в FOT AI': 'Welcome to FOT AI',
+      'Выберите, как начать. Гостевой режим подходит для знакомства, а аккаунт по логину сохраняет историю и чеки для восстановления на другом устройстве.':
+        'Choose how to begin. Guest mode is ideal for exploring, while a login account saves your history and receipts so they can be restored on another device.',
       'Продолжить как гость': 'Continue as guest',
+      'Войти по логину': 'Sign in with a login',
+      'Выберите аватар гостя и фон прямо сейчас:': 'Choose a guest avatar and background now:',
+      'Так будет выглядеть ваш профиль': 'This is how your profile will look',
+      lime: 'Lime',
+      violet: 'Violet',
+      sunset: 'Sunset',
+      ocean: 'Ocean',
       'Открыть через Telegram': 'Open in Telegram',
       Понятно: 'Got it',
+      'Вход на этом устройстве': 'Sign in on this device',
+      'Для первого входа создайте личный профиль. Он хранит только данные, созданные вами в FOT AI.':
+        'For your first sign-in, create a personal profile. It stores only the data you create in FOT AI.',
+      Логин: 'Login',
+      Пароль: 'Password',
+      'например, natalia': 'for example, natalia',
+      'не менее 10 символов': 'at least 10 characters',
+      'Я согласен(на) на обработку моих данных для работы FOT AI. Фото, генерации, чеки и история удаляются через 14 дней; данные собираются только после самостоятельной регистрации.':
+        'I consent to the processing of my data for FOT AI. Photos, generations, receipts, and history are deleted after 14 days; data is collected only after I register voluntarily.',
+      'Создать профиль': 'Create profile',
+      Закрыть: 'Close',
+      'Введите логин и пароль': 'Enter your login and password',
+      'Подтвердите согласие на обработку данных': 'Confirm your consent to data processing',
+      'Не удалось войти': 'Sign-in failed',
+      'Профиль создан': 'Profile created',
+      'Вы вошли в аккаунт': 'You are signed in',
       'Сервис настраивается': 'Service update',
       'Мы улучшаем приложение и будем благодарны за обратную связь в личном кабинете.':
         'We are improving the app and would appreciate your feedback in your account.',
@@ -262,6 +296,10 @@
     },
     vi: {
       'Сменить тему:': 'Chủ đề:',
+      'Настройки отображения': 'Cài đặt hiển thị',
+      Тема: 'Chủ đề',
+      Язык: 'Ngôn ngữ',
+      Валюта: 'Tiền tệ',
       Светлая: 'Sáng',
       Тёмная: 'Tối',
       Ретро: 'Cổ điển',
@@ -390,14 +428,44 @@
       'Поиск по стилю или нейросети...': 'Tìm theo phong cách hoặc mô hình...',
       Плитка: 'Lưới',
       Карусель: 'Băng chuyền',
+      Лента: 'Băng chuyền',
+      'Вид каталога': 'Bố cục danh mục',
+      'Плитка или лента: выберите стиль, затем загрузите фото.':
+        'Lưới hoặc băng chuyền: chọn phong cách, sau đó tải ảnh lên.',
+      'Установка приложения': 'Cài đặt ứng dụng',
       'JPG, JPEG или PNG до 10 МБ': 'JPG, JPEG hoặc PNG tối đa 10 MB',
       'Добавьте FOT AI на экран': 'Thêm FOT AI vào màn hình chính',
       'В браузере: «Поделиться» → «На экран Домой» или «Установить приложение».':
         'Trong trình duyệt: Chia sẻ → Thêm vào Màn hình chính hoặc Cài đặt ứng dụng.',
       'Добро пожаловать в FOT AI': 'Chào mừng đến với FOT AI',
+      'Выберите, как начать. Гостевой режим подходит для знакомства, а аккаунт по логину сохраняет историю и чеки для восстановления на другом устройстве.':
+        'Chọn cách bắt đầu. Chế độ khách phù hợp để trải nghiệm, còn tài khoản đăng nhập sẽ lưu lịch sử và biên lai để khôi phục trên thiết bị khác.',
       'Продолжить как гость': 'Tiếp tục với tư cách khách',
+      'Войти по логину': 'Đăng nhập bằng tài khoản',
+      'Выберите аватар гостя и фон прямо сейчас:': 'Chọn ảnh đại diện và nền cho khách ngay bây giờ:',
+      'Так будет выглядеть ваш профиль': 'Hồ sơ của bạn sẽ hiển thị như thế này',
+      lime: 'Xanh chanh',
+      violet: 'Tím',
+      sunset: 'Hoàng hôn',
+      ocean: 'Đại dương',
       'Открыть через Telegram': 'Mở trong Telegram',
       Понятно: 'Đã hiểu',
+      'Вход на этом устройстве': 'Đăng nhập trên thiết bị này',
+      'Для первого входа создайте личный профиль. Он хранит только данные, созданные вами в FOT AI.':
+        'Trong lần đăng nhập đầu tiên, hãy tạo hồ sơ cá nhân. Hồ sơ chỉ lưu dữ liệu do bạn tạo trong FOT AI.',
+      Логин: 'Tên đăng nhập',
+      Пароль: 'Mật khẩu',
+      'например, natalia': 'ví dụ: natalia',
+      'не менее 10 символов': 'ít nhất 10 ký tự',
+      'Я согласен(на) на обработку моих данных для работы FOT AI. Фото, генерации, чеки и история удаляются через 14 дней; данные собираются только после самостоятельной регистрации.':
+        'Tôi đồng ý cho FOT AI xử lý dữ liệu của mình. Ảnh, ảnh đã tạo, biên lai và lịch sử sẽ bị xóa sau 14 ngày; dữ liệu chỉ được thu thập sau khi tôi tự nguyện đăng ký.',
+      'Создать профиль': 'Tạo hồ sơ',
+      Закрыть: 'Đóng',
+      'Введите логин и пароль': 'Nhập tên đăng nhập và mật khẩu',
+      'Подтвердите согласие на обработку данных': 'Xác nhận đồng ý xử lý dữ liệu',
+      'Не удалось войти': 'Không thể đăng nhập',
+      'Профиль создан': 'Đã tạo hồ sơ',
+      'Вы вошли в аккаунт': 'Bạn đã đăng nhập',
       'Сервис настраивается': 'Đang cập nhật dịch vụ',
       'Мы улучшаем приложение и будем благодарны за обратную связь в личном кабинете.':
         'Chúng tôi đang cải thiện ứng dụng và mong nhận được phản hồi trong tài khoản của bạn.',
@@ -700,7 +768,7 @@
   }
 
   function toast(text, type = 'ok') {
-    state.message = { text, type };
+    state.message = { text: translatedText(text), type };
     renderToast();
 
     clearTimeout(toast.timer);
@@ -1164,13 +1232,14 @@
   }
 
   function styleCard(style) {
+    const title = translatedText(style.title);
     return `
       <button class="ft-style-card ${isSelected(style) ? 'is-selected' : ''}" data-action="style" data-style-id="${esc(style.id)}" type="button">
         <span class="ft-style-media ${style.preview ? '' : 'is-empty'}">
           ${styleImage(style)}
-          <i>${esc(initials(style.title))}</i>
+          <i>${esc(initials(title))}</i>
         </span>
-        <span class="ft-style-title">${esc(style.title)}</span>
+        <span class="ft-style-title">${esc(title)}</span>
         <span class="ft-style-provider">${esc(style.provider)}</span>
       </button>
     `;
@@ -1737,22 +1806,22 @@
          <span class="ft-welcome-spark">✦</span>
          <span class="ft-welcome-frame"><b>F</b><i>✧</i></span>
        </div>
-       <p>Выберите, как начать. Гостевой режим подходит для знакомства, а аккаунт по логину сохраняет историю и чеки для восстановления на другом устройстве.</p>
+       <p>${esc(translatedText('Выберите, как начать. Гостевой режим подходит для знакомства, а аккаунт по логину сохраняет историю и чеки для восстановления на другом устройстве.'))}</p>
        <div class="ft-welcome-actions">
-         <button class="ft-btn ft-primary" data-action="welcome-guest" type="button">Продолжить как гость</button>
-         <button class="ft-btn" data-action="welcome-password" type="button">Войти или создать аккаунт</button>
+         <button class="ft-btn ft-primary" data-action="welcome-guest" type="button">${esc(translatedText('Продолжить как гость'))}</button>
+         <button class="ft-btn" data-action="welcome-password" type="button">${esc(translatedText('Войти или создать аккаунт'))}</button>
        </div>
-       <button class="ft-btn ft-welcome-password" data-action="welcome-password" type="button">Войти по логину</button>
-       <p class="ft-muted">Выберите аватар гостя и фон прямо сейчас:</p>
+       <button class="ft-btn ft-welcome-password" data-action="welcome-password" type="button">${esc(translatedText('Войти по логину'))}</button>
+       <p class="ft-muted">${esc(translatedText('Выберите аватар гостя и фон прямо сейчас:'))}</p>
        <div class="ft-welcome-avatar-preview gradient-${esc(state.user.avatarGradient || 'lime')}" data-welcome-avatar-preview aria-live="polite">
          <span>${esc(state.user.avatarEmoji || '✨')}</span>
-         <small>Так будет выглядеть ваш профиль</small>
+         <small>${esc(translatedText('Так будет выглядеть ваш профиль'))}</small>
        </div>
        <div class="ft-welcome-avatar-row">
          ${['✨', '🌿', '🪩', '🌙', '🎨', '🫧'].map((emoji) => `<button class="ft-mini ${state.user.avatarEmoji === emoji ? 'is-active' : ''}" data-action="welcome-avatar" data-emoji="${emoji}" type="button">${emoji}</button>`).join('')}
        </div>
        <div class="ft-welcome-avatar-row">
-         ${['lime', 'violet', 'sunset', 'ocean'].map((gradient) => `<button class="ft-mini ${state.user.avatarGradient === gradient ? 'is-active' : ''}" data-action="welcome-gradient" data-gradient="${gradient}" type="button">${gradient}</button>`).join('')}
+         ${['lime', 'violet', 'sunset', 'ocean'].map((gradient) => `<button class="ft-mini ${state.user.avatarGradient === gradient ? 'is-active' : ''}" data-action="welcome-gradient" data-gradient="${gradient}" type="button">${esc(translatedText(gradient))}</button>`).join('')}
        </div>`,
       'Понятно',
       () => {
@@ -1765,13 +1834,13 @@
   function showPasswordIdentity() {
     modal(
       'Вход на этом устройстве',
-      `<p class="ft-muted">Для первого входа создайте личный профиль. Он хранит только данные, созданные вами в FOT AI.</p>
-       <label class="ft-field"><span>Логин</span><input data-identity-login autocomplete="username" minlength="3" maxlength="48" placeholder="например, natalia" /></label>
-       <label class="ft-field"><span>Пароль</span><input data-identity-password type="password" autocomplete="current-password" minlength="10" placeholder="не менее 10 символов" /></label>
-       <label class="ft-consent"><input data-identity-consent type="checkbox"> <span>Я согласен(на) на обработку моих данных для работы FOT AI. Фото, генерации, чеки и история удаляются через 14 дней; данные собираются только после самостоятельной регистрации.</span></label>
+      `<p class="ft-muted">${esc(translatedText('Для первого входа создайте личный профиль. Он хранит только данные, созданные вами в FOT AI.'))}</p>
+       <label class="ft-field"><span>${esc(translatedText('Логин'))}</span><input data-identity-login autocomplete="username" minlength="3" maxlength="48" placeholder="${esc(translatedText('например, natalia'))}" /></label>
+       <label class="ft-field"><span>${esc(translatedText('Пароль'))}</span><input data-identity-password type="password" autocomplete="current-password" minlength="10" placeholder="${esc(translatedText('не менее 10 символов'))}" /></label>
+       <label class="ft-consent"><input data-identity-consent type="checkbox"> <span>${esc(translatedText('Я согласен(на) на обработку моих данных для работы FOT AI. Фото, генерации, чеки и история удаляются через 14 дней; данные собираются только после самостоятельной регистрации.'))}</span></label>
        <div class="ft-welcome-actions">
-         <button class="ft-btn ft-primary" data-action="identity-login" type="button">Войти</button>
-         <button class="ft-btn" data-action="identity-register" type="button">Создать профиль</button>
+         <button class="ft-btn ft-primary" data-action="identity-login" type="button">${esc(translatedText('Войти'))}</button>
+         <button class="ft-btn" data-action="identity-register" type="button">${esc(translatedText('Создать профиль'))}</button>
        </div>`,
       'Закрыть',
       closeModal,
@@ -1856,9 +1925,9 @@
     overlay.innerHTML = `
       <section>
         <button class="ft-modal-close" data-action="close-modal" type="button">×</button>
-        <h2>${esc(title)}</h2>
+        <h2>${esc(translatedText(title))}</h2>
         <div>${html}</div>
-        <button class="ft-generate" data-action="modal-action" type="button">${esc(actionText)}</button>
+        <button class="ft-generate" data-action="modal-action" type="button">${esc(translatedText(actionText))}</button>
       </section>
     `;
 

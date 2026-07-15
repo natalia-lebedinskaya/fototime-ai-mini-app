@@ -164,3 +164,15 @@ Scenario: English can be enabled during the same session
   Then navigation, workflow labels, dialogs, and actions are displayed in English
   And the participant and selected style are preserved
 ```
+
+## Localization coverage update — 2026-07-15
+
+The welcome and password-account flows are now fully localized in Russian, English, and Vietnamese. Coverage includes:
+
+- the welcome title, onboarding explanation, and all entry actions;
+- guest avatar guidance, the live profile preview, and gradient names;
+- login and registration labels, placeholders, consent copy, and dialog actions;
+- validation, success, and failure messages shown during account access;
+- display-setting labels, catalog-layout guidance, and the installation prompt.
+
+Expected result: after selecting RU, EN, or VI, a newly opened welcome or account dialog contains no labels from another supported language. User-entered content and provider names remain unchanged.
