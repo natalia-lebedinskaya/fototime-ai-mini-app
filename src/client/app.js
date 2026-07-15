@@ -31,8 +31,11 @@
     participant: 'male',
     styleFilter: 'Все',
     search: '',
-    // The catalog is intentionally a stable grid. It must never imitate a scrollable demo.
-    view: 'grid',
+    // Two real catalogue layouts: compact tiles and a swipeable horizontal strip.
+    // This is a presentation choice only; it never moves the user through the form.
+    view: ['grid', 'carousel'].includes(localStorage.getItem('fototime-view-v14'))
+      ? localStorage.getItem('fototime-view-v14')
+      : 'grid',
     perPage: [6, 9, 12].includes(Number(localStorage.getItem('fototime-per-page-v14')))
       ? Number(localStorage.getItem('fototime-per-page-v14'))
       : 6,
@@ -824,7 +827,7 @@
 
     const gridPer = [6, 9, 12].includes(Number(state.perPage)) ? Number(state.perPage) : 6;
 
-    const per = gridPer;
+    const per = state.view === 'carousel' ? 3 : gridPer;
     const maxPage = Math.max(0, Math.ceil(list.length / per) - 1);
 
     if (state.pageIndex > maxPage) state.pageIndex = maxPage;
@@ -1126,7 +1129,11 @@
       </div>
 
       <div class="ft-view-row">
-        <div class="ft-catalog-hint" role="status">Выберите стиль — затем загрузите фото в следующем блоке.</div>
+        <div class="ft-view-switch" role="group" aria-label="Вид каталога">
+          <button class="ft-icon-btn ${state.view === 'grid' ? 'is-active' : ''}" data-action="view" data-view="grid" type="button" title="Плитка" aria-label="Плитка">▦</button>
+          <button class="ft-icon-btn ${state.view === 'carousel' ? 'is-active' : ''}" data-action="view" data-view="carousel" type="button" title="Лента" aria-label="Лента">↔</button>
+        </div>
+        <div class="ft-catalog-hint" role="status">Плитка или лента: выберите стиль, затем загрузите фото.</div>
         <label>
           На экране
           <select data-action="per-page">
@@ -1148,7 +1155,7 @@
       return `<div class="ft-empty">Стили не найдены. Измените фильтр или поисковый запрос.</div>`;
     }
 
-    const cls = 'ft-style-list is-grid';
+    const cls = `ft-style-list ${state.view === 'carousel' ? 'is-carousel' : 'is-grid'}`;
 
     return `
       <div class="${cls}" data-view="${state.view}">
@@ -2372,9 +2379,11 @@
     }
 
     if (action === 'view') {
-      state.view = 'grid';
+      state.view = el.dataset.view === 'carousel' ? 'carousel' : 'grid';
+      localStorage.setItem('fototime-view-v14', state.view);
       state.pageIndex = 0;
       render();
+      toast(state.view === 'carousel' ? 'Включена лента стилей' : 'Включена плитка стилей');
       return;
     }
 

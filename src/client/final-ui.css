@@ -731,6 +731,25 @@ select {
   padding: 0;
 }
 
+.ft-view-switch {
+  display: inline-flex;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.ft-view-switch .ft-icon-btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.ft-view-switch .ft-icon-btn.is-active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #10231f;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
 .ft-style-list.is-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -744,6 +763,8 @@ select {
   scroll-snap-type: x mandatory;
   padding-bottom: 8px;
   max-width: 100%;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
 }
 
 .ft-style-list.is-carousel .ft-style-card {
