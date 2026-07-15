@@ -1744,11 +1744,15 @@
        </div>
        <button class="ft-btn ft-welcome-password" data-action="welcome-password" type="button">Войти по логину</button>
        <p class="ft-muted">Выберите аватар гостя и фон прямо сейчас:</p>
-       <div class="ft-welcome-avatar-row">
-         ${['✨', '🌿', '🪩', '🌙', '🎨', '🫧'].map((emoji) => `<button class="ft-mini" data-action="welcome-avatar" data-emoji="${emoji}" type="button">${emoji}</button>`).join('')}
+       <div class="ft-welcome-avatar-preview gradient-${esc(state.user.avatarGradient || 'lime')}" data-welcome-avatar-preview aria-live="polite">
+         <span>${esc(state.user.avatarEmoji || '✨')}</span>
+         <small>Так будет выглядеть ваш профиль</small>
        </div>
        <div class="ft-welcome-avatar-row">
-         ${['lime', 'violet', 'sunset', 'ocean'].map((gradient) => `<button class="ft-mini" data-action="welcome-gradient" data-gradient="${gradient}" type="button">${gradient}</button>`).join('')}
+         ${['✨', '🌿', '🪩', '🌙', '🎨', '🫧'].map((emoji) => `<button class="ft-mini ${state.user.avatarEmoji === emoji ? 'is-active' : ''}" data-action="welcome-avatar" data-emoji="${emoji}" type="button">${emoji}</button>`).join('')}
+       </div>
+       <div class="ft-welcome-avatar-row">
+         ${['lime', 'violet', 'sunset', 'ocean'].map((gradient) => `<button class="ft-mini ${state.user.avatarGradient === gradient ? 'is-active' : ''}" data-action="welcome-gradient" data-gradient="${gradient}" type="button">${gradient}</button>`).join('')}
        </div>`,
       'Понятно',
       () => {
@@ -2441,6 +2445,14 @@
           ? { avatarEmoji: el.dataset.emoji }
           : { avatarGradient: el.dataset.gradient };
       state.user = { ...state.user, ...patch };
+      const preview = qs('[data-welcome-avatar-preview]');
+      if (preview) {
+        preview.className = `ft-welcome-avatar-preview gradient-${state.user.avatarGradient || 'lime'}`;
+        const emoji = preview.querySelector('span');
+        if (emoji) emoji.textContent = state.user.avatarEmoji || '✨';
+      }
+      qsa('[data-action="welcome-avatar"]').forEach((button) => button.classList.toggle('is-active', button.dataset.emoji === state.user.avatarEmoji));
+      qsa('[data-action="welcome-gradient"]').forEach((button) => button.classList.toggle('is-active', button.dataset.gradient === state.user.avatarGradient));
       try {
         await apiPost('/profile/update', patch);
         toast('Настройка гостевого профиля сохранена');
@@ -2783,6 +2795,15 @@
     document.addEventListener('change', handleChange);
     document.addEventListener('submit', handleSubmit);
     document.addEventListener('pointermove', handleDesignPointer, { passive: true });
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('.ft-bottom-nav');
+      if (!nav) return;
+      const currentScrollY = window.scrollY;
+      const isScrollingDown = currentScrollY > lastScrollY && currentScrollY > 72;
+      nav.classList.toggle('is-compact', isScrollingDown);
+      lastScrollY = currentScrollY;
+    }, { passive: true });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') closeModal();
     });
