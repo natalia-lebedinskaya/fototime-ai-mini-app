@@ -119,6 +119,9 @@
       Войти: 'Sign in',
       'Вход в админ-консоль': 'Admin sign-in',
       'PIN администратора': 'Admin PIN',
+      'Введите PIN администратора': 'Enter the administrator PIN',
+      'Введите PIN администратора. Личный кабинет и баланс этот PIN не запрашивают.':
+        'Enter the administrator PIN. Your account and balance never request this PIN.',
       'Удалить выбранные': 'Delete selected',
       Design: 'Design',
       Результат: 'Result',
@@ -274,6 +277,7 @@
       'Если результат не подошёл, перейдите в личный кабинет и напишите в поддержку — мы поможем.':
         'If the result does not meet your expectations, contact support from your account and we will help.',
       'Замена Головы': 'Face Swap',
+      'Кибер Видео [🚧 В разработке]': 'Cyber Video [🚧 In development]',
       'Оживление LTX2.3': 'LTX 2.3 Animation',
       Атлантида: 'Atlantis',
       Барби: 'Barbie',
@@ -335,6 +339,9 @@
       Войти: 'Đăng nhập',
       'Вход в админ-консоль': 'Đăng nhập quản trị',
       'PIN администратора': 'Mã PIN quản trị',
+      'Введите PIN администратора': 'Nhập mã PIN quản trị',
+      'Введите PIN администратора. Личный кабинет и баланс этот PIN не запрашивают.':
+        'Nhập mã PIN quản trị. Tài khoản và số dư của bạn không bao giờ yêu cầu mã PIN này.',
       'Удалить выбранные': 'Xóa mục đã chọn',
       Design: 'Thiết kế',
       Результат: 'Kết quả',
@@ -484,6 +491,7 @@
       'Если результат не подошёл, перейдите в личный кабинет и напишите в поддержку — мы поможем.':
         'Nếu kết quả chưa phù hợp, hãy liên hệ hỗ trợ từ tài khoản của bạn.',
       'Замена Головы': 'Hoán đổi khuôn mặt',
+      'Кибер Видео [🚧 В разработке]': 'Video Cyber [🚧 Đang phát triển]',
       'Оживление LTX2.3': 'Hoạt ảnh LTX 2.3',
       Атлантида: 'Atlantis',
       Барби: 'Barbie',

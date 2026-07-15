@@ -174,5 +174,6 @@ The welcome and password-account flows are now fully localized in Russian, Engli
 - login and registration labels, placeholders, consent copy, and dialog actions;
 - validation, success, and failure messages shown during account access;
 - display-setting labels, catalog-layout guidance, and the installation prompt.
+- experimental catalog labels and administrator PIN guidance.
 
 Expected result: after selecting RU, EN, or VI, a newly opened welcome or account dialog contains no labels from another supported language. User-entered content and provider names remain unchanged.

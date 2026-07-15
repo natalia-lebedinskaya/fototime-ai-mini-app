@@ -8,6 +8,7 @@ All notable changes are documented here. The project follows semantic versioning
 
 - Completed Russian, English, and Vietnamese localization for welcome, guest-profile preview, login, registration, consent, display settings, catalog guidance, and account-status messages.
 - Localized guest gradient labels and application-installation accessibility text.
+- Localized the experimental video filter and administrator PIN guidance.
 
 ## 1.1.0 — 2026-07-15
 
