@@ -10,7 +10,6 @@ dotenv.config({ quiet: true });
 const packageJson = require('../../package.json');
 const adminPinRouter = require('./routes/adminPin');
 const fotAiRouter = require('./routes/fototimeStable');
-const { router: telegramBotRouter, registerTelegramWebhook } = require('./routes/telegramBot');
 const errorHandler = require('./middleware/errorHandler');
 
 const CLIENT_DIR = path.join(__dirname, '..', 'client');
@@ -60,7 +59,6 @@ function createApp() {
 
   app.use('/api/admin-pin', adminPinRouter);
   app.use('/api/fototime', fotAiRouter);
-  app.use('/api/telegram', telegramBotRouter);
 
   app.use('/assets', express.static(CLIENT_ASSETS_DIR, { maxAge: '1h', immutable: false }));
   app.use('/assets', express.static(PUBLIC_ASSETS_DIR, { maxAge: '1h', immutable: false }));
@@ -81,9 +79,6 @@ function startServer() {
   const port = Number(process.env.PORT || 3000);
   return app.listen(port, host, () => {
     console.log(`FOT AI is listening on http://${host}:${port}`);
-    registerTelegramWebhook().catch((error) => {
-      console.error(`Telegram webhook registration failed: ${error.message}`);
-    });
   });
 }
 
