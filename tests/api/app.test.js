@@ -85,6 +85,61 @@ test('browser identity can open state and receives the fallback catalog', async 
   assert.equal((await generationResponse.json()).code, 'NO_FILE');
 });
 
+test('feedback is accepted for an identified user', async () => {
+  const identityResponse = await fetch(`${baseUrl}/api/fototime/identity/session`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: 'web_feedback_123456', username: 'feedback-user', name: 'Feedback User' }),
+  });
+  const identity = await identityResponse.json();
+  const form = new FormData();
+  form.append('kind', 'Ошибка');
+  form.append('message', 'QA feedback delivery check');
+
+  const response = await fetch(`${baseUrl}/api/fototime/feedback`, {
+    method: 'POST',
+    headers: { 'x-fot-session': identity.sessionToken },
+    body: form,
+  });
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.ok, true);
+  assert.equal(payload.item.userId, 'web_feedback_123456');
+});
+
+test('admin can send a PDF receipt and the target user receives it', async () => {
+  const userId = 'web_receipt_123456';
+  const identityResponse = await fetch(`${baseUrl}/api/fototime/identity/session`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: userId, username: 'receipt-user', name: 'Receipt User' }),
+  });
+  const identity = await identityResponse.json();
+
+  const form = new FormData();
+  form.append('userId', userId);
+  form.append('message', 'Payment confirmed');
+  form.append('receipt', new Blob(['%PDF-1.4 QA'], { type: 'application/pdf' }), 'receipt.pdf');
+
+  const sendResponse = await fetch(`${baseUrl}/api/fototime/receipt/send`, {
+    method: 'POST',
+    headers: { 'x-admin-pin': '951357' },
+    body: form,
+  });
+  assert.equal(sendResponse.status, 200);
+  const sent = await sendResponse.json();
+  assert.equal(sent.ok, true);
+  assert.match(sent.notification.receiptUrl, /\/receipt\//);
+
+  const stateResponse = await fetch(`${baseUrl}/api/fototime/state`, {
+    headers: { 'x-fot-session': identity.sessionToken },
+  });
+  const state = await stateResponse.json();
+  const receiptNotice = state.cabinetNotifications.find((item) => item.receiptUrl);
+  assert.ok(receiptNotice);
+  assert.equal(receiptNotice.userId, userId);
+});
+
 test('unknown API routes return a structured 404', async () => {
   const response = await fetch(`${baseUrl}/api/not-a-route`);
   assert.equal(response.status, 404);

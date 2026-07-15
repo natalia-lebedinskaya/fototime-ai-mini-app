@@ -22,6 +22,27 @@ const upload = multer({
   },
 });
 
+// Payment receipts are not photos: the admin may attach either an image or a
+// PDF. Keep this separate from the stricter photo uploader used elsewhere.
+const receiptUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, callback) => {
+    const allowedTypes = new Set([
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+    ]);
+    if (!allowedTypes.has(file.mimetype)) {
+      const error = new Error('Receipt must be PDF, PNG, JPG, or WebP');
+      error.code = 'INVALID_RECEIPT_TYPE';
+      return callback(error);
+    }
+    return callback(null, true);
+  },
+});
+
 const ROOT = process.cwd();
 const DATA_DIR = path.join(ROOT, 'data', 'fototime');
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -1015,7 +1036,7 @@ router.post('/balance/set', requireAdmin, express.json({ limit: '1mb' }), async 
   res.json({ ok: true, user, notification: note });
 });
 
-router.post('/receipt/send', requireAdmin, upload.single('receipt'), async (req, res) => {
+router.post('/receipt/send', requireAdmin, receiptUpload.single('receipt'), async (req, res) => {
   const db = await getDb();
   const user = getOrCreateUser(db, { id: req.body.userId });
   let receiptFile = '';

@@ -458,6 +458,65 @@ select {
   }
 }
 
+/* 2026-07-15 release fixes: desktop Design scale and collision-free notices. */
+@media (min-width: 721px) {
+  html[data-ft-theme='design'] #app,
+  html[data-ft-theme='design'] .ft-app,
+  html[data-ft-theme='design'] #ft-page {
+    max-width: 760px !important;
+  }
+}
+
+#ft-progress .ft-progress-card {
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(94px + env(safe-area-inset-bottom)) !important;
+  width: min(520px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  transform: translateX(-50%) !important;
+  box-sizing: border-box !important;
+}
+
+.ft-progress-card + .ft-install-hint,
+body:has(.ft-progress-card) .ft-install-hint {
+  bottom: calc(190px + env(safe-area-inset-bottom)) !important;
+}
+
+@media (max-width: 540px) {
+  #ft-progress .ft-progress-card {
+    bottom: calc(78px + env(safe-area-inset-bottom)) !important;
+  }
+  body:has(.ft-progress-card) .ft-install-hint {
+    bottom: calc(176px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Welcome avatar choices must be comfortably tappable on a phone. */
+.ft-modal [data-action='welcome-avatar'],
+.ft-modal [data-action='welcome-gradient'] {
+  min-width: 58px !important;
+  min-height: 52px !important;
+  padding: 10px 14px !important;
+  border-radius: 18px !important;
+  font-size: 22px !important;
+}
+
+.ft-modal [data-action='welcome-gradient'] {
+  min-width: 88px !important;
+  font-size: 14px !important;
+}
+
+@media (max-width: 420px) {
+  .ft-modal [data-action='welcome-avatar'] {
+    min-width: 54px !important;
+    min-height: 50px !important;
+    padding-inline: 11px !important;
+  }
+  .ft-modal [data-action='welcome-gradient'] {
+    min-width: 82px !important;
+  }
+}
+
 /* Final interaction polish: equal preview frames and compact sticky navigation. */
 .ft-style-card { display:flex !important; flex-direction:column !important; align-items:stretch !important; min-height:0 !important; padding:12px !important; }
 .ft-style-card .ft-style-media { display:block !important; aspect-ratio:4 / 5 !important; width:100% !important; height:auto !important; overflow:hidden !important; }
