@@ -1271,7 +1271,7 @@
         <img src="${esc(last.resultUrl)}" alt="AI photo result">
 
         <div class="ft-actions-row">
-          <a class="ft-btn ft-primary" href="${esc(last.resultUrl)}" download>Скачать изображение</a>
+          <button class="ft-btn ft-primary" data-action="download-result" data-url="${esc(last.resultUrl)}" type="button">Скачать изображение</button>
           <button class="ft-btn" data-action="share-result" data-url="${esc(last.resultUrl)}" type="button">Поделиться</button>
           <button class="ft-btn" data-action="create-more" type="button">Создать ещё одно</button>
         </div>
@@ -2148,6 +2148,7 @@
     try {
       const res = await fetch(`${API}/feedback`, {
         method: 'POST',
+        headers: state.authToken ? { 'X-FOT-Session': state.authToken } : {},
         body: data,
       });
 
@@ -2162,7 +2163,7 @@
 
       await audit('Обратная связь отправлена', { kind: data.get('kind') }, 'info', 'feedback');
     } catch (error) {
-      toast('Не удалось отправить сообщение', 'error');
+      toast(error.message || 'Не удалось отправить сообщение', 'error');
 
       await audit('Ошибка обратной связи', { message: error.message }, 'error', 'feedback_error');
     }
@@ -2349,7 +2350,7 @@
 
       await loadAdmin();
     } catch (error) {
-      toast('Чек не отправился', 'error');
+      toast(error.message || 'Чек не отправился', 'error');
     }
   }
 
@@ -2585,6 +2586,11 @@
       return;
     }
 
+    if (action === 'download-result') {
+      await downloadResult(el.dataset.url);
+      return;
+    }
+
     if (action === 'token-request') {
       tokenRequest(el.dataset);
       return;
@@ -2736,6 +2742,28 @@
       await audit('Результат отправлен через поделиться', { url: full });
     } catch (error) {
       toast('Не удалось поделиться', 'error');
+    }
+  }
+
+  async function downloadResult(url, filename = 'fot-ai-result.jpg') {
+    try {
+      const response = await fetch(new URL(url, window.location.origin).toString(), {
+        headers: state.authToken ? { 'X-FOT-Session': state.authToken } : {},
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+      toast('Изображение сохранено');
+    } catch (error) {
+      toast(error.message || 'Не удалось скачать изображение', 'error');
     }
   }
 

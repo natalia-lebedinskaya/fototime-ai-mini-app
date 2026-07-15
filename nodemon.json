@@ -1,5 +1,0 @@
-{
-  "watch": ["src", "supabase"],
-  "ext": "js,json,html,css,sql",
-  "ignore": ["data/**", "public/uploads/**", "public/results/**", "storage/**"]
-}
