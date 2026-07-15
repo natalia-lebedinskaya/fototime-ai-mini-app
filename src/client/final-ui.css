@@ -4528,3 +4528,17 @@ button {
   .ft-metric { min-height: 0 !important; }
   .ft-metric span, .ft-metric small { overflow-wrap: normal !important; word-break: normal !important; }
 }
+
+.ft-catalog-hint {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 88%, var(--accent));
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}

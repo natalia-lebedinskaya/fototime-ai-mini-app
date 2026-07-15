@@ -31,7 +31,8 @@
     participant: 'male',
     styleFilter: 'Все',
     search: '',
-    view: localStorage.getItem('fototime-view-v14') || 'grid',
+    // The catalog is intentionally a stable grid. It must never imitate a scrollable demo.
+    view: 'grid',
     perPage: [6, 9, 12].includes(Number(localStorage.getItem('fototime-per-page-v14')))
       ? Number(localStorage.getItem('fototime-per-page-v14'))
       : 6,
@@ -823,7 +824,7 @@
 
     const gridPer = [6, 9, 12].includes(Number(state.perPage)) ? Number(state.perPage) : 6;
 
-    const per = state.view === 'carousel' ? 3 : gridPer;
+    const per = gridPer;
     const maxPage = Math.max(0, Math.ceil(list.length / per) - 1);
 
     if (state.pageIndex > maxPage) state.pageIndex = maxPage;
@@ -1125,11 +1126,7 @@
       </div>
 
       <div class="ft-view-row">
-        <div>
-          <button class="ft-icon-btn ${state.view === 'grid' ? 'is-active' : ''}" data-action="view" data-view="grid" type="button" title="Плитка">▦</button>
-          <button class="ft-icon-btn ${state.view === 'carousel' ? 'is-active' : ''}" data-action="view" data-view="carousel" type="button" title="Карусель">↔</button>
-        </div>
-
+        <div class="ft-catalog-hint" role="status">Выберите стиль — затем загрузите фото в следующем блоке.</div>
         <label>
           На экране
           <select data-action="per-page">
@@ -1151,7 +1148,7 @@
       return `<div class="ft-empty">Стили не найдены. Измените фильтр или поисковый запрос.</div>`;
     }
 
-    const cls = state.view === 'carousel' ? 'ft-style-list is-carousel' : 'ft-style-list is-grid';
+    const cls = 'ft-style-list is-grid';
 
     return `
       <div class="${cls}" data-view="${state.view}">
@@ -1689,10 +1686,7 @@
 
     const btn = qs('[data-action="generate"]');
     if (btn) btn.disabled = !canGenerate();
-    const photoBlock = qs('#ft-photo-block');
-    if (photoBlock && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setTimeout(() => photoBlock.scrollIntoView({ behavior: 'smooth', block: 'center' }), 260);
-    }
+    toast('Стиль выбран. Следующий шаг — загрузите фото.');
   }
 
   async function refreshBalance(silent = false) {
@@ -2378,7 +2372,7 @@
     }
 
     if (action === 'view') {
-      state.view = el.dataset.view || 'grid';
+      state.view = 'grid';
       state.pageIndex = 0;
       render();
       return;
@@ -2490,8 +2484,8 @@
       state.file = null;
       state.filePreview = '';
       state.currentResult = null;
-      qs('.ft-upload')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       render();
+      toast('Выберите новое фото в блоке «Фото».');
       return;
     }
 
