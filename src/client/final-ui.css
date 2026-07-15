@@ -4477,3 +4477,37 @@ button {
     font-size: 11px !important;
   }
 }
+
+/* Release motion layer: responsive, composited-only transitions. */
+.ft-app { animation: ft-release-page-in .38s cubic-bezier(.2,.8,.2,1) both; }
+.ft-card, .ft-info-row { animation: ft-release-card-in .42s cubic-bezier(.2,.8,.2,1) both; }
+.ft-card:nth-of-type(2) { animation-delay: .04s; }
+.ft-card:nth-of-type(3) { animation-delay: .08s; }
+.ft-btn, .ft-mini, .ft-chip, .ft-choice, .ft-package, .ft-generate, .ft-style-card, .ft-bottom-nav button, .ft-round, .ft-icon-btn {
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease, border-color .18s ease, background-color .18s ease;
+}
+@media (hover: hover) {
+  .ft-btn:hover, .ft-mini:hover, .ft-chip:hover, .ft-choice:hover, .ft-package:hover, .ft-generate:hover, .ft-style-card:hover, .ft-bottom-nav button:hover, .ft-round:hover, .ft-icon-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.035);
+  }
+}
+.ft-btn:active, .ft-mini:active, .ft-chip:active, .ft-choice:active, .ft-package:active, .ft-generate:active, .ft-style-card:active, .ft-bottom-nav button:active, .ft-round:active, .ft-icon-btn:active {
+  transform: translateY(1px) scale(.985);
+}
+.ft-style-card.is-selected { animation: ft-release-selected .5s ease both; }
+.ft-bottom-nav button.is-active { animation: ft-release-nav-pop .38s cubic-bezier(.2,.9,.25,1.25) both; }
+.ft-install-hint { animation: ft-release-hint-float 4.2s ease-in-out infinite; }
+.ft-bell-pill:not(:hover) { animation: ft-release-bell 4.6s ease-in-out infinite; }
+.ft-modal > *, .ft-dialog, .ft-progress-card:not([hidden]) { animation: ft-release-modal-in .3s cubic-bezier(.2,.85,.25,1) both; }
+@keyframes ft-release-page-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ft-release-card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ft-release-selected { 50% { transform: translateY(-4px) scale(1.016); } }
+@keyframes ft-release-nav-pop { 0% { transform: scale(.94); } 65% { transform: scale(1.035); } 100% { transform: scale(1); } }
+@keyframes ft-release-hint-float { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-4px); } }
+@keyframes ft-release-bell { 0%,100% { box-shadow: 0 0 0 rgba(158,251,50,0); } 50% { box-shadow: 0 0 0 6px rgba(158,251,50,.09); } }
+@keyframes ft-release-modal-in { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .ft-app, .ft-card, .ft-info-row, .ft-style-card.is-selected, .ft-bottom-nav button, .ft-install-hint, .ft-bell-pill, .ft-modal > *, .ft-dialog, .ft-progress-card { animation: none !important; }
+  .ft-btn, .ft-mini, .ft-chip, .ft-choice, .ft-package, .ft-generate, .ft-style-card, .ft-bottom-nav button, .ft-round, .ft-icon-btn { transition: none !important; }
+}
