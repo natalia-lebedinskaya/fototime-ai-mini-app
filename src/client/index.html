@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#dfff60" />
+    <meta
+      name="description"
+      content="FOT AI is a multilingual event photo studio with style discovery, secure accounts, generation history, and an operator console."
+    />
+    <meta name="robots" content="index,follow" />
+    <meta property="og:title" content="FOT AI — Event Photo Studio" />
+    <meta
+      property="og:description"
+      content="Discover a style, upload a portrait, and create a memorable event image in a focused mobile workflow."
+    />
+    <meta property="og:type" content="website" />
+    <title>FOT AI — Event Photo Studio</title>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then(function (regs) {
+            regs.forEach(function (reg) {
+              reg.unregister();
+            });
+          })
+          .catch(function () {});
+      }
+    </script>
+
+    <link rel="stylesheet" href="/final-ui.css?v=20260715" />
+  </head>
+  <body>
+    <main id="app"></main>
+    <script src="/app.js?v=20260715c" defer></script>
+  </body>
+</html>

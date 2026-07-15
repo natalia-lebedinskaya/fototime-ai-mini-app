@@ -1,0 +1,38 @@
+{
+  "name": "fot-ai",
+  "version": "1.1.0",
+  "description": "A multilingual event photo studio with secure accounts, generation history, and an operator console.",
+  "main": "src/server/server.js",
+  "scripts": {
+    "dev": "nodemon src/server/server.js",
+    "start": "node src/server/server.js",
+    "check": "node --check src/client/app.js && node --check src/server/server.js && node --check src/server/routes/adminPin.js && node --check src/server/routes/fototimeStable.js && node --check src/server/services/identityStore.js && node --check src/server/services/imageProviderService.js",
+    "test": "node --test tests/**/*.test.js",
+    "format": "prettier --write \"*.md\" \"*.json\" \"docs/**/*.md\" \"src/**/*.{js,css,html}\" \"tests/**/*.js\"",
+    "format:check": "prettier --check \"*.md\" \"*.json\" \"docs/**/*.md\" \"src/**/*.{js,css,html}\" \"tests/**/*.js\"",
+    "verify": "npm run format:check && npm run check && npm test"
+  },
+  "keywords": [
+    "mobile-mini-app",
+    "event-photo",
+    "image-generation",
+    "qa-engineering",
+    "supabase",
+    "multilingual"
+  ],
+  "author": "Natalia Bedareva",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "multer": "^2.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prettier": "^3.9.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
